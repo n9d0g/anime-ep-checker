@@ -1,12 +1,26 @@
 {
   "name": "crunchyroll-ep-checker",
   "version": "0.1.0",
-  "description": "Crunchyroll Episode Checker",
+  "description": "Crunchyroll new episode checker",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "nodemon index.js",
+    "format": "prettier --write .",
+    "lint": "eslint --fix .",
+    "fresh": "rm -rf node_modules package-lock.json && npm install",
+    "fresh:start": "rm -rf node_modules package-lock.json && npm install && npm run start"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "author": "n9d0g",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.6.8",
+    "cheerio": "^1.0.0-rc.12",
+    "nodemon": "^3.1.0"
+  },
+  "devDependencies": {
+    "eslint": "^9.2.0",
+    "eslint-config-prettier": "^9.1.0",
+    "prettier": "^3.2.5"
+  }
 }
