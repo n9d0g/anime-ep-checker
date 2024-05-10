@@ -1,29 +1,18 @@
-import puppeteer from 'puppeteer'
+import express from 'express'
+import { gogo } from './lib/gogo.js'
 
-const url =
-  'https://gogoanimeapp.com/category/tensei-shitara-slime-datta-ken-2nd-season-part-2'
+const app = new express()
 
-const main = async () => {
-  const browser = await puppeteer.launch()
-  const page = await browser.newPage()
+app.get('/scrape', async (req, res, next) => {
+  console.log('scraping')
 
-  await page.goto(url)
-
-  const eps = await page.evaluate(() => {
-    const episodes = Array.from(
-      document.querySelectorAll('#episode_related > li')
-    )
-    const data = episodes.map((ep) => ({
-      title: ep.querySelector('li > a > .name').innerHTML,
-      href: ep.querySelector('li a').getAttribute('href'),
-    }))
-
-    return data
-  })
+  const eps = await gogo(
+    'https://gogoanime.gg/category/yoru-no-kurage-wa-oyogenai'
+  )
 
   console.log(eps)
 
-  await browser.close()
-}
+  res.json(eps)
+})
 
-main()
+app.listen(2093, () => console.log('running on port 2093'))
