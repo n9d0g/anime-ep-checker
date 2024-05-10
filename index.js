@@ -1,30 +1,29 @@
-import * as cheerio from 'cheerio'
+import puppeteer from 'puppeteer'
 
-const getEpisodes = async () => {
-  const episodeData = []
+const url =
+  'https://gogoanimeapp.com/category/tensei-shitara-slime-datta-ken-2nd-season-part-2'
 
-  try {
-    const response = await fetch(
-      'https://www.crunchyroll.com/series/GYZJ43JMR/that-time-i-got-reincarnated-as-a-slime',
-      {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          userAgent:
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36',
-        },
-      }
+const main = async () => {
+  const browser = await puppeteer.launch()
+  const page = await browser.newPage()
+
+  await page.goto(url)
+
+  const eps = await page.evaluate(() => {
+    const episodes = Array.from(
+      document.querySelectorAll('#episode_related > li')
     )
-    const text = await response.text()
+    const data = episodes.map((ep) => ({
+      title: ep.querySelector('li > a > .name').innerHTML,
+      href: ep.querySelector('li a').getAttribute('href'),
+    }))
 
-    const $ = cheerio.load(text)
+    return data
+  })
 
-    $('#content > div > div > div:nth-child(2)').each((index, element) => {
-      console.log(element)
-    })
-  } catch (error) {
-    throw error
-  }
+  console.log(eps)
+
+  await browser.close()
 }
 
-getEpisodes()
+main()
