@@ -1,8 +1,8 @@
 import express from 'express'
 import db from './lib/db.js'
-import { gogoanime } from './data/sites.js'
+import { crunchyroll, gogoanime } from './data/sites.js'
 import { gogoScraper, crunchyScraper } from './lib/scrapers.js'
-// import './lib/cron.js'
+import './lib/cron.js'
 
 const app = new express()
 
