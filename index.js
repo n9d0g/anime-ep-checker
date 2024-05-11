@@ -1,14 +1,14 @@
 import express from 'express'
-import { gogo } from './lib/gogo.js'
 import db from './lib/db.js'
-import { gogoData } from './data/gogoData.js'
-import './lib/cron.js'
+import { gogoanime } from './data/sites.js'
+import { gogoScraper, crunchyScraper } from './lib/scrapers.js'
+// import './lib/cron.js'
 
 const app = new express()
 
 app.get('/gogo', async (req, res, next) => {
   console.log('checking for new episodes...')
-  const episodes = await gogo(gogoData[0])
+  const episodes = await gogoScraper(gogoanime[0])
 
   const { eps } = await db.data
 
