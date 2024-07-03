@@ -1,9 +1,5 @@
 export const gogoanime = [
-  // jellyfish
-  'https://gogoanime.gg/category/yoru-no-kurage-wa-oyogenai',
+  'https://gogoanimeapp.com/category/oshi-no-ko-2nd-season',
 ]
 
-export const crunchyroll = [
-  // reincarnated as slime
-  'https://www.crunchyroll.com/series/GYZJ43JMR/that-time-i-got-reincarnated-as-a-slime',
-]
+export const crunchyroll = []
