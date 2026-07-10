@@ -5,21 +5,26 @@
       "title": "One Piece",
       "crunchyrollUrl": "https://www.crunchyroll.com/series/GRMG8ZQZR/one-piece",
       "seriesId": "GRMG8ZQZR",
-      "expectedDropAt": "2026-07-12T15:15:00.000Z"
+      "schedule": {
+        "mode": "ongoing",
+        "startAt": "2026-07-12T12:00:00-04:00",
+        "startEpisode": 1169,
+        "episodeCount": null,
+        "premiereBatchSize": 1
+      }
     },
     {
       "id": "slime",
       "title": "That Time I Got Reincarnated as a Slime",
       "crunchyrollUrl": "https://www.crunchyroll.com/series/GYZJ43JMR/that-time-i-got-reincarnated-as-a-slime",
       "seriesId": "GYZJ43JMR",
-      "expectedDropAt": "2026-07-18T03:00:00.000Z"
-    },
-    {
-      "id": "mushoku-tensei-s3",
-      "title": "Mushoku Tensei s3",
-      "crunchyrollUrl": "https://www.crunchyroll.com/series/G24H1N3MP/mushoku-tensei-jobless-reincarnation",
-      "seriesId": "G24H1N3MP",
-      "expectedDropAt": "2026-07-12T16:00:00.000Z"
+      "schedule": {
+        "mode": "finite",
+        "startAt": "2026-04-10T11:00:00-04:00",
+        "startEpisode": 1,
+        "episodeCount": 24,
+        "premiereBatchSize": 1
+      }
     }
   ]
 }

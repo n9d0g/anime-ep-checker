@@ -3,10 +3,12 @@
   "version": "1.0.0",
   "type": "module",
   "description": "Crunchyroll episode checker with Discord alerts",
+  "packageManager": "pnpm@9.15.0",
   "scripts": {
-    "check": "node src/check.js",
+    "check": "tsx src/check.ts",
     "format": "prettier --write .",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": ["crunchyroll", "anime", "discord"],
   "author": "n9d0g",
@@ -15,8 +17,13 @@
     "node": ">=20"
   },
   "devDependencies": {
-    "eslint": "^9.2.0",
-    "eslint-config-prettier": "^9.1.0",
-    "prettier": "^3.2.5"
+    "@eslint/js": "^9.39.4",
+    "@types/node": "^22.15.21",
+    "eslint": "^9.39.4",
+    "eslint-config-prettier": "^10.1.5",
+    "prettier": "^3.5.3",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.32.1"
   }
 }

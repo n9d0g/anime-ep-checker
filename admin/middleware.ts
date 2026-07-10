@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server'
-import { COOKIE_NAME, isAuthorizedRequest } from './lib/auth.js'
+import type { NextRequest } from 'next/server'
+import { isAuthorizedRequest } from './lib/auth'
 
-export function middleware(request) {
+export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   if (pathname.startsWith('/api/auth') || pathname === '/login') {

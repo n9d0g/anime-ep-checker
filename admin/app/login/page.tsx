@@ -9,7 +9,7 @@ export default function LoginPage() {
   const [status, setStatus] = useState('')
   const [loading, setLoading] = useState(false)
 
-  async function handleSubmit(event) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setLoading(true)
     setStatus('')
@@ -22,14 +22,14 @@ export default function LoginPage() {
       })
 
       if (!response.ok) {
-        const data = await response.json()
+        const data = (await response.json()) as { error?: string }
         throw new Error(data.error || 'Login failed')
       }
 
       router.push('/')
       router.refresh()
     } catch (error) {
-      setStatus(error.message)
+      setStatus(error instanceof Error ? error.message : 'Login failed')
     } finally {
       setLoading(false)
     }

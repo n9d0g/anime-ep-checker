@@ -1,13 +1,20 @@
 import { NextResponse } from 'next/server'
-import { COOKIE_NAME, getSessionCookieValue } from '../../../lib/auth.js'
+import { COOKIE_NAME, getSessionCookieValue } from '@/lib/auth'
 
-export async function POST(request) {
+interface AuthBody {
+  password?: string
+}
+
+export async function POST(request: Request) {
   const password = process.env.ADMIN_PASSWORD
   if (!password) {
-    return NextResponse.json({ error: 'ADMIN_PASSWORD is not configured' }, { status: 500 })
+    return NextResponse.json(
+      { error: 'ADMIN_PASSWORD is not configured' },
+      { status: 500 }
+    )
   }
 
-  const body = await request.json()
+  const body = (await request.json()) as AuthBody
   if (body.password !== password) {
     return NextResponse.json({ error: 'Invalid password' }, { status: 401 })
   }

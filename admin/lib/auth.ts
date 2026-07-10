@@ -1,8 +1,9 @@
 import { cookies } from 'next/headers'
+import type { NextRequest } from 'next/server'
 
-const COOKIE_NAME = 'admin_session'
+export const COOKIE_NAME = 'admin_session'
 
-export function isAuthorizedRequest(request) {
+export function isAuthorizedRequest(request: NextRequest): boolean {
   const password = process.env.ADMIN_PASSWORD
   if (!password) return false
 
@@ -10,7 +11,7 @@ export function isAuthorizedRequest(request) {
   return cookie === password
 }
 
-export async function isAuthorized() {
+export async function isAuthorized(): Promise<boolean> {
   const password = process.env.ADMIN_PASSWORD
   if (!password) return false
 
@@ -18,8 +19,6 @@ export async function isAuthorized() {
   return cookieStore.get(COOKIE_NAME)?.value === password
 }
 
-export function getSessionCookieValue(password) {
+export function getSessionCookieValue(password: string): string {
   return password
 }
-
-export { COOKIE_NAME }

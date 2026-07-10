@@ -13,20 +13,26 @@ flowchart LR
   Cron -->|webhook| Discord[Discord channel]
 ```
 
-1. **GitHub Actions** runs every 30 minutes and calls `node src/check.js`
-2. The checker reads [`shows.json`](shows.json) and queries Crunchyroll’s API for the latest available episode per show
-3. On first run for a show, it **baselines** the current episode (no alert)
-4. When a newer episode becomes available, it posts to **Discord** and updates [`state.json`](state.json)
-5. The **Vercel admin** edits `shows.json` in your repo (add/remove shows, set expected drop times)
+1. **GitHub Actions** runs every **15 minutes** and calls `pnpm check`
+2. The checker reads [`shows.json`](shows.json) and only calls Crunchyroll during each show’s **drop window** (10 min before → 6 hours after the expected time)
+3. On first run for a show (inside a window), it **baselines** the current episode (no alert)
+4. When the expected episode becomes available, it posts to **Discord** and updates [`state.json`](state.json)
+5. If an episode is **late** (15+ min past expected), it sends a one-time **still waiting** Discord message
+6. The **Vercel admin** edits `shows.json` in your repo
 
-## Tracked shows
+## Schedule model
 
-Seeded in [`shows.json`](shows.json):
+Each show uses a weekly schedule instead of a single drop datetime:
 
-- One Piece
-- That Time I Got Reincarnated as a Slime
+| Field | Meaning |
+|-------|---------|
+| `mode` | `finite` (season with end) or `ongoing` (no end, e.g. One Piece) |
+| `startAt` | When the anchor episode(s) should drop |
+| `startEpisode` | Episode number that `startAt` refers to |
+| `episodeCount` | Total episodes (finite only) |
+| `premiereBatchSize` | Episodes that drop on day 1 (default `1`) |
 
-Set `expectedDropAt` in the CMS when you know the next scheduled drop. Discord alerts include whether the episode was early, on time, or late.
+After the premiere batch, each following episode is expected **7 days** later.
 
 ## Setup
 
@@ -38,8 +44,6 @@ Set `expectedDropAt` in the CMS when you know the next scheduled drop. Discord a
 
 ### 2. GitHub Actions secret
 
-In your repo: **Settings** → **Secrets and variables** → **Actions** → **New repository secret**
-
 | Secret | Value |
 |--------|-------|
 | `DISCORD_WEBHOOK_URL` | Your Discord webhook URL |
@@ -50,7 +54,8 @@ The workflow uses the default `GITHUB_TOKEN` to commit `state.json` updates.
 
 1. Import this repo in [Vercel](https://vercel.com)
 2. Set **Root Directory** to `admin`
-3. Add environment variables (see [`admin/.env.example`](admin/.env.example)):
+3. Set package manager to **pnpm** (auto-detected from `admin/pnpm-lock.yaml`)
+4. Add environment variables (see [`admin/.env.example`](admin/.env.example)):
 
 | Variable | Description |
 |----------|-------------|
@@ -59,36 +64,41 @@ The workflow uses the default `GITHUB_TOKEN` to commit `state.json` updates.
 | `GITHUB_REPO` | `your-username/anime-ep-checker` |
 | `GITHUB_BRANCH` | `main` (optional) |
 
-4. Deploy — you’ll get a URL like `anime-ep-checker.vercel.app`
-
-### 4. Manual check (optional)
+### 4. Local development
 
 ```bash
-# Baseline / check without writing state
-node src/check.js --dry-run
+# Root checker
+pnpm install
+pnpm check -- --dry-run
+pnpm check -- --force        # bypass drop windows (debug)
 
-# Run locally (requires DISCORD_WEBHOOK_URL in .env or env)
-npm run check
+# Admin CMS
+cd admin
+pnpm install
+pnpm dev
 ```
+
+Requires `DISCORD_WEBHOOK_URL` in `.env` for live Discord alerts.
 
 ## CMS usage
 
 1. Open your Vercel admin URL and sign in
-2. **Add show** — paste a Crunchyroll series URL (e.g. `https://www.crunchyroll.com/series/GRMG8ZQZR/one-piece`)
-3. Set **Expected next drop** — when the episode is supposed to release
-4. **Save changes** — commits to `shows.json` on GitHub
-5. After an episode drops, bump the expected drop time for the next week
+2. Add a Crunchyroll series URL
+3. Choose **Finite season** or **Ongoing**
+4. Set start date/time, start episode number, and premiere batch size
+5. **Save changes** — commits to `shows.json` on GitHub
 
 ## Files
 
 | File | Purpose |
 |------|---------|
-| [`shows.json`](shows.json) | Tracked series + expected drop times |
+| [`shows.json`](shows.json) | Tracked series + weekly schedules |
 | [`state.json`](state.json) | Last notified episode per show |
-| [`src/check.js`](src/check.js) | Main checker CLI |
-| [`src/crunchyroll.js`](src/crunchyroll.js) | Crunchyroll API client |
-| [`src/discord.js`](src/discord.js) | Discord webhook alerts |
-| [`admin/`](admin/) | Vercel CMS |
+| [`src/check.ts`](src/check.ts) | Main checker CLI |
+| [`src/schedule.ts`](src/schedule.ts) | Expected drop times + check windows |
+| [`src/crunchyroll.ts`](src/crunchyroll.ts) | Crunchyroll API client |
+| [`src/discord.ts`](src/discord.ts) | Discord webhook alerts |
+| [`admin/`](admin/) | Vercel CMS (Next.js + TypeScript) |
 | [`.github/workflows/check-episodes.yml`](.github/workflows/check-episodes.yml) | Scheduled checker |
 
 ## Notes
@@ -96,3 +106,4 @@ npm run check
 - Uses Crunchyroll’s undocumented internal API (anonymous token). It may break if they change endpoints.
 - Episode availability is based on `premium_available_date` (premium simulcast timing).
 - The checker excludes OVA/extras/dub seasons when picking the latest season.
+- Most workflow runs skip API calls when no show is in its drop window.
