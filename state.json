@@ -1,3 +1,28 @@
 {
-  "shows": {}
+  "shows": {
+    "one-piece": {
+      "lastEpisodeId": "GE00369374JAJP",
+      "lastEpisodeNumber": "1168",
+      "lastEpisodeTitle": "Ancient History - The Harley Passed Down by Elbaph",
+      "lastNotifiedAt": "2026-07-10T20:58:28.105Z",
+      "seasonId": "GS00376439JAJP",
+      "seasonTitle": "Elbaph (1156-current)"
+    },
+    "slime": {
+      "lastEpisodeId": "GE00374378JAJP",
+      "lastEpisodeNumber": "14",
+      "lastEpisodeTitle": "The Black Numbers",
+      "lastNotifiedAt": "2026-07-10T20:58:28.212Z",
+      "seasonId": "GS00371777JAJP",
+      "seasonTitle": "Season 4"
+    },
+    "mushoku-tensei-s3": {
+      "lastEpisodeId": "GE00374454JAJP",
+      "lastEpisodeNumber": "2",
+      "lastEpisodeTitle": "Howl, Mad Dog",
+      "lastNotifiedAt": "2026-07-10T20:58:28.366Z",
+      "seasonId": "GS00374452JAJP",
+      "seasonTitle": "Season 3"
+    }
+  }
 }
