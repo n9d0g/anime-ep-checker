@@ -36,6 +36,7 @@ a {
 
 button,
 input,
+select,
 textarea {
   font: inherit;
 }
@@ -109,7 +110,8 @@ label {
   font-size: 0.9rem;
 }
 
-input {
+input,
+select {
   width: 100%;
   padding: 0.7rem 0.85rem;
   border-radius: 8px;
@@ -118,7 +120,8 @@ input {
   color: var(--text);
 }
 
-input:focus {
+input:focus,
+select:focus {
   outline: 2px solid rgba(244, 117, 33, 0.35);
   border-color: var(--accent);
 }

@@ -1,6 +1,17 @@
 const GITHUB_API = 'https://api.github.com'
 
-function getConfig() {
+interface GitHubConfig {
+  token: string
+  repo: string
+  branch: string
+}
+
+interface GitHubContentResponse {
+  content: string
+  sha: string
+}
+
+function getConfig(): GitHubConfig {
   const token = process.env.GITHUB_TOKEN
   const repo = process.env.GITHUB_REPO
   const branch = process.env.GITHUB_BRANCH || 'main'
@@ -12,7 +23,10 @@ function getConfig() {
   return { token, repo, branch }
 }
 
-async function githubFetch(path, options = {}) {
+async function githubFetch<T>(
+  path: string,
+  options: RequestInit = {}
+): Promise<T | null> {
   const { token } = getConfig()
   const response = await fetch(`${GITHUB_API}${path}`, {
     ...options,
@@ -30,19 +44,30 @@ async function githubFetch(path, options = {}) {
   }
 
   if (response.status === 204) return null
-  return response.json()
+  return response.json() as Promise<T>
 }
 
 export async function getShowsFile() {
   const { repo, branch } = getConfig()
-  const data = await githubFetch(
+  const data = await githubFetch<GitHubContentResponse>(
     `/repos/${repo}/contents/shows.json?ref=${branch}`
   )
-  const content = JSON.parse(Buffer.from(data.content, 'base64').toString('utf8'))
+
+  if (!data) {
+    throw new Error('shows.json not found in repository')
+  }
+
+  const content = JSON.parse(
+    Buffer.from(data.content, 'base64').toString('utf8')
+  )
   return { content, sha: data.sha }
 }
 
-export async function saveShowsFile(shows, sha, message = 'chore: update shows from admin CMS') {
+export async function saveShowsFile(
+  shows: unknown[],
+  sha: string,
+  message = 'chore: update shows from admin CMS'
+) {
   const { repo, branch } = getConfig()
   const content = JSON.stringify({ shows }, null, 2) + '\n'
 
@@ -58,7 +83,7 @@ export async function saveShowsFile(shows, sha, message = 'chore: update shows f
   })
 }
 
-export function slugify(value) {
+export function slugify(value: string): string {
   return String(value)
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
@@ -66,7 +91,7 @@ export function slugify(value) {
     .slice(0, 48)
 }
 
-export function parseSeriesIdFromUrl(url) {
+export function parseSeriesIdFromUrl(url: string): string | null {
   const match = String(url).match(/\/series\/([A-Z0-9]+)/i)
   return match ? match[1].toUpperCase() : null
 }

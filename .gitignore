@@ -3,3 +3,5 @@ node_modules
 .env.local
 admin/.next
 admin/node_modules
+*.tsbuildinfo
+pnpm-debug.log
