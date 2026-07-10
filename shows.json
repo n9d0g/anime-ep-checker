@@ -1,0 +1,18 @@
+{
+  "shows": [
+    {
+      "id": "one-piece",
+      "title": "One Piece",
+      "crunchyrollUrl": "https://www.crunchyroll.com/series/GRMG8ZQZR/one-piece",
+      "seriesId": "GRMG8ZQZR",
+      "expectedDropAt": null
+    },
+    {
+      "id": "slime",
+      "title": "That Time I Got Reincarnated as a Slime",
+      "crunchyrollUrl": "https://www.crunchyroll.com/series/GYZJ43JMR/that-time-i-got-reincarnated-as-a-slime",
+      "seriesId": "GYZJ43JMR",
+      "expectedDropAt": null
+    }
+  ]
+}

@@ -1,0 +1,192 @@
+:root {
+  color-scheme: dark;
+  --bg: #0f1419;
+  --panel: #1a222c;
+  --border: #2a3542;
+  --text: #e8edf2;
+  --muted: #8b98a5;
+  --accent: #f47521;
+  --accent-hover: #ff8a3d;
+  --danger: #e74c3c;
+  --success: #2ecc71;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background:
+    radial-gradient(circle at top, rgba(244, 117, 33, 0.12), transparent 40%),
+    var(--bg);
+  color: var(--text);
+}
+
+body {
+  line-height: 1.5;
+}
+
+a {
+  color: var(--accent);
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.container {
+  width: min(920px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 2.5rem 0 4rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.eyebrow {
+  color: var(--accent);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0 0 0.35rem;
+}
+
+h1,
+h2 {
+  margin: 0;
+  font-weight: 600;
+}
+
+.subtitle {
+  color: var(--muted);
+  margin: 0.5rem 0 0;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+
+.stack {
+  display: grid;
+  gap: 1rem;
+}
+
+.show-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.show-card {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+label {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+input {
+  width: 100%;
+  padding: 0.7rem 0.85rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #111820;
+  color: var(--text);
+}
+
+input:focus {
+  outline: 2px solid rgba(244, 117, 33, 0.35);
+  border-color: var(--accent);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.btn {
+  border: 0;
+  border-radius: 8px;
+  padding: 0.65rem 1rem;
+  background: var(--accent);
+  color: #111;
+  font-weight: 600;
+}
+
+.btn:hover {
+  background: var(--accent-hover);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.btn-danger {
+  background: transparent;
+  color: var(--danger);
+  border: 1px solid rgba(231, 76, 60, 0.45);
+}
+
+.status {
+  min-height: 1.25rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.status.error {
+  color: #ff8a80;
+}
+
+.status.success {
+  color: var(--success);
+}
+
+.login-wrap {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.login-card {
+  width: min(420px, 100%);
+}
+
+.empty {
+  color: var(--muted);
+  text-align: center;
+  padding: 1.5rem 0;
+}
+
+@media (max-width: 640px) {
+  .header {
+    flex-direction: column;
+  }
+}

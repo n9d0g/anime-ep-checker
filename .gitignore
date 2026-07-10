@@ -1,3 +1,5 @@
 node_modules
-db.json
 .env
+.env.local
+admin/.next
+admin/node_modules
