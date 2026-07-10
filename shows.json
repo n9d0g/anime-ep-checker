@@ -7,7 +7,7 @@
       "seriesId": "GRMG8ZQZR",
       "schedule": {
         "mode": "ongoing",
-        "startAt": "2026-07-12T11:15:00.000Z",
+        "startAt": "2026-07-12T07:15:00.000Z",
         "startEpisode": 1169,
         "episodeCount": null,
         "premiereBatchSize": 1
@@ -20,10 +20,23 @@
       "seriesId": "GYZJ43JMR",
       "schedule": {
         "mode": "finite",
-        "startAt": "2026-04-03T11:00:00.000Z",
+        "startAt": "2026-04-03T07:00:00.000Z",
         "startEpisode": 1,
         "episodeCount": 24,
         "premiereBatchSize": 1
+      }
+    },
+    {
+      "id": "mushoku-tensei-s3",
+      "title": "Mushoku Tensei s3",
+      "crunchyrollUrl": "https://www.crunchyroll.com/series/G24H1N3MP/mushoku-tensei-jobless-reincarnation",
+      "seriesId": "G24H1N3MP",
+      "schedule": {
+        "mode": "finite",
+        "startAt": "2026-07-05T12:00:00.000Z",
+        "startEpisode": 1,
+        "episodeCount": 14,
+        "premiereBatchSize": 2
       }
     }
   ]
