@@ -1,4 +1,5 @@
 import { formatTimingLabel } from './compare.js'
+import { formatEasternTime } from './time.js'
 import type { EpisodeSnapshot, Show, TimingStatus } from './types.js'
 
 interface EpisodeAlertInput {
@@ -76,15 +77,13 @@ export async function sendWaitingAlert({
   }
 
   const showTitle = show.title || show.id
-  const expectedLabel = new Date(expectedDropAt).toLocaleString('en-US', {
-    timeZoneName: 'short',
-  })
+  const expectedLabel = formatEasternTime(expectedDropAt)
 
   const payload = {
     embeds: [
       {
         title: `${showTitle} — Episode ${episodeNumber} not on Crunchyroll yet`,
-        description: `Expected around ${expectedLabel}. Still checking during this drop window.`,
+        description: `Expected around ${expectedLabel}. Still checking until the episode appears.`,
         color: 0xf1c40f,
         footer: {
           text: 'Anime Episode Checker',

@@ -1,3 +1,5 @@
+import { toDatetimeLocalValue } from './time'
+
 export type ScheduleMode = 'finite' | 'ongoing'
 
 export interface ShowSchedule {
@@ -50,22 +52,6 @@ export function emptyShowForm(): ShowFormValues {
   }
 }
 
-export function toDatetimeLocalValue(isoValue: string | null | undefined): string {
-  if (!isoValue) return ''
-  const date = new Date(isoValue)
-  if (Number.isNaN(date.getTime())) return ''
-
-  const pad = (value: number) => String(value).padStart(2, '0')
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`
-}
-
-export function fromDatetimeLocalValue(value: string): string | null {
-  if (!value) return null
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return null
-  return date.toISOString()
-}
-
 export function showToForm(show: Show): ShowFormValues {
   return {
     id: show.id,
@@ -84,3 +70,5 @@ export function showToForm(show: Show): ShowFormValues {
     },
   }
 }
+
+export { fromDatetimeLocalValue, toDatetimeLocalValue } from './time'

@@ -14,7 +14,7 @@ flowchart LR
 ```
 
 1. **GitHub Actions** runs every **15 minutes** and calls `pnpm check`
-2. The checker reads [`shows.json`](shows.json) and only calls Crunchyroll during each show’s **drop window** (10 min before → 6 hours after the expected time)
+2. The checker reads [`shows.json`](shows.json) and only calls Crunchyroll once a show enters its **drop window** (10 minutes before expected time). It keeps checking every 15 minutes until the episode is found — overdue episodes are not skipped after a few hours.
 3. On first run for a show (inside a window), it **baselines** the current episode (no alert)
 4. When the expected episode becomes available, it posts to **Discord** and updates [`state.json`](state.json)
 5. If an episode is **late** (15+ min past expected), it sends a one-time **still waiting** Discord message
@@ -27,7 +27,7 @@ Each show uses a weekly schedule instead of a single drop datetime:
 | Field | Meaning |
 |-------|---------|
 | `mode` | `finite` (season with end) or `ongoing` (no end, e.g. One Piece) |
-| `startAt` | When the anchor episode(s) should drop |
+| `startAt` | When the anchor episode(s) should drop (**Eastern Time / ET**) |
 | `startEpisode` | Episode number that `startAt` refers to |
 | `episodeCount` | Total episodes (finite only) |
 | `premiereBatchSize` | Episodes that drop on day 1 (default `1`) |
@@ -85,7 +85,7 @@ Requires `DISCORD_WEBHOOK_URL` in `.env` for live Discord alerts.
 1. Open your Vercel admin URL and sign in
 2. Add a Crunchyroll series URL
 3. Choose **Finite season** or **Ongoing**
-4. Set start date/time, start episode number, and premiere batch size
+4. Set start date/time (**Eastern Time**), start episode number, and premiere batch size
 5. **Save changes** — commits to `shows.json` on GitHub
 
 ## Files
@@ -106,4 +106,6 @@ Requires `DISCORD_WEBHOOK_URL` in `.env` for live Discord alerts.
 - Uses Crunchyroll’s undocumented internal API (anonymous token). It may break if they change endpoints.
 - Episode availability is based on `premium_available_date` (premium simulcast timing).
 - The checker excludes OVA/extras/dub seasons when picking the latest season.
-- Most workflow runs skip API calls when no show is in its drop window.
+- Schedule times are stored in UTC but entered and displayed as **Eastern Time (EST/EDT)** in the CMS and Discord alerts.
+- Overdue episodes keep getting checked every 15 minutes until Crunchyroll has them.
+- Most workflow runs skip API calls when no show has entered its drop window yet.

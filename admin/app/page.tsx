@@ -189,7 +189,9 @@ export default function AdminPage() {
                 </div>
 
                 <div className="field">
-                  <label htmlFor={`start-${index}`}>Start date and time</label>
+                  <label htmlFor={`start-${index}`}>
+                    Start date and time (Eastern Time)
+                  </label>
                   <input
                     id={`start-${index}`}
                     type="datetime-local"

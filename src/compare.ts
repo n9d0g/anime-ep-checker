@@ -1,4 +1,5 @@
 import type { EpisodeSnapshot, ShowState, StateFile, TimingStatus } from './types.js'
+import { formatEasternTime } from './time.js'
 
 export function getShowState(
   state: StateFile,
@@ -62,16 +63,12 @@ export function formatTimingLabel(
 ): string {
   if (status === 'unknown') {
     return expectedDropAt
-      ? `Expected ${new Date(expectedDropAt).toLocaleString('en-US', { timeZoneName: 'short' })}`
+      ? `Expected ${formatEasternTime(expectedDropAt)}`
       : 'No expected drop time set'
   }
 
-  const expected = new Date(expectedDropAt!).toLocaleString('en-US', {
-    timeZoneName: 'short',
-  })
-  const actual = new Date(actualDropAt!).toLocaleString('en-US', {
-    timeZoneName: 'short',
-  })
+  const expected = formatEasternTime(expectedDropAt)
+  const actual = formatEasternTime(actualDropAt)
 
   if (status === 'on-time') {
     return `On time (expected ${expected}, dropped ${actual})`
