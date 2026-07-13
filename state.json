@@ -1,12 +1,13 @@
 {
   "shows": {
     "one-piece": {
-      "lastEpisodeId": "GE00369374JAJP",
-      "lastEpisodeNumber": "1168",
-      "lastEpisodeTitle": "Ancient History - The Harley Passed Down by Elbaph",
-      "lastNotifiedAt": "2026-07-10T20:58:28.105Z",
+      "lastEpisodeId": "GE00369375JAJP",
+      "lastEpisodeNumber": "1169",
+      "lastEpisodeTitle": "The Legend Lurking in Elbaph - The Identity of the Mountain-Eater",
+      "lastNotifiedAt": "2026-07-13T21:56:17.069Z",
       "seasonId": "GS00376439JAJP",
-      "seasonTitle": "Elbaph (1156-current)"
+      "seasonTitle": "Elbaph (1156-current)",
+      "waitingNotifiedForEpisode": null
     },
     "slime": {
       "lastEpisodeId": "GE00374378JAJP",
@@ -14,15 +15,17 @@
       "lastEpisodeTitle": "The Black Numbers",
       "lastNotifiedAt": "2026-07-10T20:58:28.212Z",
       "seasonId": "GS00371777JAJP",
-      "seasonTitle": "Season 4"
+      "seasonTitle": "Season 4",
+      "waitingNotifiedForEpisode": 15
     },
     "mushoku-tensei-s3": {
-      "lastEpisodeId": "GE00374454JAJP",
-      "lastEpisodeNumber": "2",
-      "lastEpisodeTitle": "Howl, Mad Dog",
-      "lastNotifiedAt": "2026-07-10T20:58:28.366Z",
+      "lastEpisodeId": "GE00374455JAJP",
+      "lastEpisodeNumber": "3",
+      "lastEpisodeTitle": "Life Back at Home",
+      "lastNotifiedAt": "2026-07-13T21:56:17.293Z",
       "seasonId": "GS00374452JAJP",
-      "seasonTitle": "Season 3"
+      "seasonTitle": "Season 3",
+      "waitingNotifiedForEpisode": null
     }
   }
 }
