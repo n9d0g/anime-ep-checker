@@ -38,6 +38,19 @@
         "episodeCount": 14,
         "premiereBatchSize": 2
       }
+    },
+    {
+      "id": "smoking-behind-the-supermarket-with-you",
+      "title": "Smoking Behind the Supermarket with You",
+      "crunchyrollUrl": "https://www.crunchyroll.com/series/GT00378116/smoking-behind-the-supermarket-with-you",
+      "seriesId": "GT00378116",
+      "schedule": {
+        "mode": "finite",
+        "startAt": "2026-07-09T16:00:00.000Z",
+        "startEpisode": 1,
+        "episodeCount": 12,
+        "premiereBatchSize": 1
+      }
     }
   ]
 }
