@@ -26,6 +26,15 @@
       "seasonId": "GS00374452JAJP",
       "seasonTitle": "Season 3",
       "waitingNotifiedForEpisode": null
+    },
+    "smoking-behind-the-supermarket-with-you": {
+      "lastEpisodeId": "GE00378525JAJP",
+      "lastEpisodeNumber": "1",
+      "lastEpisodeTitle": "Smoking Behind the Supermarket with You",
+      "lastNotifiedAt": "2026-07-15T03:34:55.141Z",
+      "seasonId": "GS00378131JAJP",
+      "seasonTitle": "Season 1",
+      "waitingNotifiedForEpisode": null
     }
   }
 }
