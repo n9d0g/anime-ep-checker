@@ -2,7 +2,7 @@ name: Check Crunchyroll Episodes
 
 on:
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '*/5 * * * *'
   workflow_dispatch:
 
 permissions:
@@ -15,24 +15,44 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '24.11.1'
+
+      - name: Check if any show needs polling
+        id: gate
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "should_check=true" >> "$GITHUB_OUTPUT"
+            echo "Manual run — always checking."
+          else
+            node --experimental-strip-types src/should-run.ts
+          fi
+
+      - name: Install pnpm
+        if: steps.gate.outputs.should_check == 'true'
+        uses: pnpm/action-setup@v4
+
+      - name: Setup pnpm cache
+        if: steps.gate.outputs.should_check == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24.11.1'
           cache: 'pnpm'
 
       - name: Install dependencies
+        if: steps.gate.outputs.should_check == 'true'
         run: pnpm install --frozen-lockfile
 
       - name: Check for new episodes
+        if: steps.gate.outputs.should_check == 'true'
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: pnpm check
 
       - name: Commit state updates
+        if: steps.gate.outputs.should_check == 'true'
         run: |
           if git diff --quiet state.json; then
             echo "No state changes to commit."

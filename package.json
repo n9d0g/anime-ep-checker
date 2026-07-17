@@ -14,7 +14,7 @@
   "author": "n9d0g",
   "license": "ISC",
   "engines": {
-    "node": ">=20"
+    "node": "24.11.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",

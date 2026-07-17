@@ -1,4 +1,4 @@
-import type { ShowSchedule } from './types.js'
+import type { Show, ShowSchedule, StateFile } from './types.js'
 
 const MS_PER_WEEK = 7 * 24 * 60 * 60 * 1000
 const WINDOW_BEFORE_MS = 10 * 60 * 1000
@@ -82,4 +82,35 @@ export function isPastWaitingGrace(
 export function parseEpisodeNumber(value: string | undefined): number {
   const parsed = Number(value)
   return Number.isFinite(parsed) ? parsed : 0
+}
+
+export function showNeedsCheck(
+  show: Show,
+  state: StateFile,
+  now: Date = new Date()
+): boolean {
+  const previousState = state.shows[show.id] ?? null
+  const lastEpisodeNumber = previousState
+    ? parseEpisodeNumber(previousState.lastEpisodeNumber)
+    : null
+  const nextExpectedEp = getNextExpectedEpisode(show.schedule, lastEpisodeNumber)
+
+  if (nextExpectedEp === null) {
+    return false
+  }
+
+  const expectedAt = getExpectedDropAt(show.schedule, nextExpectedEp)
+  if (!expectedAt) {
+    return false
+  }
+
+  return isInCheckWindow(expectedAt, now)
+}
+
+export function anyShowNeedsCheck(
+  shows: Show[],
+  state: StateFile,
+  now: Date = new Date()
+): boolean {
+  return shows.some((show) => showNeedsCheck(show, state, now))
 }

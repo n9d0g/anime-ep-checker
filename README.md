@@ -13,8 +13,8 @@ flowchart LR
   Cron -->|webhook| Discord[Discord channel]
 ```
 
-1. **GitHub Actions** runs every **15 minutes** and calls `pnpm check`
-2. The checker reads [`shows.json`](shows.json) and only calls Crunchyroll once a show enters its **drop window** (10 minutes before expected time). It keeps checking every 15 minutes until the episode is found — overdue episodes are not skipped after a few hours.
+1. **GitHub Actions** runs a **5-minute** cron. A cheap gate skips install and Crunchyroll unless a show is in its **drop window** (10 minutes before expected time through until the episode is found).
+2. Inside the window, the checker runs about every **5 minutes** and calls `pnpm check`.
 3. On first run for a show (inside a window), it **baselines** the current episode (no alert)
 4. When the expected episode becomes available, it posts to **Discord** and updates [`state.json`](state.json)
 5. If an episode is **late** (15+ min past expected), it sends a one-time **still waiting** Discord message
@@ -67,8 +67,9 @@ The workflow uses the default `GITHUB_TOKEN` to commit `state.json` updates.
 ### 4. Local development
 
 ```bash
-# Root checker
+# Root checker (Node 24.11.1)
 pnpm install
+node --experimental-strip-types src/should-run.ts   # gate only
 pnpm check -- --dry-run
 pnpm check -- --force        # bypass drop windows (debug)
 
@@ -98,6 +99,7 @@ Requires `DISCORD_WEBHOOK_URL` in `.env` for live Discord alerts.
 | [`src/schedule.ts`](src/schedule.ts) | Expected drop times + check windows |
 | [`src/crunchyroll.ts`](src/crunchyroll.ts) | Crunchyroll API client |
 | [`src/discord.ts`](src/discord.ts) | Discord webhook alerts |
+| [`src/should-run.ts`](src/should-run.ts) | Cheap gate for Actions (skip install when idle) |
 | [`admin/`](admin/) | Vercel CMS (Next.js + TypeScript) |
 | [`.github/workflows/check-episodes.yml`](.github/workflows/check-episodes.yml) | Scheduled checker |
 
@@ -107,5 +109,6 @@ Requires `DISCORD_WEBHOOK_URL` in `.env` for live Discord alerts.
 - Episode availability is based on `premium_available_date` (premium simulcast timing).
 - The checker excludes OVA/extras/dub seasons when picking the latest season.
 - Schedule times are stored in UTC but entered and displayed as **Eastern Time (EST/EDT)** in the CMS and Discord alerts.
-- Overdue episodes keep getting checked every 15 minutes until Crunchyroll has them.
-- Most workflow runs skip API calls when no show has entered its drop window yet.
+- Overdue episodes keep getting checked every 5 minutes (inside the active window) until Crunchyroll has them.
+- Most workflow runs exit after the gate when no show has entered its drop window yet.
+- Requires **Node 24.11.1** (local and GitHub Actions).
