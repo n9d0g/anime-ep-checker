@@ -20,7 +20,7 @@
       "seriesId": "GYZJ43JMR",
       "schedule": {
         "mode": "finite",
-        "startAt": "2026-04-03T15:00:00.000Z",
+        "startAt": "2026-04-10T15:00:00.000Z",
         "startEpisode": 1,
         "episodeCount": 24,
         "premiereBatchSize": 1
