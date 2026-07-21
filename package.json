@@ -2,7 +2,7 @@
   "name": "anime-ep-checker",
   "version": "1.0.0",
   "type": "module",
-  "description": "Crunchyroll episode checker with Discord alerts",
+  "description": "Crunchyroll and Netflix episode checker with Discord alerts",
   "packageManager": "pnpm@9.15.0",
   "scripts": {
     "check": "tsx src/check.ts",
@@ -10,7 +10,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit"
   },
-  "keywords": ["crunchyroll", "anime", "discord"],
+  "keywords": ["crunchyroll", "netflix", "anime", "discord", "mal"],
   "author": "n9d0g",
   "license": "ISC",
   "engines": {

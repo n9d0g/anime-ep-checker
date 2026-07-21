@@ -95,3 +95,8 @@ export function parseSeriesIdFromUrl(url: string): string | null {
   const match = String(url).match(/\/series\/([A-Z0-9]+)/i)
   return match ? match[1].toUpperCase() : null
 }
+
+export function parseNetflixIdFromUrl(url: string): string | null {
+  const match = String(url).match(/\/title\/(\d+)/i)
+  return match ? match[1] : null
+}

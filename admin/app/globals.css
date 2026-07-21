@@ -188,6 +188,17 @@ select:focus {
   padding: 1.5rem 0;
 }
 
+.hint {
+  margin: 0.35rem 0 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.hint strong {
+  color: var(--text);
+}
+
 @media (max-width: 640px) {
   .header {
     flex-direction: column;

@@ -188,11 +188,17 @@ export async function getLatestAvailableEpisodeForSeries(
   }
 
   return {
+    provider: 'crunchyroll',
     seriesId,
     seriesTitle,
     seasonId: latestSeason.id,
     seasonTitle: latestSeason.title ?? '',
-    episode: latestEpisode,
+    episode: {
+      id: latestEpisode.id,
+      episode: latestEpisode.episode,
+      title: latestEpisode.title,
+      availableAt: latestEpisode.premium_available_date ?? null,
+    },
     watchUrl: buildWatchUrl(latestEpisode),
   }
 }

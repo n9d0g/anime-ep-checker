@@ -1,8 +1,8 @@
-export const EASTERN_TZ = 'America/New_York'
+export const JST_TZ = 'Asia/Tokyo'
 
-function getEasternParts(date: Date) {
+function getJstParts(date: Date) {
   const parts = new Intl.DateTimeFormat('en-CA', {
-    timeZone: EASTERN_TZ,
+    timeZone: JST_TZ,
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
@@ -29,7 +29,7 @@ export function toDatetimeLocalValue(isoValue: string | null | undefined): strin
   const date = new Date(isoValue)
   if (Number.isNaN(date.getTime())) return ''
 
-  const { year, month, day, hour, minute } = getEasternParts(date)
+  const { year, month, day, hour, minute } = getJstParts(date)
   const pad = (value: number) => String(value).padStart(2, '0')
 
   return `${year}-${pad(month)}-${pad(day)}T${pad(hour)}:${pad(minute)}`
@@ -41,30 +41,8 @@ export function fromDatetimeLocalValue(value: string): string | null {
   const match = value.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/)
   if (!match) return null
 
-  const year = Number(match[1])
-  const month = Number(match[2])
-  const day = Number(match[3])
-  const hour = Number(match[4])
-  const minute = Number(match[5])
-
-  let utc = Date.UTC(year, month - 1, day, hour, minute)
-
-  for (let attempt = 0; attempt < 4; attempt += 1) {
-    const eastern = getEasternParts(new Date(utc))
-    const targetMs = Date.UTC(year, month - 1, day, hour, minute)
-    const actualMs = Date.UTC(
-      eastern.year,
-      eastern.month - 1,
-      eastern.day,
-      eastern.hour,
-      eastern.minute
-    )
-    const diff = targetMs - actualMs
-    if (diff === 0) break
-    utc += diff
-  }
-
-  const result = new Date(utc)
+  const iso = `${match[1]}-${match[2]}-${match[3]}T${match[4]}:${match[5]}:00+09:00`
+  const result = new Date(iso)
   if (Number.isNaN(result.getTime())) return null
   return result.toISOString()
 }

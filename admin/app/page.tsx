@@ -7,6 +7,7 @@ import {
   showToForm,
   type Show,
   type ShowFormValues,
+  type ShowProvider,
 } from '@/lib/types'
 
 export default function AdminPage() {
@@ -21,10 +22,15 @@ export default function AdminPage() {
     async function loadShows() {
       try {
         const response = await fetch('/api/shows')
-        if (!response.ok) {
-          throw new Error('Failed to load shows')
+        const data = (await response.json()) as {
+          error?: string
+          shows?: Show[]
         }
-        const data = (await response.json()) as { shows?: Show[] }
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to load shows')
+        }
+
         setShows((data.shows ?? []).map(showToForm))
       } catch (error) {
         setStatusType('error')
@@ -122,8 +128,8 @@ export default function AdminPage() {
           <p className="eyebrow">Anime Episode Checker</p>
           <h1>Tracked shows</h1>
           <p className="subtitle">
-            Set a weekly schedule. Episodes drop every 7 days from the start
-            date, with optional multi-episode premieres.
+            Set a weekly schedule in Japan Time (JST). Discord alerts still show
+            Eastern Time.
           </p>
         </div>
         <button className="btn btn-secondary" type="button" onClick={logout}>
@@ -132,6 +138,14 @@ export default function AdminPage() {
       </header>
 
       <section className="stack">
+        <div className="panel">
+          <h2>Integrations</h2>
+          <p className="subtitle">
+            <a href="/mal">Connect MyAnimeList</a> for the Discord &quot;Mark
+            watched on MAL&quot; button.
+          </p>
+        </div>
+
         {loading ? (
           <p className="status">Loading shows...</p>
         ) : shows.length === 0 ? (
@@ -158,16 +172,85 @@ export default function AdminPage() {
                 </div>
 
                 <div className="field">
-                  <label htmlFor={`url-${index}`}>Crunchyroll series URL</label>
-                  <input
-                    id={`url-${index}`}
-                    value={show.crunchyrollUrl}
+                  <label htmlFor={`provider-${index}`}>Provider</label>
+                  <select
+                    id={`provider-${index}`}
+                    value={show.provider}
                     onChange={(event) =>
-                      updateShow(index, 'crunchyrollUrl', event.target.value)
+                      updateShow(
+                        index,
+                        'provider',
+                        event.target.value as ShowProvider
+                      )
                     }
-                    placeholder="https://www.crunchyroll.com/series/..."
-                    required
+                  >
+                    <option value="crunchyroll">Crunchyroll</option>
+                    <option value="netflix">Netflix</option>
+                  </select>
+                </div>
+
+                {show.provider === 'crunchyroll' ? (
+                  <div className="field">
+                    <label htmlFor={`url-${index}`}>Crunchyroll series URL</label>
+                    <input
+                      id={`url-${index}`}
+                      value={show.crunchyrollUrl}
+                      onChange={(event) =>
+                        updateShow(index, 'crunchyrollUrl', event.target.value)
+                      }
+                      placeholder="https://www.crunchyroll.com/series/..."
+                      required
+                    />
+                  </div>
+                ) : (
+                  <div className="field">
+                    <label htmlFor={`netflix-url-${index}`}>Netflix title URL</label>
+                    <input
+                      id={`netflix-url-${index}`}
+                      value={show.netflixUrl}
+                      onChange={(event) =>
+                        updateShow(index, 'netflixUrl', event.target.value)
+                      }
+                      placeholder="https://www.netflix.com/title/..."
+                      required
+                    />
+                  </div>
+                )}
+
+                <div className="field">
+                  <label htmlFor={`mal-${index}`}>MAL anime ID (optional)</label>
+                  <input
+                    id={`mal-${index}`}
+                    type="number"
+                    min="1"
+                    value={show.malId}
+                    onChange={(event) =>
+                      updateShow(index, 'malId', event.target.value)
+                    }
+                    placeholder="39535"
                   />
+                  <p className="hint">
+                    Open the anime on MyAnimeList and copy the number from the
+                    URL: myanimelist.net/anime/<strong>39535</strong>/...
+                  </p>
+                </div>
+
+                <div className="field">
+                  <label htmlFor={`reddit-${index}`}>
+                    Reddit search title (optional)
+                  </label>
+                  <input
+                    id={`reddit-${index}`}
+                    value={show.redditSearchTitle}
+                    onChange={(event) =>
+                      updateShow(index, 'redditSearchTitle', event.target.value)
+                    }
+                    placeholder="mushoku_tensei_jobless_reincarnation_season_3"
+                  />
+                  <p className="hint">
+                    Override for r/anime discussion search when the show title
+                    does not match Reddit thread slugs.
+                  </p>
                 </div>
 
                 <div className="field">
@@ -190,7 +273,7 @@ export default function AdminPage() {
 
                 <div className="field">
                   <label htmlFor={`start-${index}`}>
-                    Start date and time (Eastern Time)
+                    Start date and time (Japan Time / JST)
                   </label>
                   <input
                     id={`start-${index}`}

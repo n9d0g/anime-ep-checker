@@ -1,6 +1,7 @@
 import { toDatetimeLocalValue } from './time'
 
 export type ScheduleMode = 'finite' | 'ongoing'
+export type ShowProvider = 'crunchyroll' | 'netflix'
 
 export interface ShowSchedule {
   mode: ScheduleMode
@@ -13,8 +14,13 @@ export interface ShowSchedule {
 export interface Show {
   id: string
   title: string
-  crunchyrollUrl: string
-  seriesId: string
+  provider: ShowProvider
+  crunchyrollUrl?: string
+  seriesId?: string
+  netflixUrl?: string
+  netflixId?: string
+  malId?: number
+  redditSearchTitle?: string
   schedule: ShowSchedule
 }
 
@@ -25,8 +31,13 @@ export interface ShowsFile {
 export interface ShowFormValues {
   id: string
   title: string
+  provider: ShowProvider
   crunchyrollUrl: string
   seriesId: string
+  netflixUrl: string
+  netflixId: string
+  malId: string
+  redditSearchTitle: string
   schedule: {
     mode: ScheduleMode
     startAt: string
@@ -40,8 +51,13 @@ export function emptyShowForm(): ShowFormValues {
   return {
     id: '',
     title: '',
+    provider: 'crunchyroll',
     crunchyrollUrl: '',
     seriesId: '',
+    netflixUrl: '',
+    netflixId: '',
+    malId: '',
+    redditSearchTitle: '',
     schedule: {
       mode: 'finite',
       startAt: '',
@@ -53,11 +69,18 @@ export function emptyShowForm(): ShowFormValues {
 }
 
 export function showToForm(show: Show): ShowFormValues {
+  const provider = show.provider ?? 'crunchyroll'
+
   return {
     id: show.id,
     title: show.title,
-    crunchyrollUrl: show.crunchyrollUrl,
-    seriesId: show.seriesId,
+    provider,
+    crunchyrollUrl: show.crunchyrollUrl ?? '',
+    seriesId: show.seriesId ?? '',
+    netflixUrl: show.netflixUrl ?? '',
+    netflixId: show.netflixId ?? '',
+    malId: show.malId ? String(show.malId) : '',
+    redditSearchTitle: show.redditSearchTitle ?? '',
     schedule: {
       mode: show.schedule.mode,
       startAt: toDatetimeLocalValue(show.schedule.startAt),

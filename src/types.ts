@@ -1,5 +1,7 @@
 export type ScheduleMode = 'finite' | 'ongoing'
 
+export type ShowProvider = 'crunchyroll' | 'netflix'
+
 export interface ShowSchedule {
   mode: ScheduleMode
   startAt: string
@@ -11,8 +13,13 @@ export interface ShowSchedule {
 export interface Show {
   id: string
   title: string
-  crunchyrollUrl: string
-  seriesId: string
+  provider: ShowProvider
+  crunchyrollUrl?: string
+  seriesId?: string
+  netflixUrl?: string
+  netflixId?: string
+  malId?: number
+  redditSearchTitle?: string
   schedule: ShowSchedule
 }
 
@@ -34,6 +41,13 @@ export interface StateFile {
   shows: Record<string, ShowState>
 }
 
+export interface ProviderEpisode {
+  id: string
+  episode?: string | number
+  title?: string
+  availableAt?: string | null
+}
+
 export interface CrunchyrollEpisode {
   id: string
   episode?: string
@@ -51,12 +65,24 @@ export interface CrunchyrollSeason {
 }
 
 export interface EpisodeSnapshot {
+  provider: ShowProvider
   seriesId: string
   seriesTitle: string
   seasonId: string
   seasonTitle: string
-  episode: CrunchyrollEpisode
+  episode: ProviderEpisode
   watchUrl: string
 }
 
 export type TimingStatus = 'unknown' | 'on-time' | 'early' | 'late'
+
+export function normalizeShowProvider(show: Show): Show {
+  return {
+    ...show,
+    provider: show.provider ?? 'crunchyroll',
+  }
+}
+
+export function providerLabel(provider: ShowProvider): string {
+  return provider === 'netflix' ? 'Netflix' : 'Crunchyroll'
+}

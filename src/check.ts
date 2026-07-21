@@ -11,7 +11,16 @@ import {
   getLatestAvailableEpisodeForSeries,
   parseSeriesIdFromUrl,
 } from './crunchyroll.js'
-import { sendEpisodeAlert, sendWaitingAlert } from './discord.js'
+import {
+  sendEpisodeAlert,
+  sendWaitingAlert,
+  type DiscordConfig,
+} from './discord.js'
+import {
+  getLatestAvailableEpisodeForTitle,
+  parseNetflixIdFromUrl,
+} from './netflix.js'
+import { findAnimeDiscussionUrl } from './reddit.js'
 import {
   getExpectedDropAt,
   getNextExpectedEpisode,
@@ -19,7 +28,14 @@ import {
   isPastWaitingGrace,
   parseEpisodeNumber,
 } from './schedule.js'
-import type { Show, ShowsFile, StateFile } from './types.js'
+import {
+  normalizeShowProvider,
+  providerLabel,
+  type EpisodeSnapshot,
+  type Show,
+  type ShowsFile,
+  type StateFile,
+} from './types.js'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const SHOWS_PATH = resolve(ROOT, 'shows.json')
@@ -46,42 +62,81 @@ async function writeJson(path: string, data: unknown): Promise<void> {
   await writeFile(path, `${JSON.stringify(data, null, 2)}\n`, 'utf8')
 }
 
-function resolveSeriesId(show: Show): string {
-  if (show.seriesId) return show.seriesId
-  return parseSeriesIdFromUrl(show.crunchyrollUrl)
+function resolveProviderId(show: Show): string {
+  const normalized = normalizeShowProvider(show)
+
+  if (normalized.provider === 'netflix') {
+    if (normalized.netflixId) return normalized.netflixId
+    if (normalized.netflixUrl) return parseNetflixIdFromUrl(normalized.netflixUrl)
+    throw new Error(`Netflix ID missing for show ${show.id}`)
+  }
+
+  if (normalized.seriesId) return normalized.seriesId
+  if (normalized.crunchyrollUrl) {
+    return parseSeriesIdFromUrl(normalized.crunchyrollUrl)
+  }
+  throw new Error(`Crunchyroll series ID missing for show ${show.id}`)
+}
+
+async function fetchLatestEpisode(show: Show): Promise<EpisodeSnapshot | null> {
+  const normalized = normalizeShowProvider(show)
+  const providerId = resolveProviderId(normalized)
+
+  if (normalized.provider === 'netflix') {
+    return getLatestAvailableEpisodeForTitle(providerId)
+  }
+
+  return getLatestAvailableEpisodeForSeries(providerId)
 }
 
 export interface CheckOptions {
   showsPath?: string
   statePath?: string
-  webhookUrl?: string
+  discord?: DiscordConfig
   dryRun?: boolean
   force?: boolean
+}
+
+function hasDiscordConfig(discord: DiscordConfig): boolean {
+  return Boolean(
+    (discord.botToken?.trim() && discord.channelId?.trim()) ||
+      discord.webhookUrl?.trim()
+  )
+}
+
+function getDiscordConfigFromEnv(): DiscordConfig {
+  return {
+    botToken: process.env.DISCORD_BOT_TOKEN,
+    channelId: process.env.DISCORD_CHANNEL_ID,
+    webhookUrl: process.env.DISCORD_WEBHOOK_URL,
+  }
 }
 
 export async function checkShows({
   showsPath = SHOWS_PATH,
   statePath = STATE_PATH,
-  webhookUrl = process.env.DISCORD_WEBHOOK_URL,
+  discord = getDiscordConfigFromEnv(),
   dryRun = false,
   force = false,
 }: CheckOptions = {}): Promise<{ stateChanged: boolean; state: StateFile }> {
   const showsFile = await readJson<ShowsFile>(showsPath, { shows: [] })
   const state = await readJson<StateFile>(statePath, { shows: {} })
-  const shows = showsFile.shows ?? []
+  const shows = (showsFile.shows ?? []).map(normalizeShowProvider)
   const now = new Date()
   let stateChanged = false
 
   for (const show of shows) {
     const showId = show.id
-    const seriesId = resolveSeriesId(show)
+    const providerId = resolveProviderId(show)
     const previousState = getShowState(state, showId)
     const lastEpisodeNumber = previousState
       ? parseEpisodeNumber(previousState.lastEpisodeNumber)
       : null
     const nextExpectedEp = getNextExpectedEpisode(show.schedule, lastEpisodeNumber)
 
-    console.log(`Checking ${show.title || showId} (${seriesId})...`)
+    console.log(
+      `Checking ${show.title || showId} (${providerLabel(show.provider)} ${providerId})...`
+    )
 
     if (nextExpectedEp === null) {
       console.log('  No more scheduled episodes for this show')
@@ -101,7 +156,7 @@ export async function checkShows({
       continue
     }
 
-    const latestSnapshot = await getLatestAvailableEpisodeForSeries(seriesId)
+    const latestSnapshot = await fetchLatestEpisode(show)
     if (!latestSnapshot) {
       console.log(`  No available episodes found for ${showId}`)
       continue
@@ -122,31 +177,41 @@ export async function checkShows({
     const expectedDropAt = expectedAt.toISOString()
 
     if (latestEpisodeNumber >= nextExpectedEp) {
-      const actualDropAt = latestSnapshot.episode.premium_available_date ?? null
+      const actualDropAt = latestSnapshot.episode.availableAt ?? null
       const timingStatus = getTimingStatus(expectedDropAt, actualDropAt)
 
       console.log(`  Episode ${nextExpectedEp} is available`)
       console.log(`  Timing: ${timingStatus}`)
 
-      if (!dryRun && webhookUrl) {
-        await sendEpisodeAlert({
-          webhookUrl,
-          show,
-          latestSnapshot,
-          episodeNumber: nextExpectedEp,
-          timingStatus,
-          expectedDropAt,
-          actualDropAt,
-        })
-        console.log('  Discord alert sent')
-      } else if (!webhookUrl) {
-        console.log('  DISCORD_WEBHOOK_URL not set; skipping alert')
+      if (!dryRun) {
+        if (hasDiscordConfig(discord)) {
+          const discussionUrl = await findAnimeDiscussionUrl(
+            show.title || show.id,
+            nextExpectedEp,
+            show.redditSearchTitle
+          )
+
+          if (discussionUrl) {
+            console.log(`  Reddit discussion: ${discussionUrl}`)
+          }
+
+          await sendEpisodeAlert({
+            discord,
+            show,
+            latestSnapshot,
+            episodeNumber: nextExpectedEp,
+            timingStatus,
+            expectedDropAt,
+            actualDropAt,
+            discussionUrl,
+          })
+          console.log('  Discord alert sent')
+        } else {
+          console.log('  Discord not configured; skipping alert')
+        }
       }
 
-      state.shows[showId] = createUpdatedState(
-        latestSnapshot,
-        nextExpectedEp
-      )
+      state.shows[showId] = createUpdatedState(latestSnapshot, nextExpectedEp)
       stateChanged = true
       continue
     }
@@ -157,16 +222,18 @@ export async function checkShows({
     ) {
       console.log(`  Episode ${nextExpectedEp} is late; sending waiting alert`)
 
-      if (!dryRun && webhookUrl) {
-        await sendWaitingAlert({
-          webhookUrl,
-          show,
-          episodeNumber: nextExpectedEp,
-          expectedDropAt,
-        })
-        console.log('  Discord waiting alert sent')
-      } else if (!webhookUrl) {
-        console.log('  DISCORD_WEBHOOK_URL not set; skipping waiting alert')
+      if (!dryRun) {
+        if (hasDiscordConfig(discord)) {
+          await sendWaitingAlert({
+            discord,
+            show,
+            episodeNumber: nextExpectedEp,
+            expectedDropAt,
+          })
+          console.log('  Discord waiting alert sent')
+        } else {
+          console.log('  Discord not configured; skipping waiting alert')
+        }
       }
 
       state.shows[showId] = {
@@ -178,7 +245,7 @@ export async function checkShows({
     }
 
     console.log(
-      `  Still waiting for episode ${nextExpectedEp} (latest on CR: ${latestEpisodeNumber})`
+      `  Still waiting for episode ${nextExpectedEp} (latest on ${providerLabel(show.provider)}: ${latestEpisodeNumber})`
     )
   }
 

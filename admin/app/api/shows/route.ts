@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server'
 import {
   getShowsFile,
+  parseNetflixIdFromUrl,
   parseSeriesIdFromUrl,
   saveShowsFile,
   slugify,
 } from '@/lib/github'
-import type { Show, ShowFormValues } from '@/lib/types'
+import type { Show, ShowFormValues, ShowProvider } from '@/lib/types'
 import { fromDatetimeLocalValue } from '@/lib/types'
 
 interface ShowsPutBody {
@@ -13,25 +14,44 @@ interface ShowsPutBody {
 }
 
 function normalizeShow(show: ShowFormValues): Show {
-  const seriesId = show.seriesId || parseSeriesIdFromUrl(show.crunchyrollUrl)
-  if (!seriesId) {
-    throw new Error(`Invalid Crunchyroll URL: ${show.crunchyrollUrl}`)
+  const provider: ShowProvider = show.provider ?? 'crunchyroll'
+  const title = show.title.trim()
+
+  let seriesId: string | undefined
+  let crunchyrollUrl: string | undefined
+  let netflixId: string | undefined
+  let netflixUrl: string | undefined
+
+  if (provider === 'crunchyroll') {
+    crunchyrollUrl = show.crunchyrollUrl.trim()
+    seriesId = show.seriesId || parseSeriesIdFromUrl(crunchyrollUrl) || undefined
+    if (!seriesId) {
+      throw new Error(`Invalid Crunchyroll URL: ${show.crunchyrollUrl}`)
+    }
+  } else {
+    netflixUrl = show.netflixUrl.trim()
+    netflixId = show.netflixId || parseNetflixIdFromUrl(netflixUrl) || undefined
+    if (!netflixId) {
+      throw new Error(`Invalid Netflix URL: ${show.netflixUrl}`)
+    }
   }
 
   const startAt = fromDatetimeLocalValue(show.schedule.startAt)
   if (!startAt) {
-    throw new Error(`Start date is required for ${show.title || seriesId}`)
+    throw new Error(`Start date is required for ${title || seriesId || netflixId}`)
   }
 
   const startEpisode = Number(show.schedule.startEpisode)
   if (!Number.isFinite(startEpisode) || startEpisode < 1) {
-    throw new Error(`Start episode must be at least 1 for ${show.title || seriesId}`)
+    throw new Error(
+      `Start episode must be at least 1 for ${title || seriesId || netflixId}`
+    )
   }
 
   const premiereBatchSize = Number(show.schedule.premiereBatchSize || '1')
   if (!Number.isFinite(premiereBatchSize) || premiereBatchSize < 1) {
     throw new Error(
-      `Premiere batch size must be at least 1 for ${show.title || seriesId}`
+      `Premiere batch size must be at least 1 for ${title || seriesId || netflixId}`
     )
   }
 
@@ -41,17 +61,28 @@ function normalizeShow(show: ShowFormValues): Show {
   if (mode === 'finite') {
     episodeCount = Number(show.schedule.episodeCount)
     if (!Number.isFinite(episodeCount) || episodeCount < 1) {
-      throw new Error(`Episode count is required for finite seasons`)
+      throw new Error('Episode count is required for finite seasons')
     }
   }
 
-  const id = show.id || slugify(show.title || seriesId)
+  const malIdRaw = show.malId.trim()
+  let malId: number | undefined
+  if (malIdRaw) {
+    malId = Number(malIdRaw)
+    if (!Number.isFinite(malId) || malId < 1) {
+      throw new Error(`MAL anime ID must be a positive number for ${title}`)
+    }
+  }
 
-  return {
+  const redditSearchTitle = show.redditSearchTitle.trim() || undefined
+  const id =
+    show.id ||
+    slugify(title || seriesId || netflixId || 'show')
+
+  const normalized: Show = {
     id,
-    title: show.title.trim(),
-    crunchyrollUrl: show.crunchyrollUrl.trim(),
-    seriesId,
+    title,
+    provider,
     schedule: {
       mode,
       startAt,
@@ -60,12 +91,33 @@ function normalizeShow(show: ShowFormValues): Show {
       premiereBatchSize,
     },
   }
+
+  if (provider === 'crunchyroll') {
+    normalized.crunchyrollUrl = crunchyrollUrl
+    normalized.seriesId = seriesId
+  } else {
+    normalized.netflixUrl = netflixUrl
+    normalized.netflixId = netflixId
+  }
+
+  if (malId !== undefined) {
+    normalized.malId = malId
+  }
+  if (redditSearchTitle) {
+    normalized.redditSearchTitle = redditSearchTitle
+  }
+
+  return normalized
 }
 
 export async function GET() {
   try {
     const { content } = await getShowsFile()
-    return NextResponse.json(content)
+    const shows = (content.shows ?? []).map((show: Show) => ({
+      ...show,
+      provider: show.provider ?? 'crunchyroll',
+    }))
+    return NextResponse.json({ shows })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json({ error: message }, { status: 500 })

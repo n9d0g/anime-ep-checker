@@ -5,7 +5,12 @@ import { isAuthorizedRequest } from './lib/auth'
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  if (pathname.startsWith('/api/auth') || pathname === '/login') {
+  if (
+    pathname.startsWith('/api/auth') ||
+    pathname.startsWith('/api/discord/interactions') ||
+    pathname.startsWith('/api/mal/callback') ||
+    pathname === '/login'
+  ) {
     return NextResponse.next()
   }
 
