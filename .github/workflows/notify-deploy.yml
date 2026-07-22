@@ -65,8 +65,10 @@ jobs:
           )
 
           if event_action == "vercel.deployment.success":
+              # Production main deploys link to the stable domain, not the unique deploy URL.
+              live_url = f"https://{host}" if branch == "main" else deploy_url
               header = f"🚀 **{host}** deployed successfully!"
-              footer = f"🔗 **Live URL:** {deploy_url}"
+              footer = f"🔗 **Live URL:** {live_url}"
           else:
               code_block += f"\nError: Deployment failed with status: {deploy_state}"
               header = f"❌ **{host}** deployment failed!"

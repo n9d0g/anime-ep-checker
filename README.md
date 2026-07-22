@@ -81,7 +81,7 @@ When the **Vercel admin** production deploy succeeds or fails, GitHub receives a
 2. Add it as GitHub secret `DISCORD_DEPLOY_WEBHOOK_URL`.
 3. Ensure the repo is connected to Vercel with the GitHub integration (default for Vercel imports).
 
-Success messages include branch, short commit SHA, commit subject, time (ET), and live URL. Failure messages add the deployment error status and a link to check logs. Preview deployments are ignored (`environment == production` only).
+Success messages include branch, short commit SHA, commit subject, time (ET), and live URL (`https://{project}.vercel.app` for `main`). Failure messages add the deployment error status and a **Check logs** link to the unique deployment URL. Preview deployments are ignored (`environment == production` only).
 
 ### 3. Vercel admin CMS
 
