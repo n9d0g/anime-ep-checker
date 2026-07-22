@@ -1,0 +1,84 @@
+name: Notify Discord on Vercel deploy
+
+on:
+  repository_dispatch:
+    types:
+      - vercel.deployment.success
+
+jobs:
+  notify:
+    if: github.event.client_payload.environment == 'production'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout deployed commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.client_payload.git.sha }}
+
+      - name: Post deploy notification to Discord
+        env:
+          WEBHOOK_URL: ${{ secrets.DISCORD_DEPLOY_WEBHOOK_URL }}
+          DEPLOY_URL: ${{ github.event.client_payload.url }}
+          PROJECT_NAME: ${{ github.event.client_payload.project.name }}
+        run: |
+          if [ -z "$WEBHOOK_URL" ]; then
+            echo "DISCORD_DEPLOY_WEBHOOK_URL is not set; skipping."
+            exit 0
+          fi
+
+          if [ -z "$DEPLOY_URL" ]; then
+            echo "Deployment URL missing from Vercel payload; skipping."
+            exit 0
+          fi
+
+          export COMMIT_MSG="$(git log -1 --pretty=%s)"
+
+          python3 <<'PY'
+          import json
+          import os
+          import urllib.error
+          import urllib.request
+
+          webhook = os.environ["WEBHOOK_URL"]
+          deploy_url = os.environ["DEPLOY_URL"]
+          project = os.environ.get("PROJECT_NAME") or "anime-ep-checker"
+          commit = os.environ.get("COMMIT_MSG", "Unknown commit")
+
+          payload = {
+              "embeds": [
+                  {
+                      "title": f"{project} deployed",
+                      "url": deploy_url,
+                      "color": 0x2ECC71,
+                      "fields": [
+                          {
+                              "name": "URL",
+                              "value": f"[Open deployment]({deploy_url})",
+                              "inline": False,
+                          },
+                          {
+                              "name": "Commit",
+                              "value": commit[:1024],
+                              "inline": False,
+                          },
+                      ],
+                      "footer": {"text": "Vercel production deploy"},
+                  }
+              ]
+          }
+
+          request = urllib.request.Request(
+              webhook,
+              data=json.dumps(payload).encode("utf-8"),
+              headers={"Content-Type": "application/json"},
+              method="POST",
+          )
+
+          try:
+              with urllib.request.urlopen(request) as response:
+                  if response.status >= 400:
+                      raise SystemExit(f"Discord webhook failed ({response.status})")
+          except urllib.error.HTTPError as error:
+              body = error.read().decode("utf-8", errors="replace")
+              raise SystemExit(f"Discord webhook failed ({error.code}): {body}")
+          PY

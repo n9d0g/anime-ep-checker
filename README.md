@@ -69,8 +69,19 @@ Optional fallback: a legacy webhook via `DISCORD_WEBHOOK_URL` (no MAL button).
 | `REDDIT_CLIENT_ID` | Reddit script app client ID |
 | `REDDIT_CLIENT_SECRET` | Reddit script app secret |
 | `REDDIT_USER_AGENT` | e.g. `anime-ep-checker/1.0 by your_reddit_username` |
+| `DISCORD_DEPLOY_WEBHOOK_URL` | Webhook for a separate **deploy** Discord channel |
 
 The workflow uses the default `GITHUB_TOKEN` to commit `state.json` updates.
+
+### 2b. Discord deploy notifications
+
+When the **Vercel admin** production deploy succeeds, GitHub receives a `vercel.deployment.success` event and [`.github/workflows/notify-deploy.yml`](.github/workflows/notify-deploy.yml) posts to your deploy channel.
+
+1. Create a webhook in your **deploy** Discord channel (not the episode-alerts channel).
+2. Add it as GitHub secret `DISCORD_DEPLOY_WEBHOOK_URL`.
+3. Ensure the repo is connected to Vercel with the GitHub integration (default for Vercel imports).
+
+The message includes the deployment URL and commit subject. Preview deployments are ignored (`environment == production` only).
 
 ### 3. Vercel admin CMS
 
@@ -147,6 +158,7 @@ Set Discord/Reddit/Netflix env vars in `.env` at the repo root for live checks.
 | [`src/should-run.ts`](src/should-run.ts) | Cheap gate for Actions |
 | [`admin/`](admin/) | Vercel CMS + Discord/MAL interactions |
 | [`.github/workflows/check-episodes.yml`](.github/workflows/check-episodes.yml) | Scheduled checker |
+| [`.github/workflows/notify-deploy.yml`](.github/workflows/notify-deploy.yml) | Discord notify on Vercel production deploy |
 
 ## Notes
 
