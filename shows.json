@@ -4,59 +4,62 @@
       "id": "one-piece",
       "title": "One Piece",
       "provider": "crunchyroll",
-      "crunchyrollUrl": "https://www.crunchyroll.com/series/GRMG8ZQZR/one-piece",
-      "seriesId": "GRMG8ZQZR",
       "schedule": {
         "mode": "ongoing",
         "startAt": "2026-07-12T15:15:00.000Z",
         "startEpisode": 1169,
         "episodeCount": null,
         "premiereBatchSize": 1
-      }
+      },
+      "crunchyrollUrl": "https://www.crunchyroll.com/series/GRMG8ZQZR/one-piece",
+      "seriesId": "GRMG8ZQZR",
+      "malId": 21
     },
     {
       "id": "slime",
       "title": "That Time I Got Reincarnated as a Slime",
       "provider": "crunchyroll",
-      "crunchyrollUrl": "https://www.crunchyroll.com/series/GYZJ43JMR/that-time-i-got-reincarnated-as-a-slime",
-      "seriesId": "GYZJ43JMR",
       "schedule": {
         "mode": "finite",
         "startAt": "2026-04-10T15:00:00.000Z",
         "startEpisode": 1,
         "episodeCount": 24,
         "premiereBatchSize": 1
-      }
+      },
+      "crunchyrollUrl": "https://www.crunchyroll.com/series/GYZJ43JMR/that-time-i-got-reincarnated-as-a-slime",
+      "seriesId": "GYZJ43JMR",
+      "malId": 59970
     },
     {
       "id": "mushoku-tensei-s3",
       "title": "Mushoku Tensei s3",
       "provider": "crunchyroll",
-      "crunchyrollUrl": "https://www.crunchyroll.com/series/G24H1N3MP/mushoku-tensei-jobless-reincarnation",
-      "seriesId": "G24H1N3MP",
-      "malId": 55888,
-      "redditSearchTitle": "mushoku_tensei_jobless_reincarnation_season_3",
       "schedule": {
         "mode": "finite",
         "startAt": "2026-07-05T16:00:00.000Z",
         "startEpisode": 1,
         "episodeCount": 14,
         "premiereBatchSize": 2
-      }
+      },
+      "crunchyrollUrl": "https://www.crunchyroll.com/series/G24H1N3MP/mushoku-tensei-jobless-reincarnation",
+      "seriesId": "G24H1N3MP",
+      "malId": 59193,
+      "redditSearchTitle": "mushoku_tensei_jobless_reincarnation_season_3"
     },
     {
       "id": "smoking-behind-the-supermarket-with-you",
       "title": "Smoking Behind the Supermarket with You",
       "provider": "crunchyroll",
-      "crunchyrollUrl": "https://www.crunchyroll.com/series/GT00378116/smoking-behind-the-supermarket-with-you",
-      "seriesId": "GT00378116",
       "schedule": {
         "mode": "finite",
         "startAt": "2026-07-09T16:00:00.000Z",
         "startEpisode": 1,
         "episodeCount": 12,
         "premiereBatchSize": 1
-      }
+      },
+      "crunchyrollUrl": "https://www.crunchyroll.com/series/GT00378116/smoking-behind-the-supermarket-with-you",
+      "seriesId": "GT00378116",
+      "malId": 62076
     }
   ]
 }
