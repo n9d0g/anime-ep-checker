@@ -2,6 +2,16 @@ import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { getMalRedirectUri } from '@/lib/mal'
 
+/** MAL PKCE requires code_challenge length 43–128 (UUID is only 36). */
+function createCodeVerifier(): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(64))
+  return Buffer.from(bytes)
+    .toString('base64')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/g, '')
+}
+
 export async function GET(request: Request) {
   const clientId = process.env.MAL_CLIENT_ID?.trim()
   if (!clientId) {
@@ -12,7 +22,7 @@ export async function GET(request: Request) {
   }
 
   const state = crypto.randomUUID()
-  const codeVerifier = crypto.randomUUID()
+  const codeVerifier = createCodeVerifier()
   const redirectUri = getMalRedirectUri(request.url)
 
   const cookieStore = await cookies()
