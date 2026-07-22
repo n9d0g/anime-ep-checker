@@ -4,6 +4,8 @@ on:
   repository_dispatch:
     types:
       - vercel.deployment.success
+      - vercel.deployment.error
+      - vercel.deployment.failed
 
 jobs:
   notify:
@@ -20,6 +22,11 @@ jobs:
           DISCORD_DEPLOY_WEBHOOK_URL: ${{ secrets.DISCORD_DEPLOY_WEBHOOK_URL }}
           DEPLOY_URL: ${{ github.event.client_payload.url }}
           PROJECT_NAME: ${{ github.event.client_payload.project.name }}
+          EVENT_ACTION: ${{ github.event.action }}
+          BRANCH: ${{ github.event.client_payload.git.ref }}
+          SHORT_SHA: ${{ github.event.client_payload.git.shortSha }}
+          FULL_SHA: ${{ github.event.client_payload.git.sha }}
+          DEPLOY_STATE: ${{ github.event.client_payload.state.type }}
         run: |
           if [ -z "$DISCORD_DEPLOY_WEBHOOK_URL" ]; then
             echo "DISCORD_DEPLOY_WEBHOOK_URL is not set; skipping."
@@ -35,21 +42,53 @@ jobs:
 
           payload_json=$(python3 -c '
           import json, os
+          from datetime import datetime
+          from zoneinfo import ZoneInfo
+
           deploy_url = os.environ["DEPLOY_URL"]
           project = os.environ.get("PROJECT_NAME") or "anime-ep-checker"
-          commit = os.environ.get("COMMIT_MSG", "Unknown commit")
-          print(json.dumps({
-              "embeds": [{
-                  "title": f"{project} deployed",
-                  "url": deploy_url,
-                  "color": 0x2ECC71,
-                  "fields": [
-                      {"name": "URL", "value": f"[Open deployment]({deploy_url})", "inline": False},
-                      {"name": "Commit", "value": commit[:1024], "inline": False},
-                  ],
-                  "footer": {"text": "Vercel production deploy"},
-              }]
-          }))
+          host = f"{project}.vercel.app"
+          branch = os.environ.get("BRANCH") or "unknown"
+          short_sha = os.environ.get("SHORT_SHA") or (os.environ.get("FULL_SHA") or "")[:7] or "unknown"
+          details = os.environ.get("COMMIT_MSG", "Unknown commit")
+          event_action = os.environ.get("EVENT_ACTION", "")
+          deploy_state = (os.environ.get("DEPLOY_STATE") or "ERROR").upper()
+
+          now = datetime.now(ZoneInfo("America/New_York"))
+          time_str = now.strftime("%Y-%m-%d %H:%M:%S %Z")
+
+          code_block = (
+              f"Branch: {branch}\n"
+              f"Commit: {short_sha}\n"
+              f"Details: {details}\n"
+              f"Time: {time_str}"
+          )
+
+          if event_action == "vercel.deployment.success":
+              header = f"🚀 **{host}** deployed successfully!"
+              footer = f"🔗 **Live URL:** {deploy_url}"
+          else:
+              code_block += f"\nError: Deployment failed with status: {deploy_state}"
+              header = f"❌ **{host}** deployment failed!"
+              footer = f"🔗 **Check logs:** {deploy_url}"
+
+          content = f"{header}\n\n```\n{code_block}\n```\n\n{footer}"
+
+          if len(content) > 2000:
+              overflow = len(content) - 2000
+              max_details = max(0, len(details) - overflow - 3)
+              details = details[:max_details] + "..."
+              code_block = (
+                  f"Branch: {branch}\n"
+                  f"Commit: {short_sha}\n"
+                  f"Details: {details}\n"
+                  f"Time: {time_str}"
+              )
+              if event_action != "vercel.deployment.success":
+                  code_block += f"\nError: Deployment failed with status: {deploy_state}"
+              content = f"{header}\n\n```\n{code_block}\n```\n\n{footer}"
+
+          print(json.dumps({"content": content}))
           ')
 
           curl -fsS -X POST "$DISCORD_DEPLOY_WEBHOOK_URL" \

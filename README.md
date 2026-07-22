@@ -75,13 +75,13 @@ The workflow uses the default `GITHUB_TOKEN` to commit `state.json` updates.
 
 ### 2b. Discord deploy notifications
 
-When the **Vercel admin** production deploy succeeds, GitHub receives a `vercel.deployment.success` event and [`.github/workflows/notify-deploy.yml`](.github/workflows/notify-deploy.yml) posts to your deploy channel.
+When the **Vercel admin** production deploy succeeds or fails, GitHub receives a `vercel.deployment.success`, `vercel.deployment.error`, or `vercel.deployment.failed` event and [`.github/workflows/notify-deploy.yml`](.github/workflows/notify-deploy.yml) posts to your deploy channel.
 
 1. Create a webhook in your **deploy** Discord channel (not the episode-alerts channel).
 2. Add it as GitHub secret `DISCORD_DEPLOY_WEBHOOK_URL`.
 3. Ensure the repo is connected to Vercel with the GitHub integration (default for Vercel imports).
 
-The message includes the deployment URL and commit subject. Preview deployments are ignored (`environment == production` only).
+Success messages include branch, short commit SHA, commit subject, time (ET), and live URL. Failure messages add the deployment error status and a link to check logs. Preview deployments are ignored (`environment == production` only).
 
 ### 3. Vercel admin CMS
 
