@@ -60,6 +60,21 @@
       "crunchyrollUrl": "https://www.crunchyroll.com/series/GT00378116/smoking-behind-the-supermarket-with-you",
       "seriesId": "GT00378116",
       "malId": 62076
+    },
+    {
+      "id": "chainsmoker-cat",
+      "title": "Chainsmoker Cat",
+      "provider": "netflix",
+      "schedule": {
+        "mode": "ongoing",
+        "startAt": "2026-07-02T16:30:00.000Z",
+        "startEpisode": 1,
+        "episodeCount": null,
+        "premiereBatchSize": 1
+      },
+      "netflixUrl": "https://www.netflix.com/title/82760630",
+      "netflixId": "82760630",
+      "malId": 63403
     }
   ]
 }
