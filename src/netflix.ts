@@ -1,32 +1,61 @@
 import type { EpisodeSnapshot } from './types.js'
 
 const USER_AGENT =
-  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.5.2 Safari/605.1.15'
 
-interface ShaktiEpisode {
+const PATH_EVALUATOR_URL =
+  'https://www.netflix.com/nq/website/memberapi/release/pathEvaluator?webp=false&drmSystem=fps&isVolatileBillboardsEnabled=true&isTop10Supported=true&falcor_server=0.1.0&withSize=true&materialize=true&original_path=%2Fshakti%2Fmre%2FpathEvaluator'
+
+type FalcorPath = Array<string | number | Record<string, number>>
+
+interface FalcorAtom<T = unknown> {
+  $type?: string
+  value?: T
+}
+
+interface FalcorRef {
+  $type?: string
+  value?: [string, string]
+}
+
+interface EpisodeSummary {
+  type?: string
   id?: number
-  seq?: number
-  title?: string
-  availability?: {
-    isPlayable?: boolean
-    availabilityDate?: string
-  }
+  idx?: number
+  episode?: number
+  season?: number
+  isPlayable?: boolean
 }
 
-interface ShaktiSeason {
+interface SeasonSummary {
   id?: number
-  seq?: number
-  title?: string
-  episodes?: ShaktiEpisode[]
+  name?: string
+  length?: number
 }
 
-interface ShaktiVideo {
-  title?: string
-  seasonList?: ShaktiSeason[]
+interface Availability {
+  isPlayable?: boolean
+  availabilityDate?: string
 }
 
-let cachedBuildId: string | null = null
-let buildIdExpiresAt = 0
+interface JsonGraph {
+  videos?: Record<
+    string,
+    {
+      title?: FalcorAtom<string>
+      summary?: FalcorAtom<EpisodeSummary>
+      availability?: FalcorAtom<Availability>
+      seasonList?: Record<string, FalcorRef | FalcorAtom>
+    }
+  >
+  seasons?: Record<
+    string,
+    {
+      summary?: FalcorAtom<SeasonSummary>
+      episodes?: Record<string, FalcorRef | FalcorAtom>
+    }
+  >
+}
 
 export function parseNetflixIdFromUrl(url: string): string {
   const match = String(url).match(/\/title\/(\d+)/i)
@@ -46,12 +75,30 @@ function getNetflixCookie(): string {
   return cookie
 }
 
-async function getShaktiBuildId(cookie: string): Promise<string> {
-  const now = Date.now()
-  if (cachedBuildId && now < buildIdExpiresAt) {
-    return cachedBuildId
-  }
+function decodeNetflixEscapes(value: string): string {
+  return value
+    .replace(/\\x([0-9A-Fa-f]{2})/g, (_, hex: string) =>
+      String.fromCharCode(parseInt(hex, 16))
+    )
+    .replace(/\\u([0-9A-Fa-f]{4})/g, (_, hex: string) =>
+      String.fromCharCode(parseInt(hex, 16))
+    )
+    .replace(/\\(.)/g, '$1')
+}
 
+function extractAuthURL(html: string): string {
+  const match = html.match(
+    /"authURL":"((?:\\x[0-9A-Fa-f]{2}|\\u[0-9A-Fa-f]{4}|\\.|[^"\\])*)"/
+  )
+  if (!match) {
+    throw new Error(
+      'Could not find Netflix authURL. Cookie may be expired or not logged in.'
+    )
+  }
+  return decodeNetflixEscapes(match[1])
+}
+
+async function getAuthURL(cookie: string): Promise<string> {
   const response = await fetch('https://www.netflix.com/browse', {
     headers: {
       Cookie: cookie,
@@ -66,144 +113,184 @@ async function getShaktiBuildId(cookie: string): Promise<string> {
     )
   }
 
-  const html = await response.text()
-  const match =
-    html.match(/"BUILD_IDENTIFIER":"([^"]+)"/) ??
-    html.match(/"buildIdentifier":"([^"]+)"/)
-
-  if (!match) {
-    throw new Error('Could not find Netflix Shakti build identifier')
-  }
-
-  cachedBuildId = match[1]
-  buildIdExpiresAt = now + 6 * 60 * 60 * 1000
-  return cachedBuildId
+  return extractAuthURL(await response.text())
 }
 
-function isEpisodeAvailable(episode: ShaktiEpisode, now: Date): boolean {
-  if (episode.availability?.isPlayable) {
-    return true
+async function pathEvaluate(
+  cookie: string,
+  authURL: string,
+  paths: FalcorPath[]
+): Promise<JsonGraph> {
+  const body = new URLSearchParams()
+  for (const path of paths) {
+    body.append('path', JSON.stringify(path))
   }
+  body.set('authURL', authURL)
 
-  const availabilityDate = episode.availability?.availabilityDate
-  if (availabilityDate) {
-    const date = new Date(availabilityDate)
-    if (!Number.isNaN(date.getTime()) && date <= now) {
-      return true
-    }
-  }
-
-  return false
-}
-
-function pickLatestAvailableEpisode(
-  seasons: ShaktiSeason[],
-  now: Date
-): { season: ShaktiSeason; episode: ShaktiEpisode } | null {
-  let best: { season: ShaktiSeason; episode: ShaktiEpisode } | null = null
-
-  for (const season of seasons) {
-    for (const episode of season.episodes ?? []) {
-      if (!isEpisodeAvailable(episode, now)) continue
-      if (episode.seq === undefined || episode.id === undefined) continue
-
-      if (
-        !best ||
-        (episode.seq ?? 0) > (best.episode.seq ?? 0) ||
-        ((episode.seq ?? 0) === (best.episode.seq ?? 0) &&
-          (episode.id ?? 0) > (best.episode.id ?? 0))
-      ) {
-        best = { season, episode }
-      }
-    }
-  }
-
-  return best
-}
-
-async function fetchTitleMetadata(
-  netflixId: string,
-  cookie: string
-): Promise<ShaktiVideo> {
-  const buildId = await getShaktiBuildId(cookie)
-  const path = encodeURIComponent(
-    JSON.stringify([
-      {
-        path: 'videos',
-        id: Number(netflixId),
-        seasonList: {
-          from: 0,
-          to: 20,
-          increment: 1,
-          episodeCount: 80,
-          jumpTo: null,
-        },
-        summary: { asInt: null },
-        title: 'view',
-      },
-    ])
-  )
-
-  const url = `https://www.netflix.com/api/shakti/${buildId}/pathEvaluator/web/${path}?withSize=true&materialize=true&mfecdn=ttl`
-
-  const response = await fetch(url, {
+  const response = await fetch(PATH_EVALUATOR_URL, {
+    method: 'POST',
     headers: {
       Cookie: cookie,
       'User-Agent': USER_AGENT,
       Accept: '*/*',
+      'Content-Type': 'application/x-www-form-urlencoded',
+      Origin: 'https://www.netflix.com',
+      Referer: 'https://www.netflix.com/browse',
+      'X-Netflix.clientType': 'akira',
+      'x-netflix.nq.stack': 'prod',
+      'x-netflix.client.request.name': 'ui/falcorUnclassified',
     },
+    body,
   })
 
   if (!response.ok) {
-    const body = await response.text()
-    throw new Error(`Netflix Shakti API ${response.status}: ${body.slice(0, 200)}`)
+    const text = await response.text()
+    throw new Error(
+      `Netflix pathEvaluator API ${response.status}: ${text.slice(0, 200)}`
+    )
   }
 
-  const data = (await response.json()) as {
-    value?: {
-      videos?: Record<string, ShaktiVideo>
-    }
+  const data = (await response.json()) as { jsonGraph?: JsonGraph }
+  if (!data.jsonGraph) {
+    throw new Error('Netflix pathEvaluator response missing jsonGraph')
+  }
+  return data.jsonGraph
+}
+
+function isRef(node: FalcorRef | FalcorAtom | undefined): node is FalcorRef {
+  return node?.$type === 'ref' && Array.isArray(node.value)
+}
+
+function atomValue<T>(node: FalcorAtom<T> | undefined): T | undefined {
+  if (!node || node.$type === 'error') return undefined
+  return node.value
+}
+
+function seasonIdsFromGraph(
+  graph: JsonGraph,
+  netflixId: string
+): Array<{ seasonId: string; summary?: SeasonSummary }> {
+  const seasonList = graph.videos?.[netflixId]?.seasonList ?? {}
+  const seasons: Array<{ seasonId: string; summary?: SeasonSummary }> = []
+
+  for (const key of Object.keys(seasonList).sort(
+    (a, b) => Number(a) - Number(b)
+  )) {
+    const node = seasonList[key]
+    if (!isRef(node) || node.value?.[0] !== 'seasons') continue
+    const seasonId = String(node.value[1])
+    seasons.push({
+      seasonId,
+      summary: atomValue(graph.seasons?.[seasonId]?.summary),
+    })
   }
 
-  const video = data.value?.videos?.[netflixId]
-  if (!video) {
-    throw new Error(`Netflix title ${netflixId} not found in Shakti response`)
-  }
+  return seasons
+}
 
-  return video
+function isEpisodePlayable(
+  summary: EpisodeSummary | undefined,
+  availability: Availability | undefined
+): boolean {
+  if (availability?.isPlayable === false) return false
+  if (availability?.isPlayable === true) return true
+  return Boolean(summary?.isPlayable)
 }
 
 export async function getLatestAvailableEpisodeForTitle(
   netflixId: string,
   cookie = getNetflixCookie()
 ): Promise<EpisodeSnapshot | null> {
-  const video = await fetchTitleMetadata(netflixId, cookie)
-  const seasons = video.seasonList ?? []
-  const now = new Date()
-  const latest = pickLatestAvailableEpisode(seasons, now)
+  const authURL = await getAuthURL(cookie)
+  const titleId = Number(netflixId)
 
-  if (!latest) {
+  const baseGraph = await pathEvaluate(cookie, authURL, [
+    ['videos', titleId, 'title'],
+    ['videos', titleId, 'seasonList', { from: 0, to: 20 }, 'summary'],
+  ])
+
+  const seriesTitle =
+    atomValue(baseGraph.videos?.[netflixId]?.title) ?? 'Unknown series'
+  const seasons = seasonIdsFromGraph(baseGraph, netflixId)
+  if (seasons.length === 0) {
     return null
   }
 
-  const { season, episode } = latest
-  const episodeId = String(episode.id)
-  const episodeNumber = episode.seq ?? 0
-  const seriesTitle = video.title ?? 'Unknown series'
-  const seasonTitle = season.title ?? `Season ${season.seq ?? ''}`.trim()
+  const episodePaths: FalcorPath[] = []
+  for (const season of seasons) {
+    const length = Math.max(0, (season.summary?.length ?? 80) - 1)
+    const seasonKey = Number(season.seasonId)
+    episodePaths.push(
+      ['seasons', seasonKey, 'episodes', { from: 0, to: length }, 'summary'],
+      ['seasons', seasonKey, 'episodes', { from: 0, to: length }, 'title'],
+      [
+        'seasons',
+        seasonKey,
+        'episodes',
+        { from: 0, to: length },
+        'availability',
+      ]
+    )
+  }
+
+  const episodeGraph = await pathEvaluate(cookie, authURL, episodePaths)
+
+  let best: {
+    seasonId: string
+    seasonTitle: string
+    episodeId: string
+    episodeNumber: number
+    title?: string
+    availableAt: string | null
+  } | null = null
+
+  for (const season of seasons) {
+    const episodeNodes = episodeGraph.seasons?.[season.seasonId]?.episodes ?? {}
+    const seasonTitle =
+      season.summary?.name ?? `Season ${season.summary?.id ?? season.seasonId}`
+
+    for (const key of Object.keys(episodeNodes)) {
+      const node = episodeNodes[key]
+      if (!isRef(node) || node.value?.[0] !== 'videos') continue
+
+      const episodeId = String(node.value[1])
+      const video = episodeGraph.videos?.[episodeId]
+      const summary = atomValue(video?.summary)
+      const availability = atomValue(video?.availability)
+      if (!isEpisodePlayable(summary, availability)) continue
+
+      const episodeNumber = summary?.episode ?? summary?.idx ?? Number(key) + 1
+      if (!Number.isFinite(episodeNumber)) continue
+
+      if (!best || episodeNumber > best.episodeNumber) {
+        best = {
+          seasonId: season.seasonId,
+          seasonTitle,
+          episodeId,
+          episodeNumber,
+          title: atomValue(video?.title),
+          availableAt: availability?.availabilityDate ?? null,
+        }
+      }
+    }
+  }
+
+  if (!best) {
+    return null
+  }
 
   return {
     provider: 'netflix',
     seriesId: netflixId,
     seriesTitle,
-    seasonId: String(season.id ?? season.seq ?? 'unknown'),
-    seasonTitle,
+    seasonId: best.seasonId,
+    seasonTitle: best.seasonTitle,
     episode: {
-      id: episodeId,
-      episode: episodeNumber,
-      title: episode.title,
-      availableAt: episode.availability?.availabilityDate ?? null,
+      id: best.episodeId,
+      episode: best.episodeNumber,
+      title: best.title,
+      availableAt: best.availableAt,
     },
-    watchUrl: `https://www.netflix.com/watch/${episodeId}`,
+    watchUrl: `https://www.netflix.com/watch/${best.episodeId}`,
   }
 }

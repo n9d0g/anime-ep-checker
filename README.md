@@ -115,7 +115,7 @@ Success messages include branch, short commit SHA, commit subject, time (ET), an
 
 ### 5. Netflix cookie
 
-For Netflix-tracked shows, copy your browser cookie string while logged into Netflix (DevTools → Network → any `netflix.com` request → `Cookie` header) into the `NETFLIX_COOKIE` GitHub secret. Refresh it if Shakti requests start failing.
+For Netflix-tracked shows, copy your browser cookie string while logged into Netflix (DevTools → Network → any `netflix.com` request → `Cookie` header) into the `NETFLIX_COOKIE` GitHub secret. Refresh it if pathEvaluator requests start failing (expired session).
 
 ### 6. Local development
 
@@ -152,7 +152,7 @@ Set Discord/Reddit/Netflix env vars in `.env` at the repo root for live checks.
 | [`src/check.ts`](src/check.ts) | Main checker CLI |
 | [`src/schedule.ts`](src/schedule.ts) | Expected drop times + check windows |
 | [`src/crunchyroll.ts`](src/crunchyroll.ts) | Crunchyroll API client |
-| [`src/netflix.ts`](src/netflix.ts) | Netflix Shakti client (cookie auth) |
+| [`src/netflix.ts`](src/netflix.ts) | Netflix pathEvaluator client (cookie auth) |
 | [`src/reddit.ts`](src/reddit.ts) | r/anime discussion search |
 | [`src/discord.ts`](src/discord.ts) | Discord bot/webhook alerts |
 | [`src/should-run.ts`](src/should-run.ts) | Cheap gate for Actions |
