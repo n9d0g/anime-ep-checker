@@ -20,7 +20,7 @@ export default function MalSetupPage() {
       </header>
 
       <section className="panel stack">
-        <ol>
+        <ol className="setup-steps">
           <li>
             Create a MAL API client at{' '}
             <a

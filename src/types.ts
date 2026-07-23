@@ -35,12 +35,15 @@ export interface ShowState {
   seasonId: string
   seasonTitle: string
   waitingNotifiedForEpisode?: number | null
+  discordScheduledEventId?: string | null
+  discordScheduledEventEpisode?: number | null
 }
 
 export interface StateFile {
   shows: Record<string, ShowState>
   meta?: {
     netflixCookieAlertSentAt?: string | null
+    watchingDashboardMessageId?: string | null
   }
 }
 
@@ -88,4 +91,18 @@ export function normalizeShowProvider(show: Show): Show {
 
 export function providerLabel(provider: ShowProvider): string {
   return provider === 'netflix' ? 'Netflix' : 'Crunchyroll'
+}
+
+export function getShowWatchUrl(show: Show): string {
+  const normalized = normalizeShowProvider(show)
+
+  if (normalized.provider === 'netflix') {
+    if (normalized.netflixUrl) return normalized.netflixUrl
+    if (normalized.netflixId) {
+      return `https://www.netflix.com/title/${normalized.netflixId}`
+    }
+    return ''
+  }
+
+  return normalized.crunchyrollUrl ?? ''
 }

@@ -1,4 +1,5 @@
 import { formatTimingLabel } from './compare.js'
+import { createBotMessage } from './discord-api.js'
 import { formatEasternTime } from './time.js'
 import {
   providerLabel,
@@ -30,8 +31,6 @@ interface WaitingAlertInput {
   episodeNumber: number
   expectedDropAt: string
 }
-
-const DISCORD_API = 'https://discord.com/api/v10'
 
 function hasBotConfig(discord: DiscordConfig): boolean {
   return Boolean(discord.botToken?.trim() && discord.channelId?.trim())
@@ -100,19 +99,7 @@ async function postBotMessage(
   channelId: string,
   payload: Record<string, unknown>
 ): Promise<void> {
-  const response = await fetch(`${DISCORD_API}/channels/${channelId}/messages`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bot ${botToken}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-  })
-
-  if (!response.ok) {
-    const body = await response.text()
-    throw new Error(`Discord bot message failed (${response.status}): ${body}`)
-  }
+  await createBotMessage(botToken, channelId, payload)
 }
 
 async function postWebhook(

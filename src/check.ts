@@ -17,6 +17,12 @@ import {
   sendWaitingAlert,
   type DiscordConfig,
 } from './discord.js'
+import { syncWatchingDashboard } from './discord-dashboard.js'
+import {
+  clearScheduledEventForShow,
+  syncScheduledEvents,
+  type DiscordEventsConfig,
+} from './discord-events.js'
 import {
   getLatestAvailableEpisodeForTitle,
   NetflixAuthError,
@@ -116,6 +122,42 @@ function getDiscordConfigFromEnv(): DiscordConfig {
     channelId: process.env.DISCORD_CHANNEL_ID,
     webhookUrl: process.env.DISCORD_WEBHOOK_URL,
   }
+}
+
+function getDiscordEventsConfigFromEnv(): DiscordEventsConfig {
+  return {
+    botToken: process.env.DISCORD_BOT_TOKEN,
+    guildId: process.env.DISCORD_GUILD_ID,
+  }
+}
+
+function getDiscordDashboardConfigFromEnv() {
+  return {
+    botToken: process.env.DISCORD_BOT_TOKEN,
+    watchingChannelId: process.env.DISCORD_WATCHING_CHANNEL_ID,
+  }
+}
+
+function isShowInCheckWindow(
+  show: Show,
+  state: StateFile,
+  now: Date,
+  force: boolean
+): boolean {
+  if (force) return true
+
+  const previousState = getShowState(state, show.id)
+  const lastEpisodeNumber = previousState
+    ? parseEpisodeNumber(previousState.lastEpisodeNumber)
+    : null
+  const nextExpectedEp = getNextExpectedEpisode(show.schedule, lastEpisodeNumber)
+
+  if (nextExpectedEp === null) return false
+
+  const expectedAt = getExpectedDropAt(show.schedule, nextExpectedEp)
+  if (!expectedAt) return false
+
+  return isInCheckWindow(expectedAt, now)
 }
 
 export async function checkShows({
@@ -256,6 +298,19 @@ export async function checkShows({
             discussionUrl,
           })
           console.log('  Discord alert sent')
+
+          if (hasBotConfig(discord)) {
+            const eventsConfig = getDiscordEventsConfigFromEnv()
+            const cleared = await clearScheduledEventForShow(
+              eventsConfig,
+              showId,
+              state
+            )
+            if (cleared) {
+              stateChanged = true
+              console.log('  Discord scheduled event cleared')
+            }
+          }
         } else {
           console.log('  Discord not configured; skipping alert')
         }
@@ -297,6 +352,48 @@ export async function checkShows({
     console.log(
       `  Still waiting for episode ${nextExpectedEp} (latest on ${providerLabel(show.provider)}: ${latestEpisodeNumber})`
     )
+  }
+
+  if (!dryRun) {
+    try {
+      const dashboardChanged = await syncWatchingDashboard({
+        config: getDiscordDashboardConfigFromEnv(),
+        shows,
+        state,
+        now,
+        dryRun,
+        fetchLatest: fetchLatestEpisode,
+        inWindowForShow: (show) => isShowInCheckWindow(show, state, now, force),
+      })
+      if (dashboardChanged) {
+        stateChanged = true
+      }
+    } catch (error) {
+      console.warn(
+        `Watching dashboard sync failed: ${
+          error instanceof Error ? error.message : error
+        }`
+      )
+    }
+
+    try {
+      const eventsChanged = await syncScheduledEvents({
+        config: getDiscordEventsConfigFromEnv(),
+        shows,
+        state,
+        now,
+        dryRun,
+      })
+      if (eventsChanged) {
+        stateChanged = true
+      }
+    } catch (error) {
+      console.warn(
+        `Discord scheduled events sync failed: ${
+          error instanceof Error ? error.message : error
+        }`
+      )
+    }
   }
 
   if (stateChanged && !dryRun) {

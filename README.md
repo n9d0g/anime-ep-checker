@@ -13,8 +13,11 @@ flowchart LR
   Cron --> Reddit[Reddit search]
   Cron --> State[state.json]
   Cron -->|bot message| Discord[Discord channel]
+  Cron -->|dashboard| Watching[#watching channel]
+  Cron -->|scheduled events| Events[Discord Events]
   Discord -->|MAL button| Vercel[Vercel interactions]
   Vercel --> MAL[MyAnimeList API]
+  Cron --> MAL
 ```
 
 1. **GitHub Actions** runs a **5-minute** cron. A cheap gate skips install and provider checks unless a show is in its **drop window** (10 minutes before expected time through until the episode is found).
@@ -23,7 +26,8 @@ flowchart LR
 4. On first run for a show (inside a window), it **baselines** the current episode (no alert).
 5. When the expected episode becomes available, it posts to **Discord** (bot message with optional MAL button + r/anime discussion link) and updates [`state.json`](state.json).
 6. If an episode is **late** (15+ min past expected), it sends a one-time **still waiting** Discord message.
-7. The **Vercel admin** edits `shows.json` in your repo.
+7. Each run also refreshes a **#watching dashboard** (MAL progress + next drops) and syncs **Discord Scheduled Events** for upcoming episodes.
+8. The **Vercel admin** edits `shows.json` in your repo.
 
 ## Schedule model
 
@@ -51,12 +55,17 @@ Discord alerts still display times in **Eastern Time (EST/EDT)** even though sch
 1. Create an application at [Discord Developer Portal](https://discord.com/developers/applications)
 2. Add a **Bot** and copy the token → `DISCORD_BOT_TOKEN`
 3. Enable **Message Content Intent** if needed for your server setup
-4. Invite the bot to your server with permission to send messages in your alert channel
-5. Copy the channel ID → `DISCORD_CHANNEL_ID`
-6. Copy the application **Public Key** → `DISCORD_PUBLIC_KEY` (Vercel)
-7. Under **Interactions**, set the endpoint URL to `https://your-admin.vercel.app/api/discord/interactions`
+4. Invite the bot with these permissions in your server:
+   - Send Messages, Embed Links, Manage Messages (pin dashboard)
+   - Create Events, Manage Events (scheduled drop reminders)
+5. Create channels and copy IDs:
+   - Episode alerts → `DISCORD_CHANNEL_ID`
+   - Watching dashboard → `DISCORD_WATCHING_CHANNEL_ID`
+6. Copy your server (guild) ID → `DISCORD_GUILD_ID`
+7. Copy the application **Public Key** → `DISCORD_PUBLIC_KEY` (Vercel)
+8. Under **Interactions**, set the endpoint URL to `https://your-admin.vercel.app/api/discord/interactions`
 
-Optional fallback: a legacy webhook via `DISCORD_WEBHOOK_URL` (no MAL button).
+Optional fallback: a legacy webhook via `DISCORD_WEBHOOK_URL` (no MAL button, no dashboard/events).
 
 ### 2. GitHub Actions secrets
 
@@ -64,7 +73,12 @@ Optional fallback: a legacy webhook via `DISCORD_WEBHOOK_URL` (no MAL button).
 |--------|-------|
 | `DISCORD_BOT_TOKEN` | Discord bot token |
 | `DISCORD_CHANNEL_ID` | Channel ID for episode alerts |
+| `DISCORD_GUILD_ID` | Server ID for scheduled events |
+| `DISCORD_WATCHING_CHANNEL_ID` | Channel ID for the watching dashboard |
 | `DISCORD_WEBHOOK_URL` | Optional webhook fallback |
+| `MAL_CLIENT_ID` | MAL API client ID (dashboard progress) |
+| `MAL_CLIENT_SECRET` | MAL API client secret |
+| `MAL_REFRESH_TOKEN` | MAL OAuth refresh token |
 | `NETFLIX_COOKIE` | Logged-in `netflix.com` cookie string (for Netflix shows only) |
 | `DISCORD_DEPLOY_WEBHOOK_URL` | Webhook for a separate **deploy** Discord channel |
 
@@ -129,9 +143,17 @@ pnpm install
 pnpm dev
 ```
 
-Set Discord/Netflix env vars in `.env` at the repo root for live checks.
+Set Discord/Netflix/MAL env vars in `.env` at the repo root for live checks.
 
 r/anime discussion links resolve to the AutoLovepon thread permalink when available (via Reddit search RSS), otherwise fall back to an r/anime search URL. No Reddit API secrets required.
+
+### Discord watching dashboard
+
+The bot maintains a pinned message in `#watching` with one embed per tracked show: provider, MAL progress, next episode, expected drop (Eastern), and status (upcoming / in window / waiting / out). Requires `DISCORD_BOT_TOKEN`, `DISCORD_WATCHING_CHANNEL_ID`, and MAL secrets for progress.
+
+### Discord scheduled events
+
+For each show’s next expected episode, the bot creates or updates an **external** guild scheduled event (watch URL as location). The event is cleared when the episode alert fires. Requires `DISCORD_GUILD_ID` and Create/Manage Events permissions.
 
 ## CMS usage
 
@@ -154,6 +176,10 @@ r/anime discussion links resolve to the AutoLovepon thread permalink when availa
 | [`src/netflix.ts`](src/netflix.ts) | Netflix pathEvaluator client (cookie auth) |
 | [`src/reddit.ts`](src/reddit.ts) | r/anime discussion lookup (AutoLovepon RSS + search fallback) |
 | [`src/discord.ts`](src/discord.ts) | Discord bot/webhook alerts |
+| [`src/discord-dashboard.ts`](src/discord-dashboard.ts) | #watching dashboard sync |
+| [`src/discord-events.ts`](src/discord-events.ts) | Guild scheduled events sync |
+| [`src/dashboard.ts`](src/dashboard.ts) | Dashboard status + embed builder |
+| [`src/mal.ts`](src/mal.ts) | MAL read-only progress (checker) |
 | [`src/should-run.ts`](src/should-run.ts) | Cheap gate for Actions |
 | [`admin/`](admin/) | Vercel CMS + Discord/MAL interactions |
 | [`.github/workflows/check-episodes.yml`](.github/workflows/check-episodes.yml) | Scheduled checker |
