@@ -4,7 +4,7 @@ import type { ReactNode } from 'react'
 
 export const metadata: Metadata = {
   title: 'Anime Episode Checker',
-  description: 'Manage tracked Crunchyroll shows',
+  description: 'Manage tracked Crunchyroll and Netflix shows',
 }
 
 export default function RootLayout({ children }: { children: ReactNode }) {

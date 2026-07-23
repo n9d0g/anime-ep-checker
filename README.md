@@ -66,9 +66,6 @@ Optional fallback: a legacy webhook via `DISCORD_WEBHOOK_URL` (no MAL button).
 | `DISCORD_CHANNEL_ID` | Channel ID for episode alerts |
 | `DISCORD_WEBHOOK_URL` | Optional webhook fallback |
 | `NETFLIX_COOKIE` | Logged-in `netflix.com` cookie string (for Netflix shows only) |
-| `REDDIT_CLIENT_ID` | Reddit script app client ID |
-| `REDDIT_CLIENT_SECRET` | Reddit script app secret |
-| `REDDIT_USER_AGENT` | e.g. `anime-ep-checker/1.0 by your_reddit_username` |
 | `DISCORD_DEPLOY_WEBHOOK_URL` | Webhook for a separate **deploy** Discord channel |
 
 The workflow uses the default `GITHUB_TOKEN` to commit `state.json` updates.
@@ -132,7 +129,9 @@ pnpm install
 pnpm dev
 ```
 
-Set Discord/Reddit/Netflix env vars in `.env` at the repo root for live checks.
+Set Discord/Netflix env vars in `.env` at the repo root for live checks.
+
+r/anime discussion links are looked up via Reddit's public JSON search endpoint (no Reddit API secrets required).
 
 ## CMS usage
 

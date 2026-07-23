@@ -1,9 +1,3 @@
-interface RedditTokenResponse {
-  access_token: string
-  token_type: string
-  expires_in: number
-}
-
 interface RedditSearchChild {
   data?: {
     title?: string
@@ -18,53 +12,10 @@ interface RedditSearchResponse {
   }
 }
 
-let cachedToken: string | null = null
-let tokenExpiresAt = 0
+const USER_AGENT = 'anime-ep-checker/1.0'
 
-function getRedditConfig() {
-  const clientId = process.env.REDDIT_CLIENT_ID?.trim()
-  const clientSecret = process.env.REDDIT_CLIENT_SECRET?.trim()
-  const userAgent = process.env.REDDIT_USER_AGENT?.trim()
-
-  if (!clientId || !clientSecret || !userAgent) {
-    return null
-  }
-
-  return { clientId, clientSecret, userAgent }
-}
-
-async function getRedditAccessToken(): Promise<string | null> {
-  const config = getRedditConfig()
-  if (!config) return null
-
-  const now = Date.now()
-  if (cachedToken && now < tokenExpiresAt - 60_000) {
-    return cachedToken
-  }
-
-  const auth = Buffer.from(`${config.clientId}:${config.clientSecret}`).toString(
-    'base64'
-  )
-
-  const response = await fetch('https://www.reddit.com/api/v1/access_token', {
-    method: 'POST',
-    headers: {
-      Authorization: `Basic ${auth}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'User-Agent': config.userAgent,
-    },
-    body: 'grant_type=client_credentials',
-  })
-
-  if (!response.ok) {
-    console.warn(`Reddit auth failed (${response.status})`)
-    return null
-  }
-
-  const data = (await response.json()) as RedditTokenResponse
-  cachedToken = data.access_token
-  tokenExpiresAt = now + (data.expires_in ?? 3600) * 1000
-  return cachedToken
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 export function slugifyForReddit(value: string): string {
@@ -115,15 +66,15 @@ export async function findAnimeDiscussionUrl(
   episodeNumber: number,
   redditSearchTitle?: string
 ): Promise<string | null> {
-  const token = await getRedditAccessToken()
-  const config = getRedditConfig()
-  if (!token || !config) {
-    return null
-  }
-
   const queries = buildSearchQueries(showTitle, episodeNumber, redditSearchTitle)
+  const slug = redditSearchTitle?.trim() || slugifyForReddit(showTitle)
 
-  for (const query of queries) {
+  for (let i = 0; i < queries.length; i++) {
+    if (i > 0) {
+      await sleep(1000)
+    }
+
+    const query = queries[i]
     const params = new URLSearchParams({
       q: query,
       restrict_sr: 'on',
@@ -133,11 +84,11 @@ export async function findAnimeDiscussionUrl(
     })
 
     const response = await fetch(
-      `https://oauth.reddit.com/r/anime/search?${params.toString()}`,
+      `https://www.reddit.com/r/anime/search.json?${params.toString()}`,
       {
         headers: {
-          Authorization: `Bearer ${token}`,
-          'User-Agent': config.userAgent,
+          'User-Agent': USER_AGENT,
+          Accept: 'application/json',
         },
       }
     )
@@ -148,7 +99,6 @@ export async function findAnimeDiscussionUrl(
     }
 
     const data = (await response.json()) as RedditSearchResponse
-    const slug = redditSearchTitle?.trim() || slugifyForReddit(showTitle)
 
     for (const child of data.data?.children ?? []) {
       const title = child.data?.title ?? ''

@@ -41,7 +41,7 @@ export default function LoginPage() {
         <div>
           <p className="eyebrow">Anime Episode Checker</p>
           <h1>Admin login</h1>
-          <p className="subtitle">Manage tracked Crunchyroll shows.</p>
+          <p className="subtitle">Manage tracked Crunchyroll and Netflix shows.</p>
         </div>
 
         <form className="stack" onSubmit={handleSubmit}>
