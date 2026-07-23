@@ -13,12 +13,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: '24.11.1'
+          package-manager-cache: false
 
       - name: Check if any show needs polling
         id: gate
@@ -32,11 +33,11 @@ jobs:
 
       - name: Install pnpm
         if: steps.gate.outputs.should_check == 'true'
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
 
       - name: Setup pnpm cache
         if: steps.gate.outputs.should_check == 'true'
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: '24.11.1'
           cache: 'pnpm'
