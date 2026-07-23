@@ -35,6 +35,15 @@
       "seasonId": "GS00378131JAJP",
       "seasonTitle": "Season 1",
       "waitingNotifiedForEpisode": null
+    },
+    "chainsmoker-cat": {
+      "lastEpisodeId": "82760635",
+      "lastEpisodeNumber": "4",
+      "lastEpisodeTitle": "Episode 4",
+      "lastNotifiedAt": "2026-07-23T16:11:00.943Z",
+      "seasonId": "82760631",
+      "seasonTitle": "Chainsmoker Cat",
+      "waitingNotifiedForEpisode": null
     }
   }
 }
