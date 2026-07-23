@@ -1,10 +1,10 @@
 import {
-  buildDashboardEmbeds,
+  buildShowDashboardPayload,
   buildShowDashboardRow,
-  type ShowDashboardRow,
 } from './dashboard.js'
 import {
   createBotMessage,
+  deleteBotMessage,
   editBotMessage,
   pinBotMessage,
 } from './discord-api.js'
@@ -37,6 +37,24 @@ async function fetchProviderLatestEpisode(
   }
 }
 
+async function migrateLegacyDashboardMessage(
+  botToken: string,
+  channelId: string,
+  state: StateFile
+): Promise<boolean> {
+  const legacyMessageId = state.meta?.watchingDashboardMessageId
+  if (!legacyMessageId) {
+    return false
+  }
+
+  await deleteBotMessage(botToken, channelId, legacyMessageId)
+  state.meta = {
+    ...state.meta,
+    watchingDashboardMessageId: null,
+  }
+  return true
+}
+
 export async function syncWatchingDashboard({
   config,
   shows,
@@ -58,7 +76,33 @@ export async function syncWatchingDashboard({
     return false
   }
 
-  const rows: ShowDashboardRow[] = []
+  if (dryRun) {
+    console.log(`  Would refresh watching dashboard (${shows.length} shows)`)
+    return false
+  }
+
+  const botToken = config.botToken!
+  const channelId = config.watchingChannelId!
+  let changed = false
+
+  if (await migrateLegacyDashboardMessage(botToken, channelId, state)) {
+    changed = true
+    console.log('  Migrated legacy watching dashboard message')
+  }
+
+  const messageIds = {
+    ...(state.meta?.watchingDashboardMessageIds ?? {}),
+  }
+  const activeShowIds = new Set(shows.map((show) => show.id))
+
+  for (const [showId, messageId] of Object.entries(messageIds)) {
+    if (!activeShowIds.has(showId)) {
+      await deleteBotMessage(botToken, channelId, messageId)
+      delete messageIds[showId]
+      changed = true
+      console.log(`  Removed watching dashboard message for ${showId}`)
+    }
+  }
 
   for (const show of shows) {
     const showState = getShowState(state, show.id)
@@ -67,44 +111,40 @@ export async function syncWatchingDashboard({
       fetchLatest,
       inWindowForShow(show)
     )
-    rows.push(await buildShowDashboardRow(show, showState, now, providerLatest))
-  }
+    const row = await buildShowDashboardRow(
+      show,
+      showState,
+      now,
+      providerLatest
+    )
+    const payload = buildShowDashboardPayload(row)
+    const existingMessageId = messageIds[show.id]
 
-  const embeds = buildDashboardEmbeds(rows)
-  const payload = {
-    content: '**Watching dashboard** — tracked shows, MAL progress, and next drops.',
-    embeds: embeds.slice(0, 10),
-  }
-
-  if (dryRun) {
-    console.log(`  Would refresh watching dashboard (${rows.length} shows)`)
-    return false
-  }
-
-  const botToken = config.botToken!
-  const channelId = config.watchingChannelId!
-  const existingMessageId = state.meta?.watchingDashboardMessageId ?? null
-
-  if (existingMessageId) {
-    try {
-      await editBotMessage(botToken, channelId, existingMessageId, payload)
-      console.log('  Watching dashboard updated')
-      return false
-    } catch (error) {
-      console.warn(
-        `  Watching dashboard edit failed; creating a new message: ${
-          error instanceof Error ? error.message : error
-        }`
-      )
+    if (existingMessageId) {
+      try {
+        await editBotMessage(botToken, channelId, existingMessageId, payload)
+        console.log(`  Watching dashboard updated for ${show.title || show.id}`)
+        continue
+      } catch (error) {
+        console.warn(
+          `  Watching dashboard edit failed for ${show.id}; creating a new message: ${
+            error instanceof Error ? error.message : error
+          }`
+        )
+      }
     }
+
+    const created = await createBotMessage(botToken, channelId, payload)
+    messageIds[show.id] = created.id
+    await pinBotMessage(botToken, channelId, created.id)
+    changed = true
+    console.log(`  Watching dashboard created for ${show.title || show.id}`)
   }
 
-  const created = await createBotMessage(botToken, channelId, payload)
   state.meta = {
     ...state.meta,
-    watchingDashboardMessageId: created.id,
+    watchingDashboardMessageIds: messageIds,
   }
-  await pinBotMessage(botToken, channelId, created.id)
-  console.log('  Watching dashboard created')
-  return true
+
+  return changed
 }

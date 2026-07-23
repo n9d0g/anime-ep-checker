@@ -113,6 +113,65 @@ export async function buildShowDashboardRow(
   }
 }
 
+export function buildDashboardEmbed(row: ShowDashboardRow) {
+  const title = row.show.title || row.show.id
+  const provider = providerLabel(row.show.provider)
+  const watchUrl = getShowWatchUrl(row.show)
+  const nextEpisode =
+    row.nextEpisode !== null ? `Episode ${row.nextEpisode}` : 'Season complete'
+  const drop =
+    row.expectedDropAt !== null
+      ? formatEasternTime(row.expectedDropAt)
+      : 'No upcoming drop'
+
+  return {
+    title,
+    url: watchUrl || undefined,
+    color: getDashboardStatusColor(row.status),
+    fields: [
+      { name: 'Status', value: getDashboardStatusLabel(row.status), inline: true },
+      { name: 'Provider', value: provider, inline: true },
+      { name: 'MAL', value: row.malProgress, inline: true },
+      { name: 'Next', value: nextEpisode, inline: true },
+      { name: 'Expected drop', value: drop, inline: false },
+    ],
+    footer: { text: 'Anime Episode Checker · Watching dashboard' },
+  }
+}
+
+export function buildDashboardMalComponents(show: Show) {
+  if (!show.malId) {
+    return []
+  }
+
+  return [
+    {
+      type: 1,
+      components: [
+        {
+          type: 2,
+          style: 2,
+          label: '−',
+          custom_id: `mal:dec:${show.malId}`,
+        },
+        {
+          type: 2,
+          style: 3,
+          label: '+',
+          custom_id: `mal:inc:${show.malId}`,
+        },
+      ],
+    },
+  ]
+}
+
+export function buildShowDashboardPayload(row: ShowDashboardRow) {
+  return {
+    embeds: [buildDashboardEmbed(row)],
+    components: buildDashboardMalComponents(row.show),
+  }
+}
+
 export function buildDashboardEmbeds(rows: ShowDashboardRow[]) {
   if (rows.length === 0) {
     return [
@@ -125,29 +184,5 @@ export function buildDashboardEmbeds(rows: ShowDashboardRow[]) {
     ]
   }
 
-  return rows.map((row) => {
-    const title = row.show.title || row.show.id
-    const provider = providerLabel(row.show.provider)
-    const watchUrl = getShowWatchUrl(row.show)
-    const nextEpisode =
-      row.nextEpisode !== null ? `Episode ${row.nextEpisode}` : 'Season complete'
-    const drop =
-      row.expectedDropAt !== null
-        ? formatEasternTime(row.expectedDropAt)
-        : 'No upcoming drop'
-
-    return {
-      title,
-      url: watchUrl || undefined,
-      color: getDashboardStatusColor(row.status),
-      fields: [
-        { name: 'Status', value: getDashboardStatusLabel(row.status), inline: true },
-        { name: 'Provider', value: provider, inline: true },
-        { name: 'MAL', value: row.malProgress, inline: true },
-        { name: 'Next', value: nextEpisode, inline: true },
-        { name: 'Expected drop', value: drop, inline: false },
-      ],
-      footer: { text: 'Anime Episode Checker · Watching dashboard' },
-    }
-  })
+  return rows.map((row) => buildDashboardEmbed(row))
 }

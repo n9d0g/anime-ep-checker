@@ -44,6 +44,7 @@ export interface StateFile {
   meta?: {
     netflixCookieAlertSentAt?: string | null
     watchingDashboardMessageId?: string | null
+    watchingDashboardMessageIds?: Record<string, string>
   }
 }
 

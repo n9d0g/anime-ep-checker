@@ -11,6 +11,7 @@ interface MalListStatus {
 }
 
 interface MalAnimeResponse {
+  num_episodes?: number
   my_list_status?: MalListStatus
 }
 
@@ -141,4 +142,81 @@ export async function updateMalWatchedEpisode(
   }
 
   return { updated: true, watched: episodeNumber }
+}
+
+export function formatMalWatchedLabel(
+  watched: number,
+  total: number | null
+): string {
+  if (total) {
+    return `${watched} / ${total}`
+  }
+  return `${watched} watched`
+}
+
+async function fetchMalAnimeStatus(
+  accessToken: string,
+  malId: number
+): Promise<{ watched: number; total: number | null }> {
+  const response = await fetch(
+    `https://api.myanimelist.net/v2/anime/${malId}?fields=num_episodes,my_list_status`,
+    {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    }
+  )
+
+  if (!response.ok) {
+    const body = await response.text()
+    throw new Error(`MAL anime lookup failed (${response.status}): ${body}`)
+  }
+
+  const current = (await response.json()) as MalAnimeResponse
+  const watched = current.my_list_status?.num_episodes_watched ?? 0
+  const total =
+    typeof current.num_episodes === 'number' && current.num_episodes > 0
+      ? current.num_episodes
+      : null
+
+  return { watched, total }
+}
+
+export async function adjustMalWatchedEpisode(
+  malId: number,
+  delta: number
+): Promise<{ updated: boolean; watched: number; total: number | null }> {
+  const accessToken = await getMalAccessToken()
+  const { watched, total } = await fetchMalAnimeStatus(accessToken, malId)
+  const maxWatched = total ?? Number.POSITIVE_INFINITY
+  const next = Math.max(0, Math.min(watched + delta, maxWatched))
+
+  if (next === watched) {
+    return { updated: false, watched, total }
+  }
+
+  const params = new URLSearchParams({
+    num_watched_episodes: String(next),
+  })
+
+  if (next > 0) {
+    params.set('status', 'watching')
+  }
+
+  const updateResponse = await fetch(
+    `https://api.myanimelist.net/v2/anime/${malId}/my_list_status`,
+    {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: params,
+    }
+  )
+
+  if (!updateResponse.ok) {
+    const body = await updateResponse.text()
+    throw new Error(`MAL list update failed (${updateResponse.status}): ${body}`)
+  }
+
+  return { updated: true, watched: next, total }
 }

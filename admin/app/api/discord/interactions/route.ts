@@ -1,15 +1,65 @@
 import { NextResponse } from 'next/server'
 import {
   ephemeralResponse,
+  parseMalAdjustCustomId,
   parseMalCustomId,
+  updateMessageResponse,
   verifyDiscordRequest,
 } from '@/lib/discord'
-import { updateMalWatchedEpisode } from '@/lib/mal'
+import {
+  adjustMalWatchedEpisode,
+  formatMalWatchedLabel,
+  updateMalWatchedEpisode,
+} from '@/lib/mal'
+
+interface DiscordEmbedField {
+  name: string
+  value: string
+  inline?: boolean
+}
+
+interface DiscordEmbed {
+  title?: string
+  url?: string
+  color?: number
+  fields?: DiscordEmbedField[]
+  footer?: { text: string }
+}
 
 interface DiscordInteraction {
   type: number
   data?: {
     custom_id?: string
+  }
+  message?: {
+    embeds?: DiscordEmbed[]
+    components?: unknown[]
+  }
+}
+
+function refreshMalFieldInMessage(
+  message: DiscordInteraction['message'],
+  watched: number,
+  total: number | null
+): { embeds: DiscordEmbed[]; components: unknown[] } | null {
+  const embed = message?.embeds?.[0]
+  if (!embed?.fields) {
+    return null
+  }
+
+  const malLabel = formatMalWatchedLabel(watched, total)
+  const embeds = [
+    {
+      ...embed,
+      fields: embed.fields.map((field) =>
+        field.name === 'MAL' ? { ...field, value: malLabel } : field
+      ),
+    },
+  ]
+
+  return {
+    embeds,
+    components: message?.components ?? [],
   }
 }
 
@@ -37,12 +87,49 @@ export async function POST(request: Request) {
 
   if (interaction.type === 3) {
     const customId = interaction.data?.custom_id ?? ''
+    const adjustAction = parseMalAdjustCustomId(customId)
+
+    if (adjustAction) {
+      try {
+        const result = await adjustMalWatchedEpisode(
+          adjustAction.malId,
+          adjustAction.delta
+        )
+
+        const refreshed = refreshMalFieldInMessage(
+          interaction.message,
+          result.watched,
+          result.total
+        )
+
+        if (refreshed) {
+          return NextResponse.json(updateMessageResponse(refreshed))
+        }
+
+        if (!result.updated) {
+          return NextResponse.json(
+            ephemeralResponse(
+              `MAL already at ${formatMalWatchedLabel(result.watched, result.total)}.`
+            )
+          )
+        }
+
+        return NextResponse.json(
+          ephemeralResponse(
+            `Updated MAL to ${formatMalWatchedLabel(result.watched, result.total)}.`
+          )
+        )
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : 'Failed to update MAL.'
+        return NextResponse.json(ephemeralResponse(message))
+      }
+    }
+
     const parsed = parseMalCustomId(customId)
 
     if (!parsed) {
-      return NextResponse.json(
-        ephemeralResponse('Unknown button action.')
-      )
+      return NextResponse.json(ephemeralResponse('Unknown button action.'))
     }
 
     try {
@@ -60,9 +147,7 @@ export async function POST(request: Request) {
       }
 
       return NextResponse.json(
-        ephemeralResponse(
-          `Updated MAL to episode ${parsed.episodeNumber}.`
-        )
+        ephemeralResponse(`Updated MAL to episode ${parsed.episodeNumber}.`)
       )
     } catch (error) {
       const message =

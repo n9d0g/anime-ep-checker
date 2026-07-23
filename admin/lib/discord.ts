@@ -45,6 +45,25 @@ export function parseMalCustomId(customId: string): {
   return { malId, episodeNumber }
 }
 
+export function parseMalAdjustCustomId(customId: string): {
+  malId: number
+  delta: number
+} | null {
+  const increment = customId.match(/^mal:inc:(\d+)$/)
+  if (increment) {
+    const malId = Number(increment[1])
+    return Number.isFinite(malId) ? { malId, delta: 1 } : null
+  }
+
+  const decrement = customId.match(/^mal:dec:(\d+)$/)
+  if (decrement) {
+    const malId = Number(decrement[1])
+    return Number.isFinite(malId) ? { malId, delta: -1 } : null
+  }
+
+  return null
+}
+
 export function ephemeralResponse(content: string) {
   return {
     type: 4,
@@ -52,5 +71,15 @@ export function ephemeralResponse(content: string) {
       content,
       flags: 64,
     },
+  }
+}
+
+export function updateMessageResponse(data: {
+  embeds?: unknown[]
+  components?: unknown[]
+}) {
+  return {
+    type: 7,
+    data,
   }
 }

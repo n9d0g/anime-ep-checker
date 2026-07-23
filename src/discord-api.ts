@@ -61,6 +61,23 @@ export async function editBotMessage(
   }
 }
 
+export async function deleteBotMessage(
+  botToken: string,
+  channelId: string,
+  messageId: string
+): Promise<void> {
+  const response = await discordBotRequest(
+    botToken,
+    `/channels/${channelId}/messages/${messageId}`,
+    { method: 'DELETE' }
+  )
+
+  if (!response.ok && response.status !== 404) {
+    const body = await response.text()
+    console.warn(`Discord message delete failed (${response.status}): ${body}`)
+  }
+}
+
 export async function pinBotMessage(
   botToken: string,
   channelId: string,
