@@ -13,11 +13,13 @@ import {
 } from './crunchyroll.js'
 import {
   sendEpisodeAlert,
+  sendNetflixCookieAlert,
   sendWaitingAlert,
   type DiscordConfig,
 } from './discord.js'
 import {
   getLatestAvailableEpisodeForTitle,
+  NetflixAuthError,
   parseNetflixIdFromUrl,
 } from './netflix.js'
 import { findAnimeDiscussionUrl } from './reddit.js'
@@ -104,6 +106,10 @@ function hasDiscordConfig(discord: DiscordConfig): boolean {
   )
 }
 
+function hasBotConfig(discord: DiscordConfig): boolean {
+  return Boolean(discord.botToken?.trim() && discord.channelId?.trim())
+}
+
 function getDiscordConfigFromEnv(): DiscordConfig {
   return {
     botToken: process.env.DISCORD_BOT_TOKEN,
@@ -124,6 +130,7 @@ export async function checkShows({
   const shows = (showsFile.shows ?? []).map(normalizeShowProvider)
   const now = new Date()
   let stateChanged = false
+  let skipNetflixShows = false
 
   for (const show of shows) {
     const showId = show.id
@@ -137,6 +144,11 @@ export async function checkShows({
     console.log(
       `Checking ${show.title || showId} (${providerLabel(show.provider)} ${providerId})...`
     )
+
+    if (show.provider === 'netflix' && skipNetflixShows) {
+      console.log('  Skipping Netflix show (cookie auth failed earlier this run)')
+      continue
+    }
 
     if (nextExpectedEp === null) {
       console.log('  No more scheduled episodes for this show')
@@ -156,7 +168,47 @@ export async function checkShows({
       continue
     }
 
-    const latestSnapshot = await fetchLatestEpisode(show)
+    let latestSnapshot: EpisodeSnapshot | null
+    try {
+      latestSnapshot = await fetchLatestEpisode(show)
+    } catch (error) {
+      if (error instanceof NetflixAuthError) {
+        console.error(`  Netflix auth failed: ${error.message}`)
+        skipNetflixShows = true
+
+        if (!state.meta?.netflixCookieAlertSentAt) {
+          if (!dryRun && hasBotConfig(discord)) {
+            await sendNetflixCookieAlert(discord)
+            console.log('  Netflix cookie refresh alert sent via Discord bot')
+          } else if (!dryRun) {
+            console.log(
+              '  Discord bot not configured; skipping Netflix cookie refresh alert'
+            )
+          }
+
+          state.meta = {
+            ...state.meta,
+            netflixCookieAlertSentAt: now.toISOString(),
+          }
+          stateChanged = true
+        } else {
+          console.log('  Netflix cookie refresh alert already sent; skipping')
+        }
+
+        continue
+      }
+
+      throw error
+    }
+
+    if (show.provider === 'netflix' && state.meta?.netflixCookieAlertSentAt) {
+      state.meta = {
+        ...state.meta,
+        netflixCookieAlertSentAt: null,
+      }
+      stateChanged = true
+    }
+
     if (!latestSnapshot) {
       console.log(`  No available episodes found for ${showId}`)
       continue

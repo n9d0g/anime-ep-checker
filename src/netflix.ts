@@ -65,10 +65,17 @@ export function parseNetflixIdFromUrl(url: string): string {
   return match[1]
 }
 
+export class NetflixAuthError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'NetflixAuthError'
+  }
+}
+
 function getNetflixCookie(): string {
   const cookie = process.env.NETFLIX_COOKIE?.trim()
   if (!cookie) {
-    throw new Error(
+    throw new NetflixAuthError(
       'NETFLIX_COOKIE is not set. Copy your logged-in netflix.com cookie string into GitHub Actions secrets.'
     )
   }
@@ -91,7 +98,7 @@ function extractAuthURL(html: string): string {
     /"authURL":"((?:\\x[0-9A-Fa-f]{2}|\\u[0-9A-Fa-f]{4}|\\.|[^"\\])*)"/
   )
   if (!match) {
-    throw new Error(
+    throw new NetflixAuthError(
       'Could not find Netflix authURL. Cookie may be expired or not logged in.'
     )
   }
@@ -108,7 +115,7 @@ async function getAuthURL(cookie: string): Promise<string> {
   })
 
   if (!response.ok) {
-    throw new Error(
+    throw new NetflixAuthError(
       `Netflix browse page failed (${response.status}). Cookie may be expired.`
     )
   }
@@ -145,6 +152,11 @@ async function pathEvaluate(
 
   if (!response.ok) {
     const text = await response.text()
+    if (response.status === 401 || response.status === 403) {
+      throw new NetflixAuthError(
+        `Netflix pathEvaluator API ${response.status}: ${text.slice(0, 200)}`
+      )
+    }
     throw new Error(
       `Netflix pathEvaluator API ${response.status}: ${text.slice(0, 200)}`
     )

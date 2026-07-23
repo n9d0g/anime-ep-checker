@@ -202,3 +202,29 @@ export async function sendWaitingAlert({
     'Discord not configured. Set DISCORD_BOT_TOKEN + DISCORD_CHANNEL_ID (preferred) or DISCORD_WEBHOOK_URL.'
   )
 }
+
+export async function sendNetflixCookieAlert(
+  discord: DiscordConfig
+): Promise<void> {
+  if (!hasBotConfig(discord)) {
+    throw new Error(
+      'Netflix cookie alert requires DISCORD_BOT_TOKEN + DISCORD_CHANNEL_ID.'
+    )
+  }
+
+  const payload = {
+    embeds: [
+      {
+        title: 'Netflix cookie needs refresh',
+        description:
+          'The `NETFLIX_COOKIE` GitHub Actions secret is missing or expired. Netflix episode checks are paused until you update it.\n\nCopy your logged-in netflix.com `Cookie` header into the secret, then re-run the check workflow.',
+        color: 0xe67e22,
+        footer: {
+          text: 'Anime Episode Checker',
+        },
+      },
+    ],
+  }
+
+  await postBotMessage(discord.botToken!, discord.channelId!, payload)
+}

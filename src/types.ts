@@ -39,6 +39,9 @@ export interface ShowState {
 
 export interface StateFile {
   shows: Record<string, ShowState>
+  meta?: {
+    netflixCookieAlertSentAt?: string | null
+  }
 }
 
 export interface ProviderEpisode {
