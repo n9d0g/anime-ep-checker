@@ -21,7 +21,7 @@ flowchart LR
 2. Inside the window, the checker runs about every **5 minutes** and calls `pnpm check`.
 3. Each show uses **Crunchyroll or Netflix** (not both).
 4. On first run for a show (inside a window), it **baselines** the current episode (no alert).
-5. When the expected episode becomes available, it posts to **Discord** (bot message with optional MAL button + r/anime discussion search link) and updates [`state.json`](state.json).
+5. When the expected episode becomes available, it posts to **Discord** (bot message with optional MAL button + r/anime discussion link) and updates [`state.json`](state.json).
 6. If an episode is **late** (15+ min past expected), it sends a one-time **still waiting** Discord message.
 7. The **Vercel admin** edits `shows.json` in your repo.
 
@@ -131,7 +131,7 @@ pnpm dev
 
 Set Discord/Netflix env vars in `.env` at the repo root for live checks.
 
-r/anime discussion links point to an r/anime search for the episode discussion thread (no Reddit API or secrets required).
+r/anime discussion links resolve to the AutoLovepon thread permalink when available (via Reddit search RSS), otherwise fall back to an r/anime search URL. No Reddit API secrets required.
 
 ## CMS usage
 
@@ -152,7 +152,7 @@ r/anime discussion links point to an r/anime search for the episode discussion t
 | [`src/schedule.ts`](src/schedule.ts) | Expected drop times + check windows |
 | [`src/crunchyroll.ts`](src/crunchyroll.ts) | Crunchyroll API client |
 | [`src/netflix.ts`](src/netflix.ts) | Netflix pathEvaluator client (cookie auth) |
-| [`src/reddit.ts`](src/reddit.ts) | r/anime discussion search URL builder |
+| [`src/reddit.ts`](src/reddit.ts) | r/anime discussion lookup (AutoLovepon RSS + search fallback) |
 | [`src/discord.ts`](src/discord.ts) | Discord bot/webhook alerts |
 | [`src/should-run.ts`](src/should-run.ts) | Cheap gate for Actions |
 | [`admin/`](admin/) | Vercel CMS + Discord/MAL interactions |

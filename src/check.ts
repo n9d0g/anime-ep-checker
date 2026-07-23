@@ -237,7 +237,7 @@ export async function checkShows({
 
       if (!dryRun) {
         if (hasDiscordConfig(discord)) {
-          const discussionUrl = findAnimeDiscussionUrl(
+          const discussionUrl = await findAnimeDiscussionUrl(
             show.title || show.id,
             nextExpectedEp,
             show.redditSearchTitle
