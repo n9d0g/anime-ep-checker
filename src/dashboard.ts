@@ -12,7 +12,7 @@ import {
   isPastWaitingGrace,
   parseEpisodeNumber,
 } from './schedule.js'
-import { fetchMalProgress } from './mal.js'
+import { fetchMalProgress, formatMalProgressLabel } from './mal.js'
 
 export type DashboardStatus = 'upcoming' | 'in_window' | 'waiting' | 'out'
 
@@ -37,13 +37,6 @@ const STATUS_COLORS: Record<DashboardStatus, number> = {
   in_window: 0x3498db,
   waiting: 0xf1c40f,
   out: 0x2ecc71,
-}
-
-function formatMalProgress(progress: { watched: number; total: number | null }): string {
-  if (progress.total) {
-    return `${progress.watched} / ${progress.total}`
-  }
-  return `${progress.watched} watched`
 }
 
 export function getDashboardStatusLabel(status: DashboardStatus): string {
@@ -107,8 +100,7 @@ export async function buildShowDashboardRow(
 
   let malProgress = '—'
   if (show.malId) {
-    const progress = await fetchMalProgress(show.malId)
-    malProgress = progress ? formatMalProgress(progress) : 'MAL unavailable'
+    malProgress = formatMalProgressLabel(await fetchMalProgress(show.malId))
   }
 
   return {

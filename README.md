@@ -149,7 +149,7 @@ r/anime discussion links resolve to the AutoLovepon thread permalink when availa
 
 ### Discord watching dashboard
 
-The bot maintains a pinned message in `#watching` with one embed per tracked show: provider, MAL progress, next episode, expected drop (Eastern), and status (upcoming / in window / waiting / out). Requires `DISCORD_BOT_TOKEN`, `DISCORD_WATCHING_CHANNEL_ID`, and MAL secrets for progress.
+The bot maintains a pinned message in `#watching` with one embed per tracked show: provider, MAL progress, next episode, expected drop (Eastern), and status (upcoming / in window / waiting / out). Requires `DISCORD_BOT_TOKEN`, `DISCORD_WATCHING_CHANNEL_ID`, and **MAL secrets on GitHub Actions** (`MAL_CLIENT_ID`, `MAL_CLIENT_SECRET`, `MAL_REFRESH_TOKEN`) — the same values as Vercel, but the checker (not the admin app) fetches progress. If MAL is missing from Actions, the dashboard shows **MAL not configured**; if auth fails, it shows **MAL unavailable**.
 
 ### Discord scheduled events
 
