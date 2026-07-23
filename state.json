@@ -7,7 +7,9 @@
       "lastNotifiedAt": "2026-07-19T16:14:43.711Z",
       "seasonId": "GS00376439JAJP",
       "seasonTitle": "Elbaph (1156-current)",
-      "waitingNotifiedForEpisode": null
+      "waitingNotifiedForEpisode": null,
+      "discordScheduledEventId": "1529915948864245832",
+      "discordScheduledEventEpisode": 1171
     },
     "slime": {
       "lastEpisodeId": "GE00374379JAJP",
@@ -16,7 +18,9 @@
       "lastNotifiedAt": "2026-07-17T16:34:57.768Z",
       "seasonId": "GS00371777JAJP",
       "seasonTitle": "Season 4",
-      "waitingNotifiedForEpisode": 16
+      "waitingNotifiedForEpisode": 16,
+      "discordScheduledEventId": "1529915952349577316",
+      "discordScheduledEventEpisode": 16
     },
     "mushoku-tensei-s3": {
       "lastEpisodeId": "GE00374456JAJP",
@@ -25,7 +29,9 @@
       "lastNotifiedAt": "2026-07-19T16:14:44.118Z",
       "seasonId": "GS00374452JAJP",
       "seasonTitle": "Season 3",
-      "waitingNotifiedForEpisode": null
+      "waitingNotifiedForEpisode": null,
+      "discordScheduledEventId": "1529915953544958095",
+      "discordScheduledEventEpisode": 5
     },
     "smoking-behind-the-supermarket-with-you": {
       "lastEpisodeId": "GE00378527JAJP",
@@ -34,7 +40,9 @@
       "lastNotifiedAt": "2026-07-23T17:39:30.809Z",
       "seasonId": "GS00378131JAJP",
       "seasonTitle": "Season 1",
-      "waitingNotifiedForEpisode": null
+      "waitingNotifiedForEpisode": null,
+      "discordScheduledEventId": "1529915954602053723",
+      "discordScheduledEventEpisode": 4
     },
     "chainsmoker-cat": {
       "lastEpisodeId": "82760635",
@@ -43,7 +51,12 @@
       "lastNotifiedAt": "2026-07-23T17:39:34.163Z",
       "seasonId": "82760631",
       "seasonTitle": "Chainsmoker Cat",
-      "waitingNotifiedForEpisode": null
+      "waitingNotifiedForEpisode": null,
+      "discordScheduledEventId": "1529915955977650288",
+      "discordScheduledEventEpisode": 5
     }
+  },
+  "meta": {
+    "watchingDashboardMessageId": "1529915947664675002"
   }
 }
