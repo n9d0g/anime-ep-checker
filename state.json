@@ -12,15 +12,15 @@
       "discordScheduledEventEpisode": 1171
     },
     "slime": {
-      "lastEpisodeId": "GE00374379JAJP",
-      "lastEpisodeNumber": "15",
-      "lastEpisodeTitle": "An Unsettling Feeling",
-      "lastNotifiedAt": "2026-07-17T16:34:57.768Z",
+      "lastEpisodeId": "GE00374380JAJP",
+      "lastEpisodeNumber": "16",
+      "lastEpisodeTitle": "Episode 16",
+      "lastNotifiedAt": "2026-07-24T16:51:31.435Z",
       "seasonId": "GS00371777JAJP",
       "seasonTitle": "Season 4",
-      "waitingNotifiedForEpisode": 16,
-      "discordScheduledEventId": "1529915952349577316",
-      "discordScheduledEventEpisode": 16
+      "waitingNotifiedForEpisode": null,
+      "discordScheduledEventId": "1530256141962055690",
+      "discordScheduledEventEpisode": 17
     },
     "mushoku-tensei-s3": {
       "lastEpisodeId": "GE00374456JAJP",
@@ -62,8 +62,8 @@
       "one-piece": "1529943708680851568",
       "slime": "1529943710584803442",
       "mushoku-tensei-s3": "1529943712954847335",
-      "smoking-behind-the-supermarket-with-you": "1530228186716180485",
-      "chainsmoker-cat": "1530228189979476132"
+      "smoking-behind-the-supermarket-with-you": "1530256135699959970",
+      "chainsmoker-cat": "1530256138090840195"
     }
   }
 }
