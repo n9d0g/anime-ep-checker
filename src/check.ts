@@ -23,6 +23,8 @@ import {
   syncScheduledEvents,
   type DiscordEventsConfig,
 } from './discord-events.js'
+import { fetchMalAnimeDetails } from './mal.js'
+import { syncMalScoreAlerts } from './mal-score.js'
 import {
   getLatestAvailableEpisodeForTitle,
   NetflixAuthError,
@@ -32,6 +34,7 @@ import { findAnimeDiscussionUrl } from './reddit.js'
 import {
   getExpectedDropAt,
   getNextExpectedEpisode,
+  getCheckWindowMode,
   isInCheckWindow,
   isPastWaitingGrace,
   parseEpisodeNumber,
@@ -210,6 +213,13 @@ export async function checkShows({
       continue
     }
 
+    if (!force) {
+      const windowMode = getCheckWindowMode(expectedAt, now)
+      if (windowMode) {
+        console.log(`  Check window: ${windowMode}`)
+      }
+    }
+
     let latestSnapshot: EpisodeSnapshot | null
     try {
       latestSnapshot = await fetchLatestEpisode(show)
@@ -287,6 +297,14 @@ export async function checkShows({
 
           console.log(`  Reddit discussion: ${discussionUrl}`)
 
+          let malDetails = null
+          if (show.malId) {
+            const malResult = await fetchMalAnimeDetails(show.malId)
+            if (malResult.status === 'ok') {
+              malDetails = malResult.details
+            }
+          }
+
           await sendEpisodeAlert({
             discord,
             show,
@@ -296,6 +314,7 @@ export async function checkShows({
             expectedDropAt,
             actualDropAt,
             discussionUrl,
+            malDetails,
           })
           console.log('  Discord alert sent')
 
@@ -355,6 +374,25 @@ export async function checkShows({
   }
 
   if (!dryRun) {
+    try {
+      const scoreChanged = await syncMalScoreAlerts({
+        shows,
+        state,
+        discord,
+        now,
+        dryRun,
+      })
+      if (scoreChanged) {
+        stateChanged = true
+      }
+    } catch (error) {
+      console.warn(
+        `MAL score sync failed: ${
+          error instanceof Error ? error.message : error
+        }`
+      )
+    }
+
     try {
       const dashboardChanged = await syncWatchingDashboard({
         config: getDiscordDashboardConfigFromEnv(),

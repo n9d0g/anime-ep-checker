@@ -20,11 +20,11 @@ flowchart LR
   Cron --> MAL
 ```
 
-1. **GitHub Actions** runs a **5-minute** cron. A cheap gate skips install and provider checks unless a show is in its **drop window** (10 minutes before expected time through until the episode is found).
+1. **GitHub Actions** runs a **5-minute** cron. A cheap gate skips install and provider checks unless a show is in its **drop window** (1 minute before expected time through 90 minutes after; then about every 30 minutes if still missing).
 2. Inside the window, the checker runs about every **5 minutes** and calls `pnpm check`.
 3. Each show uses **Crunchyroll or Netflix** (not both).
 4. On first run for a show (inside a window), it **baselines** the current episode (no alert).
-5. When the expected episode becomes available, it posts to **Discord** (bot message with optional MAL button + r/anime discussion link) and updates [`state.json`](state.json).
+5. When the expected episode becomes available, it posts to **Discord** (rich embed with cover, MAL score, countdown, Watch/r/anime links, optional Mark watched button) and updates [`state.json`](state.json).
 6. If an episode is **late** (15+ min past expected), it sends a one-time **still waiting** Discord message.
 7. Each run also refreshes a **#watching dashboard** (MAL progress + next drops) and syncs **Discord Scheduled Events** for upcoming episodes.
 8. The **Vercel admin** edits `shows.json` in your repo.
@@ -47,6 +47,17 @@ Each show uses a weekly schedule:
 After the premiere batch, each following episode is expected **7 days** later.
 
 Discord alerts still display times in **Eastern Time (EST/EDT)** even though schedules are entered in **Japan Time (JST)**.
+
+### Drop-window polling
+
+| Phase | When | Cadence |
+|-------|------|---------|
+| **Idle** | Before T−1m | Cheap gate only (no provider calls) |
+| **Dense** | T−1m → T+90m | Full check about every **5 minutes** (GitHub cron; may drift slightly) |
+| **Late** | After T+90m, episode still missing | Full check about every **30 minutes** until found |
+| **Done** | Episode found | State advances; show leaves the window until next ep |
+
+GitHub scheduled workflows are not second-accurate. A 1-minute lead-in means the first successful run may land a few minutes after drop; dense polling through T+90m still catches on-time and slightly late releases.
 
 ## Setup
 
@@ -108,6 +119,9 @@ Success messages include branch, short commit SHA, commit subject, time (ET), an
 | `GITHUB_REPO` | `your-username/anime-ep-checker` |
 | `GITHUB_BRANCH` | `main` (optional) |
 | `DISCORD_PUBLIC_KEY` | Discord app public key |
+| `DISCORD_BOT_TOKEN` | Bot token (slash `/score-alert`, optional dashboard refresh) |
+| `DISCORD_GUILD_ID` | Server ID (slash command registration) |
+| `DISCORD_CHANNEL_ID` | Episode alerts channel (slash `/score-alert`) |
 | `MAL_CLIENT_ID` | MAL API client ID |
 | `MAL_CLIENT_SECRET` | MAL API client secret |
 | `MAL_REDIRECT_URI` | `https://your-admin.vercel.app/api/mal/callback` |
@@ -149,7 +163,28 @@ r/anime discussion links resolve to the AutoLovepon thread permalink when availa
 
 ### Discord watching dashboard
 
-The bot maintains a **pinned message per tracked show** in `#watching`: provider, MAL progress, next episode, expected drop (Eastern), and status (upcoming / in window / waiting / out). Shows with a `malId` also get **− / +** buttons to decrement or increment MAL watched episodes (handled by the same Vercel interactions endpoint as the episode-alert MAL button). Requires `DISCORD_BOT_TOKEN`, `DISCORD_WATCHING_CHANNEL_ID`, `DISCORD_PUBLIC_KEY` + MAL secrets on **Vercel** (for button clicks), and **MAL secrets on GitHub Actions** (for dashboard sync). If MAL is missing from Actions, the dashboard shows **MAL not configured**; if auth fails, it shows **MAL unavailable**.
+The bot maintains a **pinned message per tracked show** in `#watching`: cover art, provider, MAL progress, MAL score, next episode, Discord countdown (`<t:…:R>`), expected drop (Eastern), and status (upcoming / in window / waiting / out). Shows with a `malId` get **− / +** buttons, a **Set progress…** modal, and a **Watch** link. Requires `DISCORD_BOT_TOKEN`, `DISCORD_WATCHING_CHANNEL_ID`, `DISCORD_PUBLIC_KEY` + MAL secrets on **Vercel** (for button clicks), and **MAL secrets on GitHub Actions** (for dashboard sync). If MAL is missing from Actions, the dashboard shows **MAL not configured**; if auth fails, it shows **MAL unavailable**.
+
+### MAL score alerts
+
+On each checker run, the bot compares each show’s MAL **mean score** to the last stored value in `state.json`. If the delta is **±0.25** or more, it posts a **score pickup** (green) or **score drop** (red) embed to `#anime-alerts` with cover art and old → new score. First fetch baselines the score without alerting.
+
+### Slash commands
+
+Guild slash commands (register once after deploy):
+
+```bash
+DISCORD_BOT_TOKEN=... DISCORD_GUILD_ID=... pnpm register-commands
+```
+
+| Command | Description |
+|---------|-------------|
+| `/next` | Ephemeral list of upcoming drops with countdown + MAL score |
+| `/show` | Rich card for one tracked show (cover, progress, score, next ep) |
+| `/mal` | `up` / `down` / `set` watched episodes on MAL |
+| `/score-alert` | Manually post a score pickup or drop to `#anime-alerts` |
+
+Requires `DISCORD_GUILD_ID`, `DISCORD_BOT_TOKEN`, and `DISCORD_CHANNEL_ID` on Vercel for `/score-alert`. All commands use the same interactions endpoint as MAL buttons.
 
 ### Discord scheduled events
 
@@ -175,11 +210,14 @@ For each show’s next expected episode, the bot creates or updates an **externa
 | [`src/crunchyroll.ts`](src/crunchyroll.ts) | Crunchyroll API client |
 | [`src/netflix.ts`](src/netflix.ts) | Netflix pathEvaluator client (cookie auth) |
 | [`src/reddit.ts`](src/reddit.ts) | r/anime discussion lookup (AutoLovepon RSS + search fallback) |
-| [`src/discord.ts`](src/discord.ts) | Discord bot/webhook alerts |
+| [`src/discord.ts`](src/discord.ts) | Discord bot/webhook alerts + score alerts |
+| [`src/discord-format.ts`](src/discord-format.ts) | Embed formatting helpers |
 | [`src/discord-dashboard.ts`](src/discord-dashboard.ts) | #watching dashboard sync |
 | [`src/discord-events.ts`](src/discord-events.ts) | Guild scheduled events sync |
 | [`src/dashboard.ts`](src/dashboard.ts) | Dashboard status + embed builder |
 | [`src/mal.ts`](src/mal.ts) | MAL read-only progress (checker) |
+| [`src/mal-score.ts`](src/mal-score.ts) | MAL score spike/tank detection |
+| [`scripts/register-discord-commands.ts`](scripts/register-discord-commands.ts) | Register guild slash commands |
 | [`src/should-run.ts`](src/should-run.ts) | Cheap gate for Actions |
 | [`admin/`](admin/) | Vercel CMS + Discord/MAL interactions |
 | [`.github/workflows/check-episodes.yml`](.github/workflows/check-episodes.yml) | Scheduled checker |

@@ -1,7 +1,13 @@
 import { formatTimingLabel } from './compare.js'
 import { createBotMessage } from './discord-api.js'
+import {
+  discordRelativeTimestamp,
+  formatMalScoreLabel,
+} from './discord-format.js'
+import type { MalAnimeDetails } from './mal.js'
 import { formatEasternTime } from './time.js'
 import {
+  getShowWatchUrl,
   providerLabel,
   type EpisodeSnapshot,
   type Show,
@@ -23,6 +29,7 @@ interface EpisodeAlertInput {
   expectedDropAt: string
   actualDropAt?: string | null
   discussionUrl?: string | null
+  malDetails?: MalAnimeDetails | null
 }
 
 interface WaitingAlertInput {
@@ -30,6 +37,16 @@ interface WaitingAlertInput {
   show: Show
   episodeNumber: number
   expectedDropAt: string
+}
+
+interface MalScoreAlertInput {
+  discord: DiscordConfig
+  show: Show
+  previousScore: number
+  newScore: number
+  direction: 'pickup' | 'drop'
+  coverUrl?: string | null
+  note?: string | null
 }
 
 function hasBotConfig(discord: DiscordConfig): boolean {
@@ -44,15 +61,29 @@ function buildEpisodeEmbed({
   expectedDropAt,
   actualDropAt,
   discussionUrl,
+  malDetails,
 }: Omit<EpisodeAlertInput, 'discord'>) {
   const episodeTitle = latestSnapshot.episode.title ?? 'New episode'
   const showTitle = show.title || latestSnapshot.seriesTitle
   const timingLabel = formatTimingLabel(timingStatus, expectedDropAt, actualDropAt)
+  const countdown = actualDropAt
+    ? discordRelativeTimestamp(actualDropAt, 'Aired')
+    : discordRelativeTimestamp(expectedDropAt, '—')
 
   const fields: Array<{ name: string; value: string; inline?: boolean }> = [
     {
       name: 'Season',
       value: latestSnapshot.seasonTitle,
+      inline: true,
+    },
+    {
+      name: 'MAL score',
+      value: formatMalScoreLabel(malDetails?.meanScore),
+      inline: true,
+    },
+    {
+      name: 'Countdown',
+      value: countdown,
       inline: true,
     },
     {
@@ -75,6 +106,7 @@ function buildEpisodeEmbed({
     url: latestSnapshot.watchUrl,
     description: episodeTitle,
     color: timingStatus === 'late' ? 0xe67e22 : 0x2ecc71,
+    thumbnail: malDetails?.coverUrl ? { url: malDetails.coverUrl } : undefined,
     fields,
     timestamp: actualDropAt ?? new Date().toISOString(),
     footer: {
@@ -83,15 +115,42 @@ function buildEpisodeEmbed({
   }
 }
 
-function buildMalButton(show: Show, episodeNumber: number) {
-  if (!show.malId) return null
+function buildEpisodeComponents(
+  show: Show,
+  episodeNumber: number,
+  watchUrl: string,
+  discussionUrl?: string | null
+) {
+  const row: Array<Record<string, unknown>> = []
 
-  return {
-    type: 2,
-    style: 1,
-    label: 'Mark watched on MAL',
-    custom_id: `mal:${show.malId}:${episodeNumber}`,
+  if (watchUrl) {
+    row.push({
+      type: 2,
+      style: 5,
+      label: 'Watch',
+      url: watchUrl,
+    })
   }
+
+  if (discussionUrl) {
+    row.push({
+      type: 2,
+      style: 5,
+      label: 'r/anime',
+      url: discussionUrl,
+    })
+  }
+
+  if (show.malId) {
+    row.push({
+      type: 2,
+      style: 3,
+      label: 'Mark watched',
+      custom_id: `mal:${show.malId}:${episodeNumber}`,
+    })
+  }
+
+  return row.length > 0 ? [{ type: 1, components: row }] : []
 }
 
 async function postBotMessage(
@@ -118,13 +177,74 @@ async function postWebhook(
   }
 }
 
+export async function sendMalScoreAlert({
+  discord,
+  show,
+  previousScore,
+  newScore,
+  direction,
+  coverUrl,
+  note,
+}: MalScoreAlertInput): Promise<void> {
+  const showTitle = show.title || show.id
+  const watchUrl = getShowWatchUrl(show)
+  const delta = newScore - previousScore
+  const deltaLabel = `${delta >= 0 ? '+' : ''}${delta.toFixed(2)}`
+  const isPickup = direction === 'pickup'
+
+  const embed = {
+    title: isPickup
+      ? `${showTitle} — MAL score pickup`
+      : `${showTitle} — MAL score drop`,
+    url: watchUrl || `https://myanimelist.net/anime/${show.malId}`,
+    description: note?.trim() || undefined,
+    color: isPickup ? 0x2ecc71 : 0xe74c3c,
+    thumbnail: coverUrl ? { url: coverUrl } : undefined,
+    fields: [
+      {
+        name: 'Score',
+        value: `${previousScore.toFixed(2)} → ${newScore.toFixed(2)} (${deltaLabel})`,
+        inline: false,
+      },
+      {
+        name: 'MAL',
+        value: `[View on MAL](https://myanimelist.net/anime/${show.malId})`,
+        inline: true,
+      },
+    ],
+    timestamp: new Date().toISOString(),
+    footer: { text: 'Anime Episode Checker' },
+  }
+
+  const payload = { embeds: [embed] }
+
+  if (hasBotConfig(discord)) {
+    await postBotMessage(discord.botToken!, discord.channelId!, payload)
+    return
+  }
+
+  if (discord.webhookUrl) {
+    await postWebhook(discord.webhookUrl, payload)
+    return
+  }
+
+  throw new Error(
+    'Discord not configured. Set DISCORD_BOT_TOKEN + DISCORD_CHANNEL_ID (preferred) or DISCORD_WEBHOOK_URL.'
+  )
+}
+
 export async function sendEpisodeAlert(input: EpisodeAlertInput): Promise<void> {
   const embed = buildEpisodeEmbed(input)
-  const button = buildMalButton(input.show, input.episodeNumber)
+  const components = buildEpisodeComponents(
+    input.show,
+    input.episodeNumber,
+    input.latestSnapshot.watchUrl,
+    input.discussionUrl
+  )
   const payload: Record<string, unknown> = { embeds: [embed] }
 
-  if (button) {
-    payload.components = [{ type: 1, components: [button] }]
+  if (components.length > 0) {
+    payload.components = components
   }
 
   if (hasBotConfig(input.discord)) {
@@ -137,9 +257,9 @@ export async function sendEpisodeAlert(input: EpisodeAlertInput): Promise<void> 
   }
 
   if (input.discord.webhookUrl) {
-    if (button) {
+    if (components.length > 0) {
       console.warn(
-        'MAL button requires DISCORD_BOT_TOKEN + DISCORD_CHANNEL_ID; sending webhook without button.'
+        'Interactive buttons require DISCORD_BOT_TOKEN + DISCORD_CHANNEL_ID; sending webhook without buttons.'
       )
       delete payload.components
     }
@@ -161,12 +281,13 @@ export async function sendWaitingAlert({
   const showTitle = show.title || show.id
   const expectedLabel = formatEasternTime(expectedDropAt)
   const provider = providerLabel(show.provider ?? 'crunchyroll')
+  const countdown = discordRelativeTimestamp(expectedDropAt, expectedLabel)
 
   const payload = {
     embeds: [
       {
         title: `${showTitle} — Episode ${episodeNumber} not on ${provider} yet`,
-        description: `Expected around ${expectedLabel}. Still checking until the episode appears.`,
+        description: `Expected around ${expectedLabel}. Countdown: ${countdown}`,
         color: 0xf1c40f,
         footer: {
           text: 'Anime Episode Checker',

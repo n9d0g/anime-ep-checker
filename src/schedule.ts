@@ -1,8 +1,13 @@
 import type { Show, ShowSchedule, StateFile } from './types.js'
 
 const MS_PER_WEEK = 7 * 24 * 60 * 60 * 1000
-const WINDOW_BEFORE_MS = 10 * 60 * 1000
+const WINDOW_BEFORE_MS = 1 * 60 * 1000
+const WINDOW_AFTER_DENSE_MS = 90 * 60 * 1000
+const LATE_POLL_INTERVAL_MS = 30 * 60 * 1000
+const CRON_INTERVAL_MS = 5 * 60 * 1000
 const WAITING_GRACE_MS = 15 * 60 * 1000
+
+export { WINDOW_BEFORE_MS, WINDOW_AFTER_DENSE_MS, LATE_POLL_INTERVAL_MS }
 
 export function getPremiereBatchSize(schedule: ShowSchedule): number {
   return schedule.premiereBatchSize > 0 ? schedule.premiereBatchSize : 1
@@ -66,10 +71,48 @@ export function getNextExpectedEpisode(
   return next
 }
 
-export function isInCheckWindow(expectedAt: Date, now: Date = new Date()): boolean {
+export function isInDenseCheckWindow(
+  expectedAt: Date,
+  now: Date = new Date()
+): boolean {
   const nowMs = now.getTime()
-  const start = expectedAt.getTime() - WINDOW_BEFORE_MS
-  return nowMs >= start
+  const expectedMs = expectedAt.getTime()
+  return (
+    nowMs >= expectedMs - WINDOW_BEFORE_MS &&
+    nowMs <= expectedMs + WINDOW_AFTER_DENSE_MS
+  )
+}
+
+export function isInLateCheckSlot(
+  expectedAt: Date,
+  now: Date = new Date()
+): boolean {
+  const elapsed = now.getTime() - (expectedAt.getTime() + WINDOW_AFTER_DENSE_MS)
+  if (elapsed < 0) {
+    return false
+  }
+
+  return (
+    Math.floor(elapsed / LATE_POLL_INTERVAL_MS) !==
+    Math.floor((elapsed - CRON_INTERVAL_MS) / LATE_POLL_INTERVAL_MS)
+  )
+}
+
+export function isInCheckWindow(expectedAt: Date, now: Date = new Date()): boolean {
+  return isInDenseCheckWindow(expectedAt, now) || isInLateCheckSlot(expectedAt, now)
+}
+
+export function getCheckWindowMode(
+  expectedAt: Date,
+  now: Date = new Date()
+): 'dense' | 'late' | null {
+  if (isInDenseCheckWindow(expectedAt, now)) {
+    return 'dense'
+  }
+  if (isInLateCheckSlot(expectedAt, now)) {
+    return 'late'
+  }
+  return null
 }
 
 export function isPastWaitingGrace(

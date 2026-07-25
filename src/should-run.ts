@@ -1,11 +1,14 @@
 // Zero-dep gate for GitHub Actions (node --experimental-strip-types, no pnpm install).
-// Schedule logic mirrors src/schedule.ts — keep WINDOW_BEFORE_MS and helpers in sync.
+// Schedule logic mirrors src/schedule.ts — keep window constants and helpers in sync.
 import { appendFileSync, readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const MS_PER_WEEK = 7 * 24 * 60 * 60 * 1000
-const WINDOW_BEFORE_MS = 10 * 60 * 1000
+const WINDOW_BEFORE_MS = 1 * 60 * 1000
+const WINDOW_AFTER_DENSE_MS = 90 * 60 * 1000
+const LATE_POLL_INTERVAL_MS = 30 * 60 * 1000
+const CRON_INTERVAL_MS = 5 * 60 * 1000
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const SHOWS_PATH = resolve(ROOT, 'shows.json')
@@ -95,8 +98,42 @@ function getNextExpectedEpisode(
   return next
 }
 
+function isInDenseCheckWindow(expectedAt: Date, now: Date): boolean {
+  const nowMs = now.getTime()
+  const expectedMs = expectedAt.getTime()
+  return (
+    nowMs >= expectedMs - WINDOW_BEFORE_MS &&
+    nowMs <= expectedMs + WINDOW_AFTER_DENSE_MS
+  )
+}
+
+function isInLateCheckSlot(expectedAt: Date, now: Date): boolean {
+  const elapsed = now.getTime() - (expectedAt.getTime() + WINDOW_AFTER_DENSE_MS)
+  if (elapsed < 0) {
+    return false
+  }
+
+  return (
+    Math.floor(elapsed / LATE_POLL_INTERVAL_MS) !==
+    Math.floor((elapsed - CRON_INTERVAL_MS) / LATE_POLL_INTERVAL_MS)
+  )
+}
+
 function isInCheckWindow(expectedAt: Date, now: Date): boolean {
-  return now.getTime() >= expectedAt.getTime() - WINDOW_BEFORE_MS
+  return isInDenseCheckWindow(expectedAt, now) || isInLateCheckSlot(expectedAt, now)
+}
+
+function getCheckWindowMode(
+  expectedAt: Date,
+  now: Date
+): 'dense' | 'late' | null {
+  if (isInDenseCheckWindow(expectedAt, now)) {
+    return 'dense'
+  }
+  if (isInLateCheckSlot(expectedAt, now)) {
+    return 'late'
+  }
+  return null
 }
 
 function parseEpisodeNumber(value: string | undefined): number {
@@ -120,13 +157,41 @@ function showNeedsCheck(show: Show, state: StateFile, now: Date): boolean {
   return isInCheckWindow(expectedAt, now)
 }
 
-function anyShowNeedsCheck(shows: Show[], state: StateFile, now: Date): boolean {
-  return shows.some((show) => showNeedsCheck(show, state, now))
+function getActiveCheckModes(
+  shows: Show[],
+  state: StateFile,
+  now: Date
+): Array<'dense' | 'late'> {
+  const modes = new Set<'dense' | 'late'>()
+
+  for (const show of shows) {
+    const previousState = state.shows[show.id] ?? null
+    const lastEpisodeNumber = previousState
+      ? parseEpisodeNumber(previousState.lastEpisodeNumber)
+      : null
+    const nextExpectedEp = getNextExpectedEpisode(show.schedule, lastEpisodeNumber)
+    if (nextExpectedEp === null) {
+      continue
+    }
+    const expectedAt = getExpectedDropAt(show.schedule, nextExpectedEp)
+    if (!expectedAt) {
+      continue
+    }
+    const mode = getCheckWindowMode(expectedAt, now)
+    if (mode) {
+      modes.add(mode)
+    }
+  }
+
+  return [...modes]
 }
 
 const showsFile = readJson<ShowsFile>(SHOWS_PATH, { shows: [] })
 const state = readJson<StateFile>(STATE_PATH, { shows: {} })
-const needsCheck = anyShowNeedsCheck(showsFile.shows ?? [], state, new Date())
+const now = new Date()
+const shows = showsFile.shows ?? []
+const needsCheck = shows.some((show) => showNeedsCheck(show, state, now))
+const activeModes = getActiveCheckModes(shows, state, now)
 
 const outputFile = process.env.GITHUB_OUTPUT
 if (outputFile) {
@@ -134,7 +199,8 @@ if (outputFile) {
 }
 
 if (needsCheck) {
-  console.log('At least one show is in the active check window.')
+  const modeLabel = activeModes.join(' + ') || 'active'
+  console.log(`At least one show is in the ${modeLabel} check window.`)
 } else {
   console.log('No shows in active check window; skipping full check.')
 }

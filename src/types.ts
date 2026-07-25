@@ -37,6 +37,8 @@ export interface ShowState {
   waitingNotifiedForEpisode?: number | null
   discordScheduledEventId?: string | null
   discordScheduledEventEpisode?: number | null
+  malMeanScore?: number | null
+  malScoreAlertedAt?: string | null
 }
 
 export interface StateFile {

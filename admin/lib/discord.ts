@@ -64,6 +64,47 @@ export function parseMalAdjustCustomId(customId: string): {
   return null
 }
 
+export function parseMalSetButtonCustomId(customId: string): number | null {
+  const match = customId.match(/^mal:set-btn:(\d+)$/)
+  if (!match) return null
+  const malId = Number(match[1])
+  return Number.isFinite(malId) ? malId : null
+}
+
+export function parseMalSetModalCustomId(customId: string): number | null {
+  const match = customId.match(/^mal:set:(\d+)$/)
+  if (!match) return null
+  const malId = Number(match[1])
+  return Number.isFinite(malId) ? malId : null
+}
+
+export function buildMalSetProgressModal(malId: number) {
+  return {
+    type: 9,
+    data: {
+      custom_id: `mal:set:${malId}`,
+      title: 'Set MAL progress',
+      components: [
+        {
+          type: 1,
+          components: [
+            {
+              type: 4,
+              custom_id: 'episode',
+              label: 'Episode number',
+              style: 1,
+              required: true,
+              min_length: 1,
+              max_length: 4,
+              placeholder: '12',
+            },
+          ],
+        },
+      ],
+    },
+  }
+}
+
 export function ephemeralResponse(content: string) {
   return {
     type: 4,
@@ -81,5 +122,32 @@ export function updateMessageResponse(data: {
   return {
     type: 7,
     data,
+  }
+}
+
+export async function createBotChannelMessage(
+  channelId: string,
+  payload: Record<string, unknown>
+): Promise<void> {
+  const botToken = process.env.DISCORD_BOT_TOKEN?.trim()
+  if (!botToken) {
+    throw new Error('DISCORD_BOT_TOKEN is not configured on Vercel.')
+  }
+
+  const response = await fetch(
+    `https://discord.com/api/v10/channels/${channelId}/messages`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bot ${botToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    }
+  )
+
+  if (!response.ok) {
+    const body = await response.text()
+    throw new Error(`Discord message failed (${response.status}): ${body}`)
   }
 }

@@ -10,9 +10,26 @@ interface MalListStatus {
   num_episodes_watched?: number
 }
 
+interface MalMainPicture {
+  medium?: string
+  large?: string
+}
+
 interface MalAnimeResponse {
   num_episodes?: number
+  mean?: number
+  main_picture?: MalMainPicture
   my_list_status?: MalListStatus
+}
+
+const MAL_ANIME_FIELDS =
+  'num_episodes,my_list_status,mean,main_picture'
+
+export interface MalAnimeDetails {
+  watched: number
+  total: number | null
+  meanScore: number | null
+  coverUrl: string | null
 }
 
 function getMalClientConfig() {
@@ -159,7 +176,7 @@ async function fetchMalAnimeStatus(
   malId: number
 ): Promise<{ watched: number; total: number | null }> {
   const response = await fetch(
-    `https://api.myanimelist.net/v2/anime/${malId}?fields=num_episodes,my_list_status`,
+    `https://api.myanimelist.net/v2/anime/${malId}?fields=${MAL_ANIME_FIELDS}`,
     {
       headers: { Authorization: `Bearer ${accessToken}` },
     }
@@ -178,6 +195,77 @@ async function fetchMalAnimeStatus(
       : null
 
   return { watched, total }
+}
+
+export async function fetchMalAnimeDetails(
+  malId: number
+): Promise<MalAnimeDetails> {
+  const accessToken = await getMalAccessToken()
+  const response = await fetch(
+    `https://api.myanimelist.net/v2/anime/${malId}?fields=${MAL_ANIME_FIELDS}`,
+    {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    }
+  )
+
+  if (!response.ok) {
+    const body = await response.text()
+    throw new Error(`MAL anime lookup failed (${response.status}): ${body}`)
+  }
+
+  const current = (await response.json()) as MalAnimeResponse
+  const watched = current.my_list_status?.num_episodes_watched ?? 0
+  const total =
+    typeof current.num_episodes === 'number' && current.num_episodes > 0
+      ? current.num_episodes
+      : null
+  const meanScore =
+    typeof current.mean === 'number' && Number.isFinite(current.mean)
+      ? current.mean
+      : null
+  const coverUrl =
+    current.main_picture?.large ?? current.main_picture?.medium ?? null
+
+  return { watched, total, meanScore, coverUrl }
+}
+
+export async function setMalWatchedEpisode(
+  malId: number,
+  episodeNumber: number
+): Promise<{ updated: boolean; watched: number; total: number | null }> {
+  const accessToken = await getMalAccessToken()
+  const { watched, total } = await fetchMalAnimeStatus(accessToken, malId)
+
+  if (watched === episodeNumber) {
+    return { updated: false, watched, total }
+  }
+
+  const params = new URLSearchParams({
+    num_watched_episodes: String(episodeNumber),
+  })
+
+  if (episodeNumber > 0) {
+    params.set('status', 'watching')
+  }
+
+  const updateResponse = await fetch(
+    `https://api.myanimelist.net/v2/anime/${malId}/my_list_status`,
+    {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: params,
+    }
+  )
+
+  if (!updateResponse.ok) {
+    const body = await updateResponse.text()
+    throw new Error(`MAL list update failed (${updateResponse.status}): ${body}`)
+  }
+
+  return { updated: true, watched: episodeNumber, total }
 }
 
 export async function adjustMalWatchedEpisode(

@@ -63,6 +63,22 @@ export async function getShowsFile() {
   return { content, sha: data.sha }
 }
 
+export async function getStateFile() {
+  const { repo, branch } = getConfig()
+  const data = await githubFetch<GitHubContentResponse>(
+    `/repos/${repo}/contents/state.json?ref=${branch}`
+  )
+
+  if (!data) {
+    return { content: { shows: {} }, sha: null as string | null }
+  }
+
+  const content = JSON.parse(
+    Buffer.from(data.content, 'base64').toString('utf8')
+  )
+  return { content, sha: data.sha }
+}
+
 export async function saveShowsFile(
   shows: unknown[],
   sha: string,

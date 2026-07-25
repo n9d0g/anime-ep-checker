@@ -1,3 +1,8 @@
+import {
+  discordRelativeTimestamp,
+  discordTimestamp,
+  formatMalScoreLabel,
+} from './discord-format.js'
 import { formatEasternTime } from './time.js'
 import {
   getShowWatchUrl,
@@ -12,7 +17,7 @@ import {
   isPastWaitingGrace,
   parseEpisodeNumber,
 } from './schedule.js'
-import { fetchMalProgress, formatMalProgressLabel } from './mal.js'
+import { fetchMalAnimeDetails, formatMalProgressLabel } from './mal.js'
 
 export type DashboardStatus = 'upcoming' | 'in_window' | 'waiting' | 'out'
 
@@ -22,6 +27,8 @@ export interface ShowDashboardRow {
   expectedDropAt: string | null
   status: DashboardStatus
   malProgress: string
+  malScore: string
+  coverUrl: string | null
   providerLatestEpisode: number | null
 }
 
@@ -99,8 +106,24 @@ export async function buildShowDashboardRow(
   }
 
   let malProgress = '—'
+  let malScore = '—'
+  let coverUrl: string | null = null
+
   if (show.malId) {
-    malProgress = formatMalProgressLabel(await fetchMalProgress(show.malId))
+    const details = await fetchMalAnimeDetails(show.malId)
+    if (details.status === 'ok') {
+      malProgress = formatMalProgressLabel({
+        status: 'ok',
+        progress: {
+          watched: details.details.watched,
+          total: details.details.total,
+        },
+      })
+      malScore = formatMalScoreLabel(details.details.meanScore)
+      coverUrl = details.details.coverUrl
+    } else {
+      malProgress = formatMalProgressLabel(details)
+    }
   }
 
   return {
@@ -109,6 +132,8 @@ export async function buildShowDashboardRow(
     expectedDropAt: expectedAt?.toISOString() ?? null,
     status,
     malProgress,
+    malScore,
+    coverUrl,
     providerLatestEpisode,
   }
 }
@@ -123,29 +148,42 @@ export function buildDashboardEmbed(row: ShowDashboardRow) {
     row.expectedDropAt !== null
       ? formatEasternTime(row.expectedDropAt)
       : 'No upcoming drop'
+  const countdown =
+    row.expectedDropAt !== null
+      ? discordRelativeTimestamp(row.expectedDropAt)
+      : '—'
 
   return {
     title,
     url: watchUrl || undefined,
     color: getDashboardStatusColor(row.status),
+    thumbnail: row.coverUrl ? { url: row.coverUrl } : undefined,
     fields: [
       { name: 'Status', value: getDashboardStatusLabel(row.status), inline: true },
       { name: 'Provider', value: provider, inline: true },
       { name: 'MAL', value: row.malProgress, inline: true },
+      { name: 'MAL score', value: row.malScore, inline: true },
       { name: 'Next', value: nextEpisode, inline: true },
-      { name: 'Expected drop', value: drop, inline: false },
+      { name: 'Countdown', value: countdown, inline: true },
+      {
+        name: 'Expected drop',
+        value:
+          row.expectedDropAt !== null
+            ? `${drop} (${discordTimestamp(row.expectedDropAt)})`
+            : drop,
+        inline: false,
+      },
     ],
     footer: { text: 'Anime Episode Checker · Watching dashboard' },
   }
 }
 
 export function buildDashboardMalComponents(show: Show) {
-  if (!show.malId) {
-    return []
-  }
+  const rows: Array<Record<string, unknown>> = []
+  const watchUrl = getShowWatchUrl(show)
 
-  return [
-    {
+  if (show.malId) {
+    rows.push({
       type: 1,
       components: [
         {
@@ -160,9 +198,31 @@ export function buildDashboardMalComponents(show: Show) {
           label: '+',
           custom_id: `mal:inc:${show.malId}`,
         },
+        {
+          type: 2,
+          style: 2,
+          label: 'Set progress…',
+          custom_id: `mal:set-btn:${show.malId}`,
+        },
       ],
-    },
-  ]
+    })
+  }
+
+  if (watchUrl) {
+    rows.push({
+      type: 1,
+      components: [
+        {
+          type: 2,
+          style: 5,
+          label: 'Watch',
+          url: watchUrl,
+        },
+      ],
+    })
+  }
+
+  return rows
 }
 
 export function buildShowDashboardPayload(row: ShowDashboardRow) {
