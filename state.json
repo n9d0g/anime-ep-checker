@@ -1,16 +1,16 @@
 {
   "shows": {
     "one-piece": {
-      "lastEpisodeId": "GE00369376JAJP",
-      "lastEpisodeNumber": "1170",
-      "lastEpisodeTitle": "Episode 1170",
-      "lastNotifiedAt": "2026-07-19T16:14:43.711Z",
+      "lastEpisodeId": "GE00369377JAJP",
+      "lastEpisodeNumber": "1171",
+      "lastEpisodeTitle": "The Heinous Sinner - Loki of the Underworld Freed?!",
+      "lastNotifiedAt": "2026-07-26T16:16:44.696Z",
       "seasonId": "GS00376439JAJP",
       "seasonTitle": "Elbaph (1156-current)",
-      "waitingNotifiedForEpisode": 1171,
-      "discordScheduledEventId": "1529915948864245832",
-      "discordScheduledEventEpisode": 1171,
-      "malMeanScore": 8.73
+      "waitingNotifiedForEpisode": null,
+      "malMeanScore": 8.73,
+      "discordScheduledEventId": "1530972190600855677",
+      "discordScheduledEventEpisode": 1172
     },
     "slime": {
       "lastEpisodeId": "GE00374380JAJP",
@@ -32,7 +32,9 @@
       "seasonId": "GS00374452JAJP",
       "seasonTitle": "Season 3",
       "waitingNotifiedForEpisode": null,
-      "malMeanScore": 8.78
+      "malMeanScore": 8.78,
+      "discordScheduledEventId": "1530972196187410503",
+      "discordScheduledEventEpisode": 6
     },
     "smoking-behind-the-supermarket-with-you": {
       "lastEpisodeId": "GE00378527JAJP",
@@ -65,7 +67,7 @@
       "one-piece": "1530733787967651844",
       "slime": "1530733791000264705",
       "mushoku-tensei-s3": "1530733794309439540",
-      "smoking-behind-the-supermarket-with-you": "1530956707310866636",
+      "smoking-behind-the-supermarket-with-you": "1530972178714071134",
       "chainsmoker-cat": "1530733799741194282"
     }
   }
