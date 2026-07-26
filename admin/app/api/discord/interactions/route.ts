@@ -1,6 +1,8 @@
-import { NextResponse } from 'next/server'
+import { after, NextResponse } from 'next/server'
 import {
   buildMalSetProgressModal,
+  deferredEphemeralResponse,
+  editOriginalInteractionResponse,
   ephemeralResponse,
   parseMalAdjustCustomId,
   parseMalCustomId,
@@ -47,6 +49,8 @@ interface DiscordComponent {
 
 interface DiscordInteraction {
   type: number
+  application_id?: string
+  token?: string
   data?: {
     custom_id?: string
     name?: string
@@ -157,15 +161,29 @@ export async function POST(request: Request) {
   if (interaction.type === 2) {
     const commandName = interaction.data?.name ?? ''
     const options = interaction.data?.options ?? []
+    const applicationId = interaction.application_id
+    const token = interaction.token
 
-    try {
-      const response = await handleSlashCommand(commandName, options)
-      return NextResponse.json(response)
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Command failed.'
-      return NextResponse.json(ephemeralResponse(message))
+    if (!applicationId || !token) {
+      return NextResponse.json(
+        ephemeralResponse('Missing interaction application_id or token.')
+      )
     }
+
+    after(async () => {
+      try {
+        const payload = await handleSlashCommand(commandName, options)
+        await editOriginalInteractionResponse(applicationId, token, payload)
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : 'Command failed.'
+        await editOriginalInteractionResponse(applicationId, token, {
+          content: message,
+        })
+      }
+    })
+
+    return NextResponse.json(deferredEphemeralResponse())
   }
 
   if (interaction.type === 5) {

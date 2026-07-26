@@ -115,6 +115,37 @@ export function ephemeralResponse(content: string) {
   }
 }
 
+export function deferredEphemeralResponse() {
+  return {
+    type: 5,
+    data: {
+      flags: 64,
+    },
+  }
+}
+
+export async function editOriginalInteractionResponse(
+  applicationId: string,
+  token: string,
+  data: { content?: string; embeds?: unknown[]; flags?: number }
+): Promise<void> {
+  const response = await fetch(
+    `https://discord.com/api/v10/webhooks/${applicationId}/${token}/messages/@original`,
+    {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    }
+  )
+
+  if (!response.ok) {
+    const body = await response.text()
+    console.error(
+      `Discord interaction edit failed (${response.status}): ${body}`
+    )
+  }
+}
+
 export function updateMessageResponse(data: {
   embeds?: unknown[]
   components?: unknown[]

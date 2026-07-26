@@ -188,6 +188,8 @@ DISCORD_BOT_TOKEN=... DISCORD_GUILD_ID=... pnpm register-commands
 | `/mal` | `up` / `down` / `set` watched episodes on MAL |
 | `/score-alert` | Manually post a score pickup or drop to `#anime-alerts` |
 
+Slash replies are **deferred** (Discord shows "thinking…" briefly) so GitHub/MAL lookups can finish before the ephemeral result appears. Redeploy the admin app after updating slash command handling.
+
 Requires `DISCORD_GUILD_ID`, `DISCORD_BOT_TOKEN`, and `DISCORD_CHANNEL_ID` on Vercel for `/score-alert`. All commands use the same interactions endpoint as MAL buttons.
 
 ### Discord scheduled events

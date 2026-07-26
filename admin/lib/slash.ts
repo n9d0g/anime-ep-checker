@@ -19,6 +19,11 @@ import {
 import { createBotChannelMessage } from './discord'
 import type { Show } from './types'
 
+export interface SlashCommandPayload {
+  content?: string
+  embeds?: unknown[]
+}
+
 function discordRelativeTimestamp(iso: string | null | undefined): string {
   if (!iso) return '—'
   const unix = Math.floor(new Date(iso).getTime() / 1000)
@@ -94,13 +99,12 @@ export async function handleSlashAutocomplete(
 export async function handleSlashCommand(
   commandName: string,
   options: Array<{ name: string; type: number; value?: string | number }>
-) {
+): Promise<SlashCommandPayload> {
   const optionMap = new Map(options.map((option) => [option.name, option.value]))
 
   if (commandName === 'next') {
     const shows = await loadTrackedShows()
     const { content: stateFile } = await getStateFile()
-    const now = new Date()
     const lines: string[] = []
 
     for (const show of shows) {
@@ -114,15 +118,7 @@ export async function handleSlashCommand(
       const expectedAt = getExpectedDropAt(show.schedule, nextEpisode)
       if (!expectedAt) continue
 
-      let scoreLabel = '—'
-      if (show.malId) {
-        try {
-          const details = await fetchMalAnimeDetails(show.malId)
-          scoreLabel = formatMalScore(details.meanScore)
-        } catch {
-          scoreLabel = 'unavailable'
-        }
-      }
+      const scoreLabel = formatMalScore(showState?.malMeanScore)
 
       lines.push(
         `**${show.title || show.id}** — ep ${nextEpisode} · ${discordRelativeTimestamp(expectedAt.toISOString())} · MAL ${scoreLabel}`
@@ -130,14 +126,10 @@ export async function handleSlashCommand(
     }
 
     return {
-      type: 4,
-      data: {
-        content:
-          lines.length > 0
-            ? lines.join('\n')
-            : 'No upcoming drops on the schedule.',
-        flags: 64,
-      },
+      content:
+        lines.length > 0
+          ? lines.join('\n')
+          : 'No upcoming drops on the schedule.',
     }
   }
 
@@ -146,19 +138,12 @@ export async function handleSlashCommand(
     const show = findShowByOption(shows, String(optionMap.get('title') ?? ''))
 
     if (!show) {
-      return {
-        type: 4,
-        data: { content: 'Show not found.', flags: 64 },
-      }
+      return { content: 'Show not found.' }
     }
 
     if (!show.malId) {
       return {
-        type: 4,
-        data: {
-          content: `${show.title} has no malId configured in shows.json.`,
-          flags: 64,
-        },
+        content: `${show.title} has no malId configured in shows.json.`,
       }
     }
 
@@ -187,13 +172,7 @@ export async function handleSlashCommand(
       }
     )
 
-    return {
-      type: 4,
-      data: {
-        embeds: [embed],
-        flags: 64,
-      },
-    }
+    return { embeds: [embed] }
   }
 
   if (commandName === 'mal') {
@@ -202,63 +181,42 @@ export async function handleSlashCommand(
     const action = String(optionMap.get('action') ?? '')
 
     if (!show?.malId) {
-      return {
-        type: 4,
-        data: { content: 'Show not found or missing malId.', flags: 64 },
-      }
+      return { content: 'Show not found or missing malId.' }
     }
 
     if (action === 'up') {
       const result = await adjustMalWatchedEpisode(show.malId, 1)
       return {
-        type: 4,
-        data: {
-          content: result.updated
-            ? `Updated **${show.title}** to ${formatMalWatchedLabel(result.watched, result.total)}.`
-            : `Already at ${formatMalWatchedLabel(result.watched, result.total)}.`,
-          flags: 64,
-        },
+        content: result.updated
+          ? `Updated **${show.title}** to ${formatMalWatchedLabel(result.watched, result.total)}.`
+          : `Already at ${formatMalWatchedLabel(result.watched, result.total)}.`,
       }
     }
 
     if (action === 'down') {
       const result = await adjustMalWatchedEpisode(show.malId, -1)
       return {
-        type: 4,
-        data: {
-          content: result.updated
-            ? `Updated **${show.title}** to ${formatMalWatchedLabel(result.watched, result.total)}.`
-            : `Already at ${formatMalWatchedLabel(result.watched, result.total)}.`,
-          flags: 64,
-        },
+        content: result.updated
+          ? `Updated **${show.title}** to ${formatMalWatchedLabel(result.watched, result.total)}.`
+          : `Already at ${formatMalWatchedLabel(result.watched, result.total)}.`,
       }
     }
 
     if (action === 'set') {
       const episode = Number(optionMap.get('episode'))
       if (!Number.isFinite(episode) || episode < 0) {
-        return {
-          type: 4,
-          data: { content: 'Provide a valid episode number for `set`.', flags: 64 },
-        }
+        return { content: 'Provide a valid episode number for `set`.' }
       }
 
       const result = await setMalWatchedEpisode(show.malId, episode)
       return {
-        type: 4,
-        data: {
-          content: result.updated
-            ? `Set **${show.title}** to ${formatMalWatchedLabel(result.watched, result.total)}.`
-            : `Already at ${formatMalWatchedLabel(result.watched, result.total)}.`,
-          flags: 64,
-        },
+        content: result.updated
+          ? `Set **${show.title}** to ${formatMalWatchedLabel(result.watched, result.total)}.`
+          : `Already at ${formatMalWatchedLabel(result.watched, result.total)}.`,
       }
     }
 
-    return {
-      type: 4,
-      data: { content: 'Unknown MAL action.', flags: 64 },
-    }
+    return { content: 'Unknown MAL action.' }
   }
 
   if (commandName === 'score-alert') {
@@ -269,19 +227,12 @@ export async function handleSlashCommand(
     const channelId = process.env.DISCORD_CHANNEL_ID?.trim()
 
     if (!show?.malId) {
-      return {
-        type: 4,
-        data: { content: 'Show not found or missing malId.', flags: 64 },
-      }
+      return { content: 'Show not found or missing malId.' }
     }
 
     if (!channelId) {
       return {
-        type: 4,
-        data: {
-          content: 'DISCORD_CHANNEL_ID is not configured on Vercel.',
-          flags: 64,
-        },
+        content: 'DISCORD_CHANNEL_ID is not configured on Vercel.',
       }
     }
 
@@ -313,16 +264,9 @@ export async function handleSlashCommand(
     })
 
     return {
-      type: 4,
-      data: {
-        content: `Posted ${kind} alert for **${show.title}** to <#${channelId}>.`,
-        flags: 64,
-      },
+      content: `Posted ${kind} alert for **${show.title}** to <#${channelId}>.`,
     }
   }
 
-  return {
-    type: 4,
-    data: { content: 'Unknown command.', flags: 64 },
-  }
+  return { content: 'Unknown command.' }
 }
