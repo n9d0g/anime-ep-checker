@@ -32,7 +32,7 @@
     },
     {
       "id": "mushoku-tensei-s3",
-      "title": "Mushoku Tensei s3",
+      "title": "Mushoku Tensei S3",
       "provider": "crunchyroll",
       "schedule": {
         "mode": "finite",
@@ -63,7 +63,7 @@
     },
     {
       "id": "chainsmoker-cat",
-      "title": "Chainsmoker Cat",
+      "title": "Yani Neko",
       "provider": "netflix",
       "schedule": {
         "mode": "ongoing",
@@ -74,7 +74,8 @@
       },
       "netflixUrl": "https://www.netflix.com/title/82760630",
       "netflixId": "82760630",
-      "malId": 63403
+      "malId": 63403,
+      "redditSearchTitle": "chainsmoker_cat_yani_neko"
     }
   ]
 }
