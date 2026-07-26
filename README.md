@@ -167,7 +167,7 @@ Episode alerts use **Discord Components V2** (container + media gallery + sectio
 
 ### Discord watching dashboard
 
-The bot maintains a **pinned message per tracked show** in `#watching` using **Components V2**: MAL cover gallery, status, progress, score, next episode, countdown, and expected drop. Shows with a `malId` get **− / +** buttons, a **Set progress…** modal, and a **Watch** link section. Requires `DISCORD_BOT_TOKEN`, `DISCORD_WATCHING_CHANNEL_ID`, `DISCORD_PUBLIC_KEY` + MAL secrets on **Vercel** (for button clicks), and **MAL secrets on GitHub Actions** (for dashboard sync). If MAL is missing from Actions, the dashboard shows **MAL not configured**; if auth fails, it shows **MAL unavailable**.
+The bot maintains a **pinned message per tracked show** in `#watching` using **Components V2**: MAL cover gallery, status, progress, score, next episode, countdown, and expected drop. Each card also includes an **r/anime** link for the latest notified episode (same AutoLovepon RSS lookup as alerts). Shows with a `malId` get **− / +** buttons, a **Set progress…** modal, and a **Watch** link section. Requires `DISCORD_BOT_TOKEN`, `DISCORD_WATCHING_CHANNEL_ID`, `DISCORD_PUBLIC_KEY` + MAL secrets on **Vercel** (for button clicks), and **MAL secrets on GitHub Actions** (for dashboard sync). If MAL is missing from Actions, the dashboard shows **MAL not configured**; if auth fails, it shows **MAL unavailable**.
 
 ### MAL score alerts
 

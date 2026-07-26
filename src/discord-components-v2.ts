@@ -232,6 +232,16 @@ export function buildWatchingCardV2Payload(
     )
   }
 
+  if (row.discussionUrl) {
+    children.push(
+      sectionWithLink(
+        'Join the weekly r/anime discussion thread.',
+        'r/anime',
+        row.discussionUrl
+      )
+    )
+  }
+
   children.push(textDisplay('-# Anime Episode Checker · Watching dashboard'))
 
   return v2MessagePayload([

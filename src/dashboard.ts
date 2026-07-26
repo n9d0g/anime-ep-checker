@@ -19,6 +19,7 @@ import {
 } from './schedule.js'
 import { fetchMalAnimeDetails, formatMalProgressLabel } from './mal.js'
 import { buildWatchingCardV2Payload } from './discord-components-v2.js'
+import { findAnimeDiscussionUrl } from './reddit.js'
 
 export type DashboardStatus = 'upcoming' | 'in_window' | 'waiting' | 'out'
 
@@ -30,6 +31,7 @@ export interface ShowDashboardRow {
   malProgress: string
   malScore: string
   coverUrl: string | null
+  discussionUrl: string | null
   providerLatestEpisode: number | null
 }
 
@@ -109,6 +111,7 @@ export async function buildShowDashboardRow(
   let malProgress = '—'
   let malScore = '—'
   let coverUrl: string | null = null
+  let discussionUrl: string | null = null
 
   if (show.malId) {
     const details = await fetchMalAnimeDetails(show.malId)
@@ -127,6 +130,18 @@ export async function buildShowDashboardRow(
     }
   }
 
+  if (lastEpisodeNumber !== null && lastEpisodeNumber > 0) {
+    try {
+      discussionUrl = await findAnimeDiscussionUrl(
+        show.title || show.id,
+        lastEpisodeNumber,
+        show.redditSearchTitle
+      )
+    } catch {
+      discussionUrl = null
+    }
+  }
+
   return {
     show,
     nextEpisode,
@@ -135,6 +150,7 @@ export async function buildShowDashboardRow(
     malProgress,
     malScore,
     coverUrl,
+    discussionUrl,
     providerLatestEpisode,
   }
 }
