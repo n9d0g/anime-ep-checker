@@ -24,7 +24,7 @@ flowchart LR
 2. Inside the window, the checker runs about every **5 minutes** and calls `pnpm check`.
 3. Each show uses **Crunchyroll or Netflix** (not both).
 4. On first run for a show (inside a window), it **baselines** the current episode (no alert).
-5. When the expected episode becomes available, it posts to **Discord** (rich embed with cover, MAL score, countdown, Watch/r/anime links, optional Mark watched button) and updates [`state.json`](state.json).
+5. When the expected episode becomes available, it posts to **Discord** (Components V2 layout with MAL cover gallery, score, countdown, and Watch / r/anime / MAL link sections) and updates [`state.json`](state.json).
 6. If an episode is **late** (15+ min past expected), it sends a one-time **still waiting** Discord message.
 7. Each run also refreshes a **#watching dashboard** (MAL progress + next drops) and syncs **Discord Scheduled Events** for upcoming episodes.
 8. The **Vercel admin** edits `shows.json` in your repo.
@@ -161,9 +161,13 @@ Set Discord/Netflix/MAL env vars in `.env` at the repo root for live checks.
 
 r/anime discussion links resolve to the AutoLovepon thread permalink when available (via Reddit search RSS), otherwise fall back to an r/anime search URL. No Reddit API secrets required.
 
+### Discord episode alerts (`#anime-alerts`)
+
+Episode alerts use **Discord Components V2** (container + media gallery + section link rows). Each alert includes the MAL cover when available, episode metadata, and link sections for Watch, r/anime, and MAL. **Mark watched** is not on alerts — update progress in `#watching` instead. Requires `DISCORD_BOT_TOKEN` + `DISCORD_CHANNEL_ID` for the rich layout; webhook fallback sends a simplified embed with cover thumbnail and markdown links.
+
 ### Discord watching dashboard
 
-The bot maintains a **pinned message per tracked show** in `#watching`: cover art, provider, MAL progress, MAL score, next episode, Discord countdown (`<t:…:R>`), expected drop (Eastern), and status (upcoming / in window / waiting / out). Shows with a `malId` get **− / +** buttons, a **Set progress…** modal, and a **Watch** link. Requires `DISCORD_BOT_TOKEN`, `DISCORD_WATCHING_CHANNEL_ID`, `DISCORD_PUBLIC_KEY` + MAL secrets on **Vercel** (for button clicks), and **MAL secrets on GitHub Actions** (for dashboard sync). If MAL is missing from Actions, the dashboard shows **MAL not configured**; if auth fails, it shows **MAL unavailable**.
+The bot maintains a **pinned message per tracked show** in `#watching` using **Components V2**: MAL cover gallery, status, progress, score, next episode, countdown, and expected drop. Shows with a `malId` get **− / +** buttons, a **Set progress…** modal, and a **Watch** link section. Requires `DISCORD_BOT_TOKEN`, `DISCORD_WATCHING_CHANNEL_ID`, `DISCORD_PUBLIC_KEY` + MAL secrets on **Vercel** (for button clicks), and **MAL secrets on GitHub Actions** (for dashboard sync). If MAL is missing from Actions, the dashboard shows **MAL not configured**; if auth fails, it shows **MAL unavailable**.
 
 ### MAL score alerts
 
@@ -211,6 +215,7 @@ For each show’s next expected episode, the bot creates or updates an **externa
 | [`src/netflix.ts`](src/netflix.ts) | Netflix pathEvaluator client (cookie auth) |
 | [`src/reddit.ts`](src/reddit.ts) | r/anime discussion lookup (AutoLovepon RSS + search fallback) |
 | [`src/discord.ts`](src/discord.ts) | Discord bot/webhook alerts + score alerts |
+| [`src/discord-components-v2.ts`](src/discord-components-v2.ts) | Components V2 message builders |
 | [`src/discord-format.ts`](src/discord-format.ts) | Embed formatting helpers |
 | [`src/discord-dashboard.ts`](src/discord-dashboard.ts) | #watching dashboard sync |
 | [`src/discord-events.ts`](src/discord-events.ts) | Guild scheduled events sync |

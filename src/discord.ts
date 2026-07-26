@@ -1,5 +1,6 @@
 import { formatTimingLabel } from './compare.js'
 import { createBotMessage } from './discord-api.js'
+import { buildEpisodeAlertV2Payload } from './discord-components-v2.js'
 import {
   discordRelativeTimestamp,
   formatMalScoreLabel,
@@ -53,7 +54,7 @@ function hasBotConfig(discord: DiscordConfig): boolean {
   return Boolean(discord.botToken?.trim() && discord.channelId?.trim())
 }
 
-function buildEpisodeEmbed({
+function buildEpisodeWebhookEmbed({
   show,
   latestSnapshot,
   episodeNumber,
@@ -113,44 +114,6 @@ function buildEpisodeEmbed({
       text: 'Anime Episode Checker',
     },
   }
-}
-
-function buildEpisodeComponents(
-  show: Show,
-  episodeNumber: number,
-  watchUrl: string,
-  discussionUrl?: string | null
-) {
-  const row: Array<Record<string, unknown>> = []
-
-  if (watchUrl) {
-    row.push({
-      type: 2,
-      style: 5,
-      label: 'Watch',
-      url: watchUrl,
-    })
-  }
-
-  if (discussionUrl) {
-    row.push({
-      type: 2,
-      style: 5,
-      label: 'r/anime',
-      url: discussionUrl,
-    })
-  }
-
-  if (show.malId) {
-    row.push({
-      type: 2,
-      style: 3,
-      label: 'Mark watched',
-      custom_id: `mal:${show.malId}:${episodeNumber}`,
-    })
-  }
-
-  return row.length > 0 ? [{ type: 1, components: row }] : []
 }
 
 async function postBotMessage(
@@ -234,20 +197,8 @@ export async function sendMalScoreAlert({
 }
 
 export async function sendEpisodeAlert(input: EpisodeAlertInput): Promise<void> {
-  const embed = buildEpisodeEmbed(input)
-  const components = buildEpisodeComponents(
-    input.show,
-    input.episodeNumber,
-    input.latestSnapshot.watchUrl,
-    input.discussionUrl
-  )
-  const payload: Record<string, unknown> = { embeds: [embed] }
-
-  if (components.length > 0) {
-    payload.components = components
-  }
-
   if (hasBotConfig(input.discord)) {
+    const payload = buildEpisodeAlertV2Payload(input)
     await postBotMessage(
       input.discord.botToken!,
       input.discord.channelId!,
@@ -257,13 +208,32 @@ export async function sendEpisodeAlert(input: EpisodeAlertInput): Promise<void> 
   }
 
   if (input.discord.webhookUrl) {
-    if (components.length > 0) {
-      console.warn(
-        'Interactive buttons require DISCORD_BOT_TOKEN + DISCORD_CHANNEL_ID; sending webhook without buttons.'
-      )
-      delete payload.components
+    const embed = buildEpisodeWebhookEmbed(input)
+    const links: string[] = []
+    if (input.latestSnapshot.watchUrl) {
+      links.push(`[Watch](${input.latestSnapshot.watchUrl})`)
     }
-    await postWebhook(input.discord.webhookUrl, payload)
+    if (input.discussionUrl) {
+      links.push(`[r/anime](${input.discussionUrl})`)
+    }
+    if (input.show.malId) {
+      links.push(
+        `[MAL](https://myanimelist.net/anime/${input.show.malId})`
+      )
+    }
+
+    if (links.length > 0) {
+      embed.fields = [
+        ...(embed.fields ?? []),
+        {
+          name: 'Links',
+          value: links.join(' · '),
+          inline: false,
+        },
+      ]
+    }
+
+    await postWebhook(input.discord.webhookUrl, { embeds: [embed] })
     return
   }
 

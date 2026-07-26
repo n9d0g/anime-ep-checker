@@ -18,6 +18,7 @@ import {
   parseEpisodeNumber,
 } from './schedule.js'
 import { fetchMalAnimeDetails, formatMalProgressLabel } from './mal.js'
+import { buildWatchingCardV2Payload } from './discord-components-v2.js'
 
 export type DashboardStatus = 'upcoming' | 'in_window' | 'waiting' | 'out'
 
@@ -226,10 +227,11 @@ export function buildDashboardMalComponents(show: Show) {
 }
 
 export function buildShowDashboardPayload(row: ShowDashboardRow) {
-  return {
-    embeds: [buildDashboardEmbed(row)],
-    components: buildDashboardMalComponents(row.show),
-  }
+  return buildWatchingCardV2Payload(
+    row,
+    getDashboardStatusLabel(row.status),
+    getDashboardStatusColor(row.status)
+  )
 }
 
 export function buildDashboardEmbeds(rows: ShowDashboardRow[]) {

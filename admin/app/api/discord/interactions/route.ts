@@ -10,6 +10,10 @@ import {
   verifyDiscordRequest,
 } from '@/lib/discord'
 import {
+  IS_COMPONENTS_V2,
+  patchMalProgressInComponents,
+} from '@/lib/discord-components-v2'
+import {
   adjustMalWatchedEpisode,
   formatMalWatchedLabel,
   setMalWatchedEpisode,
@@ -64,13 +68,25 @@ function refreshMalFieldsInMessage(
   message: DiscordInteraction['message'],
   watched: number,
   total: number | null
-): { embeds: DiscordEmbed[]; components: unknown[] } | null {
+): { embeds?: DiscordEmbed[]; components: unknown[]; flags?: number } | null {
+  const malLabel = formatMalWatchedLabel(watched, total)
+  const components = message?.components
+
+  if (components?.length) {
+    const patched = patchMalProgressInComponents(components, malLabel)
+    if (patched) {
+      return {
+        flags: IS_COMPONENTS_V2,
+        components: patched,
+      }
+    }
+  }
+
   const embed = message?.embeds?.[0]
   if (!embed?.fields) {
     return null
   }
 
-  const malLabel = formatMalWatchedLabel(watched, total)
   const embeds = [
     {
       ...embed,

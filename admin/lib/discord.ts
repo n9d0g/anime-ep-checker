@@ -118,6 +118,7 @@ export function ephemeralResponse(content: string) {
 export function updateMessageResponse(data: {
   embeds?: unknown[]
   components?: unknown[]
+  flags?: number
 }) {
   return {
     type: 7,
