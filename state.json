@@ -7,7 +7,7 @@
       "lastNotifiedAt": "2026-07-19T16:14:43.711Z",
       "seasonId": "GS00376439JAJP",
       "seasonTitle": "Elbaph (1156-current)",
-      "waitingNotifiedForEpisode": null,
+      "waitingNotifiedForEpisode": 1171,
       "discordScheduledEventId": "1529915948864245832",
       "discordScheduledEventEpisode": 1171,
       "malMeanScore": 8.73
@@ -25,15 +25,13 @@
       "malMeanScore": 8.13
     },
     "mushoku-tensei-s3": {
-      "lastEpisodeId": "GE00374456JAJP",
-      "lastEpisodeNumber": "4",
-      "lastEpisodeTitle": "A King-Class Water Mage",
-      "lastNotifiedAt": "2026-07-19T16:14:44.118Z",
+      "lastEpisodeId": "GE00374457JAJP",
+      "lastEpisodeNumber": "5",
+      "lastEpisodeTitle": "Celebrations",
+      "lastNotifiedAt": "2026-07-26T16:08:32.578Z",
       "seasonId": "GS00374452JAJP",
       "seasonTitle": "Season 3",
       "waitingNotifiedForEpisode": null,
-      "discordScheduledEventId": "1529915953544958095",
-      "discordScheduledEventEpisode": 5,
       "malMeanScore": 8.78
     },
     "smoking-behind-the-supermarket-with-you": {
