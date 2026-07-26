@@ -1,17 +1,11 @@
-import { formatTimingLabel } from './compare.js'
 import {
   discordRelativeTimestamp,
   discordTimestamp,
-  formatMalScoreLabel,
 } from './discord-format.js'
-import type { MalAnimeDetails } from './mal.js'
 import { formatEasternTime } from './time.js'
 import {
   getShowWatchUrl,
   providerLabel,
-  type EpisodeSnapshot,
-  type Show,
-  type TimingStatus,
 } from './types.js'
 import type { ShowDashboardRow } from './dashboard.js'
 
@@ -81,80 +75,6 @@ export function v2MessagePayload(children: V2Component[]) {
     flags: IS_COMPONENTS_V2,
     components: children,
   }
-}
-
-export function buildEpisodeAlertV2Payload({
-  show,
-  latestSnapshot,
-  episodeNumber,
-  timingStatus,
-  expectedDropAt,
-  actualDropAt,
-  discussionUrl,
-  malDetails,
-}: {
-  show: Show
-  latestSnapshot: EpisodeSnapshot
-  episodeNumber: number
-  timingStatus: TimingStatus
-  expectedDropAt: string
-  actualDropAt?: string | null
-  discussionUrl?: string | null
-  malDetails?: MalAnimeDetails | null
-}) {
-  const episodeTitle = latestSnapshot.episode.title ?? 'New episode'
-  const showTitle = show.title || latestSnapshot.seriesTitle
-  const timingLabel = formatTimingLabel(timingStatus, expectedDropAt, actualDropAt)
-  const countdown = actualDropAt
-    ? discordRelativeTimestamp(actualDropAt, 'Aired')
-    : discordRelativeTimestamp(expectedDropAt, '—')
-  const accentColor = timingStatus === 'late' ? 0xe67e22 : 0x2ecc71
-  const watchUrl = latestSnapshot.watchUrl
-
-  const children: V2Component[] = []
-
-  if (malDetails?.coverUrl) {
-    children.push(mediaGallery(malDetails.coverUrl, showTitle))
-  }
-
-  children.push(
-    textDisplay(`## ${showTitle} — Episode ${episodeNumber} is out\n*${episodeTitle}*`),
-    separator(),
-    textDisplay(
-      [
-        `**Season:** ${latestSnapshot.seasonTitle}`,
-        `**MAL score:** ${formatMalScoreLabel(malDetails?.meanScore)}`,
-        `**Countdown:** ${countdown}`,
-        `**Timing:** ${timingLabel}`,
-      ].join('\n')
-    )
-  )
-
-  if (watchUrl) {
-    children.push(
-      sectionWithLink('Watch the latest episode on your provider.', 'Watch', watchUrl)
-    )
-  }
-
-  if (discussionUrl) {
-    children.push(
-      sectionWithLink('Join the weekly r/anime discussion thread.', 'r/anime', discussionUrl)
-    )
-  }
-
-  if (show.malId) {
-    children.push(
-      sectionWithLink(
-        'View this series on MyAnimeList.',
-        'MAL',
-        `https://myanimelist.net/anime/${show.malId}`
-      )
-    )
-  }
-
-  children.push(textDisplay('-# Anime Episode Checker'))
-
-  return v2MessagePayload([container(accentColor, children)])
 }
 
 export function buildWatchingCardV2Payload(

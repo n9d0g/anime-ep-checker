@@ -1,6 +1,5 @@
 import { formatTimingLabel } from './compare.js'
 import { createBotMessage } from './discord-api.js'
-import { buildEpisodeAlertV2Payload } from './discord-components-v2.js'
 import {
   discordRelativeTimestamp,
   formatMalScoreLabel,
@@ -116,6 +115,47 @@ function buildEpisodeWebhookEmbed({
   }
 }
 
+function buildEpisodeLinkButtons({
+  show,
+  latestSnapshot,
+  discussionUrl,
+}: Pick<EpisodeAlertInput, 'show' | 'latestSnapshot' | 'discussionUrl'>) {
+  const buttons: Array<Record<string, unknown>> = []
+
+  if (latestSnapshot.watchUrl) {
+    buttons.push({
+      type: 2,
+      style: 5,
+      label: 'Watch',
+      url: latestSnapshot.watchUrl,
+    })
+  }
+
+  if (discussionUrl) {
+    buttons.push({
+      type: 2,
+      style: 5,
+      label: 'r/anime',
+      url: discussionUrl,
+    })
+  }
+
+  if (show.malId) {
+    buttons.push({
+      type: 2,
+      style: 5,
+      label: 'MAL',
+      url: `https://myanimelist.net/anime/${show.malId}`,
+    })
+  }
+
+  if (buttons.length === 0) {
+    return undefined
+  }
+
+  return [{ type: 1, components: buttons }]
+}
+
 async function postBotMessage(
   botToken: string,
   channelId: string,
@@ -198,7 +238,18 @@ export async function sendMalScoreAlert({
 
 export async function sendEpisodeAlert(input: EpisodeAlertInput): Promise<void> {
   if (hasBotConfig(input.discord)) {
-    const payload = buildEpisodeAlertV2Payload(input)
+    const showTitle = input.show.title || input.latestSnapshot.seriesTitle
+    const embed = buildEpisodeWebhookEmbed(input)
+    const components = buildEpisodeLinkButtons(input)
+    const payload: Record<string, unknown> = {
+      content: `**${showTitle}** — Episode ${input.episodeNumber} is out`,
+      embeds: [embed],
+    }
+
+    if (components) {
+      payload.components = components
+    }
+
     await postBotMessage(
       input.discord.botToken!,
       input.discord.channelId!,

@@ -24,7 +24,7 @@ flowchart LR
 2. Inside the window, the checker runs about every **5 minutes** and calls `pnpm check`.
 3. Each show uses **Crunchyroll or Netflix** (not both).
 4. On first run for a show (inside a window), it **baselines** the current episode (no alert).
-5. When the expected episode becomes available, it posts to **Discord** (Components V2 layout with MAL cover gallery, score, countdown, and Watch / r/anime / MAL link sections) and updates [`state.json`](state.json).
+5. When the expected episode becomes available, it posts to **Discord** (notification-friendly message with MAL cover thumbnail, episode metadata, and Watch / r/anime / MAL link buttons) and updates [`state.json`](state.json).
 6. If an episode is **late** (15+ min past expected), it sends a one-time **still waiting** Discord message.
 7. Each run also refreshes a **#watching dashboard** (MAL progress + next drops) and syncs **Discord Scheduled Events** for upcoming episodes.
 8. The **Vercel admin** edits `shows.json` in your repo.
@@ -163,7 +163,7 @@ r/anime discussion links resolve to the AutoLovepon thread permalink when availa
 
 ### Discord episode alerts (`#anime-alerts`)
 
-Episode alerts use **Discord Components V2** (container + media gallery + section link rows). Each alert includes the MAL cover when available, episode metadata, and link sections for Watch, r/anime, and MAL. **Mark watched** is not on alerts — update progress in `#watching` instead. Requires `DISCORD_BOT_TOKEN` + `DISCORD_CHANNEL_ID` for the rich layout; webhook fallback sends a simplified embed with cover thumbnail and markdown links.
+Episode alerts use a **classic embed** with a MAL cover thumbnail, plus a top-level message line (e.g. **Yani Neko — Episode 4 is out**) so mobile notifications show readable text. Metadata (season, score, countdown, timing) lives in the embed; Watch / r/anime / MAL are link buttons below. **Mark watched** is not on alerts — update progress in `#watching` instead. Requires `DISCORD_BOT_TOKEN` + `DISCORD_CHANNEL_ID`; webhook fallback sends a simplified embed with markdown links.
 
 ### Discord watching dashboard
 
