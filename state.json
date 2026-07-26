@@ -34,7 +34,7 @@
       "waitingNotifiedForEpisode": null,
       "discordScheduledEventId": "1529915953544958095",
       "discordScheduledEventEpisode": 5,
-      "malMeanScore": 8.79
+      "malMeanScore": 8.78
     },
     "smoking-behind-the-supermarket-with-you": {
       "lastEpisodeId": "GE00378527JAJP",
@@ -49,16 +49,16 @@
       "malMeanScore": 8.39
     },
     "chainsmoker-cat": {
-      "lastEpisodeId": "82760634",
-      "lastEpisodeNumber": "3",
-      "lastEpisodeTitle": "Episode 3",
-      "lastNotifiedAt": "2026-07-23T17:39:34.163Z",
+      "lastEpisodeId": "82760635",
+      "lastEpisodeNumber": "4",
+      "lastEpisodeTitle": "Episode 4",
+      "lastNotifiedAt": "2026-07-26T09:34:57.946Z",
       "seasonId": "82760631",
       "seasonTitle": "Chainsmoker Cat",
       "waitingNotifiedForEpisode": null,
       "malMeanScore": 7.07,
-      "discordScheduledEventId": "1530744553810825316",
-      "discordScheduledEventEpisode": 4
+      "discordScheduledEventId": "1530871093034745947",
+      "discordScheduledEventEpisode": 5
     }
   },
   "meta": {
@@ -67,7 +67,7 @@
       "one-piece": "1530733787967651844",
       "slime": "1530733791000264705",
       "mushoku-tensei-s3": "1530733794309439540",
-      "smoking-behind-the-supermarket-with-you": "1530733797341925427",
+      "smoking-behind-the-supermarket-with-you": "1530871070901538967",
       "chainsmoker-cat": "1530733799741194282"
     }
   }
