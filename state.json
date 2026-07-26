@@ -58,17 +58,17 @@
       "waitingNotifiedForEpisode": null,
       "discordScheduledEventId": "1529915955977650288",
       "discordScheduledEventEpisode": 5,
-      "malMeanScore": 7.08
+      "malMeanScore": 7.07
     }
   },
   "meta": {
     "watchingDashboardMessageId": null,
     "watchingDashboardMessageIds": {
-      "one-piece": "1529943708680851568",
-      "slime": "1529943710584803442",
-      "mushoku-tensei-s3": "1529943712954847335",
-      "smoking-behind-the-supermarket-with-you": "1530725178131353601",
-      "chainsmoker-cat": "1530725180563787939"
+      "one-piece": "1530733787967651844",
+      "slime": "1530733791000264705",
+      "mushoku-tensei-s3": "1530733794309439540",
+      "smoking-behind-the-supermarket-with-you": "1530733797341925427",
+      "chainsmoker-cat": "1530733799741194282"
     }
   }
 }
