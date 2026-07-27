@@ -1,5 +1,15 @@
 export const DISCORD_API = 'https://discord.com/api/v10'
 
+export class DiscordApiError extends Error {
+  status: number
+
+  constructor(status: number, message: string) {
+    super(message)
+    this.name = 'DiscordApiError'
+    this.status = status
+  }
+}
+
 export async function discordBotRequest(
   botToken: string,
   path: string,
@@ -57,7 +67,10 @@ export async function editBotMessage(
 
   if (!response.ok) {
     const body = await response.text()
-    throw new Error(`Discord bot message edit failed (${response.status}): ${body}`)
+    throw new DiscordApiError(
+      response.status,
+      `Discord bot message edit failed (${response.status}): ${body}`
+    )
   }
 }
 

@@ -357,3 +357,29 @@ export async function sendNetflixCookieAlert(
 
   await postBotMessage(discord.botToken!, discord.channelId!, payload)
 }
+
+export async function sendDisneyAuthAlert(
+  discord: DiscordConfig
+): Promise<void> {
+  if (!hasBotConfig(discord)) {
+    throw new Error(
+      'Disney+ auth alert requires DISCORD_BOT_TOKEN + DISCORD_CHANNEL_ID.'
+    )
+  }
+
+  const payload = {
+    embeds: [
+      {
+        title: 'Disney+ refresh token needs update',
+        description:
+          'Disney+ episode checks need a valid `DISNEY_REFRESH_TOKEN` (anonymous metadata was unavailable). Re-copy a refresh token from DevTools on disneyplus.com (see README §6) into the GitHub Actions secret, then re-run the check workflow.\n\nYou only need to do this when the refresh token is revoked (password change, logout, or long idle period)—not every 4 hours.',
+        color: 0xe67e22,
+        footer: {
+          text: 'Anime Episode Checker',
+        },
+      },
+    ],
+  }
+
+  await postBotMessage(discord.botToken!, discord.channelId!, payload)
+}

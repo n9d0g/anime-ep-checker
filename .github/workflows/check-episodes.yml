@@ -14,6 +14,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: check-episodes
+  cancel-in-progress: false
+
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -64,6 +68,8 @@ jobs:
           MAL_CLIENT_SECRET: ${{ secrets.MAL_CLIENT_SECRET }}
           MAL_REFRESH_TOKEN: ${{ secrets.MAL_REFRESH_TOKEN }}
           NETFLIX_COOKIE: ${{ secrets.NETFLIX_COOKIE }}
+          DISNEY_REFRESH_TOKEN: ${{ secrets.DISNEY_REFRESH_TOKEN }}
+          DISNEY_REGION: ${{ secrets.DISNEY_REGION }}
         run: pnpm check
 
       - name: Commit state updates

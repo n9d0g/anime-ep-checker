@@ -1,6 +1,6 @@
 # Anime Episode Checker
 
-Checks **Crunchyroll** or **Netflix** for newly available anime episodes and sends Discord alerts when an episode drops. Manage tracked shows through a small admin CMS on Vercel.
+Checks **Crunchyroll**, **Netflix**, or **Disney+** for newly available anime episodes and sends Discord alerts when an episode drops. Manage tracked shows through a small admin CMS on Vercel.
 
 ## How it works
 
@@ -22,7 +22,7 @@ flowchart LR
 
 1. **GitHub Actions** is triggered every **5 minutes** by an external cron (see [Reliable polling](#reliable-polling) below). A cheap gate skips install and provider checks unless a show is in its **drop window** (at expected drop time through 90 minutes after; then about every 30 minutes if still missing).
 2. Inside the window, the checker runs about every **5 minutes** and calls `pnpm check`.
-3. Each show uses **Crunchyroll or Netflix** (not both).
+3. Each show uses **Crunchyroll, Netflix, or Disney+** (not multiple).
 4. On first run for a show (inside a window), it **baselines** the current episode (no alert).
 5. When the expected episode becomes available, it posts to **Discord** (notification-friendly message with MAL cover thumbnail, episode metadata, and Watch / r/anime / MAL link buttons) and updates [`state.json`](state.json).
 6. If an episode is **late** (15+ min past expected), it sends a one-time **still waiting** Discord message.
@@ -35,7 +35,7 @@ Each show uses a weekly schedule:
 
 | Field | Meaning |
 |-------|---------|
-| `provider` | `crunchyroll` or `netflix` |
+| `provider` | `crunchyroll`, `netflix`, or `disney` |
 | `mode` | `finite` (season with end) or `ongoing` (no end) |
 | `startAt` | When the anchor episode(s) should drop (**stored UTC**, entered as **JST** in CMS) |
 | `startEpisode` | Episode number that `startAt` refers to |
@@ -111,6 +111,8 @@ Optional fallback: a legacy webhook via `DISCORD_WEBHOOK_URL` (no MAL button, no
 | `MAL_CLIENT_SECRET` | MAL API client secret |
 | `MAL_REFRESH_TOKEN` | MAL OAuth refresh token |
 | `NETFLIX_COOKIE` | Logged-in `netflix.com` cookie string (for Netflix shows only) |
+| `DISNEY_REFRESH_TOKEN` | Disney+ refresh token (see §6; long-lived) |
+| `DISNEY_REGION` | Optional Disney+ region (default `US`) |
 | `DISCORD_DEPLOY_WEBHOOK_URL` | Webhook for a separate **deploy** Discord channel |
 
 The workflow uses the default `GITHUB_TOKEN` to commit `state.json` updates.
@@ -161,6 +163,38 @@ Success messages include branch, short commit SHA, commit subject, time (ET), an
 ### 5. Netflix cookie
 
 For Netflix-tracked shows, copy your browser cookie string while logged into Netflix (DevTools → Network → any `netflix.com` request → `Cookie` header) into the `NETFLIX_COOKIE` GitHub secret. Refresh it if pathEvaluator requests start failing (expired session). When the cookie is missing or expired, the checker posts a one-time **Netflix cookie needs refresh** alert to your episode Discord channel via the bot (`DISCORD_BOT_TOKEN` + `DISCORD_CHANNEL_ID`).
+
+### 6. Disney+
+
+Disney+ checks try **anonymous content-edge metadata first** (no secret). For entity-UUID titles like Bleach, set `DISNEY_REFRESH_TOKEN`:
+
+1. Open [disneyplus.com](https://www.disneyplus.com) while logged in (home or a show page — not `login.disney.com`).
+2. DevTools → **Console** (main page context, not an iframe) and run:
+
+```js
+copy(
+  JSON.parse(
+    localStorage.getItem('__bam_sdk_access--disney-svod-3d9324fc_prod')
+  ).context.refreshToken
+)
+```
+
+That copies the BAM SDK refresh token to your clipboard. Paste it into the `DISNEY_REFRESH_TOKEN` GitHub secret.
+
+**Fallback:** if the BAM key is missing, try:
+
+```js
+copy(
+  JSON.parse(localStorage.getItem('DTCI-DISNEYPLUS.WEB-PROD.token'))
+    .refresh_token
+)
+```
+
+Do **not** use `context.token` / `access_token` — those are short-lived JWTs (~4h). The refresh value is a longer encrypted token (`typ: rt+jwt`).
+
+The checker exchanges this refresh token for a short-lived access token on each run, so you do **not** need to update it every 4 hours. Re-copy only if Disney revokes the session (logout, password change, or a **Disney+ refresh token needs update** alert in `#anime-alerts`).
+
+Optional: set `DISNEY_REGION` (default `US`) if your account is in another region.
 
 ### 6. Local development
 
@@ -219,7 +253,7 @@ For each show’s next expected episode, the bot creates or updates an **externa
 ## CMS usage
 
 1. Open your Vercel admin URL and sign in
-2. Choose **Crunchyroll** or **Netflix** and paste the series/title URL
+2. Choose **Crunchyroll**, **Netflix**, or **Disney+** and paste the series/title URL
 3. Optionally set **MAL anime ID** and **Reddit search title**
 4. Choose **Finite season** or **Ongoing**
 5. Set start date/time (**Japan Time / JST**), start episode number, and premiere batch size
@@ -235,6 +269,7 @@ For each show’s next expected episode, the bot creates or updates an **externa
 | [`src/schedule.ts`](src/schedule.ts) | Expected drop times + check windows |
 | [`src/crunchyroll.ts`](src/crunchyroll.ts) | Crunchyroll API client |
 | [`src/netflix.ts`](src/netflix.ts) | Netflix pathEvaluator client (cookie auth) |
+| [`src/disney.ts`](src/disney.ts) | Disney+ explore API client (cookie auth) |
 | [`src/reddit.ts`](src/reddit.ts) | r/anime discussion lookup (AutoLovepon RSS + search fallback) |
 | [`src/discord.ts`](src/discord.ts) | Discord bot/webhook alerts + score alerts |
 | [`src/discord-components-v2.ts`](src/discord-components-v2.ts) | Components V2 message builders |
@@ -252,7 +287,7 @@ For each show’s next expected episode, the bot creates or updates an **externa
 
 ## Notes
 
-- Crunchyroll uses an undocumented internal API (anonymous token). Netflix uses an unofficial Shakti endpoint with your session cookie. Both may break if endpoints change.
-- Episode availability uses premium/simulcast timing on CR and Shakti availability on Netflix.
+- Crunchyroll uses an undocumented internal API (anonymous token). Netflix uses an unofficial Shakti endpoint with your session cookie. Disney+ uses private bamgrid explore APIs with your session cookie. All may break if endpoints change.
+- Episode availability uses premium/simulcast timing on CR, Shakti availability on Netflix, and release metadata on Disney+.
 - Schedule times are stored in UTC, entered as **JST** in the CMS, and shown as **Eastern** in Discord.
 - Requires **Node 24.11.1** (local and GitHub Actions).

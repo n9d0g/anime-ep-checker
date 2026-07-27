@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import {
   getShowsFile,
+  parseDisneyIdFromUrl,
   parseNetflixIdFromUrl,
   parseSeriesIdFromUrl,
   saveShowsFile,
@@ -21,6 +22,8 @@ function normalizeShow(show: ShowFormValues): Show {
   let crunchyrollUrl: string | undefined
   let netflixId: string | undefined
   let netflixUrl: string | undefined
+  let disneyId: string | undefined
+  let disneyUrl: string | undefined
 
   if (provider === 'crunchyroll') {
     crunchyrollUrl = show.crunchyrollUrl.trim()
@@ -28,30 +31,36 @@ function normalizeShow(show: ShowFormValues): Show {
     if (!seriesId) {
       throw new Error(`Invalid Crunchyroll URL: ${show.crunchyrollUrl}`)
     }
-  } else {
+  } else if (provider === 'netflix') {
     netflixUrl = show.netflixUrl.trim()
     netflixId = show.netflixId || parseNetflixIdFromUrl(netflixUrl) || undefined
     if (!netflixId) {
       throw new Error(`Invalid Netflix URL: ${show.netflixUrl}`)
     }
+  } else {
+    disneyUrl = show.disneyUrl.trim()
+    disneyId = show.disneyId || parseDisneyIdFromUrl(disneyUrl) || undefined
+    if (!disneyId) {
+      throw new Error(`Invalid Disney+ URL: ${show.disneyUrl}`)
+    }
   }
 
   const startAt = fromDatetimeLocalValue(show.schedule.startAt)
   if (!startAt) {
-    throw new Error(`Start date is required for ${title || seriesId || netflixId}`)
+    throw new Error(`Start date is required for ${title || seriesId || netflixId || disneyId}`)
   }
 
   const startEpisode = Number(show.schedule.startEpisode)
   if (!Number.isFinite(startEpisode) || startEpisode < 1) {
     throw new Error(
-      `Start episode must be at least 1 for ${title || seriesId || netflixId}`
+      `Start episode must be at least 1 for ${title || seriesId || netflixId || disneyId}`
     )
   }
 
   const premiereBatchSize = Number(show.schedule.premiereBatchSize || '1')
   if (!Number.isFinite(premiereBatchSize) || premiereBatchSize < 1) {
     throw new Error(
-      `Premiere batch size must be at least 1 for ${title || seriesId || netflixId}`
+      `Premiere batch size must be at least 1 for ${title || seriesId || netflixId || disneyId}`
     )
   }
 
@@ -77,7 +86,7 @@ function normalizeShow(show: ShowFormValues): Show {
   const redditSearchTitle = show.redditSearchTitle.trim() || undefined
   const id =
     show.id ||
-    slugify(title || seriesId || netflixId || 'show')
+    slugify(title || seriesId || netflixId || disneyId || 'show')
 
   const normalized: Show = {
     id,
@@ -95,9 +104,12 @@ function normalizeShow(show: ShowFormValues): Show {
   if (provider === 'crunchyroll') {
     normalized.crunchyrollUrl = crunchyrollUrl
     normalized.seriesId = seriesId
-  } else {
+  } else if (provider === 'netflix') {
     normalized.netflixUrl = netflixUrl
     normalized.netflixId = netflixId
+  } else {
+    normalized.disneyUrl = disneyUrl
+    normalized.disneyId = disneyId
   }
 
   if (malId !== undefined) {

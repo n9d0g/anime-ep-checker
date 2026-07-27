@@ -1,7 +1,7 @@
 import { toDatetimeLocalValue } from './time'
 
 export type ScheduleMode = 'finite' | 'ongoing'
-export type ShowProvider = 'crunchyroll' | 'netflix'
+export type ShowProvider = 'crunchyroll' | 'netflix' | 'disney'
 
 export interface ShowSchedule {
   mode: ScheduleMode
@@ -19,6 +19,8 @@ export interface Show {
   seriesId?: string
   netflixUrl?: string
   netflixId?: string
+  disneyUrl?: string
+  disneyId?: string
   malId?: number
   redditSearchTitle?: string
   schedule: ShowSchedule
@@ -36,6 +38,8 @@ export interface ShowFormValues {
   seriesId: string
   netflixUrl: string
   netflixId: string
+  disneyUrl: string
+  disneyId: string
   malId: string
   redditSearchTitle: string
   schedule: {
@@ -56,6 +60,8 @@ export function emptyShowForm(): ShowFormValues {
     seriesId: '',
     netflixUrl: '',
     netflixId: '',
+    disneyUrl: '',
+    disneyId: '',
     malId: '',
     redditSearchTitle: '',
     schedule: {
@@ -79,6 +85,8 @@ export function showToForm(show: Show): ShowFormValues {
     seriesId: show.seriesId ?? '',
     netflixUrl: show.netflixUrl ?? '',
     netflixId: show.netflixId ?? '',
+    disneyUrl: show.disneyUrl ?? '',
+    disneyId: show.disneyId ?? '',
     malId: show.malId ? String(show.malId) : '',
     redditSearchTitle: show.redditSearchTitle ?? '',
     schedule: {

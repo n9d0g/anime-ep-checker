@@ -76,6 +76,21 @@
       "netflixId": "82760630",
       "malId": 63403,
       "redditSearchTitle": "chainsmoker_cat_yani_neko"
+    },
+    {
+      "id": "bleach",
+      "title": "Bleach",
+      "provider": "disney",
+      "schedule": {
+        "mode": "ongoing",
+        "startAt": "2026-07-05T16:00:00.000Z",
+        "startEpisode": 1,
+        "episodeCount": null,
+        "premiereBatchSize": 1
+      },
+      "disneyUrl": "https://www.disneyplus.com/browse/entity-571475d5-8b1a-453f-a57f-26bb4dd13304",
+      "disneyId": "571475d5-8b1a-453f-a57f-26bb4dd13304",
+      "malId": 41467
     }
   ]
 }

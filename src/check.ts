@@ -13,6 +13,7 @@ import {
 } from './crunchyroll.js'
 import {
   sendEpisodeAlert,
+  sendDisneyAuthAlert,
   sendNetflixCookieAlert,
   sendWaitingAlert,
   type DiscordConfig,
@@ -25,6 +26,11 @@ import {
 } from './discord-events.js'
 import { fetchMalAnimeDetails } from './mal.js'
 import { syncMalScoreAlerts } from './mal-score.js'
+import {
+  DisneyAuthError,
+  getLatestAvailableEpisodeForTitle as getLatestDisneyEpisode,
+  parseDisneyIdFromUrl,
+} from './disney.js'
 import {
   getLatestAvailableEpisodeForTitle,
   NetflixAuthError,
@@ -82,6 +88,12 @@ function resolveProviderId(show: Show): string {
     throw new Error(`Netflix ID missing for show ${show.id}`)
   }
 
+  if (normalized.provider === 'disney') {
+    if (normalized.disneyId) return normalized.disneyId
+    if (normalized.disneyUrl) return parseDisneyIdFromUrl(normalized.disneyUrl)
+    throw new Error(`Disney+ ID missing for show ${show.id}`)
+  }
+
   if (normalized.seriesId) return normalized.seriesId
   if (normalized.crunchyrollUrl) {
     return parseSeriesIdFromUrl(normalized.crunchyrollUrl)
@@ -95,6 +107,10 @@ async function fetchLatestEpisode(show: Show): Promise<EpisodeSnapshot | null> {
 
   if (normalized.provider === 'netflix') {
     return getLatestAvailableEpisodeForTitle(providerId)
+  }
+
+  if (normalized.provider === 'disney') {
+    return getLatestDisneyEpisode(providerId)
   }
 
   return getLatestAvailableEpisodeForSeries(providerId)
@@ -176,6 +192,7 @@ export async function checkShows({
   const now = new Date()
   let stateChanged = false
   let skipNetflixShows = false
+  let skipDisneyShows = false
 
   for (const show of shows) {
     const showId = show.id
@@ -192,6 +209,11 @@ export async function checkShows({
 
     if (show.provider === 'netflix' && skipNetflixShows) {
       console.log('  Skipping Netflix show (cookie auth failed earlier this run)')
+      continue
+    }
+
+    if (show.provider === 'disney' && skipDisneyShows) {
+      console.log('  Skipping Disney+ show (cookie auth failed earlier this run)')
       continue
     }
 
@@ -250,6 +272,32 @@ export async function checkShows({
         continue
       }
 
+      if (error instanceof DisneyAuthError) {
+        console.error(`  Disney+ auth failed: ${error.message}`)
+        skipDisneyShows = true
+
+        if (!state.meta?.disneyCookieAlertSentAt) {
+          if (!dryRun && hasBotConfig(discord)) {
+            await sendDisneyAuthAlert(discord)
+            console.log('  Disney+ refresh token alert sent via Discord bot')
+          } else if (!dryRun) {
+            console.log(
+              '  Discord bot not configured; skipping Disney+ refresh token alert'
+            )
+          }
+
+          state.meta = {
+            ...state.meta,
+            disneyCookieAlertSentAt: now.toISOString(),
+          }
+          stateChanged = true
+        } else {
+          console.log('  Disney+ refresh token alert already sent; skipping')
+        }
+
+        continue
+      }
+
       throw error
     }
 
@@ -257,6 +305,14 @@ export async function checkShows({
       state.meta = {
         ...state.meta,
         netflixCookieAlertSentAt: null,
+      }
+      stateChanged = true
+    }
+
+    if (show.provider === 'disney' && state.meta?.disneyCookieAlertSentAt) {
+      state.meta = {
+        ...state.meta,
+        disneyCookieAlertSentAt: null,
       }
       stateChanged = true
     }

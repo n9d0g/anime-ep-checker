@@ -9,6 +9,7 @@ import {
   type ShowFormValues,
   type ShowProvider,
 } from '@/lib/types'
+import { providerLabel } from '@/lib/shows'
 
 function SegmentedControl<T extends string>({
   value,
@@ -229,8 +230,7 @@ export default function AdminPage() {
             <div className="show-list">
               {shows.map((show, index) => {
                 const open = isExpanded(show, index)
-                const providerLabel =
-                  show.provider === 'netflix' ? 'Netflix' : 'Crunchyroll'
+                const chipProviderLabel = providerLabel(show.provider)
 
                 return (
                   <article className="panel show-card" key={cardKey(show, index)}>
@@ -245,7 +245,7 @@ export default function AdminPage() {
                           {show.title || `Show ${index + 1}`}
                         </span>
                         <div className="show-card-meta">
-                          <span className="chip">{providerLabel}</span>
+                          <span className="chip">{chipProviderLabel}</span>
                           <span className="chip chip-muted">
                             {show.schedule.mode === 'ongoing'
                               ? 'Ongoing'
@@ -281,6 +281,7 @@ export default function AdminPage() {
                             options={[
                               { value: 'crunchyroll', label: 'Crunchyroll' },
                               { value: 'netflix', label: 'Netflix' },
+                              { value: 'disney', label: 'Disney+' },
                             ]}
                             onChange={(value) =>
                               updateShow(index, 'provider', value as ShowProvider)
@@ -307,7 +308,7 @@ export default function AdminPage() {
                               required
                             />
                           </div>
-                        ) : (
+                        ) : show.provider === 'netflix' ? (
                           <div className="field">
                             <label htmlFor={`netflix-url-${index}`}>
                               Netflix title URL
@@ -319,6 +320,21 @@ export default function AdminPage() {
                                 updateShow(index, 'netflixUrl', event.target.value)
                               }
                               placeholder="https://www.netflix.com/title/..."
+                              required
+                            />
+                          </div>
+                        ) : (
+                          <div className="field">
+                            <label htmlFor={`disney-url-${index}`}>
+                              Disney+ title URL
+                            </label>
+                            <input
+                              id={`disney-url-${index}`}
+                              value={show.disneyUrl}
+                              onChange={(event) =>
+                                updateShow(index, 'disneyUrl', event.target.value)
+                              }
+                              placeholder="https://www.disneyplus.com/browse/entity-..."
                               required
                             />
                           </div>

@@ -1,6 +1,6 @@
 export type ScheduleMode = 'finite' | 'ongoing'
 
-export type ShowProvider = 'crunchyroll' | 'netflix'
+export type ShowProvider = 'crunchyroll' | 'netflix' | 'disney'
 
 export interface ShowSchedule {
   mode: ScheduleMode
@@ -18,6 +18,8 @@ export interface Show {
   seriesId?: string
   netflixUrl?: string
   netflixId?: string
+  disneyUrl?: string
+  disneyId?: string
   malId?: number
   redditSearchTitle?: string
   schedule: ShowSchedule
@@ -45,6 +47,7 @@ export interface StateFile {
   shows: Record<string, ShowState>
   meta?: {
     netflixCookieAlertSentAt?: string | null
+    disneyCookieAlertSentAt?: string | null
     watchingDashboardMessageId?: string | null
     watchingDashboardMessageIds?: Record<string, string>
   }
@@ -93,7 +96,9 @@ export function normalizeShowProvider(show: Show): Show {
 }
 
 export function providerLabel(provider: ShowProvider): string {
-  return provider === 'netflix' ? 'Netflix' : 'Crunchyroll'
+  if (provider === 'netflix') return 'Netflix'
+  if (provider === 'disney') return 'Disney+'
+  return 'Crunchyroll'
 }
 
 export function getShowWatchUrl(show: Show): string {
@@ -103,6 +108,14 @@ export function getShowWatchUrl(show: Show): string {
     if (normalized.netflixUrl) return normalized.netflixUrl
     if (normalized.netflixId) {
       return `https://www.netflix.com/title/${normalized.netflixId}`
+    }
+    return ''
+  }
+
+  if (normalized.provider === 'disney') {
+    if (normalized.disneyUrl) return normalized.disneyUrl
+    if (normalized.disneyId) {
+      return `https://www.disneyplus.com/browse/entity-${normalized.disneyId}`
     }
     return ''
   }
