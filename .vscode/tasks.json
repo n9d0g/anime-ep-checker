@@ -1,0 +1,17 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Sync current branch",
+      "type": "shell",
+      "command": "git fetch origin && git pull --ff-only origin HEAD",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": false,
+        "clear": false
+      }
+    }
+  ]
+}
