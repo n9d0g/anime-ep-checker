@@ -130,11 +130,18 @@ export async function buildShowDashboardRow(
     }
   }
 
-  if (lastEpisodeNumber !== null && lastEpisodeNumber > 0) {
+  const discussionEpisode =
+    lastEpisodeNumber !== null && lastEpisodeNumber > 0
+      ? lastEpisodeNumber
+      : nextEpisode !== null && nextEpisode > 0
+        ? nextEpisode
+        : show.schedule.startEpisode
+
+  if (discussionEpisode > 0) {
     try {
       discussionUrl = await findAnimeDiscussionUrl(
         show.title || show.id,
-        lastEpisodeNumber,
+        discussionEpisode,
         show.redditSearchTitle
       )
     } catch {

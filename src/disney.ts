@@ -99,7 +99,7 @@ async function exchangeRefreshToken(
   const data = (await response.json()) as DisneyTokenResponse
 
   if (!response.ok) {
-    const detail = data.error_description ?? data.error ?? response.statusText
+    const detail = String(data.error_description ?? data.error ?? response.statusText)
     if (response.status === 401 || response.status === 403) {
       throw new DisneyAuthError(
         `Disney+ refresh token exchange ${response.status}: ${detail}`
@@ -107,14 +107,18 @@ async function exchangeRefreshToken(
     }
     if (
       response.status === 400 &&
-      (data.error === 'invalid_grant' || detail.includes('invalid'))
+      (data.error === 'invalid_grant' ||
+        detail.includes('invalid') ||
+        detail.includes('forbidden-location'))
     ) {
       throw new DisneyAuthError(
-        `Disney+ refresh token is invalid or expired: ${detail}`
+        detail.includes('forbidden-location')
+          ? `Disney+ refresh token exchange blocked by geo/IP (${detail}). Disney shows are skipped for this run; run pnpm check from a residential IP to check Disney titles.`
+          : `Disney+ refresh token is invalid or expired: ${detail}`
       )
     }
-    throw new Error(
-      `Disney+ refresh token exchange ${response.status}: ${String(detail).slice(0, 200)}`
+    throw new DisneyAuthError(
+      `Disney+ refresh token exchange ${response.status}: ${detail.slice(0, 200)}`
     )
   }
 

@@ -192,7 +192,9 @@ copy(
 
 Do **not** use `context.token` / `access_token` — those are short-lived JWTs (~4h). The refresh value is a longer encrypted token (`typ: rt+jwt`).
 
-The checker exchanges this refresh token for a short-lived access token on each run, so you do **not** need to update it every 4 hours. Re-copy only if Disney revokes the session (logout, password change, or a **Disney+ refresh token needs update** alert in `#anime-alerts`).
+The checker exchanges this refresh token for a short-lived access token on each run, so you do **not** need to update it every 4 hours. Re-copy only if Disney revokes the session (logout, password change, or a **Disney+ checks need attention** alert in `#anime-alerts`).
+
+**GitHub Actions geo-block:** Disney often rejects refresh-token exchange from datacenter IPs (`forbidden-location` on hosted runners). Disney shows are **skipped** for that run with a one-time Discord alert; Crunchyroll and Netflix continue. To baseline or alert on Disney episodes, run `pnpm check` (or `pnpm check -- --force`) from home with the same env vars in `.env`.
 
 Optional: set `DISNEY_REGION` (default `US`) if your account is in another region.
 
@@ -269,7 +271,7 @@ For each show’s next expected episode, the bot creates or updates an **externa
 | [`src/schedule.ts`](src/schedule.ts) | Expected drop times + check windows |
 | [`src/crunchyroll.ts`](src/crunchyroll.ts) | Crunchyroll API client |
 | [`src/netflix.ts`](src/netflix.ts) | Netflix pathEvaluator client (cookie auth) |
-| [`src/disney.ts`](src/disney.ts) | Disney+ explore API client (cookie auth) |
+| [`src/disney.ts`](src/disney.ts) | Disney+ explore API client (refresh token auth) |
 | [`src/reddit.ts`](src/reddit.ts) | r/anime discussion lookup (AutoLovepon RSS + search fallback) |
 | [`src/discord.ts`](src/discord.ts) | Discord bot/webhook alerts + score alerts |
 | [`src/discord-components-v2.ts`](src/discord-components-v2.ts) | Components V2 message builders |

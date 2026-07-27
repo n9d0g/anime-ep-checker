@@ -370,9 +370,9 @@ export async function sendDisneyAuthAlert(
   const payload = {
     embeds: [
       {
-        title: 'Disney+ refresh token needs update',
+        title: 'Disney+ checks need attention',
         description:
-          'Disney+ episode checks need a valid `DISNEY_REFRESH_TOKEN` (anonymous metadata was unavailable). Re-copy a refresh token from DevTools on disneyplus.com (see README §6) into the GitHub Actions secret, then re-run the check workflow.\n\nYou only need to do this when the refresh token is revoked (password change, logout, or long idle period)—not every 4 hours.',
+          'Disney+ episode checks failed (anonymous metadata was unavailable). Common causes:\n\n• **Geo-block** (`forbidden-location`) — GitHub Actions uses datacenter IPs. Disney shows are skipped for this run; run `pnpm check` from home when you need Disney baseline/alerts.\n• **Expired refresh token** — Re-copy `context.refreshToken` from DevTools on disneyplus.com (see README §6) into `DISNEY_REFRESH_TOKEN`.\n\nOther providers continue normally.',
         color: 0xe67e22,
         footer: {
           text: 'Anime Episode Checker',
