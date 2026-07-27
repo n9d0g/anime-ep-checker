@@ -79,18 +79,18 @@
     },
     {
       "id": "bleach",
-      "title": "Bleach",
+      "title": "BLEACH: Thousand-Year Blood War: The Calamity",
       "provider": "disney",
       "schedule": {
-        "mode": "ongoing",
-        "startAt": "2026-07-05T16:00:00.000Z",
+        "mode": "finite",
+        "startAt": "2026-07-25T15:00:00.000Z",
         "startEpisode": 1,
-        "episodeCount": null,
+        "episodeCount": 10,
         "premiereBatchSize": 1
       },
       "disneyUrl": "https://www.disneyplus.com/browse/entity-571475d5-8b1a-453f-a57f-26bb4dd13304",
       "disneyId": "571475d5-8b1a-453f-a57f-26bb4dd13304",
-      "malId": 41467
+      "malId": 60636
     }
   ]
 }
