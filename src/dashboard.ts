@@ -18,7 +18,6 @@ import {
   parseEpisodeNumber,
 } from './schedule.js'
 import { fetchMalAnimeDetails, formatMalProgressLabel } from './mal.js'
-import { buildWatchingCardV2Payload } from './discord-components-v2.js'
 import { findAnimeDiscussionUrl } from './reddit.js'
 
 export type DashboardStatus = 'upcoming' | 'in_window' | 'waiting' | 'out'
@@ -202,9 +201,39 @@ export function buildDashboardEmbed(row: ShowDashboardRow) {
   }
 }
 
-export function buildDashboardMalComponents(show: Show) {
+export function buildDashboardNotificationContent(row: ShowDashboardRow): string {
+  const title = row.show.title || row.show.id
+  const nextEpisode =
+    row.nextEpisode !== null ? `Episode ${row.nextEpisode}` : 'Season complete'
+  const status = getDashboardStatusLabel(row.status)
+  return `**${title}** — MAL ${row.malProgress} · Next ${nextEpisode} · ${status}`
+}
+
+export function buildDashboardMalComponents(
+  show: Show,
+  discussionUrl?: string | null
+) {
   const rows: Array<Record<string, unknown>> = []
   const watchUrl = getShowWatchUrl(show)
+  const linkButtons: Array<Record<string, unknown>> = []
+
+  if (watchUrl) {
+    linkButtons.push({
+      type: 2,
+      style: 5,
+      label: 'Watch',
+      url: watchUrl,
+    })
+  }
+
+  if (discussionUrl) {
+    linkButtons.push({
+      type: 2,
+      style: 5,
+      label: 'r/anime',
+      url: discussionUrl,
+    })
+  }
 
   if (show.malId) {
     rows.push({
@@ -232,17 +261,10 @@ export function buildDashboardMalComponents(show: Show) {
     })
   }
 
-  if (watchUrl) {
+  if (linkButtons.length > 0) {
     rows.push({
       type: 1,
-      components: [
-        {
-          type: 2,
-          style: 5,
-          label: 'Watch',
-          url: watchUrl,
-        },
-      ],
+      components: linkButtons,
     })
   }
 
@@ -250,11 +272,17 @@ export function buildDashboardMalComponents(show: Show) {
 }
 
 export function buildShowDashboardPayload(row: ShowDashboardRow) {
-  return buildWatchingCardV2Payload(
-    row,
-    getDashboardStatusLabel(row.status),
-    getDashboardStatusColor(row.status)
-  )
+  const components = buildDashboardMalComponents(row.show, row.discussionUrl)
+  const payload: Record<string, unknown> = {
+    content: buildDashboardNotificationContent(row),
+    embeds: [buildDashboardEmbed(row)],
+  }
+
+  if (components.length > 0) {
+    payload.components = components
+  }
+
+  return payload
 }
 
 export function buildDashboardEmbeds(rows: ShowDashboardRow[]) {

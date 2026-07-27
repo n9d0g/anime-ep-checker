@@ -147,6 +147,7 @@ export async function editOriginalInteractionResponse(
 }
 
 export function updateMessageResponse(data: {
+  content?: string
   embeds?: unknown[]
   components?: unknown[]
   flags?: number

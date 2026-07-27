@@ -12,10 +12,6 @@ import {
   verifyDiscordRequest,
 } from '@/lib/discord'
 import {
-  IS_COMPONENTS_V2,
-  patchMalProgressInComponents,
-} from '@/lib/discord-components-v2'
-import {
   adjustMalWatchedEpisode,
   formatMalWatchedLabel,
   setMalWatchedEpisode,
@@ -68,25 +64,28 @@ interface DiscordInteraction {
   }
 }
 
+function fieldValue(embed: DiscordEmbed, name: string): string {
+  return embed.fields?.find((field) => field.name === name)?.value ?? '—'
+}
+
+function buildWatchingNotificationContent(
+  title: string,
+  malLabel: string,
+  embed: DiscordEmbed
+): string {
+  const next = fieldValue(embed, 'Next')
+  const status = fieldValue(embed, 'Status')
+  return `**${title}** — MAL ${malLabel} · Next ${next} · ${status}`
+}
+
 function refreshMalFieldsInMessage(
   message: DiscordInteraction['message'],
   watched: number,
   total: number | null
-): { embeds?: DiscordEmbed[]; components: unknown[]; flags?: number } | null {
+): { content?: string; embeds?: DiscordEmbed[]; components: unknown[] } | null {
   const malLabel = formatMalWatchedLabel(watched, total)
-  const components = message?.components
-
-  if (components?.length) {
-    const patched = patchMalProgressInComponents(components, malLabel)
-    if (patched) {
-      return {
-        flags: IS_COMPONENTS_V2,
-        components: patched,
-      }
-    }
-  }
-
   const embed = message?.embeds?.[0]
+
   if (!embed?.fields) {
     return null
   }
@@ -100,7 +99,11 @@ function refreshMalFieldsInMessage(
     },
   ]
 
+  const title = embed.title ?? 'Watching'
+  const content = buildWatchingNotificationContent(title, malLabel, embed)
+
   return {
+    content,
     embeds,
     components: message?.components ?? [],
   }

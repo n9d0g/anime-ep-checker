@@ -127,19 +127,20 @@ export async function syncWatchingDashboard({
         console.log(`  Watching dashboard updated for ${show.title || show.id}`)
         continue
       } catch (error) {
-        if (error instanceof DiscordApiError && error.status !== 404) {
-          console.warn(
-            `  Watching dashboard edit failed for ${show.id} (${error.status}); keeping existing message: ${error.message}`
-          )
-          continue
-        }
-
         console.warn(
-          `  Watching dashboard message missing for ${show.id}; recreating: ${
-            error instanceof Error ? error.message : error
+          `  Watching dashboard edit failed for ${show.id}; recreating: ${
+            error instanceof DiscordApiError
+              ? `${error.status}: ${error.message}`
+              : error instanceof Error
+                ? error.message
+                : error
           }`
         )
-        await deleteBotMessage(botToken, channelId, existingMessageId)
+        try {
+          await deleteBotMessage(botToken, channelId, existingMessageId)
+        } catch {
+          // Message may already be gone (404).
+        }
       }
     }
 

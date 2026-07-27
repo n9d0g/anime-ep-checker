@@ -223,7 +223,7 @@ Episode alerts use a **classic embed** with a MAL cover thumbnail, plus a top-le
 
 ### Discord watching dashboard
 
-The bot maintains a **pinned message per tracked show** in `#watching` using **Components V2**: MAL cover gallery, status, progress, score, next episode, countdown, and expected drop. Each card also includes an **r/anime** link for the latest notified episode (same AutoLovepon RSS lookup as alerts). Shows with a `malId` get **− / +** buttons, a **Set progress…** modal, and a **Watch** link section. Requires `DISCORD_BOT_TOKEN`, `DISCORD_WATCHING_CHANNEL_ID`, `DISCORD_PUBLIC_KEY` + MAL secrets on **Vercel** (for button clicks), and **MAL secrets on GitHub Actions** (for dashboard sync). If MAL is missing from Actions, the dashboard shows **MAL not configured**; if auth fails, it shows **MAL unavailable**.
+The bot maintains a **pinned message per tracked show** in `#watching` using a **classic embed** (MAL cover thumbnail, status, progress, score, next episode, countdown, expected drop) plus a top-level **notification line** (e.g. **One Piece** — MAL 1100 / ? · Next Episode 1160 · Upcoming) so mobile push previews show readable text. Each card also includes **Watch** and **r/anime** link buttons when available. Shows with a `malId` get **− / +** buttons and a **Set progress…** modal. Requires `DISCORD_BOT_TOKEN`, `DISCORD_WATCHING_CHANNEL_ID`, `DISCORD_PUBLIC_KEY` + MAL secrets on **Vercel** (for button clicks), and **MAL secrets on GitHub Actions** (for dashboard sync). If MAL is missing from Actions, the dashboard shows **MAL not configured**; if auth fails, it shows **MAL unavailable**.
 
 ### MAL score alerts
 
@@ -274,7 +274,7 @@ For each show’s next expected episode, the bot creates or updates an **externa
 | [`src/disney.ts`](src/disney.ts) | Disney+ explore API client (refresh token auth) |
 | [`src/reddit.ts`](src/reddit.ts) | r/anime discussion lookup (AutoLovepon RSS + search fallback) |
 | [`src/discord.ts`](src/discord.ts) | Discord bot/webhook alerts + score alerts |
-| [`src/discord-components-v2.ts`](src/discord-components-v2.ts) | Components V2 message builders |
+| [`src/discord-components-v2.ts`](src/discord-components-v2.ts) | Legacy Components V2 builders (unused by watching dashboard) |
 | [`src/discord-format.ts`](src/discord-format.ts) | Embed formatting helpers |
 | [`src/discord-dashboard.ts`](src/discord-dashboard.ts) | #watching dashboard sync |
 | [`src/discord-events.ts`](src/discord-events.ts) | Guild scheduled events sync |
