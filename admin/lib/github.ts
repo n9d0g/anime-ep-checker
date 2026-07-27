@@ -82,7 +82,7 @@ export async function getStateFile() {
 export async function saveShowsFile(
   shows: unknown[],
   sha: string,
-  message = 'chore: update shows from admin CMS'
+  message = 'chore: 🧹 update shows from admin CMS'
 ) {
   const { repo, branch } = getConfig()
   const content = JSON.stringify({ shows }, null, 2) + '\n'

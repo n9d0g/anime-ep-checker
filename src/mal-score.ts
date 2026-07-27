@@ -4,8 +4,6 @@ import type { DiscordConfig } from './discord.js'
 import { fetchMalAnimeDetails } from './mal.js'
 import type { Show, StateFile } from './types.js'
 
-export const MAL_SCORE_ALERT_DELTA = 0.25
-
 function hasBotConfig(discord: DiscordConfig): boolean {
   return Boolean(discord.botToken?.trim() && discord.channelId?.trim())
 }
@@ -39,10 +37,7 @@ export async function syncMalScoreAlerts({
     const currentScore = result.details.meanScore
     const previousScore = showState.malMeanScore ?? null
 
-    if (
-      previousScore !== null &&
-      Math.abs(currentScore - previousScore) >= MAL_SCORE_ALERT_DELTA
-    ) {
+    if (previousScore !== null && currentScore !== previousScore) {
       const direction = currentScore > previousScore ? 'pickup' : 'drop'
 
       if (!dryRun && hasBotConfig(discord)) {

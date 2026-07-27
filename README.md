@@ -20,7 +20,7 @@ flowchart LR
   Cron --> MAL
 ```
 
-1. **GitHub Actions** runs a **5-minute** cron. A cheap gate skips install and provider checks unless a show is in its **drop window** (1 minute before expected time through 90 minutes after; then about every 30 minutes if still missing).
+1. **GitHub Actions** is triggered every **5 minutes** by an external cron (see [Reliable polling](#reliable-polling) below). A cheap gate skips install and provider checks unless a show is in its **drop window** (at expected drop time through 90 minutes after; then about every 30 minutes if still missing).
 2. Inside the window, the checker runs about every **5 minutes** and calls `pnpm check`.
 3. Each show uses **Crunchyroll or Netflix** (not both).
 4. On first run for a show (inside a window), it **baselines** the current episode (no alert).
@@ -52,12 +52,32 @@ Discord alerts still display times in **Eastern Time (EST/EDT)** even though sch
 
 | Phase | When | Cadence |
 |-------|------|---------|
-| **Idle** | Before T−1m | Cheap gate only (no provider calls) |
-| **Dense** | T−1m → T+90m | Full check about every **5 minutes** (GitHub cron; may drift slightly) |
+| **Idle** | Before T+0 | Cheap gate only (no provider calls) |
+| **Dense** | T+0 → T+90m | Full check about every **5 minutes** (external cron dispatch) |
 | **Late** | After T+90m, episode still missing | Full check about every **30 minutes** until found |
 | **Done** | Episode found | State advances; show leaves the window until next ep |
 
-GitHub scheduled workflows are not second-accurate. A 1-minute lead-in means the first successful run may land a few minutes after drop; dense polling through T+90m still catches on-time and slightly late releases.
+GitHub’s built-in `schedule` trigger is kept as a backup but is often throttled to ~hourly on free/public repos. Use [Reliable polling](#reliable-polling) for actual 5-minute cadence during drop windows.
+
+### Reliable polling
+
+GitHub Actions alone does not reliably fire every 5 minutes. Use an external cron (e.g. [cron-job.org](https://cron-job.org)) to call `workflow_dispatch` on the check workflow:
+
+1. Create a **fine-grained PAT** on GitHub with **Actions: Write** (and **Contents: Read** if required) scoped to this repo only.
+2. Store the PAT in the cron service only — do not commit it to the repo.
+3. Create a job that runs every **5 minutes** and sends:
+
+```http
+POST https://api.github.com/repos/<owner>/<repo>/actions/workflows/check-episodes.yml/dispatches
+Authorization: Bearer <PAT>
+Accept: application/vnd.github+json
+Content-Type: application/json
+
+{"ref":"main"}
+```
+
+4. Each dispatch starts a workflow run. Outside drop windows the cheap `should-run` gate exits in ~15s without installing deps. Inside a window, the full `pnpm check` runs.
+5. To force a full check outside any window, use **Actions → Check Crunchyroll Episodes → Run workflow** and enable **force**.
 
 ## Setup
 
@@ -171,7 +191,7 @@ The bot maintains a **pinned message per tracked show** in `#watching` using **C
 
 ### MAL score alerts
 
-On each checker run, the bot compares each show’s MAL **mean score** to the last stored value in `state.json`. If the delta is **±0.25** or more, it posts a **score pickup** (green) or **score drop** (red) embed to `#anime-alerts` with cover art and old → new score. First fetch baselines the score without alerting.
+On each checker run, the bot compares each show’s MAL **mean score** to the last stored value in `state.json`. Any change posts a **score pickup** (green) or **score drop** (red) embed to `#anime-alerts` with cover art and old → new score. First fetch baselines the score without alerting.
 
 ### Slash commands
 
