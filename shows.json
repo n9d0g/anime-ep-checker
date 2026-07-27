@@ -17,7 +17,7 @@
     },
     {
       "id": "slime",
-      "title": "That Time I Got Reincarnated as a Slime",
+      "title": "Tensei Shitara Slime Datta Ken Season 4 • That Time I Got Reincarnated as a Slime Season 4",
       "provider": "crunchyroll",
       "schedule": {
         "mode": "finite",
@@ -32,7 +32,7 @@
     },
     {
       "id": "mushoku-tensei-s3",
-      "title": "Mushoku Tensei S3",
+      "title": "Mushoku Tensei: Jobless Reincarnation Season 3 • Mushoku Tensei III: Isekai Ittara Honki Dasu",
       "provider": "crunchyroll",
       "schedule": {
         "mode": "finite",
@@ -43,12 +43,11 @@
       },
       "crunchyrollUrl": "https://www.crunchyroll.com/series/G24H1N3MP/mushoku-tensei-jobless-reincarnation",
       "seriesId": "G24H1N3MP",
-      "malId": 59193,
-      "redditSearchTitle": "mushoku_tensei_jobless_reincarnation_season_3"
+      "malId": 59193
     },
     {
       "id": "smoking-behind-the-supermarket-with-you",
-      "title": "Smoking Behind the Supermarket with You",
+      "title": "Smoking Behind the Supermarket with You • Super no Ura de Yani Suu Futari",
       "provider": "crunchyroll",
       "schedule": {
         "mode": "finite",
