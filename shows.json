@@ -32,7 +32,7 @@
     },
     {
       "id": "mushoku-tensei-s3",
-      "title": "Mushoku Tensei: Jobless Reincarnation Season 3 • Mushoku Tensei III: Isekai Ittara Honki Dasu",
+      "title": "Mushoku Tensei",
       "provider": "crunchyroll",
       "schedule": {
         "mode": "finite",
@@ -43,7 +43,8 @@
       },
       "crunchyrollUrl": "https://www.crunchyroll.com/series/G24H1N3MP/mushoku-tensei-jobless-reincarnation",
       "seriesId": "G24H1N3MP",
-      "malId": 59193
+      "malId": 59193,
+      "redditSearchTitle": "mushoku_tensei_jobless_reincarnation_season_3"
     },
     {
       "id": "smoking-behind-the-supermarket-with-you",
