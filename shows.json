@@ -74,8 +74,7 @@
       },
       "netflixUrl": "https://www.netflix.com/title/82760630",
       "netflixId": "82760630",
-      "malId": 63403,
-      "redditSearchTitle": "chainsmoker_cat_yani_neko"
+      "malId": 63403
     },
     {
       "id": "bleach",
@@ -90,7 +89,8 @@
       },
       "disneyUrl": "https://www.disneyplus.com/browse/entity-571475d5-8b1a-453f-a57f-26bb4dd13304",
       "disneyId": "571475d5-8b1a-453f-a57f-26bb4dd13304",
-      "malId": 60636
+      "malId": 60636,
+      "redditSearchTitle": "bleach_thousandyear_blood_war_the_calamity_bleach"
     }
   ]
 }
