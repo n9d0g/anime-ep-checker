@@ -7,7 +7,6 @@ export default function MalSetupPage() {
     <main className="container">
       <header className="header">
         <div>
-          <p className="eyebrow">Anime Episode Checker</p>
           <h1>MyAnimeList setup</h1>
           <p className="subtitle">
             Connect your MAL account so Discord &quot;Mark watched on MAL&quot;

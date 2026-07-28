@@ -38,14 +38,7 @@ export default function LoginPage() {
   return (
     <main className="login-wrap">
       <section className="panel login-card stack">
-        <div>
-          <p className="eyebrow">Anime Episode Checker</p>
-          <h1>Admin login</h1>
-          <p className="subtitle">
-            Manage tracked Crunchyroll, Netflix, and Disney+ shows, schedules, and MAL
-            links.
-          </p>
-        </div>
+        <h1>Sign in</h1>
 
         <form className="stack" onSubmit={handleSubmit}>
           <div className="field">

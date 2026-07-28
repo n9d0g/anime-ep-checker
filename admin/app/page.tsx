@@ -9,7 +9,22 @@ import {
   type ShowFormValues,
   type ShowProvider,
 } from '@/lib/types'
-import { providerLabel } from '@/lib/shows'
+
+function providerDotClass(provider: ShowProvider): string {
+  if (provider === 'netflix') return 'provider-nf'
+  if (provider === 'disney') return 'provider-disney'
+  return 'provider-cr'
+}
+
+function episodeCountLabel(show: ShowFormValues): string {
+  const start = show.schedule.startEpisode || '?'
+
+  if (show.schedule.mode === 'ongoing') {
+    return `Ep ${start}`
+  }
+
+  return `Ep ${start}/${show.schedule.episodeCount || '?'}`
+}
 
 function SegmentedControl<T extends string>({
   value,
@@ -37,24 +52,6 @@ function SegmentedControl<T extends string>({
       ))}
     </div>
   )
-}
-
-function scheduleSummary(show: ShowFormValues): string {
-  const start = show.schedule.startAt
-    ? new Date(show.schedule.startAt).toLocaleString('en-US', {
-        timeZone: 'Asia/Tokyo',
-        month: 'short',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit',
-      })
-    : 'No start time'
-
-  if (show.schedule.mode === 'ongoing') {
-    return `Ep ${show.schedule.startEpisode || '?'} · ${start} JST · ongoing`
-  }
-
-  return `Ep ${show.schedule.startEpisode || '?'}-${show.schedule.episodeCount || '?'} · ${start} JST`
 }
 
 export default function AdminPage() {
@@ -196,7 +193,6 @@ export default function AdminPage() {
       <main className="container">
         <header className="header">
           <div>
-            <p className="eyebrow">Anime Episode Checker</p>
             <h1>Tracked shows</h1>
             <p className="subtitle">
               Weekly schedules in Japan Time (JST). Discord alerts show Eastern
@@ -227,40 +223,42 @@ export default function AdminPage() {
           ) : shows.length === 0 ? (
             <div className="panel empty">No shows yet. Add one below.</div>
           ) : (
-            <div className="show-list">
+            <div className="panel show-list">
               {shows.map((show, index) => {
                 const open = isExpanded(show, index)
-                const chipProviderLabel = providerLabel(show.provider)
 
                 return (
-                  <article className="panel show-card" key={cardKey(show, index)}>
+                  <article
+                    className={`show-row${open ? ' expanded' : ''}`}
+                    key={cardKey(show, index)}
+                  >
                     <button
                       type="button"
-                      className="show-card-header"
+                      className="show-row-header"
                       aria-expanded={open}
                       onClick={() => toggleExpanded(show, index)}
                     >
-                      <div className="show-card-summary">
-                        <span className="show-card-title">
+                      <div className="show-row-leading">
+                        <span
+                          className={`provider-dot ${providerDotClass(show.provider)}`}
+                          aria-hidden="true"
+                        />
+                        <span className="show-row-title">
                           {show.title || `Show ${index + 1}`}
                         </span>
-                        <div className="show-card-meta">
-                          <span className="chip">{chipProviderLabel}</span>
-                          <span className="chip chip-muted">
-                            {show.schedule.mode === 'ongoing'
-                              ? 'Ongoing'
-                              : 'Finite'}
-                          </span>
-                          <span>{scheduleSummary(show)}</span>
-                        </div>
                       </div>
-                      <span className={`chevron ${open ? 'expanded' : ''}`}>
-                        ▼
-                      </span>
+                      <div className="show-row-trailing">
+                        <span className="ep-count">
+                          {episodeCountLabel(show)}
+                        </span>
+                        <span className={`chevron ${open ? 'expanded' : ''}`}>
+                          ▼
+                        </span>
+                      </div>
                     </button>
 
                     {open ? (
-                      <div className="show-card-body">
+                      <div className="show-row-body">
                         <div className="field">
                           <label htmlFor={`title-${index}`}>Title</label>
                           <input
