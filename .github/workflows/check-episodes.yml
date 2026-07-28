@@ -83,5 +83,18 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add state.json
-          git commit -m "chore: 🧹 update episode checker state"
+
+          if [ -f state_commit_message.txt ]; then
+            subject=$(head -n 1 state_commit_message.txt)
+            body=$(tail -n +3 state_commit_message.txt 2>/dev/null | sed '/^$/d' || true)
+            if [ -n "$body" ]; then
+              git commit -m "$subject" -m "$body"
+            else
+              git commit -m "$subject"
+            fi
+            rm -f state_commit_message.txt
+          else
+            git commit -m "chore: update checker state"
+          fi
+
           git push

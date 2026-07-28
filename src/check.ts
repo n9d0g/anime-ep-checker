@@ -26,6 +26,7 @@ import {
 } from './discord-events.js'
 import { fetchMalAnimeDetails } from './mal.js'
 import { syncMalScoreAlerts } from './mal-score.js'
+import { writeStateCommitMessage } from './state-commit.js'
 import {
   DisneyAuthError,
   getLatestAvailableEpisodeForTitle as getLatestDisneyEpisode,
@@ -191,8 +192,14 @@ export async function checkShows({
   const shows = (showsFile.shows ?? []).map(normalizeShowProvider)
   const now = new Date()
   let stateChanged = false
+  const stateChangeReasons: string[] = []
   let skipNetflixShows = false
   let skipDisneyShows = false
+
+  const noteStateChange = (reason: string) => {
+    stateChangeReasons.push(reason)
+    stateChanged = true
+  }
 
   for (const show of shows) {
     const showId = show.id
@@ -264,7 +271,7 @@ export async function checkShows({
             ...state.meta,
             netflixCookieAlertSentAt: now.toISOString(),
           }
-          stateChanged = true
+          noteStateChange('Netflix cookie alert flag set')
         } else {
           console.log('  Netflix cookie refresh alert already sent; skipping')
         }
@@ -290,7 +297,7 @@ export async function checkShows({
             ...state.meta,
             disneyCookieAlertSentAt: now.toISOString(),
           }
-          stateChanged = true
+          noteStateChange('Disney auth alert flag set')
         } else {
           console.log('  Disney+ refresh token alert already sent; skipping')
         }
@@ -306,7 +313,7 @@ export async function checkShows({
         ...state.meta,
         netflixCookieAlertSentAt: null,
       }
-      stateChanged = true
+      noteStateChange(`cleared Netflix auth alert flag for ${show.title || showId}`)
     }
 
     if (show.provider === 'disney' && state.meta?.disneyCookieAlertSentAt) {
@@ -314,7 +321,7 @@ export async function checkShows({
         ...state.meta,
         disneyCookieAlertSentAt: null,
       }
-      stateChanged = true
+      noteStateChange(`cleared Disney auth alert flag for ${show.title || showId}`)
     }
 
     if (!latestSnapshot) {
@@ -324,7 +331,9 @@ export async function checkShows({
 
     if (!previousState) {
       state.shows[showId] = createBaselineState(latestSnapshot)
-      stateChanged = true
+      noteStateChange(
+        `baseline ${show.title || showId} ep ${latestSnapshot.episode.episode}`
+      )
       console.log(
         `  Baseline set to episode ${latestSnapshot.episode.episode} (${latestSnapshot.episode.id})`
       )
@@ -382,7 +391,9 @@ export async function checkShows({
               state
             )
             if (cleared) {
-              stateChanged = true
+              noteStateChange(
+                `scheduled event cleared for ${show.title || showId}`
+              )
               console.log('  Discord scheduled event cleared')
             }
           }
@@ -392,7 +403,9 @@ export async function checkShows({
       }
 
       state.shows[showId] = createUpdatedState(latestSnapshot, nextExpectedEp)
-      stateChanged = true
+      noteStateChange(
+        `episode alert ${show.title || showId} ep ${nextExpectedEp}`
+      )
       continue
     }
 
@@ -420,7 +433,9 @@ export async function checkShows({
         ...previousState,
         waitingNotifiedForEpisode: nextExpectedEp,
       }
-      stateChanged = true
+      noteStateChange(
+        `waiting alert ${show.title || showId} ep ${nextExpectedEp}`
+      )
       continue
     }
 
@@ -431,14 +446,15 @@ export async function checkShows({
 
   if (!dryRun) {
     try {
-      const scoreChanged = await syncMalScoreAlerts({
+      const scoreResult = await syncMalScoreAlerts({
         shows,
         state,
         discord,
         now,
         dryRun,
       })
-      if (scoreChanged) {
+      if (scoreResult.changed) {
+        stateChangeReasons.push(...scoreResult.reasons)
         stateChanged = true
       }
     } catch (error) {
@@ -450,7 +466,7 @@ export async function checkShows({
     }
 
     try {
-      const dashboardChanged = await syncWatchingDashboard({
+      const dashboardResult = await syncWatchingDashboard({
         config: getDiscordDashboardConfigFromEnv(),
         shows,
         state,
@@ -459,7 +475,8 @@ export async function checkShows({
         fetchLatest: fetchLatestEpisode,
         inWindowForShow: (show) => isShowInCheckWindow(show, state, now, force),
       })
-      if (dashboardChanged) {
+      if (dashboardResult.changed) {
+        stateChangeReasons.push(...dashboardResult.reasons)
         stateChanged = true
       }
     } catch (error) {
@@ -479,6 +496,7 @@ export async function checkShows({
         dryRun,
       })
       if (eventsChanged) {
+        stateChangeReasons.push('Discord scheduled events updated')
         stateChanged = true
       }
     } catch (error) {
@@ -492,6 +510,7 @@ export async function checkShows({
 
   if (stateChanged && !dryRun) {
     await writeJson(statePath, state)
+    writeStateCommitMessage(stateChangeReasons)
   }
 
   return { stateChanged, state }

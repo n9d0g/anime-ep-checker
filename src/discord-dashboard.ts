@@ -8,6 +8,7 @@ import {
   DiscordApiError,
   editBotMessage,
   pinBotMessage,
+  shouldRecreateWatchingMessageOnEditFailure,
 } from './discord-api.js'
 import type { EpisodeSnapshot, Show, StateFile } from './types.js'
 import { parseEpisodeNumber } from './schedule.js'
@@ -16,6 +17,11 @@ import { getShowState } from './compare.js'
 export interface DiscordDashboardConfig {
   botToken?: string
   watchingChannelId?: string
+}
+
+export interface DashboardSyncResult {
+  changed: boolean
+  reasons: string[]
 }
 
 function hasDashboardConfig(config: DiscordDashboardConfig): boolean {
@@ -41,7 +47,8 @@ async function fetchProviderLatestEpisode(
 async function migrateLegacyDashboardMessage(
   botToken: string,
   channelId: string,
-  state: StateFile
+  state: StateFile,
+  reasons: string[]
 ): Promise<boolean> {
   const legacyMessageId = state.meta?.watchingDashboardMessageId
   if (!legacyMessageId) {
@@ -53,6 +60,7 @@ async function migrateLegacyDashboardMessage(
     ...state.meta,
     watchingDashboardMessageId: null,
   }
+  reasons.push('removed legacy watching dashboard message')
   return true
 }
 
@@ -72,21 +80,23 @@ export async function syncWatchingDashboard({
   dryRun?: boolean
   fetchLatest: (show: Show) => Promise<EpisodeSnapshot | null>
   inWindowForShow: (show: Show) => boolean
-}): Promise<boolean> {
+}): Promise<DashboardSyncResult> {
+  const reasons: string[] = []
+
   if (!hasDashboardConfig(config)) {
-    return false
+    return { changed: false, reasons }
   }
 
   if (dryRun) {
     console.log(`  Would refresh watching dashboard (${shows.length} shows)`)
-    return false
+    return { changed: false, reasons }
   }
 
   const botToken = config.botToken!
   const channelId = config.watchingChannelId!
   let changed = false
 
-  if (await migrateLegacyDashboardMessage(botToken, channelId, state)) {
+  if (await migrateLegacyDashboardMessage(botToken, channelId, state, reasons)) {
     changed = true
     console.log('  Migrated legacy watching dashboard message')
   }
@@ -101,6 +111,7 @@ export async function syncWatchingDashboard({
       await deleteBotMessage(botToken, channelId, messageId)
       delete messageIds[showId]
       changed = true
+      reasons.push(`removed watching dashboard message for ${showId}`)
       console.log(`  Removed watching dashboard message for ${showId}`)
     }
   }
@@ -120,6 +131,7 @@ export async function syncWatchingDashboard({
     )
     const payload = buildShowDashboardPayload(row)
     const existingMessageId = messageIds[show.id]
+    let shouldCreate = !existingMessageId
 
     if (existingMessageId) {
       try {
@@ -127,27 +139,41 @@ export async function syncWatchingDashboard({
         console.log(`  Watching dashboard updated for ${show.title || show.id}`)
         continue
       } catch (error) {
-        console.warn(
-          `  Watching dashboard edit failed for ${show.id}; recreating: ${
-            error instanceof DiscordApiError
-              ? `${error.status}: ${error.message}`
-              : error instanceof Error
-                ? error.message
-                : error
-          }`
-        )
-        try {
-          await deleteBotMessage(botToken, channelId, existingMessageId)
-        } catch {
-          // Message may already be gone (404).
+        const detail =
+          error instanceof DiscordApiError
+            ? `${error.status}: ${error.message}`
+            : error instanceof Error
+              ? error.message
+              : String(error)
+
+        if (shouldRecreateWatchingMessageOnEditFailure(error)) {
+          console.warn(
+            `  Watching dashboard edit failed for ${show.id}; recreating: ${detail}`
+          )
+          try {
+            await deleteBotMessage(botToken, channelId, existingMessageId)
+          } catch {
+            // Message may already be gone (404).
+          }
+          shouldCreate = true
+        } else {
+          console.warn(
+            `  Watching dashboard edit failed for ${show.id}; keeping existing pin: ${detail}`
+          )
+          continue
         }
       }
+    }
+
+    if (!shouldCreate) {
+      continue
     }
 
     const created = await createBotMessage(botToken, channelId, payload)
     messageIds[show.id] = created.id
     await pinBotMessage(botToken, channelId, created.id)
     changed = true
+    reasons.push(`watching pin recreated for ${show.title || show.id}`)
     console.log(`  Watching dashboard created for ${show.title || show.id}`)
   }
 
@@ -156,5 +182,5 @@ export async function syncWatchingDashboard({
     watchingDashboardMessageIds: messageIds,
   }
 
-  return changed
+  return { changed, reasons }
 }

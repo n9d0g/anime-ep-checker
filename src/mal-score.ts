@@ -8,6 +8,11 @@ function hasBotConfig(discord: DiscordConfig): boolean {
   return Boolean(discord.botToken?.trim() && discord.channelId?.trim())
 }
 
+export interface MalScoreSyncResult {
+  changed: boolean
+  reasons: string[]
+}
+
 export async function syncMalScoreAlerts({
   shows,
   state,
@@ -20,8 +25,10 @@ export async function syncMalScoreAlerts({
   discord: DiscordConfig
   now?: Date
   dryRun?: boolean
-}): Promise<boolean> {
+}): Promise<MalScoreSyncResult> {
   let changed = false
+  const reasons: string[] = []
+  const showTitle = (show: Show) => show.title || show.id
 
   for (const show of shows) {
     if (!show.malId) continue
@@ -50,11 +57,11 @@ export async function syncMalScoreAlerts({
           coverUrl: result.details.coverUrl,
         })
         console.log(
-          `  MAL score ${direction} alert for ${show.title || show.id}: ${previousScore.toFixed(2)} → ${currentScore.toFixed(2)}`
+          `  MAL score ${direction} alert for ${showTitle(show)}: ${previousScore.toFixed(2)} → ${currentScore.toFixed(2)}`
         )
       } else if (dryRun) {
         console.log(
-          `  Would send MAL score ${direction} alert for ${show.title || show.id}`
+          `  Would send MAL score ${direction} alert for ${showTitle(show)}`
         )
       }
 
@@ -63,6 +70,9 @@ export async function syncMalScoreAlerts({
         malMeanScore: currentScore,
         malScoreAlertedAt: now.toISOString(),
       }
+      reasons.push(
+        `MAL score ${showTitle(show)} ${previousScore.toFixed(2)}→${currentScore.toFixed(2)}`
+      )
       changed = true
       continue
     }
@@ -72,9 +82,12 @@ export async function syncMalScoreAlerts({
         ...showState,
         malMeanScore: currentScore,
       }
+      reasons.push(
+        `MAL score stored ${showTitle(show)} ${currentScore.toFixed(2)}`
+      )
       changed = true
     }
   }
 
-  return changed
+  return { changed, reasons }
 }

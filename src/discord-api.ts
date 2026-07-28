@@ -91,6 +91,92 @@ export async function deleteBotMessage(
   }
 }
 
+const CHANNEL_PINNED_MESSAGE = 6
+
+interface DiscordChannelMessage {
+  id: string
+  type: number
+  message_reference?: { message_id?: string }
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+async function listChannelMessages(
+  botToken: string,
+  channelId: string,
+  limit = 15
+): Promise<DiscordChannelMessage[]> {
+  const response = await discordBotRequest(
+    botToken,
+    `/channels/${channelId}/messages?limit=${limit}`
+  )
+
+  if (!response.ok) {
+    const body = await response.text()
+    console.warn(
+      `Discord channel messages fetch failed (${response.status}): ${body}`
+    )
+    return []
+  }
+
+  return response.json() as Promise<DiscordChannelMessage[]>
+}
+
+export function shouldRecreateWatchingMessageOnEditFailure(
+  error: unknown
+): boolean {
+  if (!(error instanceof DiscordApiError)) {
+    return false
+  }
+
+  if (error.status === 404) {
+    return true
+  }
+
+  if (error.status === 400) {
+    const detail = error.message.toLowerCase()
+    return (
+      detail.includes('is_components_v2') ||
+      detail.includes('components_v2') ||
+      detail.includes('cannot be sent with') ||
+      detail.includes('cannot contain') ||
+      (detail.includes('content') && detail.includes('embed'))
+    )
+  }
+
+  return false
+}
+
+export async function deletePinnedSystemMessage(
+  botToken: string,
+  channelId: string,
+  pinnedMessageId: string
+): Promise<void> {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const messages = await listChannelMessages(botToken, channelId)
+    const systemMessage = messages.find(
+      (message) =>
+        message.type === CHANNEL_PINNED_MESSAGE &&
+        message.message_reference?.message_id === pinnedMessageId
+    )
+
+    if (systemMessage) {
+      await deleteBotMessage(botToken, channelId, systemMessage.id)
+      return
+    }
+
+    if (attempt < 2) {
+      await sleep(500)
+    }
+  }
+
+  console.warn(
+    `  Could not find pin system message for watching card ${pinnedMessageId}`
+  )
+}
+
 export async function pinBotMessage(
   botToken: string,
   channelId: string,
@@ -105,5 +191,8 @@ export async function pinBotMessage(
   if (!response.ok) {
     const body = await response.text()
     console.warn(`Discord pin failed (${response.status}): ${body}`)
+    return
   }
+
+  await deletePinnedSystemMessage(botToken, channelId, messageId)
 }
