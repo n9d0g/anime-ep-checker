@@ -47,7 +47,8 @@
       "waitingNotifiedForEpisode": null,
       "discordScheduledEventId": "1529915954602053723",
       "discordScheduledEventEpisode": 4,
-      "malMeanScore": 8.39
+      "malMeanScore": 8.38,
+      "malScoreAlertedAt": "2026-07-29T11:00:32.584Z"
     },
     "chainsmoker-cat": {
       "lastEpisodeId": "82760635",
