@@ -397,15 +397,9 @@ export default function AdminPage() {
 
   return (
     <>
-      <main className="container">
-        <header className="header">
-          <div>
-            <h1>Tracked shows</h1>
-            <p className="subtitle">
-              Weekly schedules in Japan Time (JST). Discord alerts show Eastern
-              Time.
-            </p>
-          </div>
+      <header className="top-header">
+        <div className="top-header-inner">
+          <span className="top-header-brand">Anime Episode Checker</span>
           <div className="profile-menu" ref={profileMenuRef}>
             <button
               className="profile-menu-btn"
@@ -433,7 +427,17 @@ export default function AdminPage() {
               </div>
             ) : null}
           </div>
-        </header>
+        </div>
+      </header>
+
+      <main className="container">
+        <div className="page-heading">
+          <h1>Tracked shows</h1>
+          <p className="subtitle">
+            Weekly schedules in Japan Time (JST). Discord alerts show Eastern
+            Time.
+          </p>
+        </div>
 
         <section className="stack">
           {loading ? (

@@ -24,6 +24,7 @@
   --radius: 10px;
   --radius-sm: 6px;
   --sticky-bar-h: 4rem;
+  --top-header-h: 3.25rem;
 
   font-family: var(--font-inter), 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
@@ -97,18 +98,42 @@ h3 {
   overflow-x: clip;
 }
 
-.header {
+.top-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  border-bottom: 1px solid var(--border);
+  background: rgba(17, 17, 17, 0.92);
+  backdrop-filter: blur(10px);
+  padding: env(safe-area-inset-top) max(1rem, env(safe-area-inset-right)) 0
+    max(1rem, env(safe-area-inset-left));
+}
+
+.top-header-inner {
+  width: min(var(--container-width), 100%);
+  height: var(--top-header-h);
+  margin: 0 auto;
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: flex-start;
   gap: 1rem;
-  margin-bottom: 1.25rem;
   min-width: 0;
 }
 
-.header > div:first-child {
+.top-header-brand {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   min-width: 0;
-  flex: 1;
+}
+
+.page-heading {
+  margin-bottom: 1.25rem;
+  min-width: 0;
 }
 
 .profile-menu {
@@ -687,10 +712,6 @@ select:focus {
 }
 
 @media (max-width: 640px) {
-  .header {
-    flex-direction: column;
-  }
-
   .sticky-bar-inner {
     flex-direction: column;
     align-items: stretch;
