@@ -38,17 +38,16 @@
       "malScoreAlertedAt": "2026-07-30T15:00:38.041Z"
     },
     "smoking-behind-the-supermarket-with-you": {
-      "lastEpisodeId": "GE00378527JAJP",
-      "lastEpisodeNumber": "3",
-      "lastEpisodeTitle": "Episode 3",
-      "lastNotifiedAt": "2026-07-23T17:39:30.809Z",
+      "lastEpisodeId": "GE00378528JAJP",
+      "lastEpisodeNumber": "4",
+      "lastEpisodeTitle": "Learning Behind the Supermarket with You",
+      "lastNotifiedAt": "2026-07-30T16:00:35.136Z",
       "seasonId": "GS00378131JAJP",
       "seasonTitle": "Season 1",
       "waitingNotifiedForEpisode": null,
-      "discordScheduledEventId": "1529915954602053723",
-      "discordScheduledEventEpisode": 4,
       "malMeanScore": 8.38,
-      "malScoreAlertedAt": "2026-07-29T11:00:32.584Z"
+      "discordScheduledEventId": "1532417683906367682",
+      "discordScheduledEventEpisode": 5
     },
     "chainsmoker-cat": {
       "lastEpisodeId": "82760635",
