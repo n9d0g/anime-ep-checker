@@ -79,9 +79,9 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-07-30T20:30:30.608Z",
+    "planToWatchCheckedAt": "2026-07-30T21:00:36.996Z",
     "planToWatch": {
-      "updatedAt": "2026-07-30T20:30:30.608Z",
+      "updatedAt": "2026-07-30T21:00:36.996Z",
       "entries": [
         {
           "malId": 61323,
@@ -155,7 +155,7 @@
           "status": "finished_airing",
           "startDate": "2007-03-03",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1410/112994l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1410/112994l.jpg",
           "numEpisodes": 3
         },
         {
@@ -239,7 +239,7 @@
           "status": "finished_airing",
           "startDate": "2025-12-31",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1112/150697l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1112/150697l.webp",
           "numEpisodes": 1
         },
         {
@@ -251,7 +251,7 @@
             "dayOfWeek": "saturday",
             "startTime": "00:00"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1160/122627l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1160/122627l.webp",
           "numEpisodes": 13
         },
         {
@@ -272,7 +272,7 @@
             "dayOfWeek": "wednesday",
             "startTime": "21:00"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1784/106428l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1784/106428l.webp",
           "numEpisodes": 12
         },
         {
@@ -332,7 +332,7 @@
           "status": "finished_airing",
           "startDate": "2022-03-10",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1862/121020l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1862/121020l.webp",
           "numEpisodes": 10
         },
         {
@@ -359,7 +359,7 @@
           "status": "not_yet_aired",
           "startDate": "2026-12-11",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1656/158840l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1656/158840l.webp",
           "numEpisodes": 1
         },
         {
@@ -419,7 +419,7 @@
             "dayOfWeek": "wednesday",
             "startTime": "23:30"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1712/148299l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1712/148299l.webp",
           "numEpisodes": 12
         },
         {
@@ -428,7 +428,7 @@
           "status": "not_yet_aired",
           "startDate": "2027-01",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1812/158683l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1812/158683l.webp",
           "numEpisodes": null
         },
         {
@@ -482,7 +482,7 @@
           "status": "not_yet_aired",
           "startDate": null,
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1928/158795l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1928/158795l.jpg",
           "numEpisodes": null
         },
         {
@@ -503,7 +503,7 @@
           "status": "finished_airing",
           "startDate": "2020-09-18",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1825/110716l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1825/110716l.jpg",
           "numEpisodes": 1
         },
         {
@@ -515,7 +515,7 @@
             "dayOfWeek": "friday",
             "startTime": "00:55"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1864/93518l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1864/93518l.jpg",
           "numEpisodes": 11
         },
         {
