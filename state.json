@@ -50,17 +50,16 @@
       "discordScheduledEventEpisode": 5
     },
     "chainsmoker-cat": {
-      "lastEpisodeId": "82760635",
-      "lastEpisodeNumber": "4",
-      "lastEpisodeTitle": "Episode 4",
-      "lastNotifiedAt": "2026-07-26T09:34:57.946Z",
+      "lastEpisodeId": "82760636",
+      "lastEpisodeNumber": "5",
+      "lastEpisodeTitle": "Episode 5",
+      "lastNotifiedAt": "2026-07-30T16:30:33.592Z",
       "seasonId": "82760631",
       "seasonTitle": "Chainsmoker Cat",
       "waitingNotifiedForEpisode": null,
       "malMeanScore": 7.05,
-      "discordScheduledEventId": "1530871093034745947",
-      "discordScheduledEventEpisode": 5,
-      "malScoreAlertedAt": "2026-07-29T15:30:39.123Z"
+      "discordScheduledEventId": "1532425233578065991",
+      "discordScheduledEventEpisode": 6
     }
   },
   "meta": {
