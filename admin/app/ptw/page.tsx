@@ -2,20 +2,125 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { TopHeader } from '@/app/components/TopHeader'
+import { PtwListSkeleton } from '@/app/components/ListSkeleton'
 import type { PlanToWatchSnapshot, PlanToWatchSnapshotEntry } from '@/lib/types'
 
-function formatBroadcast(entry: PlanToWatchSnapshotEntry): string {
+function startOfUtcDay(date: Date): Date {
+  return new Date(
+    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate())
+  )
+}
+
+interface StartDateBounds {
+  start: Date
+  end: Date
+}
+
+function parseStartDateBounds(startDate: string): StartDateBounds | null {
+  const trimmed = startDate.trim()
+  if (!trimmed) {
+    return null
+  }
+
+  const fullMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(trimmed)
+  if (fullMatch) {
+    const year = Number(fullMatch[1])
+    const month = Number(fullMatch[2])
+    const day = Number(fullMatch[3])
+    const start = new Date(Date.UTC(year, month - 1, day))
+    if (Number.isNaN(start.getTime())) {
+      return null
+    }
+    return { start, end: start }
+  }
+
+  const monthMatch = /^(\d{4})-(\d{2})$/.exec(trimmed)
+  if (monthMatch) {
+    const year = Number(monthMatch[1])
+    const month = Number(monthMatch[2])
+    const start = new Date(Date.UTC(year, month - 1, 1))
+    const end = new Date(Date.UTC(year, month, 0))
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+      return null
+    }
+    return { start, end }
+  }
+
+  const yearMatch = /^(\d{4})$/.exec(trimmed)
+  if (yearMatch) {
+    const year = Number(yearMatch[1])
+    const start = new Date(Date.UTC(year, 0, 1))
+    const end = new Date(Date.UTC(year, 11, 31))
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+      return null
+    }
+    return { start, end }
+  }
+
+  return null
+}
+
+function hasFutureStartDate(
+  entry: PlanToWatchSnapshotEntry,
+  today: Date
+): boolean {
+  if (!entry.startDate) {
+    return false
+  }
+
+  const bounds = parseStartDateBounds(entry.startDate)
+  if (!bounds) {
+    return false
+  }
+
+  return bounds.end.getTime() >= today.getTime()
+}
+
+function sortUpcoming(
+  entries: PlanToWatchSnapshotEntry[]
+): PlanToWatchSnapshotEntry[] {
+  const today = startOfUtcDay(new Date())
+  const dated: PlanToWatchSnapshotEntry[] = []
+  const undated: PlanToWatchSnapshotEntry[] = []
+
+  for (const entry of entries) {
+    if (hasFutureStartDate(entry, today)) {
+      dated.push(entry)
+    } else {
+      undated.push(entry)
+    }
+  }
+
+  dated.sort((a, b) => {
+    const aStart = parseStartDateBounds(a.startDate!)!.start.getTime()
+    const bStart = parseStartDateBounds(b.startDate!)!.start.getTime()
+    if (aStart !== bStart) {
+      return aStart - bStart
+    }
+    return a.title.localeCompare(b.title, undefined, { sensitivity: 'base' })
+  })
+
+  undated.sort((a, b) =>
+    a.title.localeCompare(b.title, undefined, { sensitivity: 'base' })
+  )
+
+  return [...dated, ...undated]
+}
+
+type PtwSectionKind = 'airing' | 'upcoming' | 'aired'
+
+function formatTrailingMeta(
+  entry: PlanToWatchSnapshotEntry,
+  kind: PtwSectionKind
+): string {
   const parts: string[] = []
 
   if (entry.startDate) {
     parts.push(entry.startDate)
   }
 
-  if (entry.broadcast?.dayOfWeek) {
-    const time = entry.broadcast.startTime
-      ? ` ${entry.broadcast.startTime}`
-      : ''
-    parts.push(`${entry.broadcast.dayOfWeek}${time}`)
+  if (kind !== 'upcoming' && entry.numEpisodes) {
+    parts.push(`${entry.numEpisodes} ep`)
   }
 
   return parts.join(' · ')
@@ -23,9 +128,11 @@ function formatBroadcast(entry: PlanToWatchSnapshotEntry): string {
 
 function PtwSection({
   title,
+  kind,
   entries,
 }: {
   title: string
+  kind: PtwSectionKind
   entries: PlanToWatchSnapshotEntry[]
 }) {
   if (entries.length === 0) {
@@ -35,37 +142,28 @@ function PtwSection({
   return (
     <section className="stack">
       <h2>{title}</h2>
-      <div className="panel ptw-list">
+      <div className="panel show-list">
         {entries.map((entry) => {
-          const meta = formatBroadcast(entry)
+          const meta = formatTrailingMeta(entry, kind)
           const malUrl = `https://myanimelist.net/anime/${entry.malId}`
 
           return (
-            <article className="ptw-row" key={entry.malId}>
-              {entry.coverUrl ? (
-                <img
-                  className="ptw-cover"
-                  src={entry.coverUrl}
-                  alt=""
-                  loading="lazy"
-                />
-              ) : (
-                <div className="ptw-cover ptw-cover-placeholder" aria-hidden="true" />
-              )}
-              <div className="ptw-body">
-                <a
-                  className="ptw-title"
-                  href={malUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {entry.title}
-                </a>
-                {meta ? <p className="ptw-meta">{meta}</p> : null}
-                {entry.numEpisodes ? (
-                  <p className="ptw-meta">{entry.numEpisodes} episodes</p>
+            <article className="show-row" key={entry.malId}>
+              <a
+                className="show-row-header ptw-row-link"
+                href={malUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <div className="show-row-leading">
+                  <span className="show-row-title">{entry.title}</span>
+                </div>
+                {meta ? (
+                  <div className="show-row-trailing">
+                    <span className="ep-count">{meta}</span>
+                  </div>
                 ) : null}
-              </div>
+              </a>
             </article>
           )
         })}
@@ -86,7 +184,9 @@ export default function PlanToWatchPage() {
 
     return {
       airing: entries.filter((entry) => entry.status === 'currently_airing'),
-      upcoming: entries.filter((entry) => entry.status === 'not_yet_aired'),
+      upcoming: sortUpcoming(
+        entries.filter((entry) => entry.status === 'not_yet_aired')
+      ),
       aired: entries.filter((entry) => entry.status === 'finished_airing'),
     }
   }, [snapshot])
@@ -185,7 +285,7 @@ export default function PlanToWatchPage() {
         ) : null}
 
         {loading ? (
-          <p className="status">Loading plan-to-watch list...</p>
+          <PtwListSkeleton />
         ) : !hasEntries ? (
           <div className="panel empty">
             {snapshot?.updatedAt
@@ -194,9 +294,9 @@ export default function PlanToWatchPage() {
           </div>
         ) : (
           <div className="stack ptw-sections">
-            <PtwSection title="Airing" entries={sections.airing} />
-            <PtwSection title="Not yet aired" entries={sections.upcoming} />
-            <PtwSection title="Aired" entries={sections.aired} />
+            <PtwSection title="Airing" kind="airing" entries={sections.airing} />
+            <PtwSection title="Not yet aired" kind="upcoming" entries={sections.upcoming} />
+            <PtwSection title="Aired" kind="aired" entries={sections.aired} />
           </div>
         )}
 

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { TopHeader } from '@/app/components/TopHeader'
+import { ShowListSkeleton } from '@/app/components/ListSkeleton'
 import { buildAnimeDiscussionSearchUrl } from '@/lib/reddit'
 import {
   getLastScheduledEpisode,
@@ -402,7 +403,7 @@ export default function AdminPage() {
 
         <section className="stack">
           {loading ? (
-            <p className="status">Loading shows...</p>
+            <ShowListSkeleton />
           ) : shows.length === 0 ? (
             <div className="panel empty">No shows yet. Add one below.</div>
           ) : (
@@ -644,30 +645,6 @@ export default function AdminPage() {
                                   </span>
                                 ) : null}
                               </div>
-                              {discussionUrl || malUrl ? (
-                                <div className="quick-links">
-                                  {discussionUrl ? (
-                                    <a
-                                      className="btn btn-secondary btn-link"
-                                      href={discussionUrl}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                    >
-                                      Discussion
-                                    </a>
-                                  ) : null}
-                                  {malUrl ? (
-                                    <a
-                                      className="btn btn-secondary btn-link"
-                                      href={malUrl}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                    >
-                                      MAL
-                                    </a>
-                                  ) : null}
-                                </div>
-                              ) : null}
                             </div>
                           ) : show.schedule.mode === 'finite' ? (
                             <div className="field">
@@ -691,6 +668,31 @@ export default function AdminPage() {
                             </div>
                           ) : null}
                         </div>
+
+                        {discussionUrl || malUrl ? (
+                          <div className="quick-links">
+                            {discussionUrl ? (
+                              <a
+                                className="btn btn-secondary btn-link"
+                                href={discussionUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                Discussion
+                              </a>
+                            ) : null}
+                            {malUrl ? (
+                              <a
+                                className="btn btn-secondary btn-link"
+                                href={malUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                MAL
+                              </a>
+                            ) : null}
+                          </div>
+                        ) : null}
 
                         {show.id && liveState && show.schedule.mode === 'finite' ? (
                           <div className="field">
@@ -719,7 +721,7 @@ export default function AdminPage() {
                           <div className="disclosure-body">
                             {show.malId ? (
                               <div className="field">
-                                <span>MAL linked</span>
+                                <label>MAL linked</label>
                                 <p className="hint">
                                   Linked to MAL ID {show.malId}.{' '}
                                   <button
