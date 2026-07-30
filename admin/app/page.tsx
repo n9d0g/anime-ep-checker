@@ -122,6 +122,8 @@ export default function AdminPage() {
   const episodeDebounceRefs = useRef<
     Record<string, ReturnType<typeof setTimeout>>
   >({})
+  const profileMenuRef = useRef<HTMLDivElement>(null)
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false)
 
   const isDirty = useMemo(
     () => baseline !== '' && serializeShows(shows) !== baseline,
@@ -175,6 +177,35 @@ export default function AdminPage() {
       }
     }
   }, [])
+
+  useEffect(() => {
+    if (!profileMenuOpen) {
+      return
+    }
+
+    function handlePointerDown(event: MouseEvent) {
+      if (
+        profileMenuRef.current &&
+        !profileMenuRef.current.contains(event.target as Node)
+      ) {
+        setProfileMenuOpen(false)
+      }
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setProfileMenuOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handlePointerDown)
+    document.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown)
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [profileMenuOpen])
 
   function cardKey(show: ShowFormValues, index: number): string {
     return show.id || `new-${index}`
@@ -375,9 +406,33 @@ export default function AdminPage() {
               Time.
             </p>
           </div>
-          <button className="btn btn-secondary" type="button" onClick={logout}>
-            Log out
-          </button>
+          <div className="profile-menu" ref={profileMenuRef}>
+            <button
+              className="profile-menu-btn"
+              type="button"
+              aria-label="Account menu"
+              aria-expanded={profileMenuOpen}
+              aria-haspopup="menu"
+              onClick={() => setProfileMenuOpen((open) => !open)}
+            >
+              <img src="/icon.jpg" alt="" />
+            </button>
+            {profileMenuOpen ? (
+              <div className="profile-menu-dropdown" role="menu">
+                <button
+                  className="profile-menu-item"
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setProfileMenuOpen(false)
+                    void logout()
+                  }}
+                >
+                  Log out
+                </button>
+              </div>
+            ) : null}
+          </div>
         </header>
 
         <section className="stack">

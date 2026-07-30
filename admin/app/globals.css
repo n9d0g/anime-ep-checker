@@ -103,6 +103,72 @@ h3 {
   align-items: flex-start;
   gap: 1rem;
   margin-bottom: 1.25rem;
+  min-width: 0;
+}
+
+.header > div:first-child {
+  min-width: 0;
+  flex: 1;
+}
+
+.profile-menu {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.profile-menu-btn {
+  display: block;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--panel-raised);
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.profile-menu-btn:hover {
+  border-color: var(--text-secondary);
+}
+
+.profile-menu-btn img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-menu-dropdown {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  right: 0;
+  z-index: 30;
+  min-width: 9rem;
+  padding: 0.35rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--panel);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.profile-menu-item {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.65rem;
+  border: 0;
+  border-radius: calc(var(--radius-sm) - 2px);
+  background: transparent;
+  color: var(--danger);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.profile-menu-item:hover {
+  background: var(--danger-hover);
 }
 
 .panel {
@@ -124,6 +190,8 @@ h3 {
 
 .show-row {
   display: grid;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .show-row + .show-row {
@@ -136,11 +204,13 @@ h3 {
   justify-content: space-between;
   gap: 0.75rem;
   width: 100%;
+  min-width: 0;
   padding: 0.85rem 1.1rem;
   border: 0;
   background: transparent;
   color: inherit;
   text-align: left;
+  overflow: hidden;
 }
 
 .show-row-header:hover {
@@ -156,7 +226,8 @@ h3 {
   align-items: center;
   gap: 0.65rem;
   min-width: 0;
-  flex: 1;
+  flex: 1 1 0;
+  overflow: hidden;
 }
 
 .provider-dot {
@@ -184,6 +255,8 @@ h3 {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .show-row-trailing {
@@ -197,6 +270,8 @@ h3 {
   font-size: 0.82rem;
   color: var(--text-secondary);
   font-variant-numeric: tabular-nums;
+  padding-left: 0.35rem;
+  flex-shrink: 0;
 }
 
 .chevron {
@@ -254,6 +329,8 @@ select {
   color: var(--text);
   outline: none;
   transition: border-color 0.15s;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 input[type='datetime-local'],
