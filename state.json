@@ -79,9 +79,9 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-07-30T19:00:39.060Z",
+    "planToWatchCheckedAt": "2026-07-30T19:30:28.361Z",
     "planToWatch": {
-      "updatedAt": "2026-07-30T19:00:39.060Z",
+      "updatedAt": "2026-07-30T19:30:28.361Z",
       "entries": [
         {
           "malId": 61323,
@@ -116,7 +116,7 @@
             "dayOfWeek": "thursday",
             "startTime": "01:30"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/11/11636l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/11/11636l.webp",
           "numEpisodes": 26
         },
         {
@@ -221,7 +221,7 @@
           "status": "not_yet_aired",
           "startDate": null,
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1031/156352l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1031/156352l.jpg",
           "numEpisodes": null
         },
         {
@@ -239,7 +239,7 @@
           "status": "finished_airing",
           "startDate": "2025-12-31",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1112/150697l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1112/150697l.jpg",
           "numEpisodes": 1
         },
         {
@@ -314,7 +314,7 @@
           "status": "finished_airing",
           "startDate": "2025-04-25",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1482/146928l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1482/146928l.jpg",
           "numEpisodes": 2
         },
         {
@@ -332,7 +332,7 @@
           "status": "finished_airing",
           "startDate": "2022-03-10",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1862/121020l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1862/121020l.webp",
           "numEpisodes": 10
         },
         {
@@ -350,7 +350,7 @@
           "status": "not_yet_aired",
           "startDate": "2027-04",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1667/152812l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1667/152812l.jpg",
           "numEpisodes": null
         },
         {
@@ -368,7 +368,7 @@
           "status": "finished_airing",
           "startDate": "2020-01-17",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1803/117183l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1803/117183l.webp",
           "numEpisodes": 1
         },
         {
@@ -377,7 +377,7 @@
           "status": "not_yet_aired",
           "startDate": "2027-01",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1085/154496l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1085/154496l.jpg",
           "numEpisodes": null
         },
         {
@@ -398,7 +398,7 @@
             "dayOfWeek": "monday",
             "startTime": "00:00"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1415/102477l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1415/102477l.webp",
           "numEpisodes": 13
         },
         {
@@ -419,7 +419,7 @@
             "dayOfWeek": "wednesday",
             "startTime": "23:30"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1712/148299l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1712/148299l.jpg",
           "numEpisodes": 12
         },
         {
@@ -503,7 +503,7 @@
           "status": "finished_airing",
           "startDate": "2020-09-18",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1825/110716l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1825/110716l.jpg",
           "numEpisodes": 1
         },
         {
