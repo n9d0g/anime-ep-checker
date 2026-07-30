@@ -83,6 +83,7 @@ export interface ShowStateSummary {
   lastEpisodeNumber: string
   lastEpisodeTitle: string
   lastNotifiedAt: string
+  watchedEpisode?: number | null
 }
 
 export interface ShowFormValues {

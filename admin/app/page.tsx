@@ -41,30 +41,56 @@ function serializeShows(shows: ShowFormValues[]): string {
   return JSON.stringify(shows)
 }
 
-function episodeCountLabel(
+function episodeBadge(
   show: ShowFormValues,
   liveState?: ShowStateSummary
-): string {
+): { label: string; behind: boolean } {
   const schedule = formScheduleToSchedule(show)
-  const lastEp = liveState?.lastEpisodeNumber
+  const lastScheduled = getLastScheduledEpisode(schedule)
+  const latestOut = liveState?.lastEpisodeNumber
     ? Number(liveState.lastEpisodeNumber)
     : null
+  const watched =
+    liveState?.watchedEpisode !== undefined &&
+    liveState.watchedEpisode !== null &&
+    Number.isFinite(liveState.watchedEpisode)
+      ? liveState.watchedEpisode
+      : null
 
-  if (lastEp !== null && Number.isFinite(lastEp)) {
-    const lastScheduled = getLastScheduledEpisode(schedule)
-    if (lastScheduled !== null) {
-      return `Ep ${lastEp}/${lastScheduled}`
+  if (watched !== null) {
+    const label =
+      lastScheduled !== null
+        ? `Ep ${watched}/${lastScheduled}`
+        : `Ep ${watched}`
+
+    return {
+      label,
+      behind:
+        latestOut !== null &&
+        Number.isFinite(latestOut) &&
+        watched < latestOut,
     }
-    return `Ep ${lastEp}`
+  }
+
+  if (latestOut !== null && Number.isFinite(latestOut)) {
+    const label =
+      lastScheduled !== null
+        ? `Ep ${latestOut}/${lastScheduled}`
+        : `Ep ${latestOut}`
+
+    return { label, behind: false }
   }
 
   const start = show.schedule.startEpisode || '?'
 
   if (show.schedule.mode === 'ongoing') {
-    return `Ep ${start}`
+    return { label: `Ep ${start}`, behind: false }
   }
 
-  return `Ep ${start}/${show.schedule.episodeCount || '?'}`
+  return {
+    label: `Ep ${start}/${show.schedule.episodeCount || '?'}`,
+    behind: false,
+  }
 }
 
 function getEpisodeBounds(show: ShowFormValues): {
@@ -293,7 +319,10 @@ export default function AdminPage() {
       if (data.show) {
         setShowStates((current) => ({
           ...current,
-          [showId]: data.show!,
+          [showId]: {
+            ...current[showId],
+            ...data.show!,
+          },
         }))
       }
 
@@ -430,6 +459,8 @@ export default function AdminPage() {
                   ? episodeSaveStatus[show.id] ?? ''
                   : ''
 
+                const episodeBadgeInfo = episodeBadge(show, liveState)
+
                 return (
                   <article
                     className={`show-row${open ? ' expanded' : ''}`}
@@ -451,8 +482,12 @@ export default function AdminPage() {
                         </span>
                       </div>
                       <div className="show-row-trailing">
-                        <span className="ep-count">
-                          {episodeCountLabel(show, liveState)}
+                        <span
+                          className={`ep-count${
+                            episodeBadgeInfo.behind ? ' ep-count-behind' : ''
+                          }`}
+                        >
+                          {episodeBadgeInfo.label}
                         </span>
                         <span className={`chevron ${open ? 'expanded' : ''}`}>
                           ▼

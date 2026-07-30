@@ -17,6 +17,7 @@
   --danger: #e15c5c;
   --danger-hover: rgba(225, 92, 92, 0.12);
   --success: #3d9b63;
+  --warning: #e6a23c;
   --provider-cr: #f47521;
   --provider-nf: #e50914;
   --provider-disney: #0051c3;
@@ -433,6 +434,11 @@ h3 {
   font-variant-numeric: tabular-nums;
   padding-left: 0.35rem;
   flex-shrink: 0;
+}
+
+.ep-count-behind {
+  color: var(--warning);
+  font-weight: 600;
 }
 
 .chevron {
