@@ -11,6 +11,16 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: 'Anime Episode Checker',
   description: 'Manage tracked Crunchyroll, Netflix, and Disney+ shows',
+  manifest: '/manifest.webmanifest',
+  icons: {
+    icon: '/icon.jpg',
+    apple: '/apple-icon.jpg',
+  },
+  appleWebApp: {
+    capable: true,
+    title: 'Anime Episode Checker',
+    statusBarStyle: 'black-translucent',
+  },
 }
 
 export default function RootLayout({ children }: { children: ReactNode }) {
