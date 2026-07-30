@@ -16,14 +16,74 @@ interface MalMainPicture {
 }
 
 interface MalAnimeResponse {
+  title?: string
   num_episodes?: number
   mean?: number
   main_picture?: MalMainPicture
   my_list_status?: MalListStatus
 }
 
+interface MalAnimelistNode {
+  id: number
+  title: string
+  status?: string
+  start_date?: string
+  num_episodes?: number
+  main_picture?: MalMainPicture
+  broadcast?: {
+    day_of_the_week?: string
+    start_time?: string
+  }
+}
+
+interface MalAnimelistEntry {
+  node: MalAnimelistNode
+}
+
+interface MalAnimelistResponse {
+  data?: MalAnimelistEntry[]
+  paging?: {
+    next?: string
+  }
+}
+
+interface MalSearchNode {
+  id: number
+  title: string
+  alternative_titles?: {
+    en?: string
+    ja?: string
+    synonyms?: string[]
+  }
+}
+
+interface MalSearchResponse {
+  data?: Array<{ node: MalSearchNode }>
+}
+
 const MAL_ANIME_FIELDS =
-  'num_episodes,my_list_status,mean,main_picture'
+  'title,num_episodes,my_list_status,mean,main_picture'
+
+const MAL_ANIMELIST_FIELDS =
+  'list_status,num_episodes,start_date,broadcast,main_picture,status'
+
+export interface MalPlanToWatchEntry {
+  malId: number
+  title: string
+  status: string
+  startDate: string | null
+  broadcast: {
+    dayOfWeek: string | null
+    startTime: string | null
+  } | null
+  coverUrl: string | null
+  numEpisodes: number | null
+}
+
+export type MalPlanToWatchResult =
+  | { status: 'ok'; entries: MalPlanToWatchEntry[] }
+  | { status: 'not_configured' }
+  | { status: 'unavailable' }
 
 export interface MalAnimeDetails {
   watched: number
@@ -307,4 +367,131 @@ export async function adjustMalWatchedEpisode(
   }
 
   return { updated: true, watched: next, total }
+}
+
+function parsePlanToWatchEntry(node: MalAnimelistNode): MalPlanToWatchEntry {
+  const broadcast = node.broadcast
+    ? {
+        dayOfWeek: node.broadcast.day_of_the_week ?? null,
+        startTime: node.broadcast.start_time ?? null,
+      }
+    : null
+
+  return {
+    malId: node.id,
+    title: node.title,
+    status: node.status ?? '',
+    startDate: node.start_date ?? null,
+    broadcast,
+    coverUrl:
+      node.main_picture?.large ?? node.main_picture?.medium ?? null,
+    numEpisodes:
+      typeof node.num_episodes === 'number' && node.num_episodes > 0
+        ? node.num_episodes
+        : null,
+  }
+}
+
+async function fetchPlanToWatchPage(
+  accessToken: string,
+  url?: string
+): Promise<MalAnimelistResponse> {
+  const requestUrl =
+    url ??
+    `https://api.myanimelist.net/v2/users/@me/animelist?status=plan_to_watch&limit=100&fields=${MAL_ANIMELIST_FIELDS}`
+
+  const response = await fetch(requestUrl, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  })
+
+  if (!response.ok) {
+    const body = await response.text()
+    throw new Error(`MAL plan-to-watch lookup failed (${response.status}): ${body}`)
+  }
+
+  return (await response.json()) as MalAnimelistResponse
+}
+
+export async function fetchPlanToWatchAnime(): Promise<MalPlanToWatchResult> {
+  try {
+    const accessToken = await getMalAccessToken()
+    const entries: MalPlanToWatchEntry[] = []
+    let nextUrl: string | undefined
+
+    do {
+      const page = await fetchPlanToWatchPage(accessToken, nextUrl)
+
+      for (const item of page.data ?? []) {
+        if (item.node?.id) {
+          entries.push(parsePlanToWatchEntry(item.node))
+        }
+      }
+
+      nextUrl = page.paging?.next
+    } while (nextUrl)
+
+    return { status: 'ok', entries }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+
+    if (
+      message.includes('MAL_CLIENT_ID') ||
+      message.includes('MAL_REFRESH_TOKEN')
+    ) {
+      return { status: 'not_configured' }
+    }
+
+    return { status: 'unavailable' }
+  }
+}
+
+export async function searchMalAnime(query: string) {
+  const accessToken = await getMalAccessToken()
+  const params = new URLSearchParams({
+    q: query.trim(),
+    limit: '5',
+    fields: 'id,title,alternative_titles',
+  })
+
+  const response = await fetch(
+    `https://api.myanimelist.net/v2/anime?${params.toString()}`,
+    {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    }
+  )
+
+  if (!response.ok) {
+    const body = await response.text()
+    throw new Error(`MAL anime search failed (${response.status}): ${body}`)
+  }
+
+  const data = (await response.json()) as MalSearchResponse
+
+  return (data.data ?? []).map((item) => ({
+    malId: item.node.id,
+    title: item.node.title,
+    alternativeTitles: {
+      en: item.node.alternative_titles?.en,
+      ja: item.node.alternative_titles?.ja,
+      synonyms: item.node.alternative_titles?.synonyms,
+    },
+  }))
+}
+
+export async function fetchMalAnimeTitle(malId: number): Promise<string | null> {
+  const accessToken = await getMalAccessToken()
+  const response = await fetch(
+    `https://api.myanimelist.net/v2/anime/${malId}?fields=title`,
+    {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    }
+  )
+
+  if (!response.ok) {
+    const body = await response.text()
+    throw new Error(`MAL anime lookup failed (${response.status}): ${body}`)
+  }
+
+  const data = (await response.json()) as MalAnimeResponse
+  return data.title?.trim() || null
 }

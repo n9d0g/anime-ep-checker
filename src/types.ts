@@ -43,6 +43,26 @@ export interface ShowState {
   malScoreAlertedAt?: string | null
 }
 
+export type PlanToWatchAlertReason = 'airing' | 'upcoming'
+
+export interface PlanToWatchSnapshotEntry {
+  malId: number
+  title: string
+  status: string
+  startDate: string | null
+  broadcast: {
+    dayOfWeek: string | null
+    startTime: string | null
+  } | null
+  coverUrl: string | null
+  numEpisodes: number | null
+}
+
+export interface PlanToWatchSnapshot {
+  updatedAt: string
+  entries: PlanToWatchSnapshotEntry[]
+}
+
 export interface StateFile {
   shows: Record<string, ShowState>
   meta?: {
@@ -55,10 +75,9 @@ export interface StateFile {
       string,
       { alertedAt: string; reason: PlanToWatchAlertReason }
     >
+    planToWatch?: PlanToWatchSnapshot
   }
 }
-
-export type PlanToWatchAlertReason = 'airing' | 'upcoming'
 
 export interface ProviderEpisode {
   id: string

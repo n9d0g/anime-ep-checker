@@ -44,9 +44,39 @@ export interface ShowState {
   malScoreAlertedAt?: string | null
 }
 
+export interface PlanToWatchSnapshotEntry {
+  malId: number
+  title: string
+  status: string
+  startDate: string | null
+  broadcast: {
+    dayOfWeek: string | null
+    startTime: string | null
+  } | null
+  coverUrl: string | null
+  numEpisodes: number | null
+}
+
+export interface PlanToWatchSnapshot {
+  updatedAt: string
+  entries: PlanToWatchSnapshotEntry[]
+}
+
 export interface StateFile {
   shows: Record<string, ShowState>
-  meta?: Record<string, unknown>
+  meta?: {
+    netflixCookieAlertSentAt?: string | null
+    disneyCookieAlertSentAt?: string | null
+    watchingDashboardMessageId?: string | null
+    watchingDashboardMessageIds?: Record<string, string>
+    planToWatchCheckedAt?: string | null
+    planToWatchAlerts?: Record<
+      string,
+      { alertedAt: string; reason: string }
+    >
+    planToWatch?: PlanToWatchSnapshot
+    [key: string]: unknown
+  }
 }
 
 export interface ShowStateSummary {

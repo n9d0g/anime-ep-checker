@@ -160,6 +160,8 @@ Success messages include branch, short commit SHA, commit subject, time (ET), an
 
 `https://myanimelist.net/anime/55888/...` → `55888`
 
+On the **Watching** page, you can usually leave this blank: the admin searches MAL by title and links the ID when the match is confident. Titles are then kept in sync with MAL.
+
 ### 5. Netflix cookie
 
 For Netflix-tracked shows, copy your browser cookie string while logged into Netflix (DevTools → Network → any `netflix.com` request → `Cookie` header) into the `NETFLIX_COOKIE` GitHub secret. Refresh it if pathEvaluator requests start failing (expired session). When the cookie is missing or expired, the checker posts a one-time **Netflix cookie needs refresh** alert to your episode Discord channel via the bot (`DISCORD_BOT_TOKEN` + `DISCORD_CHANNEL_ID`).
@@ -231,7 +233,7 @@ On each checker run, the bot compares each show’s MAL **mean score** to the la
 
 ### Plan-to-watch airing alerts
 
-Once per day (or whenever a tracked show is in its drop window), the checker fetches your MAL **plan to watch** list and sends a **one-shot** Discord alert for each title that is either **currently airing** or **starts within the next 7 days**. Alerted MAL IDs are stored in `state.json` so you only get pinged once per title; removing a show from plan-to-watch and re-adding it later can alert again. Requires the same MAL OAuth secrets as the watching dashboard.
+Once per day (or whenever a tracked show is in its drop window), the checker fetches your MAL **plan to watch** list and sends a **one-shot** Discord alert for each title that is either **currently airing** or **starts within the next 7 days**. Alerted MAL IDs are stored in `state.json` so you only get pinged once per title; removing a show from plan-to-watch and re-adding it later can alert again. The full PTW list is also saved to `state.meta.planToWatch` for the admin **/ptw** page. Requires the same MAL OAuth secrets as the watching dashboard.
 
 ### Slash commands
 
@@ -259,11 +261,17 @@ For each show’s next expected episode, the bot creates or updates an **externa
 ## CMS usage
 
 1. Open your Vercel admin URL and sign in
-2. Choose **Crunchyroll**, **Netflix**, or **Disney+** and paste the series/title URL
-3. Optionally set **MAL anime ID** and **Reddit search title**
-4. Choose **Finite season** or **Ongoing**
-5. Set start date/time (**Japan Time / JST**), start episode number, and premiere batch size
-6. **Save changes** — commits to `shows.json` on GitHub
+2. Use the profile menu to switch between **Watching** (`/`) and **Plan to watch** (`/ptw`)
+3. On **Watching**, choose **Crunchyroll**, **Netflix**, or **Disney+** and paste the series/title URL
+4. **MAL anime ID** is optional: if left blank, the admin tries to auto-match from the show title on load; once linked, the ID is hidden under **More options** (still editable)
+5. Tracked show **titles** sync from MAL when a `malId` is known (on page load via `POST /api/shows/sync-mal`)
+6. Choose **Finite season** or **Ongoing**
+7. Set start date/time (**Japan Time / JST**), start episode number, and premiere batch size
+8. **Save changes** — commits to `shows.json` on GitHub
+
+### Plan to watch page (`/ptw`)
+
+Shows your MAL plan-to-watch list from `state.meta.planToWatch`, grouped into **Airing**, **Not yet aired**, and **Aired**. Use **Refresh** to fetch the latest list from MAL and save a new snapshot to `state.json`. The checker also refreshes this snapshot during its plan-to-watch alert pass.
 
 ## Files
 

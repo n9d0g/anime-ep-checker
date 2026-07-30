@@ -112,6 +112,19 @@ export async function syncPlanToWatchAlerts({
     reasons.push('pruned stale plan-to-watch alert state')
   }
 
+  const snapshot = {
+    updatedAt: checkedAt,
+    entries: result.entries.map((entry) => ({
+      malId: entry.malId,
+      title: entry.title,
+      status: entry.status,
+      startDate: entry.startDate,
+      broadcast: entry.broadcast,
+      coverUrl: entry.coverUrl,
+      numEpisodes: entry.numEpisodes,
+    })),
+  }
+
   for (const entry of result.entries) {
     const malId = String(entry.malId)
     if (nextAlerts[malId]) {
@@ -155,7 +168,8 @@ export async function syncPlanToWatchAlerts({
   if (
     state.meta?.planToWatchCheckedAt !== checkedAt ||
     JSON.stringify(state.meta?.planToWatchAlerts ?? {}) !==
-      JSON.stringify(nextAlerts)
+      JSON.stringify(nextAlerts) ||
+    JSON.stringify(state.meta?.planToWatch) !== JSON.stringify(snapshot)
   ) {
     changed = true
   }
@@ -165,6 +179,7 @@ export async function syncPlanToWatchAlerts({
       ...state.meta,
       planToWatchAlerts: nextAlerts,
       planToWatchCheckedAt: checkedAt,
+      planToWatch: snapshot,
     }
   }
 

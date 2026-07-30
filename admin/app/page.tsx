@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { TopHeader } from '@/app/components/TopHeader'
 import { buildAnimeDiscussionSearchUrl } from '@/lib/reddit'
 import {
   getLastScheduledEpisode,
@@ -105,7 +105,6 @@ function SegmentedControl<T extends string>({
 }
 
 export default function AdminPage() {
-  const router = useRouter()
   const [shows, setShows] = useState<ShowFormValues[]>([])
   const [baseline, setBaseline] = useState('')
   const [showStates, setShowStates] = useState<Record<string, ShowStateSummary>>(
@@ -122,8 +121,7 @@ export default function AdminPage() {
   const episodeDebounceRefs = useRef<
     Record<string, ReturnType<typeof setTimeout>>
   >({})
-  const profileMenuRef = useRef<HTMLDivElement>(null)
-  const [profileMenuOpen, setProfileMenuOpen] = useState(false)
+  const [malEditOpen, setMalEditOpen] = useState<Record<string, boolean>>({})
 
   const isDirty = useMemo(
     () => baseline !== '' && serializeShows(shows) !== baseline,
@@ -133,9 +131,10 @@ export default function AdminPage() {
   useEffect(() => {
     async function loadData() {
       try {
-        const [showsResponse, stateResponse] = await Promise.all([
+        const [showsResponse, stateResponse, syncResponse] = await Promise.all([
           fetch('/api/shows'),
           fetch('/api/state'),
+          fetch('/api/shows/sync-mal', { method: 'POST' }),
         ])
 
         const showsData = (await showsResponse.json()) as {
@@ -146,6 +145,13 @@ export default function AdminPage() {
           error?: string
           shows?: Record<string, ShowStateSummary>
         }
+        const syncData = (await syncResponse.json()) as {
+          error?: string
+          shows?: Show[]
+          changed?: boolean
+          resolvedIds?: string[]
+          updatedTitles?: string[]
+        }
 
         if (!showsResponse.ok) {
           throw new Error(showsData.error || 'Failed to load shows')
@@ -155,10 +161,31 @@ export default function AdminPage() {
           throw new Error(stateData.error || 'Failed to load episode state')
         }
 
-        const loadedShows = (showsData.shows ?? []).map(showToForm)
+        const loadedShows = (
+          syncResponse.ok && syncData.shows
+            ? syncData.shows
+            : showsData.shows ?? []
+        ).map(showToForm)
+
         setShows(loadedShows)
         setBaseline(serializeShows(loadedShows))
         setShowStates(stateData.shows ?? {})
+
+        if (syncResponse.ok && syncData.changed) {
+          const parts: string[] = []
+          if (syncData.resolvedIds?.length) {
+            parts.push('linked MAL IDs')
+          }
+          if (syncData.updatedTitles?.length) {
+            parts.push('synced titles from MAL')
+          }
+          if (parts.length > 0) {
+            setStatusType('success')
+            setStatus(`Auto-${parts.join(' and ')}.`)
+          }
+        } else if (!syncResponse.ok && syncData.error) {
+          console.warn('MAL sync skipped:', syncData.error)
+        }
       } catch (error) {
         setStatusType('error')
         setStatus(error instanceof Error ? error.message : 'Failed to load shows')
@@ -177,35 +204,6 @@ export default function AdminPage() {
       }
     }
   }, [])
-
-  useEffect(() => {
-    if (!profileMenuOpen) {
-      return
-    }
-
-    function handlePointerDown(event: MouseEvent) {
-      if (
-        profileMenuRef.current &&
-        !profileMenuRef.current.contains(event.target as Node)
-      ) {
-        setProfileMenuOpen(false)
-      }
-    }
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') {
-        setProfileMenuOpen(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handlePointerDown)
-    document.addEventListener('keydown', handleKeyDown)
-
-    return () => {
-      document.removeEventListener('mousedown', handlePointerDown)
-      document.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [profileMenuOpen])
 
   function cardKey(show: ShowFormValues, index: number): string {
     return show.id || `new-${index}`
@@ -389,46 +387,9 @@ export default function AdminPage() {
     }
   }
 
-  async function logout() {
-    await fetch('/api/auth', { method: 'DELETE' })
-    router.push('/login')
-    router.refresh()
-  }
-
   return (
     <>
-      <header className="top-header">
-        <div className="top-header-inner">
-          <span className="top-header-brand">Anime Episode Checker</span>
-          <div className="profile-menu" ref={profileMenuRef}>
-            <button
-              className="profile-menu-btn"
-              type="button"
-              aria-label="Account menu"
-              aria-expanded={profileMenuOpen}
-              aria-haspopup="menu"
-              onClick={() => setProfileMenuOpen((open) => !open)}
-            >
-              <img src="/icon.jpg" alt="" />
-            </button>
-            {profileMenuOpen ? (
-              <div className="profile-menu-dropdown" role="menu">
-                <button
-                  className="profile-menu-item"
-                  type="button"
-                  role="menuitem"
-                  onClick={() => {
-                    setProfileMenuOpen(false)
-                    void logout()
-                  }}
-                >
-                  Log out
-                </button>
-              </div>
-            ) : null}
-          </div>
-        </div>
-      </header>
+      <TopHeader />
 
       <main className="container">
         <div className="page-heading">
@@ -756,25 +717,61 @@ export default function AdminPage() {
                         <details className="disclosure">
                           <summary>More options</summary>
                           <div className="disclosure-body">
-                            <div className="field">
-                              <label htmlFor={`mal-${index}`}>
-                                MAL anime ID
-                              </label>
-                              <input
-                                id={`mal-${index}`}
-                                type="number"
-                                min="1"
-                                value={show.malId}
-                                onChange={(event) =>
-                                  updateShow(index, 'malId', event.target.value)
-                                }
-                                placeholder="39535"
-                              />
-                              <p className="hint">
-                                From the MAL URL: myanimelist.net/anime/
-                                <strong>39535</strong>/...
-                              </p>
-                            </div>
+                            {show.malId ? (
+                              <div className="field">
+                                <span>MAL linked</span>
+                                <p className="hint">
+                                  Linked to MAL ID {show.malId}.{' '}
+                                  <button
+                                    className="text-btn"
+                                    type="button"
+                                    onClick={() =>
+                                      setMalEditOpen((current) => ({
+                                        ...current,
+                                        [cardKey(show, index)]: !current[cardKey(show, index)],
+                                      }))
+                                    }
+                                  >
+                                    {malEditOpen[cardKey(show, index)]
+                                      ? 'Hide'
+                                      : 'Edit'}
+                                  </button>
+                                </p>
+                                {malEditOpen[cardKey(show, index)] ? (
+                                  <input
+                                    id={`mal-${index}`}
+                                    type="number"
+                                    min="1"
+                                    value={show.malId}
+                                    onChange={(event) =>
+                                      updateShow(index, 'malId', event.target.value)
+                                    }
+                                    placeholder="39535"
+                                  />
+                                ) : null}
+                              </div>
+                            ) : (
+                              <div className="field">
+                                <label htmlFor={`mal-${index}`}>
+                                  MAL anime ID
+                                </label>
+                                <input
+                                  id={`mal-${index}`}
+                                  type="number"
+                                  min="1"
+                                  value={show.malId}
+                                  onChange={(event) =>
+                                    updateShow(index, 'malId', event.target.value)
+                                  }
+                                  placeholder="39535"
+                                />
+                                <p className="hint">
+                                  Leave blank to auto-match from the title on load,
+                                  or enter the ID from myanimelist.net/anime/
+                                  <strong>39535</strong>/...
+                                </p>
+                              </div>
+                            )}
 
                             <div className="field">
                               <label htmlFor={`reddit-${index}`}>

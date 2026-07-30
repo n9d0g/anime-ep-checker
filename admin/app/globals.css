@@ -185,15 +185,118 @@ h3 {
   border: 0;
   border-radius: calc(var(--radius-sm) - 2px);
   background: transparent;
-  color: var(--danger);
+  color: var(--text);
   font-size: 0.82rem;
   font-weight: 600;
   text-align: left;
   cursor: pointer;
+  text-decoration: none;
 }
 
+.profile-menu-link:hover,
 .profile-menu-item:hover {
+  background: var(--panel-raised);
+}
+
+.profile-menu-link.active {
+  color: var(--accent-hover);
+}
+
+.profile-menu-danger {
+  color: var(--danger);
+}
+
+.profile-menu-danger:hover {
   background: var(--danger-hover);
+}
+
+.profile-menu-divider {
+  height: 1px;
+  margin: 0.25rem 0;
+  background: var(--border);
+}
+
+.page-heading-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.ptw-sections {
+  gap: 1.5rem;
+}
+
+.ptw-list {
+  padding: 0;
+  overflow: hidden;
+}
+
+.ptw-row {
+  display: flex;
+  gap: 0.85rem;
+  padding: 0.85rem 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.ptw-row:first-child {
+  border-top: 0;
+}
+
+.ptw-cover {
+  width: 52px;
+  height: 74px;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  background: var(--panel-raised);
+}
+
+.ptw-cover-placeholder {
+  border: 1px solid var(--border);
+}
+
+.ptw-body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.ptw-title {
+  color: var(--text);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.ptw-title:hover {
+  color: var(--accent-hover);
+}
+
+.ptw-meta {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+}
+
+.ptw-updated {
+  margin-top: 1rem;
+}
+
+.text-btn {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.text-btn:hover {
+  color: var(--accent-hover);
 }
 
 .panel {
