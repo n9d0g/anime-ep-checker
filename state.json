@@ -79,9 +79,9 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-07-30T18:30:35.358Z",
+    "planToWatchCheckedAt": "2026-07-30T18:35:51.285Z",
     "planToWatch": {
-      "updatedAt": "2026-07-30T18:30:35.358Z",
+      "updatedAt": "2026-07-30T18:35:51.285Z",
       "entries": [
         {
           "malId": 61323,
@@ -125,7 +125,7 @@
           "status": "not_yet_aired",
           "startDate": null,
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1326/158413l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1326/158413l.jpg",
           "numEpisodes": null
         },
         {
@@ -251,7 +251,7 @@
             "dayOfWeek": "saturday",
             "startTime": "00:00"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1160/122627l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1160/122627l.webp",
           "numEpisodes": 13
         },
         {
