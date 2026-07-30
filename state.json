@@ -79,6 +79,473 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-07-30T17:30:38.070Z"
+    "planToWatchCheckedAt": "2026-07-30T18:00:32.553Z",
+    "planToWatch": {
+      "updatedAt": "2026-07-30T18:00:32.553Z",
+      "entries": [
+        {
+          "malId": 61323,
+          "title": "Ao no Hako Season 2",
+          "status": "not_yet_aired",
+          "startDate": "2026-10-04",
+          "broadcast": {
+            "dayOfWeek": "sunday",
+            "startTime": "16:30"
+          },
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1976/156319l.jpg",
+          "numEpisodes": null
+        },
+        {
+          "malId": 36649,
+          "title": "Banana Fish",
+          "status": "finished_airing",
+          "startDate": "2018-07-06",
+          "broadcast": {
+            "dayOfWeek": "friday",
+            "startTime": "00:55"
+          },
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1190/93472l.webp",
+          "numEpisodes": 24
+        },
+        {
+          "malId": 57,
+          "title": "Beck",
+          "status": "finished_airing",
+          "startDate": "2004-10-07",
+          "broadcast": {
+            "dayOfWeek": "thursday",
+            "startTime": "01:30"
+          },
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/11/11636l.jpg",
+          "numEpisodes": 26
+        },
+        {
+          "malId": 62589,
+          "title": "Blue Lock: Neo Egoist League",
+          "status": "not_yet_aired",
+          "startDate": null,
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1326/158413l.jpg",
+          "numEpisodes": null
+        },
+        {
+          "malId": 31043,
+          "title": "Boku dake ga Inai Machi",
+          "status": "finished_airing",
+          "startDate": "2016-01-08",
+          "broadcast": {
+            "dayOfWeek": "friday",
+            "startTime": "00:55"
+          },
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/10/77957l.jpg",
+          "numEpisodes": 12
+        },
+        {
+          "malId": 63735,
+          "title": "Boku no Kokoro no Yabai Yatsu 3rd Season",
+          "status": "not_yet_aired",
+          "startDate": "2027",
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1146/156101l.jpg",
+          "numEpisodes": null
+        },
+        {
+          "malId": 1689,
+          "title": "Byousoku 5 Centimeter",
+          "status": "finished_airing",
+          "startDate": "2007-03-03",
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1410/112994l.jpg",
+          "numEpisodes": 3
+        },
+        {
+          "malId": 63143,
+          "title": "Chainsaw Man: Shikaku-hen",
+          "status": "not_yet_aired",
+          "startDate": null,
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1432/154522l.jpg",
+          "numEpisodes": null
+        },
+        {
+          "malId": 61990,
+          "title": "Cyberpunk: Edgerunners 2",
+          "status": "not_yet_aired",
+          "startDate": "2026",
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1880/158764l.jpg",
+          "numEpisodes": 10
+        },
+        {
+          "malId": 62516,
+          "title": "Dandadan 3rd Season",
+          "status": "not_yet_aired",
+          "startDate": "2027",
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1671/154516l.jpg",
+          "numEpisodes": null
+        },
+        {
+          "malId": 59068,
+          "title": "Dungeon Meshi Season 2",
+          "status": "not_yet_aired",
+          "startDate": "2027-10",
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1830/158890l.jpg",
+          "numEpisodes": null
+        },
+        {
+          "malId": 50197,
+          "title": "Ijiranaide, Nagatoro-san 2nd Attack",
+          "status": "finished_airing",
+          "startDate": "2023-01-08",
+          "broadcast": {
+            "dayOfWeek": "sunday",
+            "startTime": "01:00"
+          },
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1902/129579l.jpg",
+          "numEpisodes": 12
+        },
+        {
+          "malId": 62392,
+          "title": "Jujutsu Kaisen Movie: Shibuya Jihen Tokubetsu Henshuu-ban x Shimetsu Kaiyuu Senkou Jouei",
+          "status": "finished_airing",
+          "startDate": "2025-11-07",
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1438/154138l.jpg",
+          "numEpisodes": 1
+        },
+        {
+          "malId": 63824,
+          "title": "Jujutsu Kaisen: Shimetsu Kaiyuu - Kouhen",
+          "status": "not_yet_aired",
+          "startDate": null,
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1031/156352l.jpg",
+          "numEpisodes": null
+        },
+        {
+          "malId": 57584,
+          "title": "Kage no Jitsuryokusha ni Naritakute! Movie: Zankyou-hen",
+          "status": "not_yet_aired",
+          "startDate": "2027",
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1797/156362l.jpg",
+          "numEpisodes": 1
+        },
+        {
+          "malId": 61903,
+          "title": "Kaguya-sama wa Kokurasetai: Otona e no Kaidan",
+          "status": "finished_airing",
+          "startDate": "2025-12-31",
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1112/150697l.jpg",
+          "numEpisodes": 1
+        },
+        {
+          "malId": 43608,
+          "title": "Kaguya-sama wa Kokurasetai: Ultra Romantic",
+          "status": "finished_airing",
+          "startDate": "2022-04-09",
+          "broadcast": {
+            "dayOfWeek": "saturday",
+            "startTime": "00:00"
+          },
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1160/122627l.webp",
+          "numEpisodes": 13
+        },
+        {
+          "malId": 63136,
+          "title": "Kaijuu 8-gou: Kanketsu-hen",
+          "status": "not_yet_aired",
+          "startDate": null,
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1792/154493l.jpg",
+          "numEpisodes": null
+        },
+        {
+          "malId": 39198,
+          "title": "Kanata no Astra",
+          "status": "finished_airing",
+          "startDate": "2019-07-03",
+          "broadcast": {
+            "dayOfWeek": "wednesday",
+            "startTime": "21:00"
+          },
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1784/106428l.jpg",
+          "numEpisodes": 12
+        },
+        {
+          "malId": 62546,
+          "title": "Kimetsu no Yaiba Movie 2: Mugenjou-hen",
+          "status": "not_yet_aired",
+          "startDate": null,
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1000/152184l.jpg",
+          "numEpisodes": 1
+        },
+        {
+          "malId": 57616,
+          "title": "Kimi no Koto ga Daidaidaidaidaisuki na 100-nin no Kanojo 2nd Season",
+          "status": "finished_airing",
+          "startDate": "2025-01-12",
+          "broadcast": {
+            "dayOfWeek": "sunday",
+            "startTime": "22:30"
+          },
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1093/145470l.jpg",
+          "numEpisodes": 12
+        },
+        {
+          "malId": 62811,
+          "title": "Kimi no Koto ga Daidaidaidaidaisuki na 100-nin no Kanojo 3rd Season",
+          "status": "currently_airing",
+          "startDate": "2026-07-05",
+          "broadcast": {
+            "dayOfWeek": "sunday",
+            "startTime": "22:30"
+          },
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1106/157174l.jpg",
+          "numEpisodes": null
+        },
+        {
+          "malId": 59833,
+          "title": "Kono Subarashii Sekai ni Shukufuku wo! 3: Bonus Stage",
+          "status": "finished_airing",
+          "startDate": "2025-04-25",
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1482/146928l.jpg",
+          "numEpisodes": 2
+        },
+        {
+          "malId": 61203,
+          "title": "Kono Subarashii Sekai ni Shukufuku wo! 4",
+          "status": "not_yet_aired",
+          "startDate": "2027",
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1353/159201l.jpg",
+          "numEpisodes": null
+        },
+        {
+          "malId": 49909,
+          "title": "Kotarou wa Hitorigurashi",
+          "status": "finished_airing",
+          "startDate": "2022-03-10",
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1862/121020l.webp",
+          "numEpisodes": 10
+        },
+        {
+          "malId": 61987,
+          "title": "Kusuriya no Hitorigoto 3rd Season",
+          "status": "not_yet_aired",
+          "startDate": "2026-10",
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1862/152811l.jpg",
+          "numEpisodes": null
+        },
+        {
+          "malId": 62841,
+          "title": "Kusuriya no Hitorigoto 3rd Season Part 2",
+          "status": "not_yet_aired",
+          "startDate": "2027-04",
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1667/152812l.jpg",
+          "numEpisodes": null
+        },
+        {
+          "malId": 62844,
+          "title": "Kusuriya no Hitorigoto Movie: Bouhi no Hihou",
+          "status": "not_yet_aired",
+          "startDate": "2026-12-11",
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1656/158840l.jpg",
+          "numEpisodes": 1
+        },
+        {
+          "malId": 36862,
+          "title": "Made in Abyss Movie 3: Fukaki Tamashii no Reimei",
+          "status": "finished_airing",
+          "startDate": "2020-01-17",
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1803/117183l.webp",
+          "numEpisodes": 1
+        },
+        {
+          "malId": 58934,
+          "title": "Mashle: Sanma Taisou Shinkakusha Saishuu Shiken-hen",
+          "status": "not_yet_aired",
+          "startDate": "2027-01",
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1085/154496l.jpg",
+          "numEpisodes": null
+        },
+        {
+          "malId": 59928,
+          "title": "Ookami to Koushinryou: Merchant Meets the Wise Wolf 2nd Season",
+          "status": "not_yet_aired",
+          "startDate": null,
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1664/153382l.jpg",
+          "numEpisodes": null
+        },
+        {
+          "malId": 32729,
+          "title": "Orange",
+          "status": "finished_airing",
+          "startDate": "2016-07-04",
+          "broadcast": {
+            "dayOfWeek": "monday",
+            "startTime": "00:00"
+          },
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1415/102477l.jpg",
+          "numEpisodes": 13
+        },
+        {
+          "malId": 64546,
+          "title": "Ore dake Level Up na Ken: Beyond the System",
+          "status": "not_yet_aired",
+          "startDate": null,
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1775/158856l.jpg",
+          "numEpisodes": 1
+        },
+        {
+          "malId": 60146,
+          "title": "Saikyou no Ousama, Nidome no Jinsei wa Nani wo Suru?",
+          "status": "finished_airing",
+          "startDate": "2025-04-02",
+          "broadcast": {
+            "dayOfWeek": "wednesday",
+            "startTime": "23:30"
+          },
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1712/148299l.jpg",
+          "numEpisodes": 12
+        },
+        {
+          "malId": 63139,
+          "title": "Sakamoto Days 2nd Season",
+          "status": "not_yet_aired",
+          "startDate": "2027-01",
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1812/158683l.jpg",
+          "numEpisodes": null
+        },
+        {
+          "malId": 56732,
+          "title": "Sekai Saikou no Ansatsusha, Isekai Kizoku ni Tensei suru Season 2",
+          "status": "not_yet_aired",
+          "startDate": "2027",
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1626/156999l.webp",
+          "numEpisodes": null
+        },
+        {
+          "malId": 63816,
+          "title": "Sousou no Frieren: Ougonkyou-hen",
+          "status": "not_yet_aired",
+          "startDate": "2027-10",
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1619/156313l.webp",
+          "numEpisodes": null
+        },
+        {
+          "malId": 63129,
+          "title": "Tensei shitara Slime Datta Ken 4th Season Part 2",
+          "status": "not_yet_aired",
+          "startDate": null,
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1803/154473l.jpg",
+          "numEpisodes": null
+        },
+        {
+          "malId": 59971,
+          "title": "Tensei shitara Slime Datta Ken Movie 2: Soukai no Namida-hen",
+          "status": "finished_airing",
+          "startDate": "2026-02-27",
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1447/153665l.jpg",
+          "numEpisodes": 1
+        },
+        {
+          "malId": 59873,
+          "title": "Tokidoki Bosotto Russia-go de Dereru Tonari no Alya-san Season 2",
+          "status": "not_yet_aired",
+          "startDate": "2027",
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1711/156333l.jpg",
+          "numEpisodes": null
+        },
+        {
+          "malId": 64516,
+          "title": "Tongari Boushi no Atelier 2nd Season",
+          "status": "not_yet_aired",
+          "startDate": null,
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1928/158795l.jpg",
+          "numEpisodes": null
+        },
+        {
+          "malId": 61930,
+          "title": "Uma Musume: Cinderella Gray Part 2",
+          "status": "finished_airing",
+          "startDate": "2025-10-05",
+          "broadcast": {
+            "dayOfWeek": "sunday",
+            "startTime": "16:30"
+          },
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1120/152280l.jpg",
+          "numEpisodes": 10
+        },
+        {
+          "malId": 37987,
+          "title": "Violet Evergarden Movie",
+          "status": "finished_airing",
+          "startDate": "2020-09-18",
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1825/110716l.jpg",
+          "numEpisodes": 1
+        },
+        {
+          "malId": 35968,
+          "title": "Wotaku ni Koi wa Muzukashii",
+          "status": "finished_airing",
+          "startDate": "2018-04-13",
+          "broadcast": {
+            "dayOfWeek": "friday",
+            "startTime": "00:55"
+          },
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1864/93518l.webp",
+          "numEpisodes": 11
+        },
+        {
+          "malId": 37055,
+          "title": "Youjo Senki Movie",
+          "status": "finished_airing",
+          "startDate": "2019-02-08",
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1249/117182l.webp",
+          "numEpisodes": 1
+        },
+        {
+          "malId": 64463,
+          "title": "Youkoso Jitsuryoku Shijou Shugi no Kyoushitsu e 5th Season",
+          "status": "not_yet_aired",
+          "startDate": null,
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1825/158690l.jpg",
+          "numEpisodes": null
+        },
+        {
+          "malId": 63794,
+          "title": "[Oshi no Ko] 4th Season",
+          "status": "not_yet_aired",
+          "startDate": null,
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1702/156273l.jpg",
+          "numEpisodes": null
+        }
+      ]
+    }
   }
 }
