@@ -13,7 +13,8 @@
       },
       "crunchyrollUrl": "https://www.crunchyroll.com/series/GRMG8ZQZR/one-piece",
       "seriesId": "GRMG8ZQZR",
-      "malId": 21
+      "malId": 21,
+      "redditSearchTitle": "one_piece"
     },
     {
       "id": "slime",
@@ -28,7 +29,8 @@
       },
       "crunchyrollUrl": "https://www.crunchyroll.com/series/GYZJ43JMR/that-time-i-got-reincarnated-as-a-slime",
       "seriesId": "GYZJ43JMR",
-      "malId": 59970
+      "malId": 59970,
+      "redditSearchTitle": "tensei_shitara_slime_datta_ken_season_4_that_time_i_got_reincarnated_as_a_slime"
     },
     {
       "id": "mushoku-tensei-s3",
@@ -59,7 +61,8 @@
       },
       "crunchyrollUrl": "https://www.crunchyroll.com/series/GT00378116/smoking-behind-the-supermarket-with-you",
       "seriesId": "GT00378116",
-      "malId": 62076
+      "malId": 62076,
+      "redditSearchTitle": "smoking_behind_the_supermarket_with_you_super_no_ura_de_yani_suu_futari"
     },
     {
       "id": "chainsmoker-cat",
