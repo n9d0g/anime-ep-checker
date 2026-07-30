@@ -72,6 +72,13 @@
       "chainsmoker-cat": "1531640110481932389",
       "bleach": "1531685830114939012"
     },
-    "disneyCookieAlertSentAt": "2026-07-27T16:30:34.187Z"
+    "disneyCookieAlertSentAt": "2026-07-27T16:30:34.187Z",
+    "planToWatchAlerts": {
+      "62811": {
+        "alertedAt": "2026-07-30T17:20:31.143Z",
+        "reason": "airing"
+      }
+    },
+    "planToWatchCheckedAt": "2026-07-30T17:20:31.143Z"
   }
 }
