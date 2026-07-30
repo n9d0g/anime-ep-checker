@@ -6,7 +6,7 @@
       "provider": "crunchyroll",
       "schedule": {
         "mode": "ongoing",
-        "startAt": "2026-07-13T04:15:00.000Z",
+        "startAt": "2026-07-13T17:15:00.000Z",
         "startEpisode": 1169,
         "episodeCount": null,
         "premiereBatchSize": 1
@@ -21,7 +21,7 @@
       "provider": "crunchyroll",
       "schedule": {
         "mode": "finite",
-        "startAt": "2026-04-11T04:00:00.000Z",
+        "startAt": "2026-04-11T17:00:00.000Z",
         "startEpisode": 1,
         "episodeCount": 24,
         "premiereBatchSize": 1
@@ -36,7 +36,7 @@
       "provider": "crunchyroll",
       "schedule": {
         "mode": "finite",
-        "startAt": "2026-07-06T05:00:00.000Z",
+        "startAt": "2026-07-06T18:00:00.000Z",
         "startEpisode": 1,
         "episodeCount": 14,
         "premiereBatchSize": 2
@@ -52,7 +52,7 @@
       "provider": "crunchyroll",
       "schedule": {
         "mode": "finite",
-        "startAt": "2026-07-10T05:00:00.000Z",
+        "startAt": "2026-07-10T18:00:00.000Z",
         "startEpisode": 1,
         "episodeCount": 12,
         "premiereBatchSize": 1
@@ -67,7 +67,7 @@
       "provider": "netflix",
       "schedule": {
         "mode": "ongoing",
-        "startAt": "2026-07-03T05:30:00.000Z",
+        "startAt": "2026-07-03T18:30:00.000Z",
         "startEpisode": 1,
         "episodeCount": null,
         "premiereBatchSize": 1
@@ -75,7 +75,7 @@
       "netflixUrl": "https://www.netflix.com/title/82760630",
       "netflixId": "82760630",
       "malId": 63403,
-      "redditSearchTitle": "Chainsmoker Cat"
+      "redditSearchTitle": "chainsmoker_cat_yani_neko"
     },
     {
       "id": "bleach",
@@ -83,7 +83,7 @@
       "provider": "disney",
       "schedule": {
         "mode": "finite",
-        "startAt": "2026-07-26T04:00:00.000Z",
+        "startAt": "2026-07-26T17:00:00.000Z",
         "startEpisode": 1,
         "episodeCount": 10,
         "premiereBatchSize": 1
