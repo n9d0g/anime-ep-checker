@@ -99,6 +99,31 @@ export async function saveShowsFile(
   })
 }
 
+export async function saveStateFile(
+  state: unknown,
+  sha: string | null,
+  message = 'chore: 🧹 update episode progress from admin CMS'
+) {
+  const { repo, branch } = getConfig()
+  const content = JSON.stringify(state, null, 2) + '\n'
+
+  const body: Record<string, string> = {
+    message,
+    content: Buffer.from(content, 'utf8').toString('base64'),
+    branch,
+  }
+
+  if (sha) {
+    body.sha = sha
+  }
+
+  return githubFetch(`/repos/${repo}/contents/state.json`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+}
+
 export function slugify(value: string): string {
   return String(value)
     .toLowerCase()

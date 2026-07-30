@@ -4,12 +4,13 @@ import {
   discordRelativeTimestamp,
   formatMalScoreLabel,
 } from './discord-format.js'
-import type { MalAnimeDetails } from './mal.js'
+import type { MalAnimeDetails, MalPlanToWatchEntry } from './mal.js'
 import { formatEasternTime } from './time.js'
 import {
   getShowWatchUrl,
   providerLabel,
   type EpisodeSnapshot,
+  type PlanToWatchAlertReason,
   type Show,
   type TimingStatus,
 } from './types.js'
@@ -47,6 +48,31 @@ interface MalScoreAlertInput {
   direction: 'pickup' | 'drop'
   coverUrl?: string | null
   note?: string | null
+}
+
+interface PlanToWatchAlertInput {
+  discord: DiscordConfig
+  entry: MalPlanToWatchEntry
+  reason: PlanToWatchAlertReason
+}
+
+function formatBroadcastLabel(
+  broadcast: MalPlanToWatchEntry['broadcast']
+): string | null {
+  if (!broadcast?.dayOfWeek && !broadcast?.startTime) {
+    return null
+  }
+
+  const day = broadcast.dayOfWeek
+    ? broadcast.dayOfWeek.charAt(0).toUpperCase() + broadcast.dayOfWeek.slice(1)
+    : null
+  const time = broadcast.startTime ?? null
+
+  if (day && time) {
+    return `${day} at ${time} JST`
+  }
+
+  return day ?? time
 }
 
 function hasBotConfig(discord: DiscordConfig): boolean {
@@ -222,6 +248,90 @@ export async function sendMalScoreAlert({
   const payload = { embeds: [embed] }
 
   if (hasBotConfig(discord)) {
+    await postBotMessage(discord.botToken!, discord.channelId!, payload)
+    return
+  }
+
+  if (discord.webhookUrl) {
+    await postWebhook(discord.webhookUrl, payload)
+    return
+  }
+
+  throw new Error(
+    'Discord not configured. Set DISCORD_BOT_TOKEN + DISCORD_CHANNEL_ID (preferred) or DISCORD_WEBHOOK_URL.'
+  )
+}
+
+export async function sendPlanToWatchAlert({
+  discord,
+  entry,
+  reason,
+}: PlanToWatchAlertInput): Promise<void> {
+  const malUrl = `https://myanimelist.net/anime/${entry.malId}`
+  const isAiring = reason === 'airing'
+  const broadcastLabel = formatBroadcastLabel(entry.broadcast)
+  const fields: Array<{ name: string; value: string; inline?: boolean }> = []
+
+  if (entry.startDate) {
+    fields.push({
+      name: 'Starts',
+      value: entry.startDate,
+      inline: true,
+    })
+  }
+
+  if (broadcastLabel) {
+    fields.push({
+      name: 'Broadcast',
+      value: broadcastLabel,
+      inline: true,
+    })
+  }
+
+  if (entry.numEpisodes) {
+    fields.push({
+      name: 'Episodes',
+      value: String(entry.numEpisodes),
+      inline: true,
+    })
+  }
+
+  const embed = {
+    title: isAiring
+      ? `${entry.title} is airing on your plan-to-watch list`
+      : `${entry.title} starts airing soon`,
+    url: malUrl,
+    description: isAiring
+      ? 'This title is currently airing on MAL.'
+      : 'This title starts within the next 7 days on MAL.',
+    color: isAiring ? 0x3498db : 0x9b59b6,
+    thumbnail: entry.coverUrl ? { url: entry.coverUrl } : undefined,
+    fields,
+    timestamp: new Date().toISOString(),
+    footer: { text: 'Anime Episode Checker' },
+  }
+
+  const components = [
+    {
+      type: 1,
+      components: [
+        {
+          type: 2,
+          style: 5,
+          label: 'MAL',
+          url: malUrl,
+        },
+      ],
+    },
+  ]
+
+  const payload: Record<string, unknown> = {
+    content: `**${entry.title}** — plan to watch ${isAiring ? 'now airing' : 'starting soon'}`,
+    embeds: [embed],
+  }
+
+  if (hasBotConfig(discord)) {
+    payload.components = components
     await postBotMessage(discord.botToken!, discord.channelId!, payload)
     return
   }

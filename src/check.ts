@@ -26,6 +26,7 @@ import {
 } from './discord-events.js'
 import { fetchMalAnimeDetails } from './mal.js'
 import { syncMalScoreAlerts } from './mal-score.js'
+import { syncPlanToWatchAlerts } from './plan-to-watch.js'
 import { writeStateCommitMessage } from './state-commit.js'
 import {
   DisneyAuthError,
@@ -441,6 +442,25 @@ export async function checkShows({
 
     console.log(
       `  Still waiting for episode ${nextExpectedEp} (latest on ${providerLabel(show.provider)}: ${latestEpisodeNumber})`
+    )
+  }
+
+  try {
+    const ptwResult = await syncPlanToWatchAlerts({
+      state,
+      discord,
+      now,
+      dryRun,
+    })
+    if (ptwResult.changed) {
+      stateChangeReasons.push(...ptwResult.reasons)
+      stateChanged = true
+    }
+  } catch (error) {
+    console.warn(
+      `Plan-to-watch sync failed: ${
+        error instanceof Error ? error.message : error
+      }`
     )
   }
 

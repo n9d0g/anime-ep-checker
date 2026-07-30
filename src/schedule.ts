@@ -1,7 +1,7 @@
 import type { Show, ShowSchedule, StateFile } from './types.js'
 
 const MS_PER_WEEK = 7 * 24 * 60 * 60 * 1000
-const WINDOW_BEFORE_MS = 0
+const WINDOW_BEFORE_MS = 5 * 60 * 1000
 const WINDOW_AFTER_DENSE_MS = 90 * 60 * 1000
 const LATE_POLL_INTERVAL_MS = 30 * 60 * 1000
 const CRON_INTERVAL_MS = 5 * 60 * 1000

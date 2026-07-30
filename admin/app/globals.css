@@ -213,7 +213,7 @@ h3 {
 .show-row-body {
   display: grid;
   gap: 14px;
-  padding: 0 1.1rem 1.1rem;
+  padding: 1.1rem;
   background: var(--panel-raised);
   border-top: 1px solid var(--border);
   min-width: 0;
@@ -260,6 +260,17 @@ input[type='datetime-local'],
 input[type='number'] {
   width: 100%;
   max-width: 100%;
+  min-width: 0;
+}
+
+input[type='datetime-local'] {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+}
+
+input[type='datetime-local']::-webkit-date-and-time-value {
+  text-align: left;
   min-width: 0;
 }
 
@@ -474,6 +485,110 @@ select:focus {
   font-size: 1rem;
 }
 
+.episode-stepper-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.episode-stepper {
+  display: flex;
+  align-items: stretch;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.episode-stepper-btn {
+  flex: 0 0 auto;
+  width: 2.25rem;
+  padding: 0.45rem 0;
+  border: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  background: transparent;
+  color: var(--muted);
+  transition: all 0.1s;
+}
+
+.episode-stepper-btn:hover:not(:disabled) {
+  color: var(--text);
+  background: var(--panel-raised);
+}
+
+.episode-stepper-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.episode-stepper-value {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.75rem;
+  padding: 0.45rem 0.5rem;
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  font-size: 0.88rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+}
+
+.episode-save-status {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.episode-save-status.saved {
+  color: var(--success);
+}
+
+.episode-save-status.error {
+  color: var(--danger);
+}
+
+.quick-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.btn-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.setup-link {
+  margin: 0.25rem 0 0;
+  font-size: 0.78rem;
+  color: var(--hint);
+}
+
+.setup-link a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.setup-link a:hover {
+  color: var(--text-secondary);
+  text-decoration: underline;
+}
+
+.setup-link-sep {
+  margin: 0 0.35rem;
+  color: var(--border);
+}
+
 .setup-steps {
   margin: 0;
   padding-left: 1.2rem;
@@ -490,7 +605,7 @@ select:focus {
 
 @media (min-width: 640px) {
   .field-row {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 }
 

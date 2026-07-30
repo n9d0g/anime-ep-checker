@@ -2,7 +2,7 @@ name: Check Crunchyroll Episodes
 
 on:
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: "*/5 * * * *"
   workflow_dispatch:
     inputs:
       force:
@@ -28,7 +28,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v5
         with:
-          node-version: '24.11.1'
+          node-version: "24.11.1"
           package-manager-cache: false
 
       - name: Check if any show needs polling
@@ -49,8 +49,8 @@ jobs:
         if: steps.gate.outputs.should_check == 'true'
         uses: actions/setup-node@v5
         with:
-          node-version: '24.11.1'
-          cache: 'pnpm'
+          node-version: "24.11.1"
+          cache: "pnpm"
 
       - name: Install dependencies
         if: steps.gate.outputs.should_check == 'true'
@@ -94,7 +94,7 @@ jobs:
             fi
             rm -f state_commit_message.txt
           else
-            git commit -m "chore: update checker state"
+            git commit -m "chore: 🧹 update checker state"
           fi
 
           git push

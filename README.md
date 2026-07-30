@@ -20,7 +20,7 @@ flowchart LR
   Cron --> MAL
 ```
 
-1. **GitHub Actions** is triggered every **5 minutes** by an external cron (see [Reliable polling](#reliable-polling) below). A cheap gate skips install and provider checks unless a show is in its **drop window** (at expected drop time through 90 minutes after; then about every 30 minutes if still missing).
+1. **GitHub Actions** is triggered every **5 minutes** by an external cron (see [Reliable polling](#reliable-polling) below). A cheap gate skips install and provider checks unless a show is in its **drop window** (5 minutes before expected drop through 90 minutes after; then about every 30 minutes if still missing).
 2. Inside the window, the checker runs about every **5 minutes** and calls `pnpm check`.
 3. Each show uses **Crunchyroll, Netflix, or Disney+** (not multiple).
 4. On first run for a show (inside a window), it **baselines** the current episode (no alert).
@@ -52,8 +52,8 @@ Discord alerts still display times in **Eastern Time (EST/EDT)** even though sch
 
 | Phase | When | Cadence |
 |-------|------|---------|
-| **Idle** | Before T+0 | Cheap gate only (no provider calls) |
-| **Dense** | T+0 → T+90m | Full check about every **5 minutes** (external cron dispatch) |
+| **Idle** | Before T-5m | Cheap gate only (no provider calls) |
+| **Dense** | T-5m → T+90m | Full check about every **5 minutes** (external cron dispatch) |
 | **Late** | After T+90m, episode still missing | Full check about every **30 minutes** until found |
 | **Done** | Episode found | State advances; show leaves the window until next ep |
 
@@ -229,6 +229,10 @@ The bot maintains a **pinned message per tracked show** in `#watching` using a *
 
 On each checker run, the bot compares each show’s MAL **mean score** to the last stored value in `state.json`. Any change posts a **score pickup** (green) or **score drop** (red) embed to `#anime-alerts` with cover art and old → new score. First fetch baselines the score without alerting.
 
+### Plan-to-watch airing alerts
+
+Once per day (or whenever a tracked show is in its drop window), the checker fetches your MAL **plan to watch** list and sends a **one-shot** Discord alert for each title that is either **currently airing** or **starts within the next 7 days**. Alerted MAL IDs are stored in `state.json` so you only get pinged once per title; removing a show from plan-to-watch and re-adding it later can alert again. Requires the same MAL OAuth secrets as the watching dashboard.
+
 ### Slash commands
 
 Guild slash commands (register once after deploy):
@@ -281,6 +285,7 @@ For each show’s next expected episode, the bot creates or updates an **externa
 | [`src/dashboard.ts`](src/dashboard.ts) | Dashboard status + embed builder |
 | [`src/mal.ts`](src/mal.ts) | MAL read-only progress (checker) |
 | [`src/mal-score.ts`](src/mal-score.ts) | MAL score spike/tank detection |
+| [`src/plan-to-watch.ts`](src/plan-to-watch.ts) | MAL plan-to-watch airing alerts |
 | [`scripts/register-discord-commands.ts`](scripts/register-discord-commands.ts) | Register guild slash commands |
 | [`src/should-run.ts`](src/should-run.ts) | Cheap gate for Actions |
 | [`admin/`](admin/) | Vercel CMS + Discord/MAL interactions |

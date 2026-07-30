@@ -5,7 +5,7 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const MS_PER_WEEK = 7 * 24 * 60 * 60 * 1000
-const WINDOW_BEFORE_MS = 0
+const WINDOW_BEFORE_MS = 5 * 60 * 1000
 const WINDOW_AFTER_DENSE_MS = 90 * 60 * 1000
 const LATE_POLL_INTERVAL_MS = 30 * 60 * 1000
 const CRON_INTERVAL_MS = 5 * 60 * 1000
@@ -37,7 +37,12 @@ interface ShowsFile {
 
 interface StateFile {
   shows: Record<string, ShowState>
+  meta?: {
+    planToWatchCheckedAt?: string | null
+  }
 }
+
+const PTW_CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000
 
 function readJson<T>(path: string, fallback: T): T {
   try {
@@ -186,21 +191,42 @@ function getActiveCheckModes(
   return [...modes]
 }
 
+function needsPlanToWatchCheck(state: StateFile, now: Date): boolean {
+  const checkedAt = state.meta?.planToWatchCheckedAt
+  if (!checkedAt) {
+    return true
+  }
+
+  const checkedMs = new Date(checkedAt).getTime()
+  if (Number.isNaN(checkedMs)) {
+    return true
+  }
+
+  return now.getTime() - checkedMs >= PTW_CHECK_INTERVAL_MS
+}
+
 const showsFile = readJson<ShowsFile>(SHOWS_PATH, { shows: [] })
 const state = readJson<StateFile>(STATE_PATH, { shows: {} })
 const now = new Date()
 const shows = showsFile.shows ?? []
 const needsCheck = shows.some((show) => showNeedsCheck(show, state, now))
+const needsPtwCheck = needsPlanToWatchCheck(state, now)
+const shouldRun = needsCheck || needsPtwCheck
 const activeModes = getActiveCheckModes(shows, state, now)
 
 const outputFile = process.env.GITHUB_OUTPUT
 if (outputFile) {
-  appendFileSync(outputFile, `should_check=${needsCheck}\n`)
+  appendFileSync(outputFile, `should_check=${shouldRun}\n`)
 }
 
-if (needsCheck) {
-  const modeLabel = activeModes.join(' + ') || 'active'
-  console.log(`At least one show is in the ${modeLabel} check window.`)
+if (shouldRun) {
+  if (needsCheck) {
+    const modeLabel = activeModes.join(' + ') || 'active'
+    console.log(`At least one show is in the ${modeLabel} check window.`)
+  }
+  if (needsPtwCheck) {
+    console.log('Plan-to-watch check is due (24h cadence).')
+  }
 } else {
-  console.log('No shows in active check window; skipping full check.')
+  console.log('No shows in active check window and plan-to-watch check not due; skipping full check.')
 }

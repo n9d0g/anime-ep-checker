@@ -18,7 +18,7 @@ export function formatStateCommitMessage(reasons: string[]): {
   body: string
 } {
   if (reasons.length === 0) {
-    return { subject: 'chore: update checker state', body: '' }
+    return { subject: 'chore: 🧹 update checker state', body: '' }
   }
 
   const first = truncate(reasons[0], MAX_SUBJECT_LENGTH - SUBJECT_PREFIX.length)

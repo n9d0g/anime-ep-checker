@@ -30,6 +30,31 @@ export interface ShowsFile {
   shows: Show[]
 }
 
+export interface ShowState {
+  lastEpisodeId: string
+  lastEpisodeNumber: string
+  lastEpisodeTitle: string
+  lastNotifiedAt: string
+  seasonId: string
+  seasonTitle: string
+  waitingNotifiedForEpisode?: number | null
+  discordScheduledEventId?: string | null
+  discordScheduledEventEpisode?: number | null
+  malMeanScore?: number | null
+  malScoreAlertedAt?: string | null
+}
+
+export interface StateFile {
+  shows: Record<string, ShowState>
+  meta?: Record<string, unknown>
+}
+
+export interface ShowStateSummary {
+  lastEpisodeNumber: string
+  lastEpisodeTitle: string
+  lastNotifiedAt: string
+}
+
 export interface ShowFormValues {
   id: string
   title: string

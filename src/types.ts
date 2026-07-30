@@ -50,8 +50,15 @@ export interface StateFile {
     disneyCookieAlertSentAt?: string | null
     watchingDashboardMessageId?: string | null
     watchingDashboardMessageIds?: Record<string, string>
+    planToWatchCheckedAt?: string | null
+    planToWatchAlerts?: Record<
+      string,
+      { alertedAt: string; reason: PlanToWatchAlertReason }
+    >
   }
 }
+
+export type PlanToWatchAlertReason = 'airing' | 'upcoming'
 
 export interface ProviderEpisode {
   id: string

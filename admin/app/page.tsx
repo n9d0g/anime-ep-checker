@@ -1,13 +1,20 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { buildAnimeDiscussionSearchUrl } from '@/lib/reddit'
+import {
+  getLastScheduledEpisode,
+  isEpisodeInSchedule,
+} from '@/lib/schedule'
 import {
   emptyShowForm,
   showToForm,
   type Show,
   type ShowFormValues,
   type ShowProvider,
+  type ShowSchedule,
+  type ShowStateSummary,
 } from '@/lib/types'
 
 function providerDotClass(provider: ShowProvider): string {
@@ -16,7 +23,40 @@ function providerDotClass(provider: ShowProvider): string {
   return 'provider-cr'
 }
 
-function episodeCountLabel(show: ShowFormValues): string {
+function formScheduleToSchedule(show: ShowFormValues): ShowSchedule {
+  return {
+    mode: show.schedule.mode,
+    startAt: '',
+    startEpisode: Number(show.schedule.startEpisode) || 1,
+    episodeCount:
+      show.schedule.mode === 'ongoing'
+        ? null
+        : Number(show.schedule.episodeCount) || null,
+    premiereBatchSize: Number(show.schedule.premiereBatchSize) || 1,
+  }
+}
+
+function serializeShows(shows: ShowFormValues[]): string {
+  return JSON.stringify(shows)
+}
+
+function episodeCountLabel(
+  show: ShowFormValues,
+  liveState?: ShowStateSummary
+): string {
+  const schedule = formScheduleToSchedule(show)
+  const lastEp = liveState?.lastEpisodeNumber
+    ? Number(liveState.lastEpisodeNumber)
+    : null
+
+  if (lastEp !== null && Number.isFinite(lastEp)) {
+    const lastScheduled = getLastScheduledEpisode(schedule)
+    if (lastScheduled !== null) {
+      return `Ep ${lastEp}/${lastScheduled}`
+    }
+    return `Ep ${lastEp}`
+  }
+
   const start = show.schedule.startEpisode || '?'
 
   if (show.schedule.mode === 'ongoing') {
@@ -24,6 +64,16 @@ function episodeCountLabel(show: ShowFormValues): string {
   }
 
   return `Ep ${start}/${show.schedule.episodeCount || '?'}`
+}
+
+function getEpisodeBounds(show: ShowFormValues): {
+  min: number
+  max: number | null
+} {
+  const schedule = formScheduleToSchedule(show)
+  const min = Math.max(1, schedule.startEpisode - 1)
+  const max = getLastScheduledEpisode(schedule)
+  return { min, max }
 }
 
 function SegmentedControl<T extends string>({
@@ -57,26 +107,56 @@ function SegmentedControl<T extends string>({
 export default function AdminPage() {
   const router = useRouter()
   const [shows, setShows] = useState<ShowFormValues[]>([])
+  const [baseline, setBaseline] = useState('')
+  const [showStates, setShowStates] = useState<Record<string, ShowStateSummary>>(
+    {}
+  )
   const [expanded, setExpanded] = useState<Record<string, boolean>>({})
   const [status, setStatus] = useState('')
   const [statusType, setStatusType] = useState<'success' | 'error' | ''>('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [episodeSaveStatus, setEpisodeSaveStatus] = useState<
+    Record<string, 'saving' | 'saved' | 'error' | ''>
+  >({})
+  const episodeDebounceRefs = useRef<
+    Record<string, ReturnType<typeof setTimeout>>
+  >({})
+
+  const isDirty = useMemo(
+    () => baseline !== '' && serializeShows(shows) !== baseline,
+    [shows, baseline]
+  )
 
   useEffect(() => {
-    async function loadShows() {
+    async function loadData() {
       try {
-        const response = await fetch('/api/shows')
-        const data = (await response.json()) as {
+        const [showsResponse, stateResponse] = await Promise.all([
+          fetch('/api/shows'),
+          fetch('/api/state'),
+        ])
+
+        const showsData = (await showsResponse.json()) as {
           error?: string
           shows?: Show[]
         }
-
-        if (!response.ok) {
-          throw new Error(data.error || 'Failed to load shows')
+        const stateData = (await stateResponse.json()) as {
+          error?: string
+          shows?: Record<string, ShowStateSummary>
         }
 
-        setShows((data.shows ?? []).map(showToForm))
+        if (!showsResponse.ok) {
+          throw new Error(showsData.error || 'Failed to load shows')
+        }
+
+        if (!stateResponse.ok) {
+          throw new Error(stateData.error || 'Failed to load episode state')
+        }
+
+        const loadedShows = (showsData.shows ?? []).map(showToForm)
+        setShows(loadedShows)
+        setBaseline(serializeShows(loadedShows))
+        setShowStates(stateData.shows ?? {})
       } catch (error) {
         setStatusType('error')
         setStatus(error instanceof Error ? error.message : 'Failed to load shows')
@@ -85,7 +165,15 @@ export default function AdminPage() {
       }
     }
 
-    loadShows()
+    loadData()
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      for (const timer of Object.values(episodeDebounceRefs.current)) {
+        clearTimeout(timer)
+      }
+    }
   }, [])
 
   function cardKey(show: ShowFormValues, index: number): string {
@@ -150,6 +238,92 @@ export default function AdminPage() {
     setShows((current) => current.filter((_, showIndex) => showIndex !== index))
   }
 
+  async function persistEpisodeNumber(
+    showId: string,
+    episodeNumber: number
+  ): Promise<void> {
+    setEpisodeSaveStatus((current) => ({ ...current, [showId]: 'saving' }))
+
+    try {
+      const response = await fetch('/api/state', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ showId, episodeNumber }),
+      })
+
+      const data = (await response.json()) as {
+        error?: string
+        show?: ShowStateSummary
+      }
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to update episode')
+      }
+
+      if (data.show) {
+        setShowStates((current) => ({
+          ...current,
+          [showId]: data.show!,
+        }))
+      }
+
+      setEpisodeSaveStatus((current) => ({ ...current, [showId]: 'saved' }))
+    } catch (error) {
+      setEpisodeSaveStatus((current) => ({ ...current, [showId]: 'error' }))
+      setStatusType('error')
+      setStatus(
+        error instanceof Error ? error.message : 'Failed to update episode'
+      )
+    }
+  }
+
+  function adjustEpisode(show: ShowFormValues, delta: number): void {
+    if (!show.id) {
+      return
+    }
+
+    const schedule = formScheduleToSchedule(show)
+    const current = Number(showStates[show.id]?.lastEpisodeNumber)
+    const base = Number.isFinite(current)
+      ? current
+      : schedule.startEpisode - 1
+    const next = base + delta
+    const { min, max } = getEpisodeBounds(show)
+
+    if (next < min) {
+      return
+    }
+
+    if (max !== null && next > max) {
+      return
+    }
+
+    if (!isEpisodeInSchedule(schedule, next) && next !== min) {
+      return
+    }
+
+    setShowStates((currentStates) => ({
+      ...currentStates,
+      [show.id]: {
+        ...(currentStates[show.id] ?? {
+          lastEpisodeNumber: String(base),
+          lastEpisodeTitle: '',
+          lastNotifiedAt: '',
+        }),
+        lastEpisodeNumber: String(next),
+      },
+    }))
+
+    const existingTimer = episodeDebounceRefs.current[show.id]
+    if (existingTimer) {
+      clearTimeout(existingTimer)
+    }
+
+    episodeDebounceRefs.current[show.id] = setTimeout(() => {
+      void persistEpisodeNumber(show.id, next)
+    }, 800)
+  }
+
   async function saveShows() {
     setSaving(true)
     setStatus('')
@@ -171,7 +345,9 @@ export default function AdminPage() {
         throw new Error(data.error || 'Failed to save shows')
       }
 
-      setShows((data.shows ?? []).map(showToForm))
+      const savedShows = (data.shows ?? []).map(showToForm)
+      setShows(savedShows)
+      setBaseline(serializeShows(savedShows))
       setStatusType('success')
       setStatus('Saved to GitHub. The checker will use these on the next run.')
     } catch (error) {
@@ -205,19 +381,6 @@ export default function AdminPage() {
         </header>
 
         <section className="stack">
-          <div className="panel integrations-panel">
-            <div>
-              <h2>Integrations</h2>
-              <p className="subtitle" style={{ marginTop: '0.25rem' }}>
-                MAL powers the Discord &quot;Mark watched&quot; button and
-                watching dashboard.
-              </p>
-            </div>
-            <a className="btn btn-secondary" href="/mal">
-              MAL setup
-            </a>
-          </div>
-
           {loading ? (
             <p className="status">Loading shows...</p>
           ) : shows.length === 0 ? (
@@ -226,6 +389,25 @@ export default function AdminPage() {
             <div className="panel show-list">
               {shows.map((show, index) => {
                 const open = isExpanded(show, index)
+                const liveState = show.id ? showStates[show.id] : undefined
+                const currentEpisode = liveState?.lastEpisodeNumber
+                  ? Number(liveState.lastEpisodeNumber)
+                  : null
+                const { min, max } = getEpisodeBounds(show)
+                const discussionUrl =
+                  currentEpisode !== null && Number.isFinite(currentEpisode)
+                    ? buildAnimeDiscussionSearchUrl(
+                        show.title || show.id,
+                        currentEpisode,
+                        show.redditSearchTitle || undefined
+                      )
+                    : null
+                const malUrl = show.malId
+                  ? `https://myanimelist.net/anime/${show.malId}`
+                  : null
+                const episodeStatus = show.id
+                  ? episodeSaveStatus[show.id] ?? ''
+                  : ''
 
                 return (
                   <article
@@ -249,7 +431,7 @@ export default function AdminPage() {
                       </div>
                       <div className="show-row-trailing">
                         <span className="ep-count">
-                          {episodeCountLabel(show)}
+                          {episodeCountLabel(show, liveState)}
                         </span>
                         <span className={`chevron ${open ? 'expanded' : ''}`}>
                           ▼
@@ -393,7 +575,81 @@ export default function AdminPage() {
                             />
                           </div>
 
-                          {show.schedule.mode === 'finite' ? (
+                          {show.id && liveState ? (
+                            <div className="field">
+                              <label>Current episode</label>
+                              <div className="episode-stepper-row">
+                                <div
+                                  className="episode-stepper"
+                                  role="group"
+                                  aria-label="Current episode"
+                                >
+                                  <button
+                                    className="episode-stepper-btn"
+                                    type="button"
+                                    aria-label="Decrease episode"
+                                    disabled={
+                                      currentEpisode === null ||
+                                      currentEpisode <= min
+                                    }
+                                    onClick={() => adjustEpisode(show, -1)}
+                                  >
+                                    −
+                                  </button>
+                                  <span className="episode-stepper-value">
+                                    {currentEpisode ?? '—'}
+                                  </span>
+                                  <button
+                                    className="episode-stepper-btn"
+                                    type="button"
+                                    aria-label="Increase episode"
+                                    disabled={
+                                      currentEpisode === null ||
+                                      (max !== null && currentEpisode >= max)
+                                    }
+                                    onClick={() => adjustEpisode(show, 1)}
+                                  >
+                                    +
+                                  </button>
+                                </div>
+                                {episodeStatus ? (
+                                  <span
+                                    className={`episode-save-status ${episodeStatus}`}
+                                  >
+                                    {episodeStatus === 'saving'
+                                      ? 'Saving…'
+                                      : episodeStatus === 'saved'
+                                        ? 'Saved'
+                                        : 'Error'}
+                                  </span>
+                                ) : null}
+                              </div>
+                              {discussionUrl || malUrl ? (
+                                <div className="quick-links">
+                                  {discussionUrl ? (
+                                    <a
+                                      className="btn btn-secondary btn-link"
+                                      href={discussionUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                    >
+                                      Discussion
+                                    </a>
+                                  ) : null}
+                                  {malUrl ? (
+                                    <a
+                                      className="btn btn-secondary btn-link"
+                                      href={malUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                    >
+                                      MAL
+                                    </a>
+                                  ) : null}
+                                </div>
+                              ) : null}
+                            </div>
+                          ) : show.schedule.mode === 'finite' ? (
                             <div className="field">
                               <label htmlFor={`count-${index}`}>
                                 Episodes in season
@@ -415,6 +671,28 @@ export default function AdminPage() {
                             </div>
                           ) : null}
                         </div>
+
+                        {show.id && liveState && show.schedule.mode === 'finite' ? (
+                          <div className="field">
+                            <label htmlFor={`count-${index}`}>
+                              Episodes in season
+                            </label>
+                            <input
+                              id={`count-${index}`}
+                              type="number"
+                              min="1"
+                              value={show.schedule.episodeCount}
+                              onChange={(event) =>
+                                updateSchedule(
+                                  index,
+                                  'episodeCount',
+                                  event.target.value
+                                )
+                              }
+                              required
+                            />
+                          </div>
+                        ) : null}
 
                         <details className="disclosure">
                           <summary>More options</summary>
@@ -499,6 +777,12 @@ export default function AdminPage() {
               })}
             </div>
           )}
+
+          <p className="setup-link">
+            <a href="/mal">MAL setup</a>
+            <span className="setup-link-sep">·</span>
+            One-time OAuth for Discord &quot;Mark watched&quot;
+          </p>
         </section>
       </main>
 
@@ -519,7 +803,7 @@ export default function AdminPage() {
               className="btn"
               type="button"
               onClick={saveShows}
-              disabled={saving || loading}
+              disabled={saving || loading || !isDirty}
             >
               {saving ? 'Saving...' : 'Save changes'}
             </button>
