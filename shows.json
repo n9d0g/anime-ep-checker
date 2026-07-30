@@ -17,7 +17,7 @@
     },
     {
       "id": "slime",
-      "title": "Tensei Shitara Slime Datta Ken Season 4",
+      "title": "Tensei shitara Slime Datta Ken 4th Season",
       "provider": "crunchyroll",
       "schedule": {
         "mode": "finite",
@@ -32,7 +32,7 @@
     },
     {
       "id": "mushoku-tensei-s3",
-      "title": "Mushoku Tensei",
+      "title": "Mushoku Tensei III: Isekai Ittara Honki Dasu",
       "provider": "crunchyroll",
       "schedule": {
         "mode": "finite",
@@ -48,7 +48,7 @@
     },
     {
       "id": "smoking-behind-the-supermarket-with-you",
-      "title": "Smoking Behind the Supermarket with You",
+      "title": "Super no Ura de Yani Suu Futari",
       "provider": "crunchyroll",
       "schedule": {
         "mode": "finite",
@@ -78,7 +78,7 @@
     },
     {
       "id": "bleach",
-      "title": "BLEACH",
+      "title": "Bleach: Sennen Kessen-hen - Kashin-tan",
       "provider": "disney",
       "schedule": {
         "mode": "finite",
