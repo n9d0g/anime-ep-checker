@@ -103,6 +103,37 @@ function getEpisodeBounds(show: ShowFormValues): {
   return { min, max }
 }
 
+function usesMalProgress(show: ShowFormValues): boolean {
+  return Boolean(show.malId.trim())
+}
+
+function getWatchedEpisode(liveState?: ShowStateSummary): number | null {
+  if (
+    liveState?.watchedEpisode !== undefined &&
+    liveState.watchedEpisode !== null &&
+    Number.isFinite(liveState.watchedEpisode)
+  ) {
+    return liveState.watchedEpisode
+  }
+
+  return null
+}
+
+function getProgressEpisode(
+  show: ShowFormValues,
+  liveState?: ShowStateSummary
+): number | null {
+  if (usesMalProgress(show)) {
+    return getWatchedEpisode(liveState)
+  }
+
+  const latestOut = liveState?.lastEpisodeNumber
+    ? Number(liveState.lastEpisodeNumber)
+    : null
+
+  return latestOut !== null && Number.isFinite(latestOut) ? latestOut : null
+}
+
 function SegmentedControl<T extends string>({
   value,
   options,
@@ -294,6 +325,49 @@ export default function AdminPage() {
     setShows((current) => current.filter((_, showIndex) => showIndex !== index))
   }
 
+  async function persistMalProgress(
+    showId: string,
+    malId: number,
+    episodeNumber: number
+  ): Promise<void> {
+    setEpisodeSaveStatus((current) => ({ ...current, [showId]: 'saving' }))
+
+    try {
+      const response = await fetch('/api/mal/progress', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ malId, episodeNumber }),
+      })
+
+      const data = (await response.json()) as {
+        error?: string
+        watched?: number
+      }
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to update MAL progress')
+      }
+
+      if (typeof data.watched === 'number') {
+        setShowStates((current) => ({
+          ...current,
+          [showId]: {
+            ...current[showId],
+            watchedEpisode: data.watched,
+          },
+        }))
+      }
+
+      setEpisodeSaveStatus((current) => ({ ...current, [showId]: 'saved' }))
+    } catch (error) {
+      setEpisodeSaveStatus((current) => ({ ...current, [showId]: 'error' }))
+      setStatusType('error')
+      setStatus(
+        error instanceof Error ? error.message : 'Failed to update MAL progress'
+      )
+    }
+  }
+
   async function persistEpisodeNumber(
     showId: string,
     episodeNumber: number
@@ -342,9 +416,12 @@ export default function AdminPage() {
     }
 
     const schedule = formScheduleToSchedule(show)
-    const current = Number(showStates[show.id]?.lastEpisodeNumber)
-    const base = Number.isFinite(current)
-      ? current
+    const malLinked = usesMalProgress(show)
+    const current = malLinked
+      ? getWatchedEpisode(showStates[show.id])
+      : Number(showStates[show.id]?.lastEpisodeNumber)
+    const base = Number.isFinite(current ?? NaN)
+      ? (current as number)
       : schedule.startEpisode - 1
     const next = base + delta
     const { min, max } = getEpisodeBounds(show)
@@ -358,6 +435,36 @@ export default function AdminPage() {
     }
 
     if (!isEpisodeInSchedule(schedule, next) && next !== min) {
+      return
+    }
+
+    if (malLinked) {
+      const malId = Number(show.malId)
+      if (!Number.isFinite(malId) || malId < 1) {
+        return
+      }
+
+      setShowStates((currentStates) => ({
+        ...currentStates,
+        [show.id]: {
+          ...(currentStates[show.id] ?? {
+            lastEpisodeNumber: '',
+            lastEpisodeTitle: '',
+            lastNotifiedAt: '',
+          }),
+          watchedEpisode: next,
+        },
+      }))
+
+      const existingTimer = episodeDebounceRefs.current[show.id]
+      if (existingTimer) {
+        clearTimeout(existingTimer)
+      }
+
+      episodeDebounceRefs.current[show.id] = setTimeout(() => {
+        void persistMalProgress(show.id, malId, next)
+      }, 800)
+
       return
     }
 
@@ -440,9 +547,7 @@ export default function AdminPage() {
               {shows.map((show, index) => {
                 const open = isExpanded(show, index)
                 const liveState = show.id ? showStates[show.id] : undefined
-                const currentEpisode = liveState?.lastEpisodeNumber
-                  ? Number(liveState.lastEpisodeNumber)
-                  : null
+                const currentEpisode = getProgressEpisode(show, liveState)
                 const { min, max } = getEpisodeBounds(show)
                 const discussionUrl =
                   currentEpisode !== null && Number.isFinite(currentEpisode)

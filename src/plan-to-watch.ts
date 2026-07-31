@@ -4,7 +4,11 @@ import {
   fetchPlanToWatchAnime,
   type MalPlanToWatchEntry,
 } from './mal.js'
-import type { PlanToWatchAlertReason, StateFile } from './types.js'
+import type {
+  PlanToWatchAlertReason,
+  PlanToWatchSnapshotEntry,
+  StateFile,
+} from './types.js'
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000
 const UPCOMING_WINDOW_DAYS = 7
@@ -57,6 +61,34 @@ export function getPlanToWatchAlertReason(
   return null
 }
 
+function normalizeEntryForCompare(entry: PlanToWatchSnapshotEntry) {
+  return {
+    malId: entry.malId,
+    title: entry.title,
+    status: entry.status,
+    startDate: entry.startDate,
+    broadcast: entry.broadcast,
+    numEpisodes: entry.numEpisodes,
+  }
+}
+
+export function planToWatchEntriesMeaningfullyEqual(
+  previous: PlanToWatchSnapshotEntry[] | undefined,
+  next: PlanToWatchSnapshotEntry[]
+): boolean {
+  const sortByMalId = (
+    a: ReturnType<typeof normalizeEntryForCompare>,
+    b: ReturnType<typeof normalizeEntryForCompare>
+  ) => a.malId - b.malId
+
+  const prevNormalized = (previous ?? [])
+    .map(normalizeEntryForCompare)
+    .sort(sortByMalId)
+  const nextNormalized = next.map(normalizeEntryForCompare).sort(sortByMalId)
+
+  return JSON.stringify(prevNormalized) === JSON.stringify(nextNormalized)
+}
+
 export interface PlanToWatchSyncResult {
   changed: boolean
   reasons: string[]
@@ -86,14 +118,6 @@ export async function syncPlanToWatchAlerts({
       console.log('  MAL plan-to-watch list unavailable; skipping sync')
     }
 
-    if (!dryRun && state.meta?.planToWatchCheckedAt !== checkedAt) {
-      state.meta = {
-        ...state.meta,
-        planToWatchCheckedAt: checkedAt,
-      }
-      return { changed: true, reasons: ['plan-to-watch check recorded'] }
-    }
-
     return { changed: false, reasons }
   }
 
@@ -112,9 +136,8 @@ export async function syncPlanToWatchAlerts({
     reasons.push('pruned stale plan-to-watch alert state')
   }
 
-  const snapshot = {
-    updatedAt: checkedAt,
-    entries: result.entries.map((entry) => ({
+  const snapshotEntries: PlanToWatchSnapshotEntry[] = result.entries.map(
+    (entry) => ({
       malId: entry.malId,
       title: entry.title,
       status: entry.status,
@@ -122,7 +145,17 @@ export async function syncPlanToWatchAlerts({
       broadcast: entry.broadcast,
       coverUrl: entry.coverUrl,
       numEpisodes: entry.numEpisodes,
-    })),
+    })
+  )
+
+  const entriesChanged = !planToWatchEntriesMeaningfullyEqual(
+    state.meta?.planToWatch?.entries,
+    snapshotEntries
+  )
+
+  if (entriesChanged) {
+    changed = true
+    reasons.push('plan-to-watch list updated')
   }
 
   for (const entry of result.entries) {
@@ -165,21 +198,19 @@ export async function syncPlanToWatchAlerts({
     reasons.push(`plan-to-watch ${entry.title} (${reason})`)
   }
 
-  if (
-    state.meta?.planToWatchCheckedAt !== checkedAt ||
-    JSON.stringify(state.meta?.planToWatchAlerts ?? {}) !==
-      JSON.stringify(nextAlerts) ||
-    JSON.stringify(state.meta?.planToWatch) !== JSON.stringify(snapshot)
-  ) {
-    changed = true
-  }
-
-  if (!dryRun) {
+  if (!dryRun && changed) {
     state.meta = {
       ...state.meta,
       planToWatchAlerts: nextAlerts,
-      planToWatchCheckedAt: checkedAt,
-      planToWatch: snapshot,
+      ...(entriesChanged
+        ? {
+            planToWatchCheckedAt: checkedAt,
+            planToWatch: {
+              updatedAt: checkedAt,
+              entries: snapshotEntries,
+            },
+          }
+        : {}),
     }
   }
 
