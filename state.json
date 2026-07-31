@@ -79,9 +79,9 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-07-31T01:30:30.734Z",
+    "planToWatchCheckedAt": "2026-07-31T02:00:39.638Z",
     "planToWatch": {
-      "updatedAt": "2026-07-31T01:30:30.734Z",
+      "updatedAt": "2026-07-31T02:00:39.638Z",
       "entries": [
         {
           "malId": 61323,
@@ -293,7 +293,7 @@
             "dayOfWeek": "sunday",
             "startTime": "22:30"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1093/145470l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1093/145470l.jpg",
           "numEpisodes": 12
         },
         {
@@ -464,7 +464,7 @@
           "status": "finished_airing",
           "startDate": "2026-02-27",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1447/153665l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1447/153665l.jpg",
           "numEpisodes": 1
         },
         {
