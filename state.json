@@ -79,9 +79,9 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-07-31T00:00:37.261Z",
+    "planToWatchCheckedAt": "2026-07-31T00:30:27.644Z",
     "planToWatch": {
-      "updatedAt": "2026-07-31T00:00:37.261Z",
+      "updatedAt": "2026-07-31T00:30:27.644Z",
       "entries": [
         {
           "malId": 61323,
@@ -146,7 +146,7 @@
           "status": "not_yet_aired",
           "startDate": "2027",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1146/156101l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1146/156101l.jpg",
           "numEpisodes": null
         },
         {
@@ -182,7 +182,7 @@
           "status": "not_yet_aired",
           "startDate": "2027",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1671/154516l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1671/154516l.webp",
           "numEpisodes": null
         },
         {
@@ -407,7 +407,7 @@
           "status": "not_yet_aired",
           "startDate": null,
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1775/158856l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1775/158856l.jpg",
           "numEpisodes": 1
         },
         {
