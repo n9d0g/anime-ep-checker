@@ -45,9 +45,10 @@
       "seasonId": "GS00378131JAJP",
       "seasonTitle": "Season 1",
       "waitingNotifiedForEpisode": null,
-      "malMeanScore": 8.38,
+      "malMeanScore": 8.37,
       "discordScheduledEventId": "1532417683906367682",
-      "discordScheduledEventEpisode": 5
+      "discordScheduledEventEpisode": 5,
+      "malScoreAlertedAt": "2026-08-02T12:55:24.890Z"
     },
     "chainsmoker-cat": {
       "lastEpisodeId": "82760636",
