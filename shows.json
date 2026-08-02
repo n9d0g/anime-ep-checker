@@ -6,7 +6,7 @@
       "provider": "crunchyroll",
       "schedule": {
         "mode": "ongoing",
-        "startAt": "2026-07-13T04:15:00.000Z",
+        "startAt": "2026-07-13T15:15:00.000Z",
         "startEpisode": 1169,
         "episodeCount": null,
         "premiereBatchSize": 1
@@ -22,7 +22,7 @@
       "provider": "crunchyroll",
       "schedule": {
         "mode": "finite",
-        "startAt": "2026-04-18T04:00:00.000Z",
+        "startAt": "2026-04-18T17:00:00.000Z",
         "startEpisode": 1,
         "episodeCount": 24,
         "premiereBatchSize": 1
@@ -38,7 +38,7 @@
       "provider": "crunchyroll",
       "schedule": {
         "mode": "finite",
-        "startAt": "2026-07-06T05:00:00.000Z",
+        "startAt": "2026-07-06T18:00:00.000Z",
         "startEpisode": 1,
         "episodeCount": 14,
         "premiereBatchSize": 2
@@ -54,7 +54,7 @@
       "provider": "crunchyroll",
       "schedule": {
         "mode": "finite",
-        "startAt": "2026-07-10T05:00:00.000Z",
+        "startAt": "2026-07-10T18:00:00.000Z",
         "startEpisode": 1,
         "episodeCount": 12,
         "premiereBatchSize": 1
@@ -70,7 +70,7 @@
       "provider": "netflix",
       "schedule": {
         "mode": "ongoing",
-        "startAt": "2026-07-03T05:30:00.000Z",
+        "startAt": "2026-07-03T18:30:00.000Z",
         "startEpisode": 1,
         "episodeCount": null,
         "premiereBatchSize": 1
@@ -86,7 +86,7 @@
       "provider": "disney",
       "schedule": {
         "mode": "finite",
-        "startAt": "2026-07-26T04:00:00.000Z",
+        "startAt": "2026-07-26T17:00:00.000Z",
         "startEpisode": 1,
         "episodeCount": 10,
         "premiereBatchSize": 1
