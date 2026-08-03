@@ -22,21 +22,18 @@
       "waitingNotifiedForEpisode": null,
       "discordScheduledEventId": "1530256141962055690",
       "discordScheduledEventEpisode": 17,
-      "malMeanScore": 8.13,
-      "malScoreAlertedAt": "2026-08-03T17:30:33.661Z"
+      "malMeanScore": 8.14,
+      "malScoreAlertedAt": "2026-08-03T17:55:29.897Z"
     },
     "mushoku-tensei-s3": {
-      "lastEpisodeId": "GE00374457JAJP",
-      "lastEpisodeNumber": "5",
-      "lastEpisodeTitle": "Celebrations",
-      "lastNotifiedAt": "2026-07-26T16:08:32.578Z",
+      "lastEpisodeId": "GE00374458JAJP",
+      "lastEpisodeNumber": "6",
+      "lastEpisodeTitle": "Another Domestic Disaster?",
+      "lastNotifiedAt": "2026-08-03T17:55:32.070Z",
       "seasonId": "GS00374452JAJP",
       "seasonTitle": "Season 3",
       "waitingNotifiedForEpisode": null,
-      "malMeanScore": 8.7,
-      "discordScheduledEventId": "1530972196187410503",
-      "discordScheduledEventEpisode": 6,
-      "malScoreAlertedAt": "2026-08-02T17:20:28.623Z"
+      "malMeanScore": 8.7
     },
     "smoking-behind-the-supermarket-with-you": {
       "lastEpisodeId": "GE00378528JAJP",
