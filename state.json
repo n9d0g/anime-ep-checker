@@ -40,7 +40,9 @@
       "malMeanScore": 8.69,
       "malScoreAlertedAt": "2026-08-03T18:50:30.403Z",
       "discordScheduledEventId": "1534318162617696416",
-      "discordScheduledEventEpisode": 7
+      "discordScheduledEventEpisode": 7,
+      "discussionUrl": "https://www.reddit.com/r/anime/comments/1vdkbj7/mushoku_tensei_jobless_reincarnation_season_3/",
+      "discussionUrlEpisode": 6
     },
     "smoking-behind-the-supermarket-with-you": {
       "lastEpisodeId": "GE00378528JAJP",
@@ -76,7 +78,7 @@
       "seasonTitle": "Season 1",
       "waitingNotifiedForEpisode": null,
       "malMeanScore": 9.03,
-      "discordScheduledEventId": "1534318973229863014",
+      "discordScheduledEventId": "1534321439853903973",
       "discordScheduledEventEpisode": 3
     }
   },
@@ -568,7 +570,7 @@
     "watchingDashboardHashes": {
       "one-piece": "5720138455c74cec9f17e2842dc952027acf39e8",
       "slime": "6c463d3131dd1c2c125e6dc00258ac7c48f18982",
-      "mushoku-tensei-s3": "6ffd806ba9d883e931a7bab21602ce5c1fc762fe",
+      "mushoku-tensei-s3": "eb40653190b3153e4bde370775f73e67c282abc1",
       "smoking-behind-the-supermarket-with-you": "8b55a16dd113cf620948652461753eda150671f1",
       "bleach": "f3771a8dd49d0eb26cd2e380681c6f1eefdd137e",
       "chainsmoker-cat": "3f2e71afcdef3cc42cfef21ca2027b6c62f01381"
