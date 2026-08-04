@@ -1,4 +1,7 @@
 export const JST_TZ = 'Asia/Tokyo'
+export const EASTERN_TZ = 'America/New_York'
+
+const DATETIME_LOCAL_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/
 
 function getJstParts(date: Date) {
   const parts = new Intl.DateTimeFormat('en-CA', {
@@ -9,6 +12,7 @@ function getJstParts(date: Date) {
     hour: '2-digit',
     minute: '2-digit',
     hour12: false,
+    hourCycle: 'h23',
   }).formatToParts(date)
 
   const get = (type: Intl.DateTimeFormatPartTypes) =>
@@ -25,6 +29,10 @@ function getJstParts(date: Date) {
 
 export function toDatetimeLocalValue(isoValue: string | null | undefined): string {
   if (!isoValue) return ''
+
+  if (DATETIME_LOCAL_PATTERN.test(isoValue)) {
+    return isoValue
+  }
 
   const date = new Date(isoValue)
   if (Number.isNaN(date.getTime())) return ''
@@ -45,4 +53,23 @@ export function fromDatetimeLocalValue(value: string): string | null {
   const result = new Date(iso)
   if (Number.isNaN(result.getTime())) return null
   return result.toISOString()
+}
+
+export function formatEasternTime(
+  isoOrDate: string | Date | null | undefined
+): string {
+  if (!isoOrDate) return 'Unknown time'
+
+  const date = typeof isoOrDate === 'string' ? new Date(isoOrDate) : isoOrDate
+  if (Number.isNaN(date.getTime())) return 'Invalid date'
+
+  return date.toLocaleString('en-US', {
+    timeZone: EASTERN_TZ,
+    timeZoneName: 'short',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  })
 }

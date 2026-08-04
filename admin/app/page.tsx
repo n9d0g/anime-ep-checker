@@ -5,11 +5,16 @@ import { TopHeader } from '@/app/components/TopHeader'
 import { ShowListSkeleton } from '@/app/components/ListSkeleton'
 import { buildAnimeDiscussionSearchUrl } from '@/lib/reddit'
 import {
+  getExpectedDropAt,
   getLastScheduledEpisode,
+  getNextExpectedEpisode,
   isEpisodeInSchedule,
+  parseEpisodeNumber,
 } from '@/lib/schedule'
+import { formatEasternTime } from '@/lib/time'
 import {
   emptyShowForm,
+  fromDatetimeLocalValue,
   showToForm,
   type Show,
   type ShowFormValues,
@@ -25,9 +30,11 @@ function providerDotClass(provider: ShowProvider): string {
 }
 
 function formScheduleToSchedule(show: ShowFormValues): ShowSchedule {
+  const startAt = fromDatetimeLocalValue(show.schedule.startAt) ?? ''
+
   return {
     mode: show.schedule.mode,
-    startAt: '',
+    startAt,
     startEpisode: Number(show.schedule.startEpisode) || 1,
     episodeCount:
       show.schedule.mode === 'ongoing'
@@ -35,6 +42,33 @@ function formScheduleToSchedule(show: ShowFormValues): ShowSchedule {
         : Number(show.schedule.episodeCount) || null,
     premiereBatchSize: Number(show.schedule.premiereBatchSize) || 1,
   }
+}
+
+function scheduleStartHint(
+  show: ShowFormValues,
+  liveState?: ShowStateSummary
+): string | null {
+  const schedule = formScheduleToSchedule(show)
+  if (!schedule.startAt) {
+    return null
+  }
+
+  const eastern = formatEasternTime(schedule.startAt)
+  const lastEpisode = liveState?.lastEpisodeNumber
+    ? parseEpisodeNumber(liveState.lastEpisodeNumber)
+    : null
+  const nextEpisode = getNextExpectedEpisode(schedule, lastEpisode)
+
+  if (nextEpisode === null) {
+    return `Eastern: ${eastern} · No further episodes on schedule`
+  }
+
+  const expectedAt = getExpectedDropAt(schedule, nextEpisode)
+  if (!expectedAt) {
+    return `Eastern: ${eastern}`
+  }
+
+  return `Eastern: ${eastern} · Next ep ${nextEpisode}: ${formatEasternTime(expectedAt)}`
 }
 
 function serializeShows(shows: ShowFormValues[]): string {
@@ -565,6 +599,7 @@ export default function AdminPage() {
                   : ''
 
                 const episodeBadgeInfo = episodeBadge(show, liveState)
+                const startHint = scheduleStartHint(show, liveState)
 
                 return (
                   <article
@@ -713,6 +748,9 @@ export default function AdminPage() {
                             }
                             required
                           />
+                          {startHint ? (
+                            <p className="hint schedule-start-hint">{startHint}</p>
+                          ) : null}
                         </div>
 
                         <div className="field-row">

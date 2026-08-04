@@ -1,13 +1,16 @@
 import { NextResponse } from 'next/server'
 import { syncShowsWithMal } from '@/lib/sync-mal'
 import { getShowsFile } from '@/lib/github'
-import { showToForm } from '@/lib/types'
+import type { Show } from '@/lib/types'
 
 export async function POST() {
   try {
     const result = await syncShowsWithMal()
     const { content } = await getShowsFile()
-    const shows = (content.shows ?? []).map(showToForm)
+    const shows = (content.shows ?? []).map((show: Show) => ({
+      ...show,
+      provider: show.provider ?? 'crunchyroll',
+    }))
 
     return NextResponse.json({
       ok: true,
