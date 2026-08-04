@@ -10,7 +10,9 @@
       "waitingNotifiedForEpisode": null,
       "malMeanScore": 8.73,
       "discordScheduledEventId": "1533854662435012710",
-      "discordScheduledEventEpisode": 1173
+      "discordScheduledEventEpisode": 1173,
+      "discussionUrl": "https://www.reddit.com/r/anime/comments/1vdlmq5/one_piece_episode_1172_discussion/",
+      "discussionUrlEpisode": 1172
     },
     "slime": {
       "lastEpisodeId": "GE00374380JAJP",
@@ -72,7 +74,7 @@
       "seasonTitle": "Season 1",
       "waitingNotifiedForEpisode": null,
       "malMeanScore": 9.03,
-      "discordScheduledEventId": "1534318167071920380",
+      "discordScheduledEventId": "1534318973229863014",
       "discordScheduledEventEpisode": 3
     }
   },
@@ -562,11 +564,12 @@
       ]
     },
     "watchingDashboardHashes": {
-      "one-piece": "9ed00ce743d1a25ca59e361ad8c87ac9a82d5542",
+      "one-piece": "5720138455c74cec9f17e2842dc952027acf39e8",
       "slime": "5a44609b10a37cd6570165a04dccbb981971fa12",
       "mushoku-tensei-s3": "6ffd806ba9d883e931a7bab21602ce5c1fc762fe",
       "smoking-behind-the-supermarket-with-you": "8b55a16dd113cf620948652461753eda150671f1",
-      "bleach": "f3771a8dd49d0eb26cd2e380681c6f1eefdd137e"
+      "bleach": "f3771a8dd49d0eb26cd2e380681c6f1eefdd137e",
+      "chainsmoker-cat": "3f2e71afcdef3cc42cfef21ca2027b6c62f01381"
     }
   }
 }
