@@ -20,7 +20,7 @@
       "seasonId": "GS00371777JAJP",
       "seasonTitle": "Season 4",
       "waitingNotifiedForEpisode": null,
-      "discordScheduledEventId": "1530256141962055690",
+      "discordScheduledEventId": "1534318160545579230",
       "discordScheduledEventEpisode": 17,
       "malMeanScore": 8.14,
       "malScoreAlertedAt": "2026-08-03T22:25:33.657Z"
@@ -34,7 +34,9 @@
       "seasonTitle": "Season 3",
       "waitingNotifiedForEpisode": null,
       "malMeanScore": 8.69,
-      "malScoreAlertedAt": "2026-08-03T18:50:30.403Z"
+      "malScoreAlertedAt": "2026-08-03T18:50:30.403Z",
+      "discordScheduledEventId": "1534318162617696416",
+      "discordScheduledEventEpisode": 7
     },
     "smoking-behind-the-supermarket-with-you": {
       "lastEpisodeId": "GE00378528JAJP",
@@ -60,6 +62,18 @@
       "malMeanScore": 7.05,
       "discordScheduledEventId": "1532425233578065991",
       "discordScheduledEventEpisode": 6
+    },
+    "bleach": {
+      "lastEpisodeId": "anilist-60636-2",
+      "lastEpisodeNumber": "2",
+      "lastEpisodeTitle": "",
+      "lastNotifiedAt": "2026-08-04T21:52:20.429Z",
+      "seasonId": "571475d5-8b1a-453f-a57f-26bb4dd13304",
+      "seasonTitle": "Season 1",
+      "waitingNotifiedForEpisode": null,
+      "malMeanScore": 9.03,
+      "discordScheduledEventId": "1534318167071920380",
+      "discordScheduledEventEpisode": 3
     }
   },
   "meta": {
@@ -546,6 +560,13 @@
           "numEpisodes": null
         }
       ]
+    },
+    "watchingDashboardHashes": {
+      "one-piece": "9ed00ce743d1a25ca59e361ad8c87ac9a82d5542",
+      "slime": "5a44609b10a37cd6570165a04dccbb981971fa12",
+      "mushoku-tensei-s3": "6ffd806ba9d883e931a7bab21602ce5c1fc762fe",
+      "smoking-behind-the-supermarket-with-you": "8b55a16dd113cf620948652461753eda150671f1",
+      "bleach": "f3771a8dd49d0eb26cd2e380681c6f1eefdd137e"
     }
   }
 }
