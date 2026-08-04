@@ -25,7 +25,9 @@
       "discordScheduledEventId": "1534318160545579230",
       "discordScheduledEventEpisode": 17,
       "malMeanScore": 8.14,
-      "malScoreAlertedAt": "2026-08-03T22:25:33.657Z"
+      "malScoreAlertedAt": "2026-08-03T22:25:33.657Z",
+      "discussionUrl": "https://www.reddit.com/r/anime/comments/1v5e03p/tensei_shitara_slime_datta_ken_season_4_that_time/",
+      "discussionUrlEpisode": 16
     },
     "mushoku-tensei-s3": {
       "lastEpisodeId": "GE00374458JAJP",
@@ -565,7 +567,7 @@
     },
     "watchingDashboardHashes": {
       "one-piece": "5720138455c74cec9f17e2842dc952027acf39e8",
-      "slime": "5a44609b10a37cd6570165a04dccbb981971fa12",
+      "slime": "6c463d3131dd1c2c125e6dc00258ac7c48f18982",
       "mushoku-tensei-s3": "6ffd806ba9d883e931a7bab21602ce5c1fc762fe",
       "smoking-behind-the-supermarket-with-you": "8b55a16dd113cf620948652461753eda150671f1",
       "bleach": "f3771a8dd49d0eb26cd2e380681c6f1eefdd137e",
