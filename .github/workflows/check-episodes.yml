@@ -70,7 +70,7 @@ jobs:
           NETFLIX_COOKIE: ${{ secrets.NETFLIX_COOKIE }}
           DISNEY_REFRESH_TOKEN: ${{ secrets.DISNEY_REFRESH_TOKEN }}
           DISNEY_REGION: ${{ secrets.DISNEY_REGION }}
-        run: pnpm check
+        run: pnpm check ${{ github.event.inputs.force == 'true' && '--force' || '' }}
 
       - name: Update Disney refresh token secret
         # Runs even when the check step fails: Disney has already invalidated the

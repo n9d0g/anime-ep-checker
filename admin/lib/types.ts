@@ -42,6 +42,8 @@ export interface ShowState {
   discordScheduledEventEpisode?: number | null
   malMeanScore?: number | null
   malScoreAlertedAt?: string | null
+  discussionUrl?: string | null
+  discussionUrlEpisode?: number | null
 }
 
 export interface PlanToWatchSnapshotEntry {

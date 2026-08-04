@@ -2,6 +2,8 @@ const USER_AGENT = 'anime-ep-checker/1.0'
 const AUTOLOVEPON_AUTHOR = 'AutoLovepon'
 const RSS_SEARCH_URL = 'https://www.reddit.com/r/anime/search.rss'
 
+let redditRateLimited = false
+
 interface AtomEntry {
   title: string
   href: string
@@ -114,6 +116,10 @@ async function fetchAutoLoveponDiscussionUrl(
   episodeNumber: number,
   slug: string
 ): Promise<string | null> {
+  if (redditRateLimited) {
+    return null
+  }
+
   const params = new URLSearchParams({
     q: `author:${AUTOLOVEPON_AUTHOR} ${query}`,
     restrict_sr: 'on',
@@ -127,6 +133,14 @@ async function fetchAutoLoveponDiscussionUrl(
       Accept: 'application/atom+xml,application/rss+xml,application/xml,text/xml,*/*',
     },
   })
+
+  if (response.status === 429) {
+    redditRateLimited = true
+    console.warn(
+      'Reddit RSS search rate limited (429); skipping further Reddit requests this run'
+    )
+    return null
+  }
 
   if (!response.ok) {
     console.warn(`Reddit RSS search failed (${response.status}) for query: ${query}`)
@@ -149,18 +163,13 @@ async function fetchAutoLoveponDiscussionUrl(
   return null
 }
 
-export async function findAnimeDiscussionUrl(
+export async function findAnimeDiscussionPermalink(
   showTitle: string,
   episodeNumber: number,
   redditSearchTitle?: string
-): Promise<string> {
+): Promise<string | null> {
   const queries = buildSearchQueries(showTitle, episodeNumber, redditSearchTitle)
   const slug = redditSearchTitle?.trim() || slugifyForReddit(showTitle)
-  const fallbackUrl = buildAnimeDiscussionSearchUrl(
-    showTitle,
-    episodeNumber,
-    redditSearchTitle
-  )
 
   for (let i = 0; i < queries.length; i++) {
     if (i > 0) {
@@ -178,5 +187,23 @@ export async function findAnimeDiscussionUrl(
     }
   }
 
-  return fallbackUrl
+  return null
+}
+
+export async function findAnimeDiscussionUrl(
+  showTitle: string,
+  episodeNumber: number,
+  redditSearchTitle?: string
+): Promise<string> {
+  const permalink = await findAnimeDiscussionPermalink(
+    showTitle,
+    episodeNumber,
+    redditSearchTitle
+  )
+
+  if (permalink) {
+    return permalink
+  }
+
+  return buildAnimeDiscussionSearchUrl(showTitle, episodeNumber, redditSearchTitle)
 }

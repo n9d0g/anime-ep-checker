@@ -127,11 +127,122 @@ export async function clearScheduledEventForShow(
 
   const showState = state.shows[showId]
   const eventId = showState?.discordScheduledEventId
-  if (!eventId) return false
+  if (!eventId || !showState) return false
 
   await deleteScheduledEvent(config.botToken!, config.guildId!, eventId)
   showState.discordScheduledEventId = null
   showState.discordScheduledEventEpisode = null
+  return true
+}
+
+async function clearStoredScheduledEvent(
+  botToken: string,
+  guildId: string,
+  showState: NonNullable<StateFile['shows'][string]>,
+  showTitle: string,
+  dryRun: boolean
+): Promise<boolean> {
+  const existingEventId = showState.discordScheduledEventId
+  if (!existingEventId) {
+    return false
+  }
+
+  if (!dryRun) {
+    await deleteScheduledEvent(botToken, guildId, existingEventId)
+    showState.discordScheduledEventId = null
+    showState.discordScheduledEventEpisode = null
+    console.log(`  Discord event cleared for ${showTitle}`)
+    return true
+  }
+
+  return false
+}
+
+async function syncScheduledEventForShow({
+  config,
+  show,
+  state,
+  now,
+  dryRun,
+}: {
+  config: DiscordEventsConfig
+  show: Show
+  state: StateFile
+  now: Date
+  dryRun: boolean
+}): Promise<boolean> {
+  const botToken = config.botToken!
+  const guildId = config.guildId!
+  const showTitle = show.title || show.id
+  const showState = state.shows[show.id]
+  const lastEpisodeNumber = showState
+    ? parseEpisodeNumber(showState.lastEpisodeNumber)
+    : null
+  const nextEpisode = getNextExpectedEpisode(show.schedule, lastEpisodeNumber)
+  const expectedAt =
+    nextEpisode !== null ? getExpectedDropAt(show.schedule, nextEpisode) : null
+
+  if (nextEpisode === null || !expectedAt) {
+    if (!showState) {
+      return false
+    }
+    return clearStoredScheduledEvent(botToken, guildId, showState, showTitle, dryRun)
+  }
+
+  if (expectedAt.getTime() <= now.getTime()) {
+    if (!showState) {
+      return false
+    }
+    return clearStoredScheduledEvent(botToken, guildId, showState, showTitle, dryRun)
+  }
+
+  if (!showState) {
+    console.log(`  Skipping Discord event for ${showTitle} (not baselined yet)`)
+    return false
+  }
+
+  const payload = buildEventPayload(show, nextEpisode, expectedAt, now)
+  const existingEventId = showState.discordScheduledEventId ?? null
+  const existingEpisode = showState.discordScheduledEventEpisode ?? null
+
+  if (dryRun) {
+    if (existingEventId && existingEpisode === nextEpisode) {
+      console.log(`  Would update Discord event for ${showTitle} ep ${nextEpisode}`)
+    } else {
+      console.log(`  Would create Discord event for ${showTitle} ep ${nextEpisode}`)
+    }
+    return false
+  }
+
+  if (existingEventId && existingEpisode === nextEpisode) {
+    try {
+      await updateScheduledEvent(botToken, guildId, existingEventId, payload)
+      console.log(`  Discord event updated for ${showTitle} ep ${nextEpisode}`)
+      return false
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : String(error)
+      console.warn(
+        `  Discord event update failed for ${showTitle}; recreating: ${detail}`
+      )
+      try {
+        await deleteScheduledEvent(botToken, guildId, existingEventId)
+      } catch {
+        // Event may already be gone.
+      }
+      showState.discordScheduledEventId = null
+      showState.discordScheduledEventEpisode = null
+    }
+  } else if (existingEventId) {
+    await clearStoredScheduledEvent(botToken, guildId, showState, showTitle, false)
+  }
+
+  const eventId = await createScheduledEvent(botToken, guildId, payload)
+  state.shows[show.id] = {
+    ...showState,
+    discordScheduledEventId: eventId,
+    discordScheduledEventEpisode: nextEpisode,
+  }
+  console.log(`  Discord event created for ${showTitle} ep ${nextEpisode}`)
   return true
 }
 
@@ -155,95 +266,24 @@ export async function syncScheduledEvents({
   let changed = false
 
   for (const show of shows) {
-    const showState = state.shows[show.id]
-    const lastEpisodeNumber = showState
-      ? parseEpisodeNumber(showState.lastEpisodeNumber)
-      : null
-    const nextEpisode = getNextExpectedEpisode(show.schedule, lastEpisodeNumber)
-    const expectedAt =
-      nextEpisode !== null
-        ? getExpectedDropAt(show.schedule, nextEpisode)
-        : null
-
-    const existingEventId = showState?.discordScheduledEventId ?? null
-    const existingEpisode = showState?.discordScheduledEventEpisode ?? null
-
-    if (nextEpisode === null || !expectedAt) {
-      if (existingEventId && showState) {
-        if (!dryRun) {
-          await deleteScheduledEvent(
-            config.botToken!,
-            config.guildId!,
-            existingEventId
-          )
-        }
-        showState.discordScheduledEventId = null
-        showState.discordScheduledEventEpisode = null
+    try {
+      const showChanged = await syncScheduledEventForShow({
+        config,
+        show,
+        state,
+        now,
+        dryRun,
+      })
+      if (showChanged) {
         changed = true
-        console.log(`  Discord event cleared for ${show.title || show.id}`)
       }
-      continue
-    }
-
-    const payload = buildEventPayload(show, nextEpisode, expectedAt, now)
-
-    if (existingEventId && existingEpisode === nextEpisode) {
-      if (!dryRun) {
-        await updateScheduledEvent(
-          config.botToken!,
-          config.guildId!,
-          existingEventId,
-          payload
-        )
-      }
-      console.log(
-        `  Discord event updated for ${show.title || show.id} ep ${nextEpisode}`
+    } catch (error) {
+      console.warn(
+        `Discord scheduled event sync failed for ${show.title || show.id}: ${
+          error instanceof Error ? error.message : error
+        }`
       )
-      continue
     }
-
-    if (existingEventId && showState) {
-      if (!dryRun) {
-        await deleteScheduledEvent(
-          config.botToken!,
-          config.guildId!,
-          existingEventId
-        )
-      }
-      showState.discordScheduledEventId = null
-      showState.discordScheduledEventEpisode = null
-      changed = true
-    }
-
-    if (!showState) {
-      console.log(
-        `  Skipping Discord event for ${show.title || show.id} (not baselined yet)`
-      )
-      continue
-    }
-
-    if (dryRun) {
-      console.log(
-        `  Would create Discord event for ${show.title || show.id} ep ${nextEpisode}`
-      )
-      continue
-    }
-
-    const eventId = await createScheduledEvent(
-      config.botToken!,
-      config.guildId!,
-      payload
-    )
-
-    state.shows[show.id] = {
-      ...showState,
-      discordScheduledEventId: eventId,
-      discordScheduledEventEpisode: nextEpisode,
-    }
-    changed = true
-    console.log(
-      `  Discord event created for ${show.title || show.id} ep ${nextEpisode}`
-    )
   }
 
   return changed

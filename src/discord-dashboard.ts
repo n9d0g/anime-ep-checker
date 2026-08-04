@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import {
   buildShowDashboardPayload,
   buildShowDashboardRow,
@@ -13,6 +14,10 @@ import {
 import type { EpisodeSnapshot, Show, StateFile } from './types.js'
 import { parseEpisodeNumber } from './schedule.js'
 import { getShowState } from './compare.js'
+
+function hashDashboardPayload(payload: Record<string, unknown>): string {
+  return createHash('sha1').update(JSON.stringify(payload)).digest('hex')
+}
 
 export interface DiscordDashboardConfig {
   botToken?: string
@@ -104,12 +109,16 @@ export async function syncWatchingDashboard({
   const messageIds = {
     ...(state.meta?.watchingDashboardMessageIds ?? {}),
   }
+  const payloadHashes = {
+    ...(state.meta?.watchingDashboardHashes ?? {}),
+  }
   const activeShowIds = new Set(shows.map((show) => show.id))
 
   for (const [showId, messageId] of Object.entries(messageIds)) {
     if (!activeShowIds.has(showId)) {
       await deleteBotMessage(botToken, channelId, messageId)
       delete messageIds[showId]
+      delete payloadHashes[showId]
       changed = true
       reasons.push(`removed watching dashboard message for ${showId}`)
       console.log(`  Removed watching dashboard message for ${showId}`)
@@ -118,6 +127,8 @@ export async function syncWatchingDashboard({
 
   for (const show of shows) {
     const showState = getShowState(state, show.id)
+    const prevDiscussionUrl = showState?.discussionUrl ?? null
+    const prevDiscussionEpisode = showState?.discussionUrlEpisode ?? null
     const providerLatest = await fetchProviderLatestEpisode(
       show,
       fetchLatest,
@@ -129,13 +140,34 @@ export async function syncWatchingDashboard({
       now,
       providerLatest
     )
+
+    if (
+      showState &&
+      (showState.discussionUrl !== prevDiscussionUrl ||
+        showState.discussionUrlEpisode !== prevDiscussionEpisode)
+    ) {
+      changed = true
+      reasons.push(`cached discussion URL for ${show.title || show.id}`)
+    }
+
     const payload = buildShowDashboardPayload(row)
+    const payloadHash = hashDashboardPayload(payload)
     const existingMessageId = messageIds[show.id]
     let shouldCreate = !existingMessageId
 
     if (existingMessageId) {
+      if (payloadHashes[show.id] === payloadHash) {
+        console.log(
+          `  Watching dashboard unchanged for ${show.title || show.id}; skipping edit`
+        )
+        continue
+      }
+
       try {
         await editBotMessage(botToken, channelId, existingMessageId, payload)
+        payloadHashes[show.id] = payloadHash
+        changed = true
+        reasons.push(`watching dashboard updated for ${show.title || show.id}`)
         console.log(`  Watching dashboard updated for ${show.title || show.id}`)
         continue
       } catch (error) {
@@ -171,6 +203,7 @@ export async function syncWatchingDashboard({
 
     const created = await createBotMessage(botToken, channelId, payload)
     messageIds[show.id] = created.id
+    payloadHashes[show.id] = payloadHash
     await pinBotMessage(botToken, channelId, created.id)
     changed = true
     reasons.push(`watching pin recreated for ${show.title || show.id}`)
@@ -180,6 +213,7 @@ export async function syncWatchingDashboard({
   state.meta = {
     ...state.meta,
     watchingDashboardMessageIds: messageIds,
+    watchingDashboardHashes: payloadHashes,
   }
 
   return { changed, reasons }

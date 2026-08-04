@@ -18,7 +18,10 @@ import {
   parseEpisodeNumber,
 } from './schedule.js'
 import { fetchMalAnimeDetails, formatMalProgressLabel } from './mal.js'
-import { findAnimeDiscussionUrl } from './reddit.js'
+import {
+  buildAnimeDiscussionSearchUrl,
+  findAnimeDiscussionPermalink,
+} from './reddit.js'
 
 export type DashboardStatus = 'upcoming' | 'in_window' | 'waiting' | 'out'
 
@@ -137,14 +140,37 @@ export async function buildShowDashboardRow(
         : show.schedule.startEpisode
 
   if (discussionEpisode > 0) {
-    try {
-      discussionUrl = await findAnimeDiscussionUrl(
-        show.title || show.id,
-        discussionEpisode,
-        show.redditSearchTitle
-      )
-    } catch {
-      discussionUrl = null
+    const cachedDiscussion =
+      showState?.discussionUrlEpisode === discussionEpisode
+        ? showState.discussionUrl
+        : null
+
+    if (cachedDiscussion) {
+      discussionUrl = cachedDiscussion
+    } else {
+      try {
+        const permalink = await findAnimeDiscussionPermalink(
+          show.title || show.id,
+          discussionEpisode,
+          show.redditSearchTitle
+        )
+
+        if (permalink) {
+          discussionUrl = permalink
+          if (showState) {
+            showState.discussionUrl = permalink
+            showState.discussionUrlEpisode = discussionEpisode
+          }
+        } else {
+          discussionUrl = buildAnimeDiscussionSearchUrl(
+            show.title || show.id,
+            discussionEpisode,
+            show.redditSearchTitle
+          )
+        }
+      } catch {
+        discussionUrl = null
+      }
     }
   }
 

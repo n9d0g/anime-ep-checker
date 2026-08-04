@@ -255,6 +255,82 @@ function hasBotConfig(discord: DiscordConfig): boolean {
   return Boolean(discord.botToken?.trim() && discord.channelId?.trim())
 }
 
+async function announceEpisode({
+  discord,
+  dryRun,
+  show,
+  showId,
+  latestSnapshot,
+  episodeNumber,
+  expectedDropAt,
+  state,
+  noteStateChange,
+}: {
+  discord: DiscordConfig
+  dryRun: boolean
+  show: Show
+  showId: string
+  latestSnapshot: EpisodeSnapshot
+  episodeNumber: number
+  expectedDropAt: string
+  state: StateFile
+  noteStateChange: (reason: string) => void
+}): Promise<void> {
+  const actualDropAt = latestSnapshot.episode.availableAt ?? null
+  const timingStatus = getTimingStatus(expectedDropAt, actualDropAt)
+
+  console.log(`  Episode ${episodeNumber} is available`)
+  console.log(`  Timing: ${timingStatus}`)
+
+  if (!dryRun) {
+    if (hasDiscordConfig(discord)) {
+      const discussionUrl = await findAnimeDiscussionUrl(
+        show.title || show.id,
+        episodeNumber,
+        show.redditSearchTitle
+      )
+
+      console.log(`  Reddit discussion: ${discussionUrl}`)
+
+      let malDetails = null
+      if (show.malId) {
+        const malResult = await fetchMalAnimeDetails(show.malId)
+        if (malResult.status === 'ok') {
+          malDetails = malResult.details
+        }
+      }
+
+      await sendEpisodeAlert({
+        discord,
+        show,
+        latestSnapshot,
+        episodeNumber,
+        timingStatus,
+        expectedDropAt,
+        actualDropAt,
+        discussionUrl,
+        malDetails,
+      })
+      console.log('  Discord alert sent')
+
+      if (hasBotConfig(discord)) {
+        const eventsConfig = getDiscordEventsConfigFromEnv()
+        const cleared = await clearScheduledEventForShow(
+          eventsConfig,
+          showId,
+          state
+        )
+        if (cleared) {
+          noteStateChange(`scheduled event cleared for ${show.title || showId}`)
+          console.log('  Discord scheduled event cleared')
+        }
+      }
+    } else {
+      console.log('  Discord not configured; skipping alert')
+    }
+  }
+}
+
 function getDiscordConfigFromEnv(): DiscordConfig {
   return {
     botToken: process.env.DISCORD_BOT_TOKEN,
@@ -465,6 +541,36 @@ export async function checkShows({
     }
 
     if (!previousState) {
+      const latestEpisodeNumber = parseEpisodeNumber(
+        String(latestSnapshot.episode.episode ?? '')
+      )
+
+      if (latestEpisodeNumber >= nextExpectedEp) {
+        const alertExpectedAt =
+          getExpectedDropAt(show.schedule, latestEpisodeNumber) ?? expectedAt
+
+        await announceEpisode({
+          discord,
+          dryRun,
+          show,
+          showId,
+          latestSnapshot,
+          episodeNumber: latestEpisodeNumber,
+          expectedDropAt: alertExpectedAt.toISOString(),
+          state,
+          noteStateChange,
+        })
+
+        state.shows[showId] = createUpdatedState(
+          latestSnapshot,
+          latestEpisodeNumber
+        )
+        noteStateChange(
+          `catch-up episode alert ${show.title || showId} ep ${latestEpisodeNumber}`
+        )
+        continue
+      }
+
       state.shows[showId] = createBaselineState(latestSnapshot)
       noteStateChange(
         `baseline ${show.title || showId} ep ${latestSnapshot.episode.episode}`
@@ -481,61 +587,17 @@ export async function checkShows({
     const expectedDropAt = expectedAt.toISOString()
 
     if (latestEpisodeNumber >= nextExpectedEp) {
-      const actualDropAt = latestSnapshot.episode.availableAt ?? null
-      const timingStatus = getTimingStatus(expectedDropAt, actualDropAt)
-
-      console.log(`  Episode ${nextExpectedEp} is available`)
-      console.log(`  Timing: ${timingStatus}`)
-
-      if (!dryRun) {
-        if (hasDiscordConfig(discord)) {
-          const discussionUrl = await findAnimeDiscussionUrl(
-            show.title || show.id,
-            nextExpectedEp,
-            show.redditSearchTitle
-          )
-
-          console.log(`  Reddit discussion: ${discussionUrl}`)
-
-          let malDetails = null
-          if (show.malId) {
-            const malResult = await fetchMalAnimeDetails(show.malId)
-            if (malResult.status === 'ok') {
-              malDetails = malResult.details
-            }
-          }
-
-          await sendEpisodeAlert({
-            discord,
-            show,
-            latestSnapshot,
-            episodeNumber: nextExpectedEp,
-            timingStatus,
-            expectedDropAt,
-            actualDropAt,
-            discussionUrl,
-            malDetails,
-          })
-          console.log('  Discord alert sent')
-
-          if (hasBotConfig(discord)) {
-            const eventsConfig = getDiscordEventsConfigFromEnv()
-            const cleared = await clearScheduledEventForShow(
-              eventsConfig,
-              showId,
-              state
-            )
-            if (cleared) {
-              noteStateChange(
-                `scheduled event cleared for ${show.title || showId}`
-              )
-              console.log('  Discord scheduled event cleared')
-            }
-          }
-        } else {
-          console.log('  Discord not configured; skipping alert')
-        }
-      }
+      await announceEpisode({
+        discord,
+        dryRun,
+        show,
+        showId,
+        latestSnapshot,
+        episodeNumber: nextExpectedEp,
+        expectedDropAt,
+        state,
+        noteStateChange,
+      })
 
       state.shows[showId] = createUpdatedState(latestSnapshot, nextExpectedEp)
       noteStateChange(

@@ -41,6 +41,8 @@ export interface ShowState {
   discordScheduledEventEpisode?: number | null
   malMeanScore?: number | null
   malScoreAlertedAt?: string | null
+  discussionUrl?: string | null
+  discussionUrlEpisode?: number | null
 }
 
 export type PlanToWatchAlertReason = 'airing' | 'upcoming'
@@ -70,6 +72,7 @@ export interface StateFile {
     disneyCookieAlertSentAt?: string | null
     watchingDashboardMessageId?: string | null
     watchingDashboardMessageIds?: Record<string, string>
+    watchingDashboardHashes?: Record<string, string>
     planToWatchCheckedAt?: string | null
     planToWatchAlerts?: Record<
       string,
