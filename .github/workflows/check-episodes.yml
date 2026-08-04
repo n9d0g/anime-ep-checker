@@ -72,6 +72,28 @@ jobs:
           DISNEY_REGION: ${{ secrets.DISNEY_REGION }}
         run: pnpm check
 
+      - name: Update Disney refresh token secret
+        # Runs even when the check step fails: Disney has already invalidated the
+        # old token by that point, so losing the rotated one would lock us out.
+        if: always() && steps.gate.outputs.should_check == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GH_SECRETS_TOKEN }}
+        run: |
+          if [ ! -f disney_refresh_token.txt ]; then
+            exit 0
+          fi
+
+          if [ -z "$GH_TOKEN" ]; then
+            echo "Disney+ refresh token rotated but GH_SECRETS_TOKEN is not set."
+            echo "Add a fine-grained PAT with Secrets read/write and re-run, or update DISNEY_REFRESH_TOKEN manually."
+            rm -f disney_refresh_token.txt
+            exit 0
+          fi
+
+          gh secret set DISNEY_REFRESH_TOKEN < disney_refresh_token.txt
+          rm -f disney_refresh_token.txt
+          echo "Updated DISNEY_REFRESH_TOKEN secret."
+
       - name: Commit state updates
         if: steps.gate.outputs.should_check == 'true'
         run: |

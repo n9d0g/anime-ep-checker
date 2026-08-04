@@ -111,8 +111,9 @@ Optional fallback: a legacy webhook via `DISCORD_WEBHOOK_URL` (no MAL button, no
 | `MAL_CLIENT_SECRET` | MAL API client secret |
 | `MAL_REFRESH_TOKEN` | MAL OAuth refresh token |
 | `NETFLIX_COOKIE` | Logged-in `netflix.com` cookie string (for Netflix shows only) |
-| `DISNEY_REFRESH_TOKEN` | Disney+ refresh token (see §6; long-lived) |
+| `DISNEY_REFRESH_TOKEN` | Disney+ refresh token (see §6; auto-rotated by the checker) |
 | `DISNEY_REGION` | Optional Disney+ region (default `US`) |
+| `GH_SECRETS_TOKEN` | Fine-grained PAT with **Secrets: Read and write** on this repo (auto-updates `DISNEY_REFRESH_TOKEN` when Disney rotates it) |
 | `DISCORD_DEPLOY_WEBHOOK_URL` | Webhook for a separate **deploy** Discord channel |
 
 The workflow uses the default `GITHUB_TOKEN` to commit `state.json` updates.
@@ -194,9 +195,13 @@ copy(
 
 Do **not** use `context.token` / `access_token` — those are short-lived JWTs (~4h). The refresh value is a longer encrypted token (`typ: rt+jwt`).
 
-The checker exchanges this refresh token for a short-lived access token on each run, so you do **not** need to update it every 4 hours. Re-copy only if Disney revokes the session (logout, password change, or a **Disney+ checks need attention** alert in `#anime-alerts`).
+Disney **rotates** the refresh token on every exchange. The checker saves the new value and, when `GH_SECRETS_TOKEN` is set, updates the `DISNEY_REFRESH_TOKEN` secret automatically after each run. You only need to re-copy the token manually if Disney revokes the session (logout, password change) or if `GH_SECRETS_TOKEN` is missing.
 
-**GitHub Actions geo-block:** Disney often rejects refresh-token exchange from datacenter IPs (`forbidden-location` on hosted runners). Disney shows are **skipped** for that run with a one-time Discord alert; Crunchyroll and Netflix continue. To baseline or alert on Disney episodes, run `pnpm check` (or `pnpm check -- --force`) from home with the same env vars in `.env`.
+**`GH_SECRETS_TOKEN` setup:** create a fine-grained GitHub PAT on this repo with **Secrets: Read and write** and **Metadata: Read**. Add it as the `GH_SECRETS_TOKEN` Actions secret. Without it, rotation still works locally (`disney_refresh_token.txt` in `.gitignore`) but the secret in GitHub Actions will not self-update.
+
+**AniList fallback:** when Disney auth fails or returns no episodes, Disney-tracked shows with a `malId` fall back to [AniList](https://anilist.co) airing schedules (no API key). Alerts still respect your `shows.json` drop time — the fallback never fires before the scheduled Disney+ window. Episode timing in alerts shows as **unknown** (AniList reports JP broadcast, which can be ~1h before the US Disney+ drop).
+
+**GitHub Actions geo-block:** Disney often rejects refresh-token exchange from datacenter IPs (`forbidden-location` on hosted runners). In that case the checker uses the AniList fallback when possible and sends a one-time **Disney+ checks need attention** alert; Crunchyroll and Netflix continue. To verify Disney API data directly, run `pnpm check` (or `pnpm check -- --force`) from home with the same env vars in `.env`.
 
 Optional: set `DISNEY_REGION` (default `US`) if your account is in another region.
 
@@ -284,6 +289,7 @@ Shows your MAL plan-to-watch list from `state.meta.planToWatch`, grouped into **
 | [`src/crunchyroll.ts`](src/crunchyroll.ts) | Crunchyroll API client |
 | [`src/netflix.ts`](src/netflix.ts) | Netflix pathEvaluator client (cookie auth) |
 | [`src/disney.ts`](src/disney.ts) | Disney+ explore API client (refresh token auth) |
+| [`src/anilist.ts`](src/anilist.ts) | AniList airing schedule fallback for Disney+ shows |
 | [`src/reddit.ts`](src/reddit.ts) | r/anime discussion lookup (AutoLovepon RSS + search fallback) |
 | [`src/discord.ts`](src/discord.ts) | Discord bot/webhook alerts + score alerts |
 | [`src/discord-components-v2.ts`](src/discord-components-v2.ts) | Legacy Components V2 builders (unused by watching dashboard) |

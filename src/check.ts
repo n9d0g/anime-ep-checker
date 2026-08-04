@@ -1,6 +1,7 @@
 import { readFile, writeFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { getLatestAiredEpisode } from './anilist.js'
 import {
   createBaselineState,
   createUpdatedState,
@@ -50,6 +51,7 @@ import {
 import {
   normalizeShowProvider,
   providerLabel,
+  getShowWatchUrl,
   type EpisodeSnapshot,
   type Show,
   type ShowsFile,
@@ -111,11 +113,127 @@ async function fetchLatestEpisode(show: Show): Promise<EpisodeSnapshot | null> {
     return getLatestAvailableEpisodeForTitle(providerId)
   }
 
-  if (normalized.provider === 'disney') {
-    return getLatestDisneyEpisode(providerId)
+  return getLatestAvailableEpisodeForSeries(providerId)
+}
+
+async function tryDisneyAnilistFallback(
+  show: Show,
+  disneyId: string,
+  expectedAt: Date,
+  now: Date
+): Promise<EpisodeSnapshot | null> {
+  if (!show.malId) {
+    console.log('  AniList fallback unavailable: show has no malId')
+    return null
   }
 
-  return getLatestAvailableEpisodeForSeries(providerId)
+  if (now.getTime() < expectedAt.getTime()) {
+    console.log(
+      '  AniList fallback skipped: before scheduled Disney+ drop time'
+    )
+    return null
+  }
+
+  const aired = await getLatestAiredEpisode(show.malId, now)
+  if (!aired) {
+    return null
+  }
+
+  console.log(
+    `  AniList fallback: latest aired episode ${aired.episodeNumber}`
+  )
+
+  return {
+    provider: 'disney',
+    seriesId: disneyId,
+    seriesTitle: aired.seriesTitle || show.title,
+    seasonId: disneyId,
+    seasonTitle: 'Season 1',
+    episode: {
+      id: `anilist-${show.malId}-${aired.episodeNumber}`,
+      episode: aired.episodeNumber,
+      availableAt: null,
+    },
+    watchUrl: getShowWatchUrl(show),
+  }
+}
+
+async function fetchDisneyEpisode(
+  show: Show,
+  disneyId: string,
+  expectedAt: Date,
+  now: Date,
+  authAlreadyFailed: boolean
+): Promise<{
+  snapshot: EpisodeSnapshot | null
+  apiSucceeded: boolean
+  authFailed: boolean
+}> {
+  if (authAlreadyFailed) {
+    const fallback = await tryDisneyAnilistFallback(
+      show,
+      disneyId,
+      expectedAt,
+      now
+    )
+    return { snapshot: fallback, apiSucceeded: false, authFailed: true }
+  }
+
+  try {
+    const snapshot = await getLatestDisneyEpisode(disneyId)
+    if (snapshot) {
+      return { snapshot, apiSucceeded: true, authFailed: false }
+    }
+
+    console.log('  Disney+ API returned no episodes; trying AniList fallback')
+    const fallback = await tryDisneyAnilistFallback(
+      show,
+      disneyId,
+      expectedAt,
+      now
+    )
+    return { snapshot: fallback, apiSucceeded: true, authFailed: false }
+  } catch (error) {
+    if (!(error instanceof DisneyAuthError)) {
+      throw error
+    }
+
+    console.error(`  Disney+ auth failed: ${error.message}`)
+    const fallback = await tryDisneyAnilistFallback(
+      show,
+      disneyId,
+      expectedAt,
+      now
+    )
+    return { snapshot: fallback, apiSucceeded: false, authFailed: true }
+  }
+}
+
+async function notifyDisneyAuthFailure(
+  discord: DiscordConfig,
+  dryRun: boolean,
+  state: StateFile,
+  now: Date,
+  noteStateChange: (reason: string) => void
+): Promise<void> {
+  if (!state.meta?.disneyCookieAlertSentAt) {
+    if (!dryRun && hasBotConfig(discord)) {
+      await sendDisneyAuthAlert(discord)
+      console.log('  Disney+ refresh token alert sent via Discord bot')
+    } else if (!dryRun) {
+      console.log(
+        '  Discord bot not configured; skipping Disney+ refresh token alert'
+      )
+    }
+
+    state.meta = {
+      ...state.meta,
+      disneyCookieAlertSentAt: now.toISOString(),
+    }
+    noteStateChange('Disney auth alert flag set')
+  } else {
+    console.log('  Disney+ refresh token alert already sent; skipping')
+  }
 }
 
 export interface CheckOptions {
@@ -195,7 +313,7 @@ export async function checkShows({
   let stateChanged = false
   const stateChangeReasons: string[] = []
   let skipNetflixShows = false
-  let skipDisneyShows = false
+  let disneyAuthFailed = false
 
   const noteStateChange = (reason: string) => {
     stateChangeReasons.push(reason)
@@ -220,9 +338,10 @@ export async function checkShows({
       continue
     }
 
-    if (show.provider === 'disney' && skipDisneyShows) {
-      console.log('  Skipping Disney+ show (cookie auth failed earlier this run)')
-      continue
+    if (show.provider === 'disney' && disneyAuthFailed) {
+      console.log(
+        '  Disney+ API unavailable; trying AniList fallback for this show'
+      )
     }
 
     if (nextExpectedEp === null) {
@@ -250,9 +369,46 @@ export async function checkShows({
       }
     }
 
-    let latestSnapshot: EpisodeSnapshot | null
+    let latestSnapshot: EpisodeSnapshot | null = null
+    let disneyApiSucceeded = false
+
     try {
-      latestSnapshot = await fetchLatestEpisode(show)
+      if (show.provider === 'disney') {
+        const disneyResult = await fetchDisneyEpisode(
+          show,
+          providerId,
+          expectedAt,
+          now,
+          disneyAuthFailed
+        )
+        latestSnapshot = disneyResult.snapshot
+        disneyApiSucceeded = disneyResult.apiSucceeded
+
+        if (disneyResult.authFailed) {
+          if (!disneyAuthFailed) {
+            disneyAuthFailed = true
+            await notifyDisneyAuthFailure(
+              discord,
+              dryRun,
+              state,
+              now,
+              noteStateChange
+            )
+          }
+
+          if (!latestSnapshot) {
+            console.log(
+              '  Disney+ and AniList fallback found no aired episode yet'
+            )
+            continue
+          }
+        } else if (!latestSnapshot) {
+          console.log('  No available episodes found from Disney+ or AniList')
+          continue
+        }
+      } else {
+        latestSnapshot = await fetchLatestEpisode(show)
+      }
     } catch (error) {
       if (error instanceof NetflixAuthError) {
         console.error(`  Netflix auth failed: ${error.message}`)
@@ -280,32 +436,6 @@ export async function checkShows({
         continue
       }
 
-      if (error instanceof DisneyAuthError) {
-        console.error(`  Disney+ auth failed: ${error.message}`)
-        skipDisneyShows = true
-
-        if (!state.meta?.disneyCookieAlertSentAt) {
-          if (!dryRun && hasBotConfig(discord)) {
-            await sendDisneyAuthAlert(discord)
-            console.log('  Disney+ refresh token alert sent via Discord bot')
-          } else if (!dryRun) {
-            console.log(
-              '  Discord bot not configured; skipping Disney+ refresh token alert'
-            )
-          }
-
-          state.meta = {
-            ...state.meta,
-            disneyCookieAlertSentAt: now.toISOString(),
-          }
-          noteStateChange('Disney auth alert flag set')
-        } else {
-          console.log('  Disney+ refresh token alert already sent; skipping')
-        }
-
-        continue
-      }
-
       throw error
     }
 
@@ -317,7 +447,11 @@ export async function checkShows({
       noteStateChange(`cleared Netflix auth alert flag for ${show.title || showId}`)
     }
 
-    if (show.provider === 'disney' && state.meta?.disneyCookieAlertSentAt) {
+    if (
+      show.provider === 'disney' &&
+      disneyApiSucceeded &&
+      state.meta?.disneyCookieAlertSentAt
+    ) {
       state.meta = {
         ...state.meta,
         disneyCookieAlertSentAt: null,

@@ -2,7 +2,6 @@ import { formatEasternTime } from './time.js'
 import {
   getShowWatchUrl,
   type Show,
-  type ShowState,
   type StateFile,
 } from './types.js'
 import {

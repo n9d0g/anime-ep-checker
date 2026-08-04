@@ -1,4 +1,5 @@
 import type { EpisodeSnapshot } from './types.js'
+import { writeDisneyRefreshToken } from './disney-refresh-token.js'
 
 const USER_AGENT =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
@@ -133,8 +134,9 @@ async function exchangeRefreshToken(
     data.refresh_token !== refreshToken &&
     process.env.NODE_ENV !== 'test'
   ) {
-    console.warn(
-      'Disney+ returned a rotated refresh token. Update DISNEY_REFRESH_TOKEN if checks start failing.'
+    writeDisneyRefreshToken(data.refresh_token)
+    console.log(
+      'Disney+ rotated refresh token saved for GitHub secret update.'
     )
   }
 

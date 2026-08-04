@@ -2,6 +2,8 @@ node_modules
 .env
 .env.local
 state_commit_message.txt
+disney_refresh_token.txt
+*.har
 admin/.next
 admin/node_modules
 *.tsbuildinfo
