@@ -6,7 +6,7 @@
       "provider": "crunchyroll",
       "schedule": {
         "mode": "ongoing",
-        "startAt": "2026-07-12T15:15:00.000Z",
+        "startAt": "2026-07-12T16:00:00.000Z",
         "startEpisode": 1169,
         "episodeCount": null,
         "premiereBatchSize": 1
