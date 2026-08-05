@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { TopHeader } from '@/app/components/TopHeader'
 import { PtwListSkeleton } from '@/app/components/ListSkeleton'
+import { useToast } from '@/app/components/Toast'
 import type { PlanToWatchSnapshot, PlanToWatchSnapshotEntry } from '@/lib/types'
 
 function startOfUtcDay(date: Date): Date {
@@ -173,11 +174,10 @@ function PtwSection({
 }
 
 export default function PlanToWatchPage() {
+  const toast = useToast()
   const [snapshot, setSnapshot] = useState<PlanToWatchSnapshot | null>(null)
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
-  const [status, setStatus] = useState('')
-  const [statusType, setStatusType] = useState<'success' | 'error' | ''>('')
 
   const sections = useMemo(() => {
     const entries = snapshot?.entries ?? []
@@ -193,8 +193,6 @@ export default function PlanToWatchPage() {
 
   async function loadSnapshot() {
     setLoading(true)
-    setStatus('')
-    setStatusType('')
 
     try {
       const response = await fetch('/api/ptw')
@@ -209,8 +207,7 @@ export default function PlanToWatchPage() {
 
       setSnapshot(data.planToWatch ?? null)
     } catch (error) {
-      setStatusType('error')
-      setStatus(
+      toast.error(
         error instanceof Error ? error.message : 'Failed to load plan-to-watch list'
       )
     } finally {
@@ -220,8 +217,6 @@ export default function PlanToWatchPage() {
 
   async function refreshSnapshot() {
     setRefreshing(true)
-    setStatus('')
-    setStatusType('')
 
     try {
       const response = await fetch('/api/ptw', { method: 'POST' })
@@ -235,11 +230,9 @@ export default function PlanToWatchPage() {
       }
 
       setSnapshot(data.planToWatch ?? null)
-      setStatusType('success')
-      setStatus('Refreshed from MyAnimeList.')
+      toast.success('Refreshed from MyAnimeList.')
     } catch (error) {
-      setStatusType('error')
-      setStatus(
+      toast.error(
         error instanceof Error
           ? error.message
           : 'Failed to refresh plan-to-watch list'
@@ -279,10 +272,6 @@ export default function PlanToWatchPage() {
             {refreshing ? 'Refreshing…' : 'Refresh'}
           </button>
         </div>
-
-        {status ? (
-          <p className={`status ${statusType}`}>{status}</p>
-        ) : null}
 
         {loading ? (
           <PtwListSkeleton />

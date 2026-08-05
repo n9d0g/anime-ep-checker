@@ -3,7 +3,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { TopHeader } from '@/app/components/TopHeader'
 import { ShowListSkeleton } from '@/app/components/ListSkeleton'
+import { useToast } from '@/app/components/Toast'
 import { buildAnimeDiscussionSearchUrl } from '@/lib/reddit'
+import { getShowWatchUrl } from '@/lib/shows'
 import {
   getExpectedDropAt,
   getLastScheduledEpisode,
@@ -168,6 +170,53 @@ function getProgressEpisode(
   return latestOut !== null && Number.isFinite(latestOut) ? latestOut : null
 }
 
+function getNextEpisodeToWatch(
+  show: ShowFormValues,
+  liveState?: ShowStateSummary
+): number | null {
+  const watched = getProgressEpisode(show, liveState)
+  const latestOut = liveState?.lastEpisodeNumber
+    ? Number(liveState.lastEpisodeNumber)
+    : null
+
+  if (watched !== null && Number.isFinite(watched)) {
+    if (
+      latestOut !== null &&
+      Number.isFinite(latestOut) &&
+      watched < latestOut
+    ) {
+      return watched + 1
+    }
+
+    if (latestOut !== null && Number.isFinite(latestOut)) {
+      return latestOut
+    }
+
+    return watched
+  }
+
+  if (latestOut !== null && Number.isFinite(latestOut)) {
+    return latestOut
+  }
+
+  return null
+}
+
+function showFormToWatchInput(show: ShowFormValues): Show {
+  return {
+    id: show.id,
+    title: show.title,
+    provider: show.provider,
+    crunchyrollUrl: show.crunchyrollUrl || undefined,
+    seriesId: show.seriesId || undefined,
+    netflixUrl: show.netflixUrl || undefined,
+    netflixId: show.netflixId || undefined,
+    disneyUrl: show.disneyUrl || undefined,
+    disneyId: show.disneyId || undefined,
+    schedule: formScheduleToSchedule(show),
+  }
+}
+
 function SegmentedControl<T extends string>({
   value,
   options,
@@ -197,14 +246,13 @@ function SegmentedControl<T extends string>({
 }
 
 export default function AdminPage() {
+  const toast = useToast()
   const [shows, setShows] = useState<ShowFormValues[]>([])
   const [baseline, setBaseline] = useState('')
   const [showStates, setShowStates] = useState<Record<string, ShowStateSummary>>(
     {}
   )
   const [expanded, setExpanded] = useState<Record<string, boolean>>({})
-  const [status, setStatus] = useState('')
-  const [statusType, setStatusType] = useState<'success' | 'error' | ''>('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [episodeSaveStatus, setEpisodeSaveStatus] = useState<
@@ -272,15 +320,15 @@ export default function AdminPage() {
             parts.push('synced titles from MAL')
           }
           if (parts.length > 0) {
-            setStatusType('success')
-            setStatus(`Auto-${parts.join(' and ')}.`)
+            toast.success(`Auto-${parts.join(' and ')}.`)
           }
         } else if (!syncResponse.ok && syncData.error) {
           console.warn('MAL sync skipped:', syncData.error)
         }
       } catch (error) {
-        setStatusType('error')
-        setStatus(error instanceof Error ? error.message : 'Failed to load shows')
+        toast.error(
+          error instanceof Error ? error.message : 'Failed to load shows'
+        )
       } finally {
         setLoading(false)
       }
@@ -393,10 +441,10 @@ export default function AdminPage() {
       }
 
       setEpisodeSaveStatus((current) => ({ ...current, [showId]: 'saved' }))
+      toast.success('Episode updated.')
     } catch (error) {
       setEpisodeSaveStatus((current) => ({ ...current, [showId]: 'error' }))
-      setStatusType('error')
-      setStatus(
+      toast.error(
         error instanceof Error ? error.message : 'Failed to update MAL progress'
       )
     }
@@ -435,10 +483,10 @@ export default function AdminPage() {
       }
 
       setEpisodeSaveStatus((current) => ({ ...current, [showId]: 'saved' }))
+      toast.success('Episode updated.')
     } catch (error) {
       setEpisodeSaveStatus((current) => ({ ...current, [showId]: 'error' }))
-      setStatusType('error')
-      setStatus(
+      toast.error(
         error instanceof Error ? error.message : 'Failed to update episode'
       )
     }
@@ -526,8 +574,6 @@ export default function AdminPage() {
 
   async function saveShows() {
     setSaving(true)
-    setStatus('')
-    setStatusType('')
 
     try {
       const response = await fetch('/api/shows', {
@@ -548,11 +594,9 @@ export default function AdminPage() {
       const savedShows = (data.shows ?? []).map(showToForm)
       setShows(savedShows)
       setBaseline(serializeShows(savedShows))
-      setStatusType('success')
-      setStatus('Saved to GitHub. The checker will use these on the next run.')
+      toast.success('Saved to GitHub. The checker will use these on the next run.')
     } catch (error) {
-      setStatusType('error')
-      setStatus(error instanceof Error ? error.message : 'Failed to save shows')
+      toast.error(error instanceof Error ? error.message : 'Failed to save shows')
     } finally {
       setSaving(false)
     }
@@ -582,7 +626,9 @@ export default function AdminPage() {
                 const open = isExpanded(show, index)
                 const liveState = show.id ? showStates[show.id] : undefined
                 const currentEpisode = getProgressEpisode(show, liveState)
+                const nextEpisodeToWatch = getNextEpisodeToWatch(show, liveState)
                 const { min, max } = getEpisodeBounds(show)
+                const watchUrl = getShowWatchUrl(showFormToWatchInput(show))
                 const discussionUrl =
                   currentEpisode !== null && Number.isFinite(currentEpisode)
                     ? buildAnimeDiscussionSearchUrl(
@@ -597,6 +643,7 @@ export default function AdminPage() {
                 const episodeStatus = show.id
                   ? episodeSaveStatus[show.id] ?? ''
                   : ''
+                const episodeSaving = episodeStatus === 'saving'
 
                 const episodeBadgeInfo = episodeBadge(show, liveState)
                 const startHint = scheduleStartHint(show, liveState)
@@ -648,6 +695,43 @@ export default function AdminPage() {
                             placeholder="One Piece"
                           />
                         </div>
+
+                        {watchUrl || discussionUrl || malUrl ? (
+                          <div className="quick-links">
+                            {watchUrl ? (
+                              <a
+                                className="btn btn-secondary btn-link"
+                                href={watchUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                {nextEpisodeToWatch !== null
+                                  ? `Watch ep ${nextEpisodeToWatch}`
+                                  : 'Watch'}
+                              </a>
+                            ) : null}
+                            {discussionUrl ? (
+                              <a
+                                className="btn btn-secondary btn-link"
+                                href={discussionUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                Discussion
+                              </a>
+                            ) : null}
+                            {malUrl ? (
+                              <a
+                                className="btn btn-secondary btn-link"
+                                href={malUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                MAL
+                              </a>
+                            ) : null}
+                          </div>
+                        ) : null}
 
                         <div className="field">
                           <span id={`provider-label-${index}`}>Provider</span>
@@ -788,6 +872,7 @@ export default function AdminPage() {
                                     type="button"
                                     aria-label="Decrease episode"
                                     disabled={
+                                      episodeSaving ||
                                       currentEpisode === null ||
                                       currentEpisode <= min
                                     }
@@ -803,6 +888,7 @@ export default function AdminPage() {
                                     type="button"
                                     aria-label="Increase episode"
                                     disabled={
+                                      episodeSaving ||
                                       currentEpisode === null ||
                                       (max !== null && currentEpisode >= max)
                                     }
@@ -811,17 +897,6 @@ export default function AdminPage() {
                                     +
                                   </button>
                                 </div>
-                                {episodeStatus ? (
-                                  <span
-                                    className={`episode-save-status ${episodeStatus}`}
-                                  >
-                                    {episodeStatus === 'saving'
-                                      ? 'Saving…'
-                                      : episodeStatus === 'saved'
-                                        ? 'Saved'
-                                        : 'Error'}
-                                  </span>
-                                ) : null}
                               </div>
                             </div>
                           ) : show.schedule.mode === 'finite' ? (
@@ -846,31 +921,6 @@ export default function AdminPage() {
                             </div>
                           ) : null}
                         </div>
-
-                        {discussionUrl || malUrl ? (
-                          <div className="quick-links">
-                            {discussionUrl ? (
-                              <a
-                                className="btn btn-secondary btn-link"
-                                href={discussionUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                              >
-                                Discussion
-                              </a>
-                            ) : null}
-                            {malUrl ? (
-                              <a
-                                className="btn btn-secondary btn-link"
-                                href={malUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                              >
-                                MAL
-                              </a>
-                            ) : null}
-                          </div>
-                        ) : null}
 
                         {show.id && liveState && show.schedule.mode === 'finite' ? (
                           <div className="field">
@@ -1024,8 +1074,8 @@ export default function AdminPage() {
 
       <div className="sticky-bar">
         <div className="sticky-bar-inner">
-          <p className={`status ${statusType}`}>
-            {status || `${shows.length} show${shows.length === 1 ? '' : 's'}`}
+          <p className="status">
+            {shows.length} show{shows.length === 1 ? '' : 's'}
           </p>
           <div className="sticky-actions">
             <button
