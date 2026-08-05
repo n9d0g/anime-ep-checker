@@ -56,27 +56,6 @@ async function createScheduledEvent(
   return data.id
 }
 
-async function updateScheduledEvent(
-  botToken: string,
-  guildId: string,
-  eventId: string,
-  payload: Record<string, unknown>
-): Promise<void> {
-  const response = await discordBotRequest(
-    botToken,
-    `/guilds/${guildId}/scheduled-events/${eventId}`,
-    {
-      method: 'PATCH',
-      body: JSON.stringify(payload),
-    }
-  )
-
-  if (!response.ok) {
-    const body = await response.text()
-    throw new Error(`Discord scheduled event update failed (${response.status}): ${body}`)
-  }
-}
-
 async function deleteScheduledEvent(
   botToken: string,
   guildId: string,
@@ -207,7 +186,9 @@ async function syncScheduledEventForShow({
 
   if (dryRun) {
     if (existingEventId && existingEpisode === nextEpisode) {
-      console.log(`  Would update Discord event for ${showTitle} ep ${nextEpisode}`)
+      console.log(
+        `  Would leave Discord event unchanged for ${showTitle} ep ${nextEpisode}`
+      )
     } else {
       console.log(`  Would create Discord event for ${showTitle} ep ${nextEpisode}`)
     }
@@ -215,23 +196,10 @@ async function syncScheduledEventForShow({
   }
 
   if (existingEventId && existingEpisode === nextEpisode) {
-    try {
-      await updateScheduledEvent(botToken, guildId, existingEventId, payload)
-      console.log(`  Discord event updated for ${showTitle} ep ${nextEpisode}`)
-      return false
-    } catch (error) {
-      const detail = error instanceof Error ? error.message : String(error)
-      console.warn(
-        `  Discord event update failed for ${showTitle}; recreating: ${detail}`
-      )
-      try {
-        await deleteScheduledEvent(botToken, guildId, existingEventId)
-      } catch {
-        // Event may already be gone.
-      }
-      showState.discordScheduledEventId = null
-      showState.discordScheduledEventEpisode = null
-    }
+    console.log(
+      `  Discord event unchanged for ${showTitle} ep ${nextEpisode}; skipping sync`
+    )
+    return false
   } else if (existingEventId) {
     await clearStoredScheduledEvent(botToken, guildId, showState, showTitle, false)
   }

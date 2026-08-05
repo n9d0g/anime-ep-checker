@@ -234,7 +234,7 @@ The bot maintains a **pinned message per tracked show** in `#watching` using a *
 
 ### MAL score alerts
 
-On each checker run, the bot compares each show’s MAL **mean score** to the last stored value in `state.json`. Any change posts a **score pickup** (green) or **score drop** (red) embed to `#anime-alerts` with cover art and old → new score. First fetch baselines the score without alerting.
+On each checker run, the bot compares each show’s MAL **mean score** to the last stored value in `state.json`. A change of **0.05 or more** posts a **score pickup** (green) or **score drop** (red) embed to `#anime-alerts` with cover art and old → new score. Smaller moves are ignored. First fetch baselines the score without alerting.
 
 ### Plan-to-watch airing alerts
 

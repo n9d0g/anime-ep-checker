@@ -198,13 +198,13 @@ export async function syncPlanToWatchAlerts({
     reasons.push(`plan-to-watch ${entry.title} (${reason})`)
   }
 
-  if (!dryRun && changed) {
+  if (!dryRun) {
     state.meta = {
       ...state.meta,
+      planToWatchCheckedAt: checkedAt,
       planToWatchAlerts: nextAlerts,
       ...(entriesChanged
         ? {
-            planToWatchCheckedAt: checkedAt,
             planToWatch: {
               updatedAt: checkedAt,
               entries: snapshotEntries,
@@ -212,6 +212,7 @@ export async function syncPlanToWatchAlerts({
           }
         : {}),
     }
+    changed = true
   }
 
   return { changed: dryRun ? false : changed, reasons }

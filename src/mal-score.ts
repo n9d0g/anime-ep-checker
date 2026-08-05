@@ -4,6 +4,8 @@ import type { DiscordConfig } from './discord.js'
 import { fetchMalAnimeDetails } from './mal.js'
 import type { Show, StateFile } from './types.js'
 
+const MAL_SCORE_ALERT_DELTA = 0.05
+
 function hasBotConfig(discord: DiscordConfig): boolean {
   return Boolean(discord.botToken?.trim() && discord.channelId?.trim())
 }
@@ -44,49 +46,61 @@ export async function syncMalScoreAlerts({
     const currentScore = result.details.meanScore
     const previousScore = showState.malMeanScore ?? null
 
-    if (previousScore !== null && currentScore !== previousScore) {
-      const direction = currentScore > previousScore ? 'pickup' : 'drop'
-
-      if (!dryRun && hasBotConfig(discord)) {
-        await sendMalScoreAlert({
-          discord,
-          show,
-          previousScore,
-          newScore: currentScore,
-          direction,
-          coverUrl: result.details.coverUrl,
-        })
-        console.log(
-          `  MAL score ${direction} alert for ${showTitle(show)}: ${previousScore.toFixed(2)} → ${currentScore.toFixed(2)}`
+    if (previousScore === null) {
+      if (currentScore !== previousScore) {
+        state.shows[show.id] = {
+          ...showState,
+          malMeanScore: currentScore,
+        }
+        reasons.push(
+          `MAL score stored ${showTitle(show)} ${currentScore.toFixed(2)}`
         )
-      } else if (dryRun) {
-        console.log(
-          `  Would send MAL score ${direction} alert for ${showTitle(show)}`
-        )
+        changed = true
       }
-
-      state.shows[show.id] = {
-        ...showState,
-        malMeanScore: currentScore,
-        malScoreAlertedAt: now.toISOString(),
-      }
-      reasons.push(
-        `MAL score ${showTitle(show)} ${previousScore.toFixed(2)}→${currentScore.toFixed(2)}`
-      )
-      changed = true
       continue
     }
 
-    if (previousScore !== currentScore) {
-      state.shows[show.id] = {
-        ...showState,
-        malMeanScore: currentScore,
-      }
-      reasons.push(
-        `MAL score stored ${showTitle(show)} ${currentScore.toFixed(2)}`
-      )
-      changed = true
+    if (currentScore === previousScore) {
+      continue
     }
+
+    const delta = Math.abs(currentScore - previousScore)
+    if (delta < MAL_SCORE_ALERT_DELTA) {
+      console.log(
+        `  MAL score change for ${showTitle(show)} below threshold (${delta.toFixed(2)} < ${MAL_SCORE_ALERT_DELTA}); ignoring`
+      )
+      continue
+    }
+
+    const direction = currentScore > previousScore ? 'pickup' : 'drop'
+
+    if (!dryRun && hasBotConfig(discord)) {
+      await sendMalScoreAlert({
+        discord,
+        show,
+        previousScore,
+        newScore: currentScore,
+        direction,
+        coverUrl: result.details.coverUrl,
+      })
+      console.log(
+        `  MAL score ${direction} alert for ${showTitle(show)}: ${previousScore.toFixed(2)} → ${currentScore.toFixed(2)}`
+      )
+    } else if (dryRun) {
+      console.log(
+        `  Would send MAL score ${direction} alert for ${showTitle(show)}`
+      )
+    }
+
+    state.shows[show.id] = {
+      ...showState,
+      malMeanScore: currentScore,
+      malScoreAlertedAt: now.toISOString(),
+    }
+    reasons.push(
+      `MAL score ${showTitle(show)} ${previousScore.toFixed(2)}→${currentScore.toFixed(2)}`
+    )
+    changed = true
   }
 
   return { changed, reasons }

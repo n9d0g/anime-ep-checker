@@ -127,8 +127,6 @@ export async function syncWatchingDashboard({
 
   for (const show of shows) {
     const showState = getShowState(state, show.id)
-    const prevDiscussionUrl = showState?.discussionUrl ?? null
-    const prevDiscussionEpisode = showState?.discussionUrlEpisode ?? null
     const providerLatest = await fetchProviderLatestEpisode(
       show,
       fetchLatest,
@@ -140,15 +138,6 @@ export async function syncWatchingDashboard({
       now,
       providerLatest
     )
-
-    if (
-      showState &&
-      (showState.discussionUrl !== prevDiscussionUrl ||
-        showState.discussionUrlEpisode !== prevDiscussionEpisode)
-    ) {
-      changed = true
-      reasons.push(`cached discussion URL for ${show.title || show.id}`)
-    }
 
     const payload = buildShowDashboardPayload(row)
     const payloadHash = hashDashboardPayload(payload)
