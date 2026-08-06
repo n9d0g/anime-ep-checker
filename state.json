@@ -158,7 +158,9 @@
           "eventId": "lt1i9sjcmfeo0rlte76p6rusqc",
           "startAt": "2026-09-24T16:00:00.000Z"
         }
-      }
+      },
+      "discussionUrl": "https://www.reddit.com/r/anime/comments/1vh7jz7/smoking_behind_the_supermarket_with_you_super_no/",
+      "discussionUrlEpisode": 5
     },
     "chainsmoker-cat": {
       "lastEpisodeId": "82760637",
@@ -244,7 +246,7 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-08-06T18:33:32.018Z",
+    "planToWatchCheckedAt": "2026-08-06T21:45:03.504Z",
     "planToWatch": {
       "updatedAt": "2026-07-31T03:30:31.401Z",
       "entries": [
@@ -713,10 +715,10 @@
       ]
     },
     "watchingDashboardHashes": {
-      "one-piece": "5720138455c74cec9f17e2842dc952027acf39e8",
+      "one-piece": "2ae04817eca673a9382f1ed0435044687e53f1f0",
       "slime": "0548b6a39ab4275198ca6e3237b31f9fb9533f6d",
       "mushoku-tensei-s3": "79314d47a51f178d7da69b57594fec84f64d29ea",
-      "smoking-behind-the-supermarket-with-you": "fa3c38aa30f58bda223d103e81140ce427cd22ff",
+      "smoking-behind-the-supermarket-with-you": "62bf16958c2ed3a3b74ac468a5c2cfe6c8ab6c75",
       "bleach": "bec00a76f0f0f3530d036fe8eceed36a8f67ebd5",
       "chainsmoker-cat": "f52eaa39b8ebc474b33ae179a00cce4e64dabf29"
     }
