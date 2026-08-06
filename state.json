@@ -12,7 +12,13 @@
       "discordScheduledEventId": "1533854662435012710",
       "discordScheduledEventEpisode": 1173,
       "discussionUrl": "https://www.reddit.com/r/anime/comments/1vdlmq5/one_piece_episode_1172_discussion/",
-      "discussionUrlEpisode": 1172
+      "discussionUrlEpisode": 1172,
+      "googleCalendarEvents": {
+        "1173": {
+          "eventId": "7ol8u8o932dbuev0lsia479k94",
+          "startAt": "2026-08-09T16:00:00.000Z"
+        }
+      }
     },
     "slime": {
       "lastEpisodeId": "GE00374380JAJP",
@@ -27,7 +33,41 @@
       "malMeanScore": 8.14,
       "malScoreAlertedAt": "2026-08-03T22:25:33.657Z",
       "discussionUrl": "https://www.reddit.com/r/anime/comments/1v5e03p/tensei_shitara_slime_datta_ken_season_4_that_time/",
-      "discussionUrlEpisode": 16
+      "discussionUrlEpisode": 16,
+      "googleCalendarEvents": {
+        "17": {
+          "eventId": "q2eepm7140lhqeencvalnrnrq4",
+          "startAt": "2026-08-07T15:00:00.000Z"
+        },
+        "18": {
+          "eventId": "pvbmj811krm9mkiqjm4ea57kf0",
+          "startAt": "2026-08-14T15:00:00.000Z"
+        },
+        "19": {
+          "eventId": "cd1dbpgpas476d9jujlp0dvruo",
+          "startAt": "2026-08-21T15:00:00.000Z"
+        },
+        "20": {
+          "eventId": "fd0aaoo6qqipnl8hv7lcftmle0",
+          "startAt": "2026-08-28T15:00:00.000Z"
+        },
+        "21": {
+          "eventId": "2gl0rv9dddiaa8db28e05ctois",
+          "startAt": "2026-09-04T15:00:00.000Z"
+        },
+        "22": {
+          "eventId": "2c45vfnl8s821qmiqdp1t8ttek",
+          "startAt": "2026-09-11T15:00:00.000Z"
+        },
+        "23": {
+          "eventId": "spg8dlrprgqvi5i9jo2mn8kf2k",
+          "startAt": "2026-09-18T15:00:00.000Z"
+        },
+        "24": {
+          "eventId": "pfkrqdeg9j8po6cphb7plc2cu4",
+          "startAt": "2026-09-25T15:00:00.000Z"
+        }
+      }
     },
     "mushoku-tensei-s3": {
       "lastEpisodeId": "GE00374458JAJP",
@@ -42,7 +82,41 @@
       "discordScheduledEventId": "1534318162617696416",
       "discordScheduledEventEpisode": 7,
       "discussionUrl": "https://www.reddit.com/r/anime/comments/1vdkbj7/mushoku_tensei_jobless_reincarnation_season_3/",
-      "discussionUrlEpisode": 6
+      "discussionUrlEpisode": 6,
+      "googleCalendarEvents": {
+        "7": {
+          "eventId": "g8l9jsh22ie5rk52n8voilbal8",
+          "startAt": "2026-08-09T16:00:00.000Z"
+        },
+        "8": {
+          "eventId": "h1ak11csdj7tlpvmm0lvuefjuc",
+          "startAt": "2026-08-16T16:00:00.000Z"
+        },
+        "9": {
+          "eventId": "dj51p5g1tj8788f2fq0cl6c4qg",
+          "startAt": "2026-08-23T16:00:00.000Z"
+        },
+        "10": {
+          "eventId": "0vh2tl9005erlqknc2rbv23bas",
+          "startAt": "2026-08-30T16:00:00.000Z"
+        },
+        "11": {
+          "eventId": "mglokvbdieffvqjq9lf1qnu6bs",
+          "startAt": "2026-09-06T16:00:00.000Z"
+        },
+        "12": {
+          "eventId": "6f139kdc05ofmtghrd8si3m6d8",
+          "startAt": "2026-09-13T16:00:00.000Z"
+        },
+        "13": {
+          "eventId": "23fsqhhtsvuq7g5ten3v096fq8",
+          "startAt": "2026-09-20T16:00:00.000Z"
+        },
+        "14": {
+          "eventId": "clt5seq9l4urcntpsu3hclf0qg",
+          "startAt": "2026-09-27T16:00:00.000Z"
+        }
+      }
     },
     "smoking-behind-the-supermarket-with-you": {
       "lastEpisodeId": "GE00378528JAJP",
@@ -53,11 +127,41 @@
       "seasonTitle": "Season 1",
       "waitingNotifiedForEpisode": null,
       "malMeanScore": 8.37,
-      "discordScheduledEventId": "1532417683906367682",
-      "discordScheduledEventEpisode": 5,
+      "discordScheduledEventId": null,
+      "discordScheduledEventEpisode": null,
       "malScoreAlertedAt": "2026-08-02T12:55:24.890Z",
       "discussionUrl": "https://www.reddit.com/r/anime/comments/1vawy4v/smoking_behind_the_supermarket_with_you_super_no/",
-      "discussionUrlEpisode": 4
+      "discussionUrlEpisode": 4,
+      "googleCalendarEvents": {
+        "6": {
+          "eventId": "dggr56sslin9ms54hunhkd01ic",
+          "startAt": "2026-08-13T16:00:00.000Z"
+        },
+        "7": {
+          "eventId": "f6klvpeoq6gfcc4p7g8c261bmc",
+          "startAt": "2026-08-20T16:00:00.000Z"
+        },
+        "8": {
+          "eventId": "pid76rlj1tu1qd7jj79pf93bf4",
+          "startAt": "2026-08-27T16:00:00.000Z"
+        },
+        "9": {
+          "eventId": "rapcnu3q192ip3c965oqkv567g",
+          "startAt": "2026-09-03T16:00:00.000Z"
+        },
+        "10": {
+          "eventId": "vm7gesn7tj5n9qheocfqmmdbs4",
+          "startAt": "2026-09-10T16:00:00.000Z"
+        },
+        "11": {
+          "eventId": "supcgdm606u0t1ekrrb5jad5f0",
+          "startAt": "2026-09-17T16:00:00.000Z"
+        },
+        "12": {
+          "eventId": "lt1i9sjcmfeo0rlte76p6rusqc",
+          "startAt": "2026-09-24T16:00:00.000Z"
+        }
+      }
     },
     "chainsmoker-cat": {
       "lastEpisodeId": "82760636",
@@ -68,10 +172,11 @@
       "seasonTitle": "Chainsmoker Cat",
       "waitingNotifiedForEpisode": null,
       "malMeanScore": 7.05,
-      "discordScheduledEventId": "1532425233578065991",
-      "discordScheduledEventEpisode": 6,
+      "discordScheduledEventId": null,
+      "discordScheduledEventEpisode": null,
       "discussionUrl": "https://www.reddit.com/r/anime/comments/1vaxs6y/chainsmoker_cat_yani_neko_episode_5_discussion/",
-      "discussionUrlEpisode": 5
+      "discussionUrlEpisode": 5,
+      "googleCalendarEvents": null
     },
     "bleach": {
       "lastEpisodeId": "anilist-60636-2",
@@ -85,7 +190,41 @@
       "discordScheduledEventId": "1534610830685896845",
       "discordScheduledEventEpisode": 3,
       "discussionUrl": "https://www.reddit.com/r/anime/comments/1vcptrl/bleach_thousandyear_blood_war_the_calamity_bleach/",
-      "discussionUrlEpisode": 2
+      "discussionUrlEpisode": 2,
+      "googleCalendarEvents": {
+        "3": {
+          "eventId": "uvsiilbatfc449bo4nekj6vaa4",
+          "startAt": "2026-08-08T15:00:00.000Z"
+        },
+        "4": {
+          "eventId": "3b7otir1krqc09jq0unaqo8dvg",
+          "startAt": "2026-08-15T15:00:00.000Z"
+        },
+        "5": {
+          "eventId": "mo2qa770qh0cu924ca9g1bqnqo",
+          "startAt": "2026-08-22T15:00:00.000Z"
+        },
+        "6": {
+          "eventId": "8pbgm7n6u3j3h5k5jn3bg3ifok",
+          "startAt": "2026-08-29T15:00:00.000Z"
+        },
+        "7": {
+          "eventId": "ml5tmqpr0jl46n6crcib6vbp34",
+          "startAt": "2026-09-05T15:00:00.000Z"
+        },
+        "8": {
+          "eventId": "7hb3f65tuc43ltbarabi0cdl5s",
+          "startAt": "2026-09-12T15:00:00.000Z"
+        },
+        "9": {
+          "eventId": "pbkarmf1btvd19hbobtpfnu8tk",
+          "startAt": "2026-09-19T15:00:00.000Z"
+        },
+        "10": {
+          "eventId": "a3tvnerll74dsc4maoe9h12ra0",
+          "startAt": "2026-09-26T15:00:00.000Z"
+        }
+      }
     }
   },
   "meta": {
@@ -105,7 +244,7 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-08-05T17:20:28.120Z",
+    "planToWatchCheckedAt": "2026-08-06T18:14:29.539Z",
     "planToWatch": {
       "updatedAt": "2026-07-31T03:30:31.401Z",
       "entries": [
@@ -577,9 +716,9 @@
       "one-piece": "5720138455c74cec9f17e2842dc952027acf39e8",
       "slime": "0548b6a39ab4275198ca6e3237b31f9fb9533f6d",
       "mushoku-tensei-s3": "79314d47a51f178d7da69b57594fec84f64d29ea",
-      "smoking-behind-the-supermarket-with-you": "975fd3081fb32fa5db1036c9772ffef42a012821",
+      "smoking-behind-the-supermarket-with-you": "2f3f1e8eb6e88dcfe309fbe20ad378511401e1cf",
       "bleach": "bec00a76f0f0f3530d036fe8eceed36a8f67ebd5",
-      "chainsmoker-cat": "0770096bd82b3950c0b7530ed2e3c28a457fc090"
+      "chainsmoker-cat": "ee7a11eb94e74269292ba92e77736fe81cce234f"
     }
   }
 }
