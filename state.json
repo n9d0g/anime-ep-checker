@@ -119,19 +119,16 @@
       }
     },
     "smoking-behind-the-supermarket-with-you": {
-      "lastEpisodeId": "GE00378528JAJP",
-      "lastEpisodeNumber": "4",
-      "lastEpisodeTitle": "Learning Behind the Supermarket with You",
-      "lastNotifiedAt": "2026-07-30T16:00:35.136Z",
+      "lastEpisodeId": "GE00378529JAJP",
+      "lastEpisodeNumber": "5",
+      "lastEpisodeTitle": "Hanging Behind the Supermarket with You",
+      "lastNotifiedAt": "2026-08-06T18:33:34.587Z",
       "seasonId": "GS00378131JAJP",
       "seasonTitle": "Season 1",
       "waitingNotifiedForEpisode": null,
-      "malMeanScore": 8.37,
-      "discordScheduledEventId": null,
-      "discordScheduledEventEpisode": null,
-      "malScoreAlertedAt": "2026-08-02T12:55:24.890Z",
-      "discussionUrl": "https://www.reddit.com/r/anime/comments/1vawy4v/smoking_behind_the_supermarket_with_you_super_no/",
-      "discussionUrlEpisode": 4,
+      "malMeanScore": 8.36,
+      "discordScheduledEventId": "1534992896665587823",
+      "discordScheduledEventEpisode": 6,
       "googleCalendarEvents": {
         "6": {
           "eventId": "dggr56sslin9ms54hunhkd01ic",
@@ -164,19 +161,22 @@
       }
     },
     "chainsmoker-cat": {
-      "lastEpisodeId": "82760636",
-      "lastEpisodeNumber": "5",
-      "lastEpisodeTitle": "Episode 5",
-      "lastNotifiedAt": "2026-07-30T16:30:33.592Z",
+      "lastEpisodeId": "82760637",
+      "lastEpisodeNumber": "6",
+      "lastEpisodeTitle": "Episode 6",
+      "lastNotifiedAt": "2026-08-06T18:33:40.195Z",
       "seasonId": "82760631",
       "seasonTitle": "Chainsmoker Cat",
       "waitingNotifiedForEpisode": null,
-      "malMeanScore": 7.05,
-      "discordScheduledEventId": null,
-      "discordScheduledEventEpisode": null,
-      "discussionUrl": "https://www.reddit.com/r/anime/comments/1vaxs6y/chainsmoker_cat_yani_neko_episode_5_discussion/",
-      "discussionUrlEpisode": 5,
-      "googleCalendarEvents": null
+      "malMeanScore": 7.04,
+      "discordScheduledEventId": "1534992897861222530",
+      "discordScheduledEventEpisode": 7,
+      "googleCalendarEvents": {
+        "7": {
+          "eventId": "fadb5hpgui49g9ctab8f195iho",
+          "startAt": "2026-08-13T16:30:00.000Z"
+        }
+      }
     },
     "bleach": {
       "lastEpisodeId": "anilist-60636-2",
@@ -244,7 +244,7 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-08-06T18:14:29.539Z",
+    "planToWatchCheckedAt": "2026-08-06T18:33:32.018Z",
     "planToWatch": {
       "updatedAt": "2026-07-31T03:30:31.401Z",
       "entries": [
@@ -716,9 +716,9 @@
       "one-piece": "5720138455c74cec9f17e2842dc952027acf39e8",
       "slime": "0548b6a39ab4275198ca6e3237b31f9fb9533f6d",
       "mushoku-tensei-s3": "79314d47a51f178d7da69b57594fec84f64d29ea",
-      "smoking-behind-the-supermarket-with-you": "2f3f1e8eb6e88dcfe309fbe20ad378511401e1cf",
+      "smoking-behind-the-supermarket-with-you": "fa3c38aa30f58bda223d103e81140ce427cd22ff",
       "bleach": "bec00a76f0f0f3530d036fe8eceed36a8f67ebd5",
-      "chainsmoker-cat": "ee7a11eb94e74269292ba92e77736fe81cce234f"
+      "chainsmoker-cat": "f52eaa39b8ebc474b33ae179a00cce4e64dabf29"
     }
   }
 }
