@@ -12,15 +12,61 @@ on:
         default: false
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: check-episodes
   cancel-in-progress: false
 
 jobs:
-  check:
+  gate:
     runs-on: ubuntu-latest
+    outputs:
+      should_check: ${{ steps.gate.outputs.should_check }}
+    steps:
+      - name: Decide if full check is needed
+        id: gate
+        env:
+          FORCE: ${{ github.event.inputs.force }}
+        run: |
+          if [ "$FORCE" = "true" ]; then
+            echo "should_check=true" >> "$GITHUB_OUTPUT"
+            echo "Forced run — always checking."
+            exit 0
+          fi
+
+          mkdir -p gate-tmp
+          REF="${GITHUB_SHA}"
+          API="https://api.github.com/repos/${GITHUB_REPOSITORY}/contents"
+
+          curl -fsSL \
+            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+            -H "Accept: application/vnd.github.raw" \
+            "${API}/shows.json?ref=${REF}" \
+            -o gate-tmp/shows.json
+
+          curl -fsSL \
+            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+            -H "Accept: application/vnd.github.raw" \
+            "${API}/state.json?ref=${REF}" \
+            -o gate-tmp/state.json
+
+          curl -fsSL \
+            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+            -H "Accept: application/vnd.github.raw" \
+            "${API}/src/should-run.mjs?ref=${REF}" \
+            -o gate-tmp/should-run.mjs
+
+          SHOWS_PATH=gate-tmp/shows.json \
+          STATE_PATH=gate-tmp/state.json \
+          node gate-tmp/should-run.mjs
+
+  check:
+    needs: gate
+    if: needs.gate.outputs.should_check == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -31,33 +77,19 @@ jobs:
           node-version: "24.11.1"
           package-manager-cache: false
 
-      - name: Check if any show needs polling
-        id: gate
-        run: |
-          if [ "${{ github.event.inputs.force }}" = "true" ]; then
-            echo "should_check=true" >> "$GITHUB_OUTPUT"
-            echo "Forced run — always checking."
-          else
-            node --experimental-strip-types src/should-run.ts
-          fi
-
       - name: Install pnpm
-        if: steps.gate.outputs.should_check == 'true'
         uses: pnpm/action-setup@v5
 
       - name: Setup pnpm cache
-        if: steps.gate.outputs.should_check == 'true'
         uses: actions/setup-node@v5
         with:
           node-version: "24.11.1"
           cache: "pnpm"
 
       - name: Install dependencies
-        if: steps.gate.outputs.should_check == 'true'
         run: pnpm install --frozen-lockfile
 
       - name: Check for new episodes
-        if: steps.gate.outputs.should_check == 'true'
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_CHANNEL_ID: ${{ secrets.DISCORD_CHANNEL_ID }}
@@ -75,7 +107,7 @@ jobs:
       - name: Update Disney refresh token secret
         # Runs even when the check step fails: Disney has already invalidated the
         # old token by that point, so losing the rotated one would lock us out.
-        if: always() && steps.gate.outputs.should_check == 'true'
+        if: always()
         env:
           GH_TOKEN: ${{ secrets.GH_SECRETS_TOKEN }}
         run: |
@@ -95,7 +127,6 @@ jobs:
           echo "Updated DISNEY_REFRESH_TOKEN secret."
 
       - name: Commit state updates
-        if: steps.gate.outputs.should_check == 'true'
         run: |
           if git diff --quiet state.json; then
             echo "No state changes to commit."

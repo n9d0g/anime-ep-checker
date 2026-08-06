@@ -1,4 +1,4 @@
-// Zero-dep gate for GitHub Actions (node --experimental-strip-types, no pnpm install).
+// Zero-dep gate for GitHub Actions (plain Node, no pnpm install).
 // Schedule logic mirrors src/schedule.ts — keep window constants and helpers in sync.
 import { appendFileSync, readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
@@ -9,61 +9,32 @@ const WINDOW_BEFORE_MS = 5 * 60 * 1000
 const WINDOW_AFTER_DENSE_MS = 90 * 60 * 1000
 const LATE_POLL_INTERVAL_MS = 30 * 60 * 1000
 const CRON_INTERVAL_MS = 5 * 60 * 1000
-
-const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
-const SHOWS_PATH = resolve(ROOT, 'shows.json')
-const STATE_PATH = resolve(ROOT, 'state.json')
-
-interface ShowSchedule {
-  mode: string
-  startAt: string
-  startEpisode: number
-  episodeCount: number | null
-  premiereBatchSize: number
-}
-
-interface Show {
-  id: string
-  schedule: ShowSchedule
-}
-
-interface ShowState {
-  lastEpisodeNumber: string
-}
-
-interface ShowsFile {
-  shows: Show[]
-}
-
-interface StateFile {
-  shows: Record<string, ShowState>
-  meta?: {
-    planToWatchCheckedAt?: string | null
-  }
-}
-
 const PTW_CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000
 
-function readJson<T>(path: string, fallback: T): T {
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
+const SHOWS_PATH = process.env.SHOWS_PATH ?? resolve(ROOT, 'shows.json')
+const STATE_PATH = process.env.STATE_PATH ?? resolve(ROOT, 'state.json')
+
+function readJson(path, fallback) {
   try {
-    return JSON.parse(readFileSync(path, 'utf8')) as T
+    return JSON.parse(readFileSync(path, 'utf8'))
   } catch {
     return fallback
   }
 }
 
-function getPremiereBatchSize(schedule: ShowSchedule): number {
+function getPremiereBatchSize(schedule) {
   return schedule.premiereBatchSize > 0 ? schedule.premiereBatchSize : 1
 }
 
-function getLastScheduledEpisode(schedule: ShowSchedule): number | null {
+function getLastScheduledEpisode(schedule) {
   if (schedule.mode === 'ongoing' || schedule.episodeCount === null) {
     return null
   }
   return schedule.startEpisode + schedule.episodeCount - 1
 }
 
-function isEpisodeInSchedule(schedule: ShowSchedule, episodeNumber: number): boolean {
+function isEpisodeInSchedule(schedule, episodeNumber) {
   if (episodeNumber < schedule.startEpisode) {
     return false
   }
@@ -74,7 +45,7 @@ function isEpisodeInSchedule(schedule: ShowSchedule, episodeNumber: number): boo
   return true
 }
 
-function getExpectedDropAt(schedule: ShowSchedule, episodeNumber: number): Date | null {
+function getExpectedDropAt(schedule, episodeNumber) {
   if (!isEpisodeInSchedule(schedule, episodeNumber)) {
     return null
   }
@@ -91,10 +62,7 @@ function getExpectedDropAt(schedule: ShowSchedule, episodeNumber: number): Date 
   return new Date(start.getTime() + weeksAfterBatch * MS_PER_WEEK)
 }
 
-function getNextExpectedEpisode(
-  schedule: ShowSchedule,
-  lastEpisodeNumber: number | null
-): number | null {
+function getNextExpectedEpisode(schedule, lastEpisodeNumber) {
   const next =
     lastEpisodeNumber === null ? schedule.startEpisode : lastEpisodeNumber + 1
   if (!isEpisodeInSchedule(schedule, next)) {
@@ -103,7 +71,7 @@ function getNextExpectedEpisode(
   return next
 }
 
-function isInDenseCheckWindow(expectedAt: Date, now: Date): boolean {
+function isInDenseCheckWindow(expectedAt, now) {
   const nowMs = now.getTime()
   const expectedMs = expectedAt.getTime()
   return (
@@ -112,7 +80,7 @@ function isInDenseCheckWindow(expectedAt: Date, now: Date): boolean {
   )
 }
 
-function isInLateCheckSlot(expectedAt: Date, now: Date): boolean {
+function isInLateCheckSlot(expectedAt, now) {
   const elapsed = now.getTime() - (expectedAt.getTime() + WINDOW_AFTER_DENSE_MS)
   if (elapsed < 0) {
     return false
@@ -124,14 +92,11 @@ function isInLateCheckSlot(expectedAt: Date, now: Date): boolean {
   )
 }
 
-function isInCheckWindow(expectedAt: Date, now: Date): boolean {
+function isInCheckWindow(expectedAt, now) {
   return isInDenseCheckWindow(expectedAt, now) || isInLateCheckSlot(expectedAt, now)
 }
 
-function getCheckWindowMode(
-  expectedAt: Date,
-  now: Date
-): 'dense' | 'late' | null {
+function getCheckWindowMode(expectedAt, now) {
   if (isInDenseCheckWindow(expectedAt, now)) {
     return 'dense'
   }
@@ -141,12 +106,12 @@ function getCheckWindowMode(
   return null
 }
 
-function parseEpisodeNumber(value: string | undefined): number {
+function parseEpisodeNumber(value) {
   const parsed = Number(value)
   return Number.isFinite(parsed) ? parsed : 0
 }
 
-function showNeedsCheck(show: Show, state: StateFile, now: Date): boolean {
+function showNeedsCheck(show, state, now) {
   const previousState = state.shows[show.id] ?? null
   const lastEpisodeNumber = previousState
     ? parseEpisodeNumber(previousState.lastEpisodeNumber)
@@ -162,12 +127,8 @@ function showNeedsCheck(show: Show, state: StateFile, now: Date): boolean {
   return isInCheckWindow(expectedAt, now)
 }
 
-function getActiveCheckModes(
-  shows: Show[],
-  state: StateFile,
-  now: Date
-): Array<'dense' | 'late'> {
-  const modes = new Set<'dense' | 'late'>()
+function getActiveCheckModes(shows, state, now) {
+  const modes = new Set()
 
   for (const show of shows) {
     const previousState = state.shows[show.id] ?? null
@@ -191,7 +152,7 @@ function getActiveCheckModes(
   return [...modes]
 }
 
-function needsPlanToWatchCheck(state: StateFile, now: Date): boolean {
+function needsPlanToWatchCheck(state, now) {
   const checkedAt = state.meta?.planToWatchCheckedAt
   if (!checkedAt) {
     return true
@@ -205,8 +166,8 @@ function needsPlanToWatchCheck(state: StateFile, now: Date): boolean {
   return now.getTime() - checkedMs >= PTW_CHECK_INTERVAL_MS
 }
 
-const showsFile = readJson<ShowsFile>(SHOWS_PATH, { shows: [] })
-const state = readJson<StateFile>(STATE_PATH, { shows: {} })
+const showsFile = readJson(SHOWS_PATH, { shows: [] })
+const state = readJson(STATE_PATH, { shows: {} })
 const now = new Date()
 const shows = showsFile.shows ?? []
 const needsCheck = shows.some((show) => showNeedsCheck(show, state, now))
@@ -228,5 +189,7 @@ if (shouldRun) {
     console.log('Plan-to-watch check is due (24h cadence).')
   }
 } else {
-  console.log('No shows in active check window and plan-to-watch check not due; skipping full check.')
+  console.log(
+    'No shows in active check window and plan-to-watch check not due; skipping full check.'
+  )
 }

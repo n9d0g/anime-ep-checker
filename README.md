@@ -76,7 +76,9 @@ Content-Type: application/json
 {"ref":"main"}
 ```
 
-4. Each dispatch starts a workflow run. Outside drop windows the cheap `should-run` gate exits in ~15s without installing deps. Inside a window, the full `pnpm check` runs.
+4. Each dispatch starts a workflow run. Outside drop windows the **gate** job exits in seconds without downloading Actions marketplace packages or installing deps. Inside a window, the full `pnpm check` job runs.
+
+If a workflow run is slow or fails at **Getting action download info** / **Service Unavailable**, that is a GitHub Actions marketplace outage—not the checker. The gate job uses no `uses:` actions so skip runs usually still succeed during those blips; full checks may retry on the next cron tick.
 5. To force a full check outside any window, use **Actions → Check Crunchyroll Episodes → Run workflow** and enable **force**.
 
 ## Setup
@@ -210,7 +212,7 @@ Optional: set `DISNEY_REGION` (default `US`) if your account is in another regio
 ```bash
 # Root checker (Node 24.11.1)
 pnpm install
-node --experimental-strip-types src/should-run.ts   # gate only
+node src/should-run.mjs   # gate only (local; Actions gate fetches JSON via API)
 pnpm check -- --dry-run
 pnpm check -- --force        # bypass drop windows (debug)
 
@@ -301,7 +303,7 @@ Shows your MAL plan-to-watch list from `state.meta.planToWatch`, grouped into **
 | [`src/mal-score.ts`](src/mal-score.ts) | MAL score spike/tank detection |
 | [`src/plan-to-watch.ts`](src/plan-to-watch.ts) | MAL plan-to-watch airing alerts |
 | [`scripts/register-discord-commands.ts`](scripts/register-discord-commands.ts) | Register guild slash commands |
-| [`src/should-run.ts`](src/should-run.ts) | Cheap gate for Actions |
+| [`src/should-run.mjs`](src/should-run.mjs) | Cheap gate for Actions (no marketplace actions on skip path) |
 | [`admin/`](admin/) | Vercel CMS + Discord/MAL interactions |
 | [`.github/workflows/check-episodes.yml`](.github/workflows/check-episodes.yml) | Scheduled checker |
 | [`.github/workflows/notify-deploy.yml`](.github/workflows/notify-deploy.yml) | Discord notify on Vercel production deploy |
