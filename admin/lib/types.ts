@@ -44,6 +44,10 @@ export interface ShowState {
   malScoreAlertedAt?: string | null
   discussionUrl?: string | null
   discussionUrlEpisode?: number | null
+  googleCalendarEvents?: Record<
+    string,
+    { eventId: string; startAt: string }
+  > | null
 }
 
 export interface PlanToWatchSnapshotEntry {

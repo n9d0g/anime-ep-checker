@@ -865,6 +865,13 @@ select:focus {
   text-decoration: none;
 }
 
+.delay-actions {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
 .setup-link {
   margin: 0.25rem 0 0;
   font-size: 0.78rem;

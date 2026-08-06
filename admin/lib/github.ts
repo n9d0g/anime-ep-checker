@@ -124,6 +124,18 @@ export async function saveStateFile(
   })
 }
 
+export async function dispatchCheckWorkflow(force = true): Promise<void> {
+  const { repo, branch } = getConfig()
+  await githubFetch(`/repos/${repo}/actions/workflows/check-episodes.yml/dispatches`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      ref: branch,
+      inputs: { force: force ? 'true' : 'false' },
+    }),
+  })
+}
+
 export function slugify(value: string): string {
   return String(value)
     .toLowerCase()

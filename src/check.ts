@@ -25,6 +25,11 @@ import {
   syncScheduledEvents,
   type DiscordEventsConfig,
 } from './discord-events.js'
+import {
+  clearGoogleCalendarEventForEpisode,
+  getGoogleCalendarConfigFromEnv,
+  syncGoogleCalendarEvents,
+} from './google-calendar.js'
 import { fetchMalAnimeDetails } from './mal.js'
 import { syncMalScoreAlerts } from './mal-score.js'
 import { syncPlanToWatchAlerts } from './plan-to-watch.js'
@@ -324,6 +329,18 @@ async function announceEpisode({
           noteStateChange(`scheduled event cleared for ${show.title || showId}`)
           console.log('  Discord scheduled event cleared')
         }
+      }
+
+      const calendarConfig = getGoogleCalendarConfigFromEnv()
+      const calendarCleared = await clearGoogleCalendarEventForEpisode(
+        calendarConfig,
+        showId,
+        episodeNumber,
+        state
+      )
+      if (calendarCleared) {
+        noteStateChange(`Google Calendar event cleared for ${show.title || showId} ep ${episodeNumber}`)
+        console.log('  Google Calendar event cleared')
       }
     } else {
       console.log('  Discord not configured; skipping alert')
@@ -718,6 +735,26 @@ export async function checkShows({
     } catch (error) {
       console.warn(
         `Discord scheduled events sync failed: ${
+          error instanceof Error ? error.message : error
+        }`
+      )
+    }
+
+    try {
+      const calendarChanged = await syncGoogleCalendarEvents({
+        config: getGoogleCalendarConfigFromEnv(),
+        shows,
+        state,
+        now,
+        dryRun,
+      })
+      if (calendarChanged) {
+        stateChangeReasons.push('Google Calendar events updated')
+        stateChanged = true
+      }
+    } catch (error) {
+      console.warn(
+        `Google Calendar sync failed: ${
           error instanceof Error ? error.message : error
         }`
       )

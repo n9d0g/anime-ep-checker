@@ -116,6 +116,8 @@ Optional fallback: a legacy webhook via `DISCORD_WEBHOOK_URL` (no MAL button, no
 | `DISNEY_REFRESH_TOKEN` | Disney+ refresh token (see §6; auto-rotated by the checker) |
 | `DISNEY_REGION` | Optional Disney+ region (default `US`) |
 | `GH_SECRETS_TOKEN` | Fine-grained PAT with **Secrets: Read and write** on this repo (auto-updates `DISNEY_REFRESH_TOKEN` when Disney rotates it) |
+| `GOOGLE_SERVICE_ACCOUNT_JSON` | Full JSON key for a Google service account with Calendar access (see [Google Calendar sync](#google-calendar-sync)) |
+| `GOOGLE_CALENDAR_ID` | Calendar ID for your Anime Drops calendar |
 | `DISCORD_DEPLOY_WEBHOOK_URL` | Webhook for a separate **deploy** Discord channel |
 
 The workflow uses the default `GITHUB_TOKEN` to commit `state.json` updates.
@@ -265,6 +267,26 @@ Requires `DISCORD_GUILD_ID`, `DISCORD_BOT_TOKEN`, and `DISCORD_CHANNEL_ID` on Ve
 
 For each show’s next expected episode, the bot creates or updates an **external** guild scheduled event (watch URL as location). The event is cleared when the episode alert fires. Requires `DISCORD_GUILD_ID` and Create/Manage Events permissions.
 
+### Google Calendar sync
+
+The checker mirrors upcoming drops to a Google Calendar (your **Anime Drops** calendar):
+
+- **Finite seasons:** events for every remaining episode through the season end
+- **Ongoing:** only the next upcoming episode (recreated after each drop)
+- **30 minutes** long, with popup reminders **10 minutes before** and **at start**
+- Title includes episode name when Crunchyroll already lists that episode in the season catalog
+
+**One-time setup:**
+
+1. Google Cloud Console → enable **Google Calendar API**
+2. Create a **service account** → Keys → add JSON key
+3. Copy `client_email` from the JSON
+4. Google Calendar → Anime Drops → **Share with specific people** → add that email with **Make changes to events**
+5. Calendar settings → **Integrate calendar** → copy **Calendar ID**
+6. Add GitHub secrets `GOOGLE_SERVICE_ACCOUNT_JSON` (full JSON) and `GOOGLE_CALENDAR_ID`
+
+When an episode drops, its calendar event is removed. Use **Delay +1 week** in the admin (below) to shift a delayed show and rebuild Discord + Calendar events.
+
 ## CMS usage
 
 1. Open your Vercel admin URL and sign in
@@ -274,7 +296,10 @@ For each show’s next expected episode, the bot creates or updates an **externa
 5. Tracked show **titles** sync from MAL when a `malId` is known (on page load via `POST /api/shows/sync-mal`)
 6. Choose **Finite season** or **Ongoing**
 7. Set start date/time (**Japan Time / JST**), start episode number, and premiere batch size
-8. **Save changes** — commits to `shows.json` on GitHub
+8. **Delay +1 week** (saved shows only) shifts `startAt` by 7 days and clears Discord/Calendar event state so the checker rebuilds events on the next forced run
+9. **Save changes** — commits to `shows.json` on GitHub
+
+For **Delay +1 week**, the admin `GITHUB_TOKEN` PAT should include **Actions: Write** so a forced check workflow starts automatically. Otherwise run **Actions → Check Crunchyroll Episodes → Run workflow** with **force** after delaying.
 
 ### Plan to watch page (`/ptw`)
 
@@ -298,6 +323,7 @@ Shows your MAL plan-to-watch list from `state.meta.planToWatch`, grouped into **
 | [`src/discord-format.ts`](src/discord-format.ts) | Embed formatting helpers |
 | [`src/discord-dashboard.ts`](src/discord-dashboard.ts) | #watching dashboard sync |
 | [`src/discord-events.ts`](src/discord-events.ts) | Guild scheduled events sync |
+| [`src/google-calendar.ts`](src/google-calendar.ts) | Google Calendar episode sync |
 | [`src/dashboard.ts`](src/dashboard.ts) | Dashboard status + embed builder |
 | [`src/mal.ts`](src/mal.ts) | MAL read-only progress (checker) |
 | [`src/mal-score.ts`](src/mal-score.ts) | MAL score spike/tank detection |

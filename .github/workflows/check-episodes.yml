@@ -102,6 +102,8 @@ jobs:
           NETFLIX_COOKIE: ${{ secrets.NETFLIX_COOKIE }}
           DISNEY_REFRESH_TOKEN: ${{ secrets.DISNEY_REFRESH_TOKEN }}
           DISNEY_REGION: ${{ secrets.DISNEY_REGION }}
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          GOOGLE_CALENDAR_ID: ${{ secrets.GOOGLE_CALENDAR_ID }}
         run: pnpm check ${{ github.event.inputs.force == 'true' && '--force' || '' }}
 
       - name: Update Disney refresh token secret

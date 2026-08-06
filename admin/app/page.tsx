@@ -602,6 +602,65 @@ export default function AdminPage() {
     }
   }
 
+  async function delayShowByOneWeek(show: ShowFormValues) {
+    if (!show.id) {
+      return
+    }
+
+    const label = show.title || show.id
+    if (
+      !window.confirm(
+        `Delay "${label}" by one week? Future drops shift and Discord/Calendar events rebuild.`
+      )
+    ) {
+      return
+    }
+
+    try {
+      const response = await fetch('/api/shows/delay', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ showId: show.id }),
+      })
+      const data = (await response.json()) as {
+        error?: string
+        workflowTriggered?: boolean
+      }
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to delay show')
+      }
+
+      const [showsResponse, stateResponse] = await Promise.all([
+        fetch('/api/shows'),
+        fetch('/api/state'),
+      ])
+      const showsData = (await showsResponse.json()) as { shows?: Show[] }
+      const stateData = (await stateResponse.json()) as {
+        shows?: Record<string, ShowStateSummary>
+      }
+
+      if (showsResponse.ok && showsData.shows) {
+        const loadedShows = showsData.shows.map(showToForm)
+        setShows(loadedShows)
+        setBaseline(serializeShows(loadedShows))
+      }
+      if (stateResponse.ok) {
+        setShowStates(stateData.shows ?? {})
+      }
+
+      toast.success(
+        data.workflowTriggered
+          ? 'Delayed one week. Forced check started to rebuild events.'
+          : 'Delayed one week. Run Actions → Check with force to rebuild events.'
+      )
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to delay show'
+      )
+    }
+  }
+
   return (
     <>
       <TopHeader />
@@ -834,6 +893,21 @@ export default function AdminPage() {
                           />
                           {startHint ? (
                             <p className="hint schedule-start-hint">{startHint}</p>
+                          ) : null}
+                          {show.id ? (
+                            <div className="delay-actions">
+                              <button
+                                className="btn btn-secondary"
+                                type="button"
+                                onClick={() => void delayShowByOneWeek(show)}
+                              >
+                                Delay +1 week
+                              </button>
+                              <p className="hint">
+                                Shifts all future drops by 7 days and rebuilds
+                                Discord and Google Calendar events.
+                              </p>
+                            </div>
                           ) : null}
                         </div>
 

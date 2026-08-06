@@ -1,5 +1,6 @@
 // Zero-dep gate for GitHub Actions (plain Node, no pnpm install).
 // Schedule logic mirrors src/schedule.ts — keep window constants and helpers in sync.
+/* global process, console */
 import { appendFileSync, readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
