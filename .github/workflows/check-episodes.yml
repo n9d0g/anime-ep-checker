@@ -1,8 +1,6 @@
-name: Check Crunchyroll Episodes
+name: Check anime episodes
 
 on:
-  schedule:
-    - cron: "*/5 * * * *"
   workflow_dispatch:
     inputs:
       force:
@@ -19,51 +17,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  gate:
-    runs-on: ubuntu-latest
-    outputs:
-      should_check: ${{ steps.gate.outputs.should_check }}
-    steps:
-      - name: Decide if full check is needed
-        id: gate
-        env:
-          FORCE: ${{ github.event.inputs.force }}
-        run: |
-          if [ "$FORCE" = "true" ]; then
-            echo "should_check=true" >> "$GITHUB_OUTPUT"
-            echo "Forced run — always checking."
-            exit 0
-          fi
-
-          mkdir -p gate-tmp
-          REF="${GITHUB_SHA}"
-          API="https://api.github.com/repos/${GITHUB_REPOSITORY}/contents"
-
-          curl -fsSL \
-            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
-            -H "Accept: application/vnd.github.raw" \
-            "${API}/shows.json?ref=${REF}" \
-            -o gate-tmp/shows.json
-
-          curl -fsSL \
-            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
-            -H "Accept: application/vnd.github.raw" \
-            "${API}/state.json?ref=${REF}" \
-            -o gate-tmp/state.json
-
-          curl -fsSL \
-            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
-            -H "Accept: application/vnd.github.raw" \
-            "${API}/src/should-run.mjs?ref=${REF}" \
-            -o gate-tmp/should-run.mjs
-
-          SHOWS_PATH=gate-tmp/shows.json \
-          STATE_PATH=gate-tmp/state.json \
-          node gate-tmp/should-run.mjs
-
   check:
-    needs: gate
-    if: needs.gate.outputs.should_check == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write

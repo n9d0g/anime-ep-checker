@@ -57,18 +57,18 @@ Discord alerts still display times in **Eastern Time (EST/EDT)** even though sch
 | **Late** | After T+90m, episode still missing | Full check about every **30 minutes** until found |
 | **Done** | Episode found | State advances; show leaves the window until next ep |
 
-GitHub’s built-in `schedule` trigger is kept as a backup but is often throttled to ~hourly on free/public repos. Use [Reliable polling](#reliable-polling) for actual 5-minute cadence during drop windows.
+GitHub’s built-in `schedule` on `episode-gate.yml` is kept as a backup but is often throttled to ~hourly on free/public repos. Use [Reliable polling](#reliable-polling) for actual 5-minute cadence during drop windows.
 
 ### Reliable polling
 
-GitHub Actions alone does not reliably fire every 5 minutes. Use an external cron (e.g. [cron-job.org](https://cron-job.org)) to call `workflow_dispatch` on the check workflow:
+GitHub Actions alone does not reliably fire every 5 minutes. Use an external cron (e.g. [cron-job.org](https://cron-job.org)) to call `workflow_dispatch` on the **gate** workflow:
 
 1. Create a **fine-grained PAT** on GitHub with **Actions: Write** (and **Contents: Read** if required) scoped to this repo only.
 2. Store the PAT in the cron service only — do not commit it to the repo.
 3. Create a job that runs every **5 minutes** and sends:
 
 ```http
-POST https://api.github.com/repos/<owner>/<repo>/actions/workflows/check-episodes.yml/dispatches
+POST https://api.github.com/repos/<owner>/<repo>/actions/workflows/episode-gate.yml/dispatches
 Authorization: Bearer <PAT>
 Accept: application/vnd.github+json
 Content-Type: application/json
@@ -76,10 +76,10 @@ Content-Type: application/json
 {"ref":"main"}
 ```
 
-4. Each dispatch starts a workflow run. Outside drop windows the **gate** job exits in seconds without downloading Actions marketplace packages or installing deps. Inside a window, the full `pnpm check` job runs.
+4. Each dispatch runs the **Episode gate** workflow (shell only, no Actions marketplace downloads). Outside drop windows it exits in seconds. Inside a window, or when the plan-to-watch cadence is due, it dispatches **Check anime episodes** for the full `pnpm check`.
 
-If a workflow run is slow or fails at **Getting action download info** / **Service Unavailable**, that is a GitHub Actions marketplace outage—not the checker. The gate job uses no `uses:` actions so skip runs usually still succeed during those blips; full checks may retry on the next cron tick.
-5. To force a full check outside any window, use **Actions → Check Crunchyroll Episodes → Run workflow** and enable **force**.
+If **Check anime episodes** is slow or fails at **Getting action download info** / **Service Unavailable**, that is a GitHub Actions marketplace outage—not the checker. Skip ticks on **Episode gate** do not use marketplace actions and should still finish in seconds; full checks may retry on the next cron tick.
+5. To force a full check outside any window, use **Actions → Check anime episodes → Run workflow** and enable **force**.
 
 ## Setup
 
@@ -299,7 +299,7 @@ When an episode drops, its calendar event is removed. Use **Delay +1 week** in t
 8. **Delay +1 week** (saved shows only) shifts `startAt` by 7 days and clears Discord/Calendar event state so the checker rebuilds events on the next forced run
 9. **Save changes** — commits to `shows.json` on GitHub
 
-For **Delay +1 week**, the admin `GITHUB_TOKEN` PAT should include **Actions: Write** so a forced check workflow starts automatically. Otherwise run **Actions → Check Crunchyroll Episodes → Run workflow** with **force** after delaying.
+For **Delay +1 week**, the admin `GITHUB_TOKEN` PAT should include **Actions: Write** so a forced check workflow starts automatically. Otherwise run **Actions → Check anime episodes → Run workflow** with **force** after delaying.
 
 ### Plan to watch page (`/ptw`)
 
@@ -331,7 +331,8 @@ Shows your MAL plan-to-watch list from `state.meta.planToWatch`, grouped into **
 | [`scripts/register-discord-commands.ts`](scripts/register-discord-commands.ts) | Register guild slash commands |
 | [`src/should-run.mjs`](src/should-run.mjs) | Cheap gate for Actions (no marketplace actions on skip path) |
 | [`admin/`](admin/) | Vercel CMS + Discord/MAL interactions |
-| [`.github/workflows/check-episodes.yml`](.github/workflows/check-episodes.yml) | Scheduled checker |
+| [`.github/workflows/episode-gate.yml`](.github/workflows/episode-gate.yml) | Cron gate (shell only; dispatches full check when needed) |
+| [`.github/workflows/check-episodes.yml`](.github/workflows/check-episodes.yml) | Full episode check (`workflow_dispatch` or dispatched from gate) |
 | [`.github/workflows/notify-deploy.yml`](.github/workflows/notify-deploy.yml) | Discord notify on Vercel production deploy |
 
 ## Notes
