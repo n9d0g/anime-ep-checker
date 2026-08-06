@@ -178,7 +178,9 @@
           "eventId": "fadb5hpgui49g9ctab8f195iho",
           "startAt": "2026-08-13T16:30:00.000Z"
         }
-      }
+      },
+      "discussionUrl": "https://www.reddit.com/r/anime/comments/1vh8eb6/chainsmoker_cat_yani_neko_episode_6_discussion/",
+      "discussionUrlEpisode": 6
     },
     "bleach": {
       "lastEpisodeId": "anilist-60636-2",
@@ -246,7 +248,7 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-08-06T21:45:03.504Z",
+    "planToWatchCheckedAt": "2026-08-06T21:56:36.347Z",
     "planToWatch": {
       "updatedAt": "2026-07-31T03:30:31.401Z",
       "entries": [
@@ -720,7 +722,7 @@
       "mushoku-tensei-s3": "79314d47a51f178d7da69b57594fec84f64d29ea",
       "smoking-behind-the-supermarket-with-you": "62bf16958c2ed3a3b74ac468a5c2cfe6c8ab6c75",
       "bleach": "bec00a76f0f0f3530d036fe8eceed36a8f67ebd5",
-      "chainsmoker-cat": "f52eaa39b8ebc474b33ae179a00cce4e64dabf29"
+      "chainsmoker-cat": "e82fd49879c39ae4195e6a8a8e78b63b4bf31770"
     }
   }
 }
