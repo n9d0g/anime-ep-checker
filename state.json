@@ -60,7 +60,9 @@
           "eventId": "pfkrqdeg9j8po6cphb7plc2cu4",
           "startAt": "2026-09-25T15:00:00.000Z"
         }
-      }
+      },
+      "discussionUrl": "https://www.reddit.com/r/anime/comments/1vi334r/tensei_shitara_slime_datta_ken_season_4_that_time/",
+      "discussionUrlEpisode": 17
     },
     "mushoku-tensei-s3": {
       "lastEpisodeId": "GE00374458JAJP",
@@ -241,7 +243,7 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-08-07T15:05:26.700Z",
+    "planToWatchCheckedAt": "2026-08-07T15:10:33.925Z",
     "planToWatch": {
       "updatedAt": "2026-07-31T03:30:31.401Z",
       "entries": [
@@ -711,7 +713,7 @@
     },
     "watchingDashboardHashes": {
       "one-piece": "2ae04817eca673a9382f1ed0435044687e53f1f0",
-      "slime": "0a6939a1d83f02c6b3f4fe8ea4172670cf6f0169",
+      "slime": "63f5f166c78767eb4841220d80018b097f4a8317",
       "mushoku-tensei-s3": "13e4f4c6aef1427504abe208d87593ad9fd1cca8",
       "smoking-behind-the-supermarket-with-you": "3cb4c4db36efa5a23b521eb89ba4c37188c91298",
       "bleach": "9919cd5fdf1df99e47abd8b7dd752cd3684047b2",
