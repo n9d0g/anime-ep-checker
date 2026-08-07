@@ -130,7 +130,7 @@ When the **Vercel admin** production deploy succeeds or fails, GitHub receives a
 2. Add it as GitHub secret `DISCORD_DEPLOY_WEBHOOK_URL`.
 3. Ensure the repo is connected to Vercel with the GitHub integration (default for Vercel imports).
 
-Success messages include branch, short commit SHA, commit subject, time (ET), and live URL (`https://{project}.vercel.app` for `main`). Failure messages add the deployment error status and a **Check logs** link to the unique deployment URL. Preview deployments are ignored (`environment == production` only).
+Success messages include branch, short commit SHA, commit subject, time (ET), and live URL (`https://{project}.vercel.app` for `main`). Failure messages add the deployment error status and a **Check logs** link to the unique deployment URL. Preview deployments are ignored (`environment == production` only). Commits that only change checker runtime files (e.g. `state.json` at repo root) do not touch `admin/`, so Vercel skips rebuilds and deploy Discord notifications are not posted.
 
 ### 3. Vercel admin CMS
 

@@ -38,6 +38,11 @@ jobs:
             exit 0
           fi
 
+          if ! git diff-tree --no-commit-id --name-only -r "$FULL_SHA" | grep -q '^admin/'; then
+            echo "No admin/ changes in $FULL_SHA; skipping Discord deploy notify."
+            exit 0
+          fi
+
           export COMMIT_MSG="$(git log -1 --pretty=%s)"
 
           payload_json=$(python3 -c '
