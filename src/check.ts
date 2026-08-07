@@ -21,11 +21,6 @@ import {
 } from './discord.js'
 import { syncWatchingDashboard } from './discord-dashboard.js'
 import {
-  clearScheduledEventForShow,
-  syncScheduledEvents,
-  type DiscordEventsConfig,
-} from './discord-events.js'
-import {
   clearGoogleCalendarEventForEpisode,
   getGoogleCalendarConfigFromEnv,
   syncGoogleCalendarEvents,
@@ -318,19 +313,6 @@ async function announceEpisode({
       })
       console.log('  Discord alert sent')
 
-      if (hasBotConfig(discord)) {
-        const eventsConfig = getDiscordEventsConfigFromEnv()
-        const cleared = await clearScheduledEventForShow(
-          eventsConfig,
-          showId,
-          state
-        )
-        if (cleared) {
-          noteStateChange(`scheduled event cleared for ${show.title || showId}`)
-          console.log('  Discord scheduled event cleared')
-        }
-      }
-
       const calendarConfig = getGoogleCalendarConfigFromEnv()
       const calendarCleared = await clearGoogleCalendarEventForEpisode(
         calendarConfig,
@@ -353,13 +335,6 @@ function getDiscordConfigFromEnv(): DiscordConfig {
     botToken: process.env.DISCORD_BOT_TOKEN,
     channelId: process.env.DISCORD_CHANNEL_ID,
     webhookUrl: process.env.DISCORD_WEBHOOK_URL,
-  }
-}
-
-function getDiscordEventsConfigFromEnv(): DiscordEventsConfig {
-  return {
-    botToken: process.env.DISCORD_BOT_TOKEN,
-    guildId: process.env.DISCORD_GUILD_ID,
   }
 }
 
@@ -715,26 +690,6 @@ export async function checkShows({
     } catch (error) {
       console.warn(
         `Watching dashboard sync failed: ${
-          error instanceof Error ? error.message : error
-        }`
-      )
-    }
-
-    try {
-      const eventsChanged = await syncScheduledEvents({
-        config: getDiscordEventsConfigFromEnv(),
-        shows,
-        state,
-        now,
-        dryRun,
-      })
-      if (eventsChanged) {
-        stateChangeReasons.push('Discord scheduled events updated')
-        stateChanged = true
-      }
-    } catch (error) {
-      console.warn(
-        `Discord scheduled events sync failed: ${
           error instanceof Error ? error.message : error
         }`
       )

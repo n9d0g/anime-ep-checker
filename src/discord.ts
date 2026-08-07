@@ -128,7 +128,7 @@ function buildEpisodeWebhookEmbed({
   }
 
   return {
-    title: `${showTitle} — Episode ${episodeNumber} is out`,
+    title: `✅ ${showTitle} — Episode ${episodeNumber} is out!`,
     url: latestSnapshot.watchUrl,
     description: episodeTitle,
     color: timingStatus === 'late' ? 0xe67e22 : 0x2ecc71,
@@ -352,7 +352,7 @@ export async function sendEpisodeAlert(input: EpisodeAlertInput): Promise<void> 
     const embed = buildEpisodeWebhookEmbed(input)
     const components = buildEpisodeLinkButtons(input)
     const payload: Record<string, unknown> = {
-      content: `**${showTitle}** — Episode ${input.episodeNumber} is out`,
+      content: `✅ **${showTitle}** — Episode ${input.episodeNumber} is out!`,
       embeds: [embed],
     }
 
@@ -415,9 +415,10 @@ export async function sendWaitingAlert({
   const countdown = discordRelativeTimestamp(expectedDropAt, expectedLabel)
 
   const payload = {
+    content: `🤔 **${showTitle}** — Episode ${episodeNumber} not on ${provider} yet.`,
     embeds: [
       {
-        title: `${showTitle} — Episode ${episodeNumber} not on ${provider} yet`,
+        title: `🤔 ${showTitle} — Episode ${episodeNumber} not on ${provider} yet.`,
         description: `Expected around ${expectedLabel}. Countdown: ${countdown}`,
         color: 0xf1c40f,
         footer: {

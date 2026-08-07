@@ -35,8 +35,6 @@ export async function POST(request: Request) {
     const state = stateContent as StateFile
     const showState = state.shows[showId]
     if (showState) {
-      showState.discordScheduledEventId = null
-      showState.discordScheduledEventEpisode = null
       showState.googleCalendarEvents = null
     }
 

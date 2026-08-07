@@ -38,8 +38,6 @@ export interface ShowState {
   seasonId: string
   seasonTitle: string
   waitingNotifiedForEpisode?: number | null
-  discordScheduledEventId?: string | null
-  discordScheduledEventEpisode?: number | null
   malMeanScore?: number | null
   malScoreAlertedAt?: string | null
   discussionUrl?: string | null

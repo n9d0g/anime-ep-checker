@@ -14,7 +14,7 @@ flowchart LR
   Cron --> State[state.json]
   Cron -->|bot message| Discord[Discord channel]
   Cron -->|dashboard| Watching[#watching channel]
-  Cron -->|scheduled events| Events[Discord Events]
+  Cron -->|Google Calendar| Calendar[Google Calendar]
   Discord -->|MAL button| Vercel[Vercel interactions]
   Vercel --> MAL[MyAnimeList API]
   Cron --> MAL
@@ -90,15 +90,14 @@ If **Check anime episodes** is slow or fails at **Getting action download info**
 3. Enable **Message Content Intent** if needed for your server setup
 4. Invite the bot with these permissions in your server:
    - Send Messages, Embed Links, Manage Messages (pin dashboard)
-   - Create Events, Manage Events (scheduled drop reminders)
 5. Create channels and copy IDs:
    - Episode alerts → `DISCORD_CHANNEL_ID`
    - Watching dashboard → `DISCORD_WATCHING_CHANNEL_ID`
-6. Copy your server (guild) ID → `DISCORD_GUILD_ID`
+6. Copy your server (guild) ID → `DISCORD_GUILD_ID` (Vercel admin: slash command registration)
 7. Copy the application **Public Key** → `DISCORD_PUBLIC_KEY` (Vercel)
 8. Under **Interactions**, set the endpoint URL to `https://your-admin.vercel.app/api/discord/interactions`
 
-Optional fallback: a legacy webhook via `DISCORD_WEBHOOK_URL` (no MAL button, no dashboard/events).
+Optional fallback: a legacy webhook via `DISCORD_WEBHOOK_URL` (no MAL button, no dashboard).
 
 ### 2. GitHub Actions secrets
 
@@ -106,7 +105,6 @@ Optional fallback: a legacy webhook via `DISCORD_WEBHOOK_URL` (no MAL button, no
 |--------|-------|
 | `DISCORD_BOT_TOKEN` | Discord bot token |
 | `DISCORD_CHANNEL_ID` | Channel ID for episode alerts |
-| `DISCORD_GUILD_ID` | Server ID for scheduled events |
 | `DISCORD_WATCHING_CHANNEL_ID` | Channel ID for the watching dashboard |
 | `DISCORD_WEBHOOK_URL` | Optional webhook fallback |
 | `MAL_CLIENT_ID` | MAL API client ID (dashboard progress) |
@@ -263,10 +261,6 @@ Slash replies are **deferred** (Discord shows "thinking…" briefly) so GitHub/M
 
 Requires `DISCORD_GUILD_ID`, `DISCORD_BOT_TOKEN`, and `DISCORD_CHANNEL_ID` on Vercel for `/score-alert`. All commands use the same interactions endpoint as MAL buttons.
 
-### Discord scheduled events
-
-For each show’s next expected episode, the bot creates or updates an **external** guild scheduled event (watch URL as location). The event is cleared when the episode alert fires. Requires `DISCORD_GUILD_ID` and Create/Manage Events permissions.
-
 ### Google Calendar sync
 
 The checker mirrors upcoming drops to a Google Calendar (your **Anime Drops** calendar):
@@ -322,7 +316,6 @@ Shows your MAL plan-to-watch list from `state.meta.planToWatch`, grouped into **
 | [`src/discord-components-v2.ts`](src/discord-components-v2.ts) | Legacy Components V2 builders (unused by watching dashboard) |
 | [`src/discord-format.ts`](src/discord-format.ts) | Embed formatting helpers |
 | [`src/discord-dashboard.ts`](src/discord-dashboard.ts) | #watching dashboard sync |
-| [`src/discord-events.ts`](src/discord-events.ts) | Guild scheduled events sync |
 | [`src/google-calendar.ts`](src/google-calendar.ts) | Google Calendar episode sync |
 | [`src/dashboard.ts`](src/dashboard.ts) | Dashboard status + embed builder |
 | [`src/mal.ts`](src/mal.ts) | MAL read-only progress (checker) |
