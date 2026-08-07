@@ -21,19 +21,16 @@
       }
     },
     "slime": {
-      "lastEpisodeId": "GE00374380JAJP",
-      "lastEpisodeNumber": "16",
-      "lastEpisodeTitle": "Episode 16",
-      "lastNotifiedAt": "2026-07-24T16:51:31.435Z",
+      "lastEpisodeId": "GE00374381JAJP",
+      "lastEpisodeNumber": "17",
+      "lastEpisodeTitle": "Lubelius, the Point of Convergence",
+      "lastNotifiedAt": "2026-08-07T15:05:29.593Z",
       "seasonId": "GS00371777JAJP",
       "seasonTitle": "Season 4",
       "waitingNotifiedForEpisode": null,
-      "discordScheduledEventId": null,
-      "discordScheduledEventEpisode": null,
       "malMeanScore": 8.14,
-      "malScoreAlertedAt": "2026-08-03T22:25:33.657Z",
-      "discussionUrl": "https://www.reddit.com/r/anime/comments/1v5e03p/tensei_shitara_slime_datta_ken_season_4_that_time/",
-      "discussionUrlEpisode": 16,
+      "discordScheduledEventId": "1535302887096455259",
+      "discordScheduledEventEpisode": 18,
       "googleCalendarEvents": {
         "18": {
           "eventId": "pvbmj811krm9mkiqjm4ea57kf0",
@@ -244,7 +241,7 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-08-07T15:00:42.987Z",
+    "planToWatchCheckedAt": "2026-08-07T15:05:26.700Z",
     "planToWatch": {
       "updatedAt": "2026-07-31T03:30:31.401Z",
       "entries": [
@@ -714,7 +711,7 @@
     },
     "watchingDashboardHashes": {
       "one-piece": "2ae04817eca673a9382f1ed0435044687e53f1f0",
-      "slime": "557cdca789bb3acac239baf96079494627e73df2",
+      "slime": "0a6939a1d83f02c6b3f4fe8ea4172670cf6f0169",
       "mushoku-tensei-s3": "13e4f4c6aef1427504abe208d87593ad9fd1cca8",
       "smoking-behind-the-supermarket-with-you": "3cb4c4db36efa5a23b521eb89ba4c37188c91298",
       "bleach": "9919cd5fdf1df99e47abd8b7dd752cd3684047b2",
