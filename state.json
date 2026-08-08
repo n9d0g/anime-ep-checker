@@ -178,23 +178,15 @@
       "discussionUrlEpisode": 6
     },
     "bleach": {
-      "lastEpisodeId": "anilist-60636-2",
-      "lastEpisodeNumber": "2",
+      "lastEpisodeId": "anilist-60636-3",
+      "lastEpisodeNumber": "3",
       "lastEpisodeTitle": "",
-      "lastNotifiedAt": "2026-08-04T21:52:20.429Z",
+      "lastNotifiedAt": "2026-08-08T15:00:35.239Z",
       "seasonId": "571475d5-8b1a-453f-a57f-26bb4dd13304",
       "seasonTitle": "Season 1",
       "waitingNotifiedForEpisode": null,
       "malMeanScore": 9.03,
-      "discordScheduledEventId": "1534610830685896845",
-      "discordScheduledEventEpisode": 3,
-      "discussionUrl": "https://www.reddit.com/r/anime/comments/1vcptrl/bleach_thousandyear_blood_war_the_calamity_bleach/",
-      "discussionUrlEpisode": 2,
       "googleCalendarEvents": {
-        "3": {
-          "eventId": "uvsiilbatfc449bo4nekj6vaa4",
-          "startAt": "2026-08-08T15:00:00.000Z"
-        },
         "4": {
           "eventId": "3b7otir1krqc09jq0unaqo8dvg",
           "startAt": "2026-08-15T15:00:00.000Z"
@@ -243,7 +235,7 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-08-08T14:55:26.967Z",
+    "planToWatchCheckedAt": "2026-08-08T15:00:31.077Z",
     "planToWatch": {
       "updatedAt": "2026-07-31T03:30:31.401Z",
       "entries": [
@@ -716,7 +708,7 @@
       "slime": "3d7e897b9007d29ab72c4dd1ee07e5e3169af72f",
       "mushoku-tensei-s3": "13e4f4c6aef1427504abe208d87593ad9fd1cca8",
       "smoking-behind-the-supermarket-with-you": "3cb4c4db36efa5a23b521eb89ba4c37188c91298",
-      "bleach": "0177dee5fb3d56dddd2e369ffb04e9d0638877f2",
+      "bleach": "a14128dbea216b0b6e8fd7dd55774f0add70de96",
       "chainsmoker-cat": "9d58c969d4a0745fc94076384ec52520b4e0c163"
     }
   }
