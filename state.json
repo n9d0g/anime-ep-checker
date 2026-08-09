@@ -1,19 +1,20 @@
 {
   "shows": {
     "one-piece": {
-      "lastEpisodeId": "GE00369378JAJP",
-      "lastEpisodeNumber": "1172",
-      "lastEpisodeTitle": "Monsters Appear in Elbaph - \"What I Fear Most\"",
-      "lastNotifiedAt": "2026-08-03T15:10:36.403Z",
+      "lastEpisodeId": "GE00369379JAJP",
+      "lastEpisodeNumber": "1173",
+      "lastEpisodeTitle": "Episode 1173",
+      "lastNotifiedAt": "2026-08-09T16:05:29.732Z",
       "seasonId": "GS00376439JAJP",
       "seasonTitle": "Elbaph (1156-current)",
       "waitingNotifiedForEpisode": null,
       "malMeanScore": 8.73,
-      "discordScheduledEventId": "1533854662435012710",
-      "discordScheduledEventEpisode": 1173,
-      "discussionUrl": "https://www.reddit.com/r/anime/comments/1vdlmq5/one_piece_episode_1172_discussion/",
-      "discussionUrlEpisode": 1172,
-      "googleCalendarEvents": null
+      "googleCalendarEvents": {
+        "1174": {
+          "eventId": "qc2feii7es5008ll5jpt7nv5ak",
+          "startAt": "2026-08-16T16:00:00.000Z"
+        }
+      }
     },
     "slime": {
       "lastEpisodeId": "GE00374381JAJP",
@@ -225,7 +226,7 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-08-09T16:00:33.256Z",
+    "planToWatchCheckedAt": "2026-08-09T16:05:26.190Z",
     "planToWatch": {
       "updatedAt": "2026-07-31T03:30:31.401Z",
       "entries": [
@@ -694,7 +695,7 @@
       ]
     },
     "watchingDashboardHashes": {
-      "one-piece": "522b4bdb241246c5b039a7b3755132c73a325fa0",
+      "one-piece": "44627ae9dd75156f0ba4ad875871e2b2e5c9a2ae",
       "slime": "3d7e897b9007d29ab72c4dd1ee07e5e3169af72f",
       "mushoku-tensei-s3": "3cde77d232d9ab58740c3e63e72d4cb0b792a276",
       "smoking-behind-the-supermarket-with-you": "3cb4c4db36efa5a23b521eb89ba4c37188c91298",
