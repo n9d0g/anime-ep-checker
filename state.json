@@ -13,12 +13,7 @@
       "discordScheduledEventEpisode": 1173,
       "discussionUrl": "https://www.reddit.com/r/anime/comments/1vdlmq5/one_piece_episode_1172_discussion/",
       "discussionUrlEpisode": 1172,
-      "googleCalendarEvents": {
-        "1173": {
-          "eventId": "7ol8u8o932dbuev0lsia479k94",
-          "startAt": "2026-08-09T16:00:00.000Z"
-        }
-      }
+      "googleCalendarEvents": null
     },
     "slime": {
       "lastEpisodeId": "GE00374381JAJP",
@@ -102,7 +97,9 @@
           "eventId": "clt5seq9l4urcntpsu3hclf0qg",
           "startAt": "2026-09-27T16:00:00.000Z"
         }
-      }
+      },
+      "discussionUrl": "https://www.reddit.com/r/anime/comments/1vjs32g/mushoku_tensei_jobless_reincarnation_season_3/",
+      "discussionUrlEpisode": 7
     },
     "smoking-behind-the-supermarket-with-you": {
       "lastEpisodeId": "GE00378529JAJP",
@@ -228,7 +225,7 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-08-09T15:55:20.721Z",
+    "planToWatchCheckedAt": "2026-08-09T16:00:33.256Z",
     "planToWatch": {
       "updatedAt": "2026-07-31T03:30:31.401Z",
       "entries": [
@@ -699,7 +696,7 @@
     "watchingDashboardHashes": {
       "one-piece": "522b4bdb241246c5b039a7b3755132c73a325fa0",
       "slime": "3d7e897b9007d29ab72c4dd1ee07e5e3169af72f",
-      "mushoku-tensei-s3": "bf5b7fd6408444fa0fdf068cb612a52bd55781bd",
+      "mushoku-tensei-s3": "3cde77d232d9ab58740c3e63e72d4cb0b792a276",
       "smoking-behind-the-supermarket-with-you": "3cb4c4db36efa5a23b521eb89ba4c37188c91298",
       "bleach": "6f33e6c0427bf1d7db4a7475b4b82d1415b2aea9",
       "chainsmoker-cat": "9d58c969d4a0745fc94076384ec52520b4e0c163"
