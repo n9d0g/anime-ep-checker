@@ -14,7 +14,9 @@
           "eventId": "qc2feii7es5008ll5jpt7nv5ak",
           "startAt": "2026-08-16T16:00:00.000Z"
         }
-      }
+      },
+      "discussionUrl": "https://www.reddit.com/r/anime/comments/1vjtplm/one_piece_episode_1173_discussion/",
+      "discussionUrlEpisode": 1173
     },
     "slime": {
       "lastEpisodeId": "GE00374381JAJP",
@@ -226,7 +228,7 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-08-09T16:15:24.605Z",
+    "planToWatchCheckedAt": "2026-08-09T16:20:26.022Z",
     "planToWatch": {
       "updatedAt": "2026-07-31T03:30:31.401Z",
       "entries": [
@@ -695,7 +697,7 @@
       ]
     },
     "watchingDashboardHashes": {
-      "one-piece": "43d3e3eaf9c98848b5e0e1e866faa2aa599824ae",
+      "one-piece": "bc91f90d2ce0601b58a274bfa121f406c238ffa1",
       "slime": "3d7e897b9007d29ab72c4dd1ee07e5e3169af72f",
       "mushoku-tensei-s3": "3cde77d232d9ab58740c3e63e72d4cb0b792a276",
       "smoking-behind-the-supermarket-with-you": "3cb4c4db36efa5a23b521eb89ba4c37188c91298",
