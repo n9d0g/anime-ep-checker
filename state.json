@@ -232,7 +232,7 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-08-10T23:40:25.156Z",
+    "planToWatchCheckedAt": "2026-08-10T23:45:32.959Z",
     "planToWatch": {
       "updatedAt": "2026-08-10T15:40:29.261Z",
       "entries": [
@@ -714,7 +714,7 @@
     },
     "watchingDashboardHashes": {
       "one-piece": "d931f0d4f2f4b99c9c849dfa417cf362f5e5a3ac",
-      "slime": "3d7e897b9007d29ab72c4dd1ee07e5e3169af72f",
+      "slime": "b1ce64384e1881bb8b4d77b4514eaf3b83f68d75",
       "mushoku-tensei-s3": "07df45383b531f80925fb5487f02fd6209fb7276",
       "smoking-behind-the-supermarket-with-you": "3cb4c4db36efa5a23b521eb89ba4c37188c91298",
       "bleach": "b69272ad84a1aabee4c8cc03ae589265e632caea",
