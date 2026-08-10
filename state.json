@@ -228,9 +228,9 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-08-10T15:40:11.561Z",
+    "planToWatchCheckedAt": "2026-08-10T15:40:29.261Z",
     "planToWatch": {
-      "updatedAt": "2026-08-10T15:40:11.561Z",
+      "updatedAt": "2026-08-10T15:40:29.261Z",
       "entries": [
         {
           "malId": 61323,
@@ -596,6 +596,18 @@
           "startDate": "2027-10",
           "broadcast": null,
           "coverUrl": "https://cdn.myanimelist.net/images/anime/1619/156313l.jpg",
+          "numEpisodes": null
+        },
+        {
+          "malId": 61483,
+          "title": "Tenmaku no Jaadugar",
+          "status": "currently_airing",
+          "startDate": "2026-07-04",
+          "broadcast": {
+            "dayOfWeek": "saturday",
+            "startTime": "23:30"
+          },
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1098/158891l.jpg",
           "numEpisodes": null
         },
         {
