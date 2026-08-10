@@ -223,12 +223,16 @@
     },
     "disneyCookieAlertSentAt": "2026-07-27T16:30:34.187Z",
     "planToWatchAlerts": {
+      "61483": {
+        "alertedAt": "2026-08-10T15:45:42.943Z",
+        "reason": "airing"
+      },
       "62811": {
         "alertedAt": "2026-07-30T17:20:31.143Z",
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-08-10T15:40:29.261Z",
+    "planToWatchCheckedAt": "2026-08-10T15:45:42.943Z",
     "planToWatch": {
       "updatedAt": "2026-08-10T15:40:29.261Z",
       "entries": [
