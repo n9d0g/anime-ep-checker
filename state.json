@@ -232,7 +232,7 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-08-11T04:05:26.620Z",
+    "planToWatchCheckedAt": "2026-08-11T04:10:27.767Z",
     "planToWatch": {
       "updatedAt": "2026-08-10T15:40:29.261Z",
       "entries": [
@@ -718,7 +718,7 @@
       "mushoku-tensei-s3": "07df45383b531f80925fb5487f02fd6209fb7276",
       "smoking-behind-the-supermarket-with-you": "3cb4c4db36efa5a23b521eb89ba4c37188c91298",
       "bleach": "b69272ad84a1aabee4c8cc03ae589265e632caea",
-      "chainsmoker-cat": "9d58c969d4a0745fc94076384ec52520b4e0c163"
+      "chainsmoker-cat": "8c696e9e2cdba8b3efc0dcbaf2aa776ee81a9273"
     }
   }
 }
