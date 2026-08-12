@@ -94,6 +94,22 @@
       "disneyUrl": "https://www.disneyplus.com/browse/entity-571475d5-8b1a-453f-a57f-26bb4dd13304",
       "disneyId": "571475d5-8b1a-453f-a57f-26bb4dd13304",
       "malId": 60636
+    },
+    {
+      "id": "re-zero-kara-hajimeru-isekai-seikatsu-4th-season",
+      "title": "Re:Zero kara Hajimeru Isekai Seikatsu 4th Season",
+      "provider": "crunchyroll",
+      "schedule": {
+        "mode": "finite",
+        "startAt": "2026-08-12T14:00:00.000Z",
+        "startEpisode": 11,
+        "episodeCount": 19,
+        "premiereBatchSize": 11
+      },
+      "crunchyrollUrl": "https://www.crunchyroll.com/series/GRGG9798R/rezero--starting-life-in-another-world-",
+      "seriesId": "GRGG9798R",
+      "malId": 61316,
+      "redditSearchTitle": "rezero_starting_life_in_another_world_season_4"
     }
   ]
 }
