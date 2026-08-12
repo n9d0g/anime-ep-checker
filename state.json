@@ -209,6 +209,90 @@
       },
       "discussionUrl": "https://www.reddit.com/r/anime/comments/1viybui/bleach_thousandyear_blood_war_the_calamity_bleach/",
       "discussionUrlEpisode": 3
+    },
+    "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": {
+      "lastEpisodeId": "GE00345555JAJP",
+      "lastEpisodeNumber": "11",
+      "lastEpisodeTitle": "Re:ZERO -Starting Life in Another World-",
+      "lastNotifiedAt": "2026-08-12T11:52:16.972Z",
+      "seasonId": "GS00371932JAJP",
+      "seasonTitle": "Season 4",
+      "waitingNotifiedForEpisode": null,
+      "malMeanScore": 9.14,
+      "googleCalendarEvents": {
+        "12": {
+          "eventId": "5p6htu5m0b8foeuknnqfsc5ivo",
+          "startAt": "2026-08-12T14:00:00.000Z"
+        },
+        "13": {
+          "eventId": "j3s7aup8jff36vfkeodfvbj8ho",
+          "startAt": "2026-08-12T14:00:00.000Z"
+        },
+        "14": {
+          "eventId": "sdndknfi84pg5k6snj67beivgc",
+          "startAt": "2026-08-12T14:00:00.000Z"
+        },
+        "15": {
+          "eventId": "08fc67psppvme0facgj2didi14",
+          "startAt": "2026-08-12T14:00:00.000Z"
+        },
+        "16": {
+          "eventId": "f1j1n7sfvbtkv84308260hmcr8",
+          "startAt": "2026-08-12T14:00:00.000Z"
+        },
+        "17": {
+          "eventId": "jui3rku443m6rq55r3ivd3jmfo",
+          "startAt": "2026-08-12T14:00:00.000Z"
+        },
+        "18": {
+          "eventId": "2gg3771gpedvo9vg391bam0p2s",
+          "startAt": "2026-08-12T14:00:00.000Z"
+        },
+        "19": {
+          "eventId": "8ogb350uu1bln3dupk6sb4bamc",
+          "startAt": "2026-08-12T14:00:00.000Z"
+        },
+        "20": {
+          "eventId": "rrni1rv03r9lvr9gck5h36ana0",
+          "startAt": "2026-08-12T14:00:00.000Z"
+        },
+        "21": {
+          "eventId": "lculggr6hndmrid375is013k9o",
+          "startAt": "2026-08-12T14:00:00.000Z"
+        },
+        "22": {
+          "eventId": "8gjeh4s7hk8iv3kcovni8019v4",
+          "startAt": "2026-08-19T14:00:00.000Z"
+        },
+        "23": {
+          "eventId": "us6qtv8r356jnqah9kfuilid40",
+          "startAt": "2026-08-26T14:00:00.000Z"
+        },
+        "24": {
+          "eventId": "h94uj5jrff9f6ibku20rp9bc04",
+          "startAt": "2026-09-02T14:00:00.000Z"
+        },
+        "25": {
+          "eventId": "kf3qeduodp4hp74pbdlp2oojf0",
+          "startAt": "2026-09-09T14:00:00.000Z"
+        },
+        "26": {
+          "eventId": "1hp38cq2asn2fmve637tvjujoc",
+          "startAt": "2026-09-16T14:00:00.000Z"
+        },
+        "27": {
+          "eventId": "71k3mmqmmch6hu71agi02iro20",
+          "startAt": "2026-09-23T14:00:00.000Z"
+        },
+        "28": {
+          "eventId": "28lvs6frpai4m7fijij1r1grsc",
+          "startAt": "2026-09-30T14:00:00.000Z"
+        },
+        "29": {
+          "eventId": "9rgbio9qlvri0fm21uvvi1esak",
+          "startAt": "2026-10-07T14:00:00.000Z"
+        }
+      }
     }
   },
   "meta": {
@@ -233,7 +317,7 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-08-12T11:50:28.737Z",
+    "planToWatchCheckedAt": "2026-08-12T11:52:09.768Z",
     "planToWatch": {
       "updatedAt": "2026-08-11T18:35:28.627Z",
       "entries": [
@@ -720,7 +804,7 @@
       "smoking-behind-the-supermarket-with-you": "43f5518551a1a10133a038e1d85154b776a987d5",
       "bleach": "b69272ad84a1aabee4c8cc03ae589265e632caea",
       "chainsmoker-cat": "9d58c969d4a0745fc94076384ec52520b4e0c163",
-      "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "4ba7ae057e60b89be91b6c37c7c98be2a6e5ac29"
+      "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "d34573184c5280f10704a94423fc847685d6f174"
     }
   }
 }
