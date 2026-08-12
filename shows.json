@@ -102,7 +102,7 @@
       "schedule": {
         "mode": "finite",
         "startAt": "2026-08-12T14:00:00.000Z",
-        "startEpisode": 11,
+        "startEpisode": 12,
         "episodeCount": 19,
         "premiereBatchSize": 11
       },
