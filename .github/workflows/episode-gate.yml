@@ -19,11 +19,13 @@ jobs:
     steps:
       - name: Decide if full check is needed
         id: gate
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           mkdir -p gate-tmp
           REF="${GITHUB_REF_NAME}"
           API="https://api.github.com/repos/${GITHUB_REPOSITORY}/contents"
-          CURL_OPTS=(--fail-with-body --connect-timeout 10 --max-time 30 --retry 2 --retry-delay 3 -fsSL)
+          CURL_OPTS=(--fail-with-body --connect-timeout 10 --max-time 30 --retry 2 --retry-delay 3 -sSL)
 
           fetch() {
             local path="$1"
@@ -33,7 +35,8 @@ jobs:
               -H "Accept: application/vnd.github.raw" \
               "${API}/${path}?ref=${REF}" \
               -o "$dest"; then
-              echo "Failed to fetch ${path} (ref=${REF})"
+              echo "Failed to fetch ${path} (ref=${REF})" >&2
+              cat "$dest" >&2
               exit 1
             fi
           }
