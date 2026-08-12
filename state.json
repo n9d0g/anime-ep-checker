@@ -220,10 +220,6 @@
       "waitingNotifiedForEpisode": null,
       "malMeanScore": 9.14,
       "googleCalendarEvents": {
-        "12": {
-          "eventId": "5p6htu5m0b8foeuknnqfsc5ivo",
-          "startAt": "2026-08-12T14:00:00.000Z"
-        },
         "13": {
           "eventId": "j3s7aup8jff36vfkeodfvbj8ho",
           "startAt": "2026-08-19T14:00:00.000Z"
@@ -277,7 +273,7 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-08-12T13:55:27.360Z",
+    "planToWatchCheckedAt": "2026-08-12T14:00:37.737Z",
     "planToWatch": {
       "updatedAt": "2026-08-11T18:35:28.627Z",
       "entries": [
