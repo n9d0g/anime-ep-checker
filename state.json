@@ -211,10 +211,10 @@
       "discussionUrlEpisode": 3
     },
     "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": {
-      "lastEpisodeId": "GE00345555JAJP",
-      "lastEpisodeNumber": "11",
-      "lastEpisodeTitle": "Re:ZERO -Starting Life in Another World-",
-      "lastNotifiedAt": "2026-08-12T11:52:16.972Z",
+      "lastEpisodeId": "GE00345558JAJP",
+      "lastEpisodeNumber": "12",
+      "lastEpisodeTitle": "From Now On",
+      "lastNotifiedAt": "2026-08-12T14:05:31.730Z",
       "seasonId": "GS00371932JAJP",
       "seasonTitle": "Season 4",
       "waitingNotifiedForEpisode": null,
@@ -273,7 +273,7 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-08-12T14:00:37.737Z",
+    "planToWatchCheckedAt": "2026-08-12T14:05:27.564Z",
     "planToWatch": {
       "updatedAt": "2026-08-11T18:35:28.627Z",
       "entries": [
@@ -760,7 +760,7 @@
       "smoking-behind-the-supermarket-with-you": "43f5518551a1a10133a038e1d85154b776a987d5",
       "bleach": "d5edd14058231cedc3286380201709ca9c85b933",
       "chainsmoker-cat": "9d58c969d4a0745fc94076384ec52520b4e0c163",
-      "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "0b930a3d76c262e08589e6560347d54db2cdc7da"
+      "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "ef69d64a12733b08bb1bcb690dd71895ce1572ee"
     }
   }
 }
