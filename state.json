@@ -226,75 +226,75 @@
         },
         "13": {
           "eventId": "j3s7aup8jff36vfkeodfvbj8ho",
-          "startAt": "2026-08-12T14:00:00.000Z"
+          "startAt": "2026-08-19T14:00:00.000Z"
         },
         "14": {
           "eventId": "sdndknfi84pg5k6snj67beivgc",
-          "startAt": "2026-08-12T14:00:00.000Z"
+          "startAt": "2026-08-26T14:00:00.000Z"
         },
         "15": {
           "eventId": "08fc67psppvme0facgj2didi14",
-          "startAt": "2026-08-12T14:00:00.000Z"
+          "startAt": "2026-09-02T14:00:00.000Z"
         },
         "16": {
           "eventId": "f1j1n7sfvbtkv84308260hmcr8",
-          "startAt": "2026-08-12T14:00:00.000Z"
+          "startAt": "2026-09-09T14:00:00.000Z"
         },
         "17": {
           "eventId": "jui3rku443m6rq55r3ivd3jmfo",
-          "startAt": "2026-08-12T14:00:00.000Z"
+          "startAt": "2026-09-16T14:00:00.000Z"
         },
         "18": {
           "eventId": "2gg3771gpedvo9vg391bam0p2s",
-          "startAt": "2026-08-12T14:00:00.000Z"
+          "startAt": "2026-09-23T14:00:00.000Z"
         },
         "19": {
           "eventId": "8ogb350uu1bln3dupk6sb4bamc",
-          "startAt": "2026-08-12T14:00:00.000Z"
+          "startAt": "2026-09-30T14:00:00.000Z"
         },
         "20": {
           "eventId": "rrni1rv03r9lvr9gck5h36ana0",
-          "startAt": "2026-08-12T14:00:00.000Z"
+          "startAt": "2026-10-07T14:00:00.000Z"
         },
         "21": {
           "eventId": "lculggr6hndmrid375is013k9o",
-          "startAt": "2026-08-12T14:00:00.000Z"
+          "startAt": "2026-10-14T14:00:00.000Z"
         },
         "22": {
           "eventId": "8gjeh4s7hk8iv3kcovni8019v4",
-          "startAt": "2026-08-12T14:00:00.000Z"
+          "startAt": "2026-10-21T14:00:00.000Z"
         },
         "23": {
           "eventId": "us6qtv8r356jnqah9kfuilid40",
-          "startAt": "2026-08-19T14:00:00.000Z"
+          "startAt": "2026-10-28T14:00:00.000Z"
         },
         "24": {
           "eventId": "h94uj5jrff9f6ibku20rp9bc04",
-          "startAt": "2026-08-26T14:00:00.000Z"
+          "startAt": "2026-11-04T14:00:00.000Z"
         },
         "25": {
           "eventId": "kf3qeduodp4hp74pbdlp2oojf0",
-          "startAt": "2026-09-02T14:00:00.000Z"
+          "startAt": "2026-11-11T14:00:00.000Z"
         },
         "26": {
           "eventId": "1hp38cq2asn2fmve637tvjujoc",
-          "startAt": "2026-09-09T14:00:00.000Z"
+          "startAt": "2026-11-18T14:00:00.000Z"
         },
         "27": {
           "eventId": "71k3mmqmmch6hu71agi02iro20",
-          "startAt": "2026-09-16T14:00:00.000Z"
+          "startAt": "2026-11-25T14:00:00.000Z"
         },
         "28": {
           "eventId": "28lvs6frpai4m7fijij1r1grsc",
-          "startAt": "2026-09-23T14:00:00.000Z"
+          "startAt": "2026-12-02T14:00:00.000Z"
         },
         "29": {
           "eventId": "9rgbio9qlvri0fm21uvvi1esak",
-          "startAt": "2026-09-30T14:00:00.000Z"
+          "startAt": "2026-12-09T14:00:00.000Z"
         },
         "30": {
           "eventId": "6es06tgfvjf6gfbct9e1je9a60",
-          "startAt": "2026-10-07T14:00:00.000Z"
+          "startAt": "2026-12-16T14:00:00.000Z"
         }
       }
     }
@@ -321,7 +321,7 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-08-12T11:54:57.478Z",
+    "planToWatchCheckedAt": "2026-08-12T11:57:01.325Z",
     "planToWatch": {
       "updatedAt": "2026-08-11T18:35:28.627Z",
       "entries": [
