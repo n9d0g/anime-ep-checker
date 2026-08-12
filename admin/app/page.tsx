@@ -124,7 +124,8 @@ function episodeBadge(
   }
 
   return {
-    label: `Ep ${start}/${show.schedule.episodeCount || '?'}`,
+    label:
+      lastScheduled !== null ? `Ep ${start}/${lastScheduled}` : `Ep ${start}`,
     behind: false,
   }
 }
