@@ -105,16 +105,14 @@
       "discussionUrlEpisode": 7
     },
     "smoking-behind-the-supermarket-with-you": {
-      "lastEpisodeId": "GE00378529JAJP",
-      "lastEpisodeNumber": "5",
-      "lastEpisodeTitle": "Hanging Behind the Supermarket with You",
-      "lastNotifiedAt": "2026-08-06T18:33:34.587Z",
+      "lastEpisodeId": "GE00378530JAJP",
+      "lastEpisodeNumber": "6",
+      "lastEpisodeTitle": "Lingering Scent Behind the Supermarket With You",
+      "lastNotifiedAt": "2026-08-13T16:15:28.280Z",
       "seasonId": "GS00378131JAJP",
       "seasonTitle": "Season 1",
       "waitingNotifiedForEpisode": null,
-      "malMeanScore": 8.36,
-      "discordScheduledEventId": "1534992896665587823",
-      "discordScheduledEventEpisode": 6,
+      "malMeanScore": 8.35,
       "googleCalendarEvents": {
         "7": {
           "eventId": "f6klvpeoq6gfcc4p7g8c261bmc",
@@ -140,9 +138,7 @@
           "eventId": "lt1i9sjcmfeo0rlte76p6rusqc",
           "startAt": "2026-09-24T16:00:00.000Z"
         }
-      },
-      "discussionUrl": "https://www.reddit.com/r/anime/comments/1vh7jz7/smoking_behind_the_supermarket_with_you_super_no/",
-      "discussionUrlEpisode": 5
+      }
     },
     "chainsmoker-cat": {
       "lastEpisodeId": "82760637",
@@ -269,7 +265,7 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-08-13T16:10:25.656Z",
+    "planToWatchCheckedAt": "2026-08-13T16:15:25.964Z",
     "planToWatch": {
       "updatedAt": "2026-08-11T18:35:28.627Z",
       "entries": [
@@ -753,7 +749,7 @@
       "one-piece": "2ad4045f781c161bbac5ede8cf209fd9d98049ff",
       "slime": "3d7e897b9007d29ab72c4dd1ee07e5e3169af72f",
       "mushoku-tensei-s3": "5c4fb7f0e4fc81da74c1a6e57e1c61e618406cf2",
-      "smoking-behind-the-supermarket-with-you": "969619b33b473286b4dd8649969a68f1d700027d",
+      "smoking-behind-the-supermarket-with-you": "8a8fae068d238b7023624d60d4196077117c1ff3",
       "bleach": "b69272ad84a1aabee4c8cc03ae589265e632caea",
       "chainsmoker-cat": "dd645f6e342441710f85f9cc210dbebdefd53dd0",
       "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "c3df8dbf7b2e9024c20bc68d5ffc9527e9c20425"
