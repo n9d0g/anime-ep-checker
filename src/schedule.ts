@@ -6,6 +6,7 @@ const WINDOW_AFTER_DENSE_MS = 90 * 60 * 1000
 const LATE_POLL_INTERVAL_MS = 30 * 60 * 1000
 const CRON_INTERVAL_MS = 5 * 60 * 1000
 const WAITING_GRACE_MS = 15 * 60 * 1000
+const PTW_CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000
 
 export { WINDOW_BEFORE_MS, WINDOW_AFTER_DENSE_MS, LATE_POLL_INTERVAL_MS }
 
@@ -156,4 +157,21 @@ export function anyShowNeedsCheck(
   now: Date = new Date()
 ): boolean {
   return shows.some((show) => showNeedsCheck(show, state, now))
+}
+
+export function needsPlanToWatchCheck(
+  state: StateFile,
+  now: Date = new Date()
+): boolean {
+  const checkedAt = state.meta?.planToWatchCheckedAt
+  if (!checkedAt) {
+    return true
+  }
+
+  const checkedMs = new Date(checkedAt).getTime()
+  if (Number.isNaN(checkedMs)) {
+    return true
+  }
+
+  return now.getTime() - checkedMs >= PTW_CHECK_INTERVAL_MS
 }

@@ -46,6 +46,7 @@ import {
   getCheckWindowMode,
   isInCheckWindow,
   isPastWaitingGrace,
+  needsPlanToWatchCheck,
   parseEpisodeNumber,
 } from './schedule.js'
 import {
@@ -633,23 +634,25 @@ export async function checkShows({
     )
   }
 
-  try {
-    const ptwResult = await syncPlanToWatchAlerts({
-      state,
-      discord,
-      now,
-      dryRun,
-    })
-    if (ptwResult.changed) {
-      stateChangeReasons.push(...ptwResult.reasons)
-      stateChanged = true
+  if (force || needsPlanToWatchCheck(state, now)) {
+    try {
+      const ptwResult = await syncPlanToWatchAlerts({
+        state,
+        discord,
+        now,
+        dryRun,
+      })
+      if (ptwResult.changed) {
+        stateChangeReasons.push(...ptwResult.reasons)
+        stateChanged = true
+      }
+    } catch (error) {
+      console.warn(
+        `Plan-to-watch sync failed: ${
+          error instanceof Error ? error.message : error
+        }`
+      )
     }
-  } catch (error) {
-    console.warn(
-      `Plan-to-watch sync failed: ${
-        error instanceof Error ? error.message : error
-      }`
-    )
   }
 
   if (!dryRun) {

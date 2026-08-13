@@ -1,6 +1,8 @@
 name: Check anime episodes
 
 on:
+  schedule:
+    - cron: "*/5 * * * *"
   workflow_dispatch:
     inputs:
       force:
@@ -17,7 +19,46 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  gate:
+    runs-on: ubuntu-latest
+    outputs:
+      should_check: ${{ steps.gate.outputs.should_check }}
+    steps:
+      - name: Decide if full check is needed
+        id: gate
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p gate-tmp
+          REF="${GITHUB_REF_NAME}"
+          API="https://api.github.com/repos/${GITHUB_REPOSITORY}/contents"
+          CURL_OPTS=(--fail-with-body --connect-timeout 10 --max-time 30 --retry 2 --retry-delay 3 -sSL)
+
+          fetch() {
+            local path="$1"
+            local dest="$2"
+            if ! curl "${CURL_OPTS[@]}" \
+              -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+              -H "Accept: application/vnd.github.raw" \
+              "${API}/${path}?ref=${REF}" \
+              -o "$dest"; then
+              echo "Failed to fetch ${path} (ref=${REF})" >&2
+              cat "$dest" >&2
+              exit 1
+            fi
+          }
+
+          fetch "shows.json" gate-tmp/shows.json
+          fetch "state.json" gate-tmp/state.json
+          fetch "src/should-run.mjs" gate-tmp/should-run.mjs
+
+          SHOWS_PATH=gate-tmp/shows.json \
+          STATE_PATH=gate-tmp/state.json \
+          node gate-tmp/should-run.mjs
+
   check:
+    needs: gate
+    if: needs.gate.outputs.should_check == 'true' || github.event.inputs.force == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -25,16 +66,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Setup Node
-        uses: actions/setup-node@v5
-        with:
-          node-version: "24.11.1"
-          package-manager-cache: false
-
       - name: Install pnpm
         uses: pnpm/action-setup@v5
 
-      - name: Setup pnpm cache
+      - name: Setup Node
         uses: actions/setup-node@v5
         with:
           node-version: "24.11.1"
@@ -90,19 +125,40 @@ jobs:
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add state.json
 
           if [ -f state_commit_message.txt ]; then
             subject=$(head -n 1 state_commit_message.txt)
             body=$(tail -n +3 state_commit_message.txt 2>/dev/null | sed '/^$/d' || true)
+            rm -f state_commit_message.txt
+          else
+            subject="chore: 🧹 update checker state"
+            body=""
+          fi
+
+          BRANCH="${GITHUB_REF_NAME}"
+
+          for attempt in 1 2 3; do
+            git fetch --depth=1 origin "$BRANCH"
+            git reset --soft "origin/$BRANCH"
+            git add state.json
+
+            if git diff --cached --quiet; then
+              echo "No state changes to commit."
+              exit 0
+            fi
+
             if [ -n "$body" ]; then
               git commit -m "$subject" -m "$body"
             else
               git commit -m "$subject"
             fi
-            rm -f state_commit_message.txt
-          else
-            git commit -m "chore: 🧹 update checker state"
-          fi
 
-          git push
+            if git push origin "HEAD:$BRANCH"; then
+              exit 0
+            fi
+
+            echo "Push attempt $attempt failed; retrying..." >&2
+            sleep $((attempt * 5))
+          done
+
+          exit 1
