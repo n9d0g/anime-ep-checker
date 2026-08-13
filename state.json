@@ -143,24 +143,20 @@
       "discussionUrlEpisode": 6
     },
     "chainsmoker-cat": {
-      "lastEpisodeId": "82760637",
-      "lastEpisodeNumber": "6",
-      "lastEpisodeTitle": "Episode 6",
-      "lastNotifiedAt": "2026-08-06T18:33:40.195Z",
+      "lastEpisodeId": "82760638",
+      "lastEpisodeNumber": "7",
+      "lastEpisodeTitle": "Episode 7",
+      "lastNotifiedAt": "2026-08-13T16:24:08.053Z",
       "seasonId": "82760631",
       "seasonTitle": "Chainsmoker Cat",
       "waitingNotifiedForEpisode": null,
       "malMeanScore": 7.04,
-      "discordScheduledEventId": "1534992897861222530",
-      "discordScheduledEventEpisode": 7,
       "googleCalendarEvents": {
-        "7": {
-          "eventId": "fadb5hpgui49g9ctab8f195iho",
-          "startAt": "2026-08-13T16:30:00.000Z"
+        "8": {
+          "eventId": "ikugle81a1u9l92t4vljq84tlg",
+          "startAt": "2026-08-20T16:30:00.000Z"
         }
-      },
-      "discussionUrl": "https://www.reddit.com/r/anime/comments/1vh8eb6/chainsmoker_cat_yani_neko_episode_6_discussion/",
-      "discussionUrlEpisode": 6
+      }
     },
     "bleach": {
       "lastEpisodeId": "anilist-60636-3",
@@ -267,7 +263,7 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-08-13T16:20:26.664Z",
+    "planToWatchCheckedAt": "2026-08-13T16:24:00.378Z",
     "planToWatch": {
       "updatedAt": "2026-08-11T18:35:28.627Z",
       "entries": [
@@ -753,7 +749,7 @@
       "mushoku-tensei-s3": "5c4fb7f0e4fc81da74c1a6e57e1c61e618406cf2",
       "smoking-behind-the-supermarket-with-you": "8bfc578e6128ea57292982ad12df3c3ac3a1e9f2",
       "bleach": "b69272ad84a1aabee4c8cc03ae589265e632caea",
-      "chainsmoker-cat": "dd645f6e342441710f85f9cc210dbebdefd53dd0",
+      "chainsmoker-cat": "6cae04bca6be2227cefb4db02b807a3e5e723cd4",
       "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "c3df8dbf7b2e9024c20bc68d5ffc9527e9c20425"
     }
   }
