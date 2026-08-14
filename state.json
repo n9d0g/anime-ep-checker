@@ -19,16 +19,14 @@
       "discussionUrlEpisode": 1173
     },
     "slime": {
-      "lastEpisodeId": "GE00374381JAJP",
-      "lastEpisodeNumber": "17",
-      "lastEpisodeTitle": "Lubelius, the Point of Convergence",
-      "lastNotifiedAt": "2026-08-07T15:05:29.593Z",
+      "lastEpisodeId": "GE00374382JAJP",
+      "lastEpisodeNumber": "18",
+      "lastEpisodeTitle": "Turbulence in the West",
+      "lastNotifiedAt": "2026-08-14T15:05:36.075Z",
       "seasonId": "GS00371777JAJP",
       "seasonTitle": "Season 4",
       "waitingNotifiedForEpisode": null,
       "malMeanScore": 8.14,
-      "discordScheduledEventId": "1535302887096455259",
-      "discordScheduledEventEpisode": 18,
       "googleCalendarEvents": {
         "19": {
           "eventId": "cd1dbpgpas476d9jujlp0dvruo",
@@ -54,9 +52,7 @@
           "eventId": "pfkrqdeg9j8po6cphb7plc2cu4",
           "startAt": "2026-09-25T15:00:00.000Z"
         }
-      },
-      "discussionUrl": "https://www.reddit.com/r/anime/comments/1vi334r/tensei_shitara_slime_datta_ken_season_4_that_time/",
-      "discussionUrlEpisode": 17
+      }
     },
     "mushoku-tensei-s3": {
       "lastEpisodeId": "GE00374459JAJP",
@@ -742,13 +738,13 @@
       ]
     },
     "watchingDashboardHashes": {
-      "one-piece": "2ad4045f781c161bbac5ede8cf209fd9d98049ff",
-      "slime": "924352b8f4c86ffb3c16ee1c2d75c9aa09d053c0",
+      "one-piece": "d931f0d4f2f4b99c9c849dfa417cf362f5e5a3ac",
+      "slime": "549ab6da57f77cf1bdba4daf5589f49603bf440e",
       "mushoku-tensei-s3": "5c4fb7f0e4fc81da74c1a6e57e1c61e618406cf2",
       "smoking-behind-the-supermarket-with-you": "8bfc578e6128ea57292982ad12df3c3ac3a1e9f2",
       "bleach": "b69272ad84a1aabee4c8cc03ae589265e632caea",
       "chainsmoker-cat": "58dc1bfa2bf793c941a5cf8aab61a9a62adb79e0",
-      "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "011c1cd17962b5b15ff21b0831723446c2fe85c1"
+      "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "c3df8dbf7b2e9024c20bc68d5ffc9527e9c20425"
     }
   }
 }
