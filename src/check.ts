@@ -438,7 +438,7 @@ export async function checkShows({
       }
     }
 
-    let latestSnapshot: EpisodeSnapshot | null = null
+    let latestSnapshot: EpisodeSnapshot | null
     let disneyApiSucceeded = false
 
     try {

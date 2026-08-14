@@ -97,18 +97,16 @@ export async function buildShowDashboardRow(
   const expectedAt =
     nextEpisode !== null ? getExpectedDropAt(show.schedule, nextEpisode) : null
 
-  let status: DashboardStatus = 'upcoming'
-  if (nextEpisode === null || !expectedAt) {
-    status = 'upcoming'
-  } else {
-    status = resolveDashboardStatus(
-      expectedAt,
-      now,
-      providerLatestEpisode,
-      nextEpisode,
-      showState?.waitingNotifiedForEpisode
-    )
-  }
+  const status: DashboardStatus =
+    nextEpisode === null || !expectedAt
+      ? 'upcoming'
+      : resolveDashboardStatus(
+          expectedAt,
+          now,
+          providerLatestEpisode,
+          nextEpisode,
+          showState?.waitingNotifiedForEpisode
+        )
 
   let malProgress = '—'
   let malScore = '—'
