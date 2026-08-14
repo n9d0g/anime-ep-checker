@@ -156,7 +156,9 @@
           "eventId": "ikugle81a1u9l92t4vljq84tlg",
           "startAt": "2026-08-20T16:30:00.000Z"
         }
-      }
+      },
+      "discussionUrl": "https://www.reddit.com/r/anime/comments/1vnevmt/chainsmoker_cat_yani_neko_episode_7_discussion/",
+      "discussionUrlEpisode": 7
     },
     "bleach": {
       "lastEpisodeId": "anilist-60636-3",
@@ -745,12 +747,12 @@
     },
     "watchingDashboardHashes": {
       "one-piece": "2ad4045f781c161bbac5ede8cf209fd9d98049ff",
-      "slime": "3d7e897b9007d29ab72c4dd1ee07e5e3169af72f",
+      "slime": "924352b8f4c86ffb3c16ee1c2d75c9aa09d053c0",
       "mushoku-tensei-s3": "5c4fb7f0e4fc81da74c1a6e57e1c61e618406cf2",
       "smoking-behind-the-supermarket-with-you": "8bfc578e6128ea57292982ad12df3c3ac3a1e9f2",
       "bleach": "b69272ad84a1aabee4c8cc03ae589265e632caea",
-      "chainsmoker-cat": "6cae04bca6be2227cefb4db02b807a3e5e723cd4",
-      "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "c3df8dbf7b2e9024c20bc68d5ffc9527e9c20425"
+      "chainsmoker-cat": "58dc1bfa2bf793c941a5cf8aab61a9a62adb79e0",
+      "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "011c1cd17962b5b15ff21b0831723446c2fe85c1"
     }
   }
 }
