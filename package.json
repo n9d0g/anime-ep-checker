@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "description": "Crunchyroll, Netflix, and Disney+ episode checker with Discord alerts",
-  "packageManager": "pnpm@9.15.0",
+  "packageManager": "pnpm@10.34.5",
   "scripts": {
     "check": "tsx src/check.ts",
     "register-commands": "tsx scripts/register-discord-commands.ts",
@@ -11,20 +11,32 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit"
   },
-  "keywords": ["crunchyroll", "netflix", "disney", "anime", "discord", "mal"],
+  "keywords": [
+    "crunchyroll",
+    "netflix",
+    "disney",
+    "anime",
+    "discord",
+    "mal"
+  ],
   "author": "n9d0g",
   "license": "ISC",
   "engines": {
-    "node": "24.11.1"
+    "node": "24.19.0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.4",
-    "@types/node": "^22.15.21",
-    "eslint": "^9.39.4",
-    "eslint-config-prettier": "^10.1.5",
-    "prettier": "^3.5.3",
-    "tsx": "^4.19.4",
-    "typescript": "^5.8.3",
-    "typescript-eslint": "^8.32.1"
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^24.13.3",
+    "eslint": "^10.8.1",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.9.6",
+    "tsx": "^4.23.12",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.67.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   }
 }
