@@ -52,7 +52,9 @@
           "eventId": "pfkrqdeg9j8po6cphb7plc2cu4",
           "startAt": "2026-09-25T15:00:00.000Z"
         }
-      }
+      },
+      "discussionUrl": "https://www.reddit.com/r/anime/comments/1vo9nzb/tensei_shitara_slime_datta_ken_season_4_that_time/",
+      "discussionUrlEpisode": 18
     },
     "mushoku-tensei-s3": {
       "lastEpisodeId": "GE00374459JAJP",
@@ -257,7 +259,7 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-08-13T16:24:00.378Z",
+    "planToWatchCheckedAt": "2026-08-14T16:25:24.143Z",
     "planToWatch": {
       "updatedAt": "2026-08-11T18:35:28.627Z",
       "entries": [
@@ -739,11 +741,11 @@
     },
     "watchingDashboardHashes": {
       "one-piece": "d931f0d4f2f4b99c9c849dfa417cf362f5e5a3ac",
-      "slime": "549ab6da57f77cf1bdba4daf5589f49603bf440e",
+      "slime": "8072c52ee9166701e6505542fd42c99031beb4e5",
       "mushoku-tensei-s3": "5c4fb7f0e4fc81da74c1a6e57e1c61e618406cf2",
       "smoking-behind-the-supermarket-with-you": "8bfc578e6128ea57292982ad12df3c3ac3a1e9f2",
       "bleach": "b69272ad84a1aabee4c8cc03ae589265e632caea",
-      "chainsmoker-cat": "58dc1bfa2bf793c941a5cf8aab61a9a62adb79e0",
+      "chainsmoker-cat": "1325821a2dac2d77bd108f546ec7a394a68385a9",
       "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "c3df8dbf7b2e9024c20bc68d5ffc9527e9c20425"
     }
   }
