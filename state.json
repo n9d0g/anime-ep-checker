@@ -188,7 +188,9 @@
           "eventId": "a3tvnerll74dsc4maoe9h12ra0",
           "startAt": "2026-09-26T15:00:00.000Z"
         }
-      }
+      },
+      "discussionUrl": "https://www.reddit.com/r/anime/comments/1vp56f9/bleach_thousandyear_blood_war_the_calamity_bleach/",
+      "discussionUrlEpisode": 4
     },
     "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": {
       "lastEpisodeId": "GE00345558JAJP",
@@ -253,9 +255,9 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-08-14T16:25:24.143Z",
+    "planToWatchCheckedAt": "2026-08-15T16:30:34.083Z",
     "planToWatch": {
-      "updatedAt": "2026-08-11T18:35:28.627Z",
+      "updatedAt": "2026-08-15T16:30:34.083Z",
       "entries": [
         {
           "malId": 61323,
@@ -290,7 +292,7 @@
             "dayOfWeek": "thursday",
             "startTime": "01:30"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/11/11636l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/11/11636l.jpg",
           "numEpisodes": 26
         },
         {
@@ -377,7 +379,7 @@
             "dayOfWeek": "sunday",
             "startTime": "01:00"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1902/129579l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1902/129579l.jpg",
           "numEpisodes": 12
         },
         {
@@ -413,7 +415,7 @@
           "status": "finished_airing",
           "startDate": "2025-12-31",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1112/150697l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1112/150697l.webp",
           "numEpisodes": 1
         },
         {
@@ -434,7 +436,7 @@
           "status": "not_yet_aired",
           "startDate": null,
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1792/154493l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1792/154493l.webp",
           "numEpisodes": null
         },
         {
@@ -467,7 +469,7 @@
             "dayOfWeek": "sunday",
             "startTime": "22:30"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1093/145470l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1093/145470l.jpg",
           "numEpisodes": 12
         },
         {
@@ -488,7 +490,7 @@
           "status": "finished_airing",
           "startDate": "2025-04-25",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1482/146928l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1482/146928l.webp",
           "numEpisodes": 2
         },
         {
@@ -513,9 +515,12 @@
           "malId": 61987,
           "title": "Kusuriya no Hitorigoto 3rd Season",
           "status": "not_yet_aired",
-          "startDate": "2026-10",
-          "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1862/152811l.jpg",
+          "startDate": "2026-10-02",
+          "broadcast": {
+            "dayOfWeek": "friday",
+            "startTime": "23:00"
+          },
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1949/159521l.jpg",
           "numEpisodes": null
         },
         {
@@ -542,7 +547,7 @@
           "status": "finished_airing",
           "startDate": "2020-01-17",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1803/117183l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1803/117183l.jpg",
           "numEpisodes": 1
         },
         {
@@ -611,7 +616,7 @@
           "status": "not_yet_aired",
           "startDate": "2027",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1626/156999l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1626/156999l.jpg",
           "numEpisodes": null
         },
         {
@@ -710,7 +715,7 @@
           "status": "finished_airing",
           "startDate": "2019-02-08",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1249/117182l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1249/117182l.jpg",
           "numEpisodes": 1
         },
         {
@@ -719,7 +724,7 @@
           "status": "not_yet_aired",
           "startDate": null,
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1825/158690l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1825/158690l.jpg",
           "numEpisodes": null
         },
         {
@@ -728,7 +733,7 @@
           "status": "not_yet_aired",
           "startDate": null,
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1702/156273l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1702/156273l.jpg",
           "numEpisodes": null
         }
       ]
@@ -736,9 +741,9 @@
     "watchingDashboardHashes": {
       "one-piece": "d931f0d4f2f4b99c9c849dfa417cf362f5e5a3ac",
       "slime": "8072c52ee9166701e6505542fd42c99031beb4e5",
-      "mushoku-tensei-s3": "8d556fcb29110cde117fe633cec6a8c53b1d5055",
+      "mushoku-tensei-s3": "a0ee950252a9e41807f9b1b232b7eb51e3182f9d",
       "smoking-behind-the-supermarket-with-you": "1c11acc7c79daced42fc5ad44b38c8820fdeae7a",
-      "bleach": "6f634fddded50e332aa31e6ce3a12b5775dbfc34",
+      "bleach": "36435b9bc9bf1377cea128cfe4fb30dc9984e424",
       "chainsmoker-cat": "58dc1bfa2bf793c941a5cf8aab61a9a62adb79e0",
       "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "c3df8dbf7b2e9024c20bc68d5ffc9527e9c20425"
     }
