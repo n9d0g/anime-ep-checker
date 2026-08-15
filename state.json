@@ -155,19 +155,15 @@
       "discussionUrlEpisode": 7
     },
     "bleach": {
-      "lastEpisodeId": "anilist-60636-3",
-      "lastEpisodeNumber": "3",
+      "lastEpisodeId": "anilist-60636-4",
+      "lastEpisodeNumber": "4",
       "lastEpisodeTitle": "",
-      "lastNotifiedAt": "2026-08-08T15:00:35.239Z",
+      "lastNotifiedAt": "2026-08-15T15:00:43.458Z",
       "seasonId": "571475d5-8b1a-453f-a57f-26bb4dd13304",
       "seasonTitle": "Season 1",
       "waitingNotifiedForEpisode": null,
-      "malMeanScore": 9.03,
+      "malMeanScore": 9.01,
       "googleCalendarEvents": {
-        "4": {
-          "eventId": "3b7otir1krqc09jq0unaqo8dvg",
-          "startAt": "2026-08-15T15:00:00.000Z"
-        },
         "5": {
           "eventId": "mo2qa770qh0cu924ca9g1bqnqo",
           "startAt": "2026-08-22T15:00:00.000Z"
@@ -192,9 +188,7 @@
           "eventId": "a3tvnerll74dsc4maoe9h12ra0",
           "startAt": "2026-09-26T15:00:00.000Z"
         }
-      },
-      "discussionUrl": "https://www.reddit.com/r/anime/comments/1viybui/bleach_thousandyear_blood_war_the_calamity_bleach/",
-      "discussionUrlEpisode": 3
+      }
     },
     "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": {
       "lastEpisodeId": "GE00345558JAJP",
@@ -744,7 +738,7 @@
       "slime": "8072c52ee9166701e6505542fd42c99031beb4e5",
       "mushoku-tensei-s3": "8d556fcb29110cde117fe633cec6a8c53b1d5055",
       "smoking-behind-the-supermarket-with-you": "1c11acc7c79daced42fc5ad44b38c8820fdeae7a",
-      "bleach": "b69272ad84a1aabee4c8cc03ae589265e632caea",
+      "bleach": "6f634fddded50e332aa31e6ce3a12b5775dbfc34",
       "chainsmoker-cat": "58dc1bfa2bf793c941a5cf8aab61a9a62adb79e0",
       "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "c3df8dbf7b2e9024c20bc68d5ffc9527e9c20425"
     }
