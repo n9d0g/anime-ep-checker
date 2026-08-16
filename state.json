@@ -1,17 +1,20 @@
 {
   "shows": {
     "one-piece": {
-      "lastEpisodeId": "GE00369379JAJP",
-      "lastEpisodeNumber": "1173",
-      "lastEpisodeTitle": "Episode 1173",
-      "lastNotifiedAt": "2026-08-09T16:05:29.732Z",
+      "lastEpisodeId": "GE00376425JAJP",
+      "lastEpisodeNumber": "1174",
+      "lastEpisodeTitle": "Episode 1174",
+      "lastNotifiedAt": "2026-08-16T16:15:39.302Z",
       "seasonId": "GS00376439JAJP",
       "seasonTitle": "Elbaph (1156-current)",
       "waitingNotifiedForEpisode": null,
       "malMeanScore": 8.73,
-      "googleCalendarEvents": null,
-      "discussionUrl": "https://www.reddit.com/r/anime/comments/1vjtplm/one_piece_episode_1173_discussion/",
-      "discussionUrlEpisode": 1173
+      "googleCalendarEvents": {
+        "1175": {
+          "eventId": "87o5da0r1b065jtcttefqam6c4",
+          "startAt": "2026-08-23T16:00:00.000Z"
+        }
+      }
     },
     "slime": {
       "lastEpisodeId": "GE00374382JAJP",
@@ -730,7 +733,7 @@
       ]
     },
     "watchingDashboardHashes": {
-      "one-piece": "e40ecc23e99bae0a6ed58cb028c3b1ea90a2bca5",
+      "one-piece": "e989175a6d7f5a378613306c18a4d0d09b140729",
       "slime": "8072c52ee9166701e6505542fd42c99031beb4e5",
       "mushoku-tensei-s3": "6369dcf13908fdbc0e294a78d605310e637dc24c",
       "smoking-behind-the-supermarket-with-you": "1c11acc7c79daced42fc5ad44b38c8820fdeae7a",
