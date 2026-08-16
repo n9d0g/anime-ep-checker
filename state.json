@@ -90,7 +90,9 @@
           "eventId": "clt5seq9l4urcntpsu3hclf0qg",
           "startAt": "2026-09-27T16:00:00.000Z"
         }
-      }
+      },
+      "discussionUrl": "https://www.reddit.com/r/anime/comments/1vpzaiq/mushoku_tensei_jobless_reincarnation_season_3/",
+      "discussionUrlEpisode": 8
     },
     "smoking-behind-the-supermarket-with-you": {
       "lastEpisodeId": "GE00378530JAJP",
@@ -735,9 +737,9 @@
     "watchingDashboardHashes": {
       "one-piece": "454953324668305750ec2864189b5ce1c4e2d48c",
       "slime": "8072c52ee9166701e6505542fd42c99031beb4e5",
-      "mushoku-tensei-s3": "8af4fff471eb02f19068361901800cd569336121",
+      "mushoku-tensei-s3": "6369dcf13908fdbc0e294a78d605310e637dc24c",
       "smoking-behind-the-supermarket-with-you": "1c11acc7c79daced42fc5ad44b38c8820fdeae7a",
-      "bleach": "36435b9bc9bf1377cea128cfe4fb30dc9984e424",
+      "bleach": "7f2bbbe8885a1f234c60dac4cbc6acf26b0d61b6",
       "chainsmoker-cat": "1325821a2dac2d77bd108f546ec7a394a68385a9",
       "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "c3df8dbf7b2e9024c20bc68d5ffc9527e9c20425"
     }
