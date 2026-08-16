@@ -57,19 +57,15 @@
       "discussionUrlEpisode": 18
     },
     "mushoku-tensei-s3": {
-      "lastEpisodeId": "GE00374459JAJP",
-      "lastEpisodeNumber": "7",
-      "lastEpisodeTitle": "Phase Four",
-      "lastNotifiedAt": "2026-08-09T15:55:23.569Z",
+      "lastEpisodeId": "GE00374460JAJP",
+      "lastEpisodeNumber": "8",
+      "lastEpisodeTitle": "The Flying Fortress",
+      "lastNotifiedAt": "2026-08-16T15:55:37.314Z",
       "seasonId": "GS00374452JAJP",
       "seasonTitle": "Season 3",
       "waitingNotifiedForEpisode": null,
-      "malMeanScore": 8.66,
+      "malMeanScore": 8.62,
       "googleCalendarEvents": {
-        "8": {
-          "eventId": "h1ak11csdj7tlpvmm0lvuefjuc",
-          "startAt": "2026-08-16T16:00:00.000Z"
-        },
         "9": {
           "eventId": "dj51p5g1tj8788f2fq0cl6c4qg",
           "startAt": "2026-08-23T16:00:00.000Z"
@@ -94,9 +90,7 @@
           "eventId": "clt5seq9l4urcntpsu3hclf0qg",
           "startAt": "2026-09-27T16:00:00.000Z"
         }
-      },
-      "discussionUrl": "https://www.reddit.com/r/anime/comments/1vjs32g/mushoku_tensei_jobless_reincarnation_season_3/",
-      "discussionUrlEpisode": 7
+      }
     },
     "smoking-behind-the-supermarket-with-you": {
       "lastEpisodeId": "GE00378530JAJP",
@@ -739,12 +733,12 @@
       ]
     },
     "watchingDashboardHashes": {
-      "one-piece": "d931f0d4f2f4b99c9c849dfa417cf362f5e5a3ac",
+      "one-piece": "454953324668305750ec2864189b5ce1c4e2d48c",
       "slime": "8072c52ee9166701e6505542fd42c99031beb4e5",
-      "mushoku-tensei-s3": "a0ee950252a9e41807f9b1b232b7eb51e3182f9d",
+      "mushoku-tensei-s3": "8af4fff471eb02f19068361901800cd569336121",
       "smoking-behind-the-supermarket-with-you": "1c11acc7c79daced42fc5ad44b38c8820fdeae7a",
       "bleach": "36435b9bc9bf1377cea128cfe4fb30dc9984e424",
-      "chainsmoker-cat": "58dc1bfa2bf793c941a5cf8aab61a9a62adb79e0",
+      "chainsmoker-cat": "1325821a2dac2d77bd108f546ec7a394a68385a9",
       "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "c3df8dbf7b2e9024c20bc68d5ffc9527e9c20425"
     }
   }
