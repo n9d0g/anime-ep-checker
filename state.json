@@ -14,7 +14,9 @@
           "eventId": "87o5da0r1b065jtcttefqam6c4",
           "startAt": "2026-08-23T16:00:00.000Z"
         }
-      }
+      },
+      "discussionUrl": "https://www.reddit.com/r/anime/comments/1vq10bh/one_piece_episode_1174_discussion/",
+      "discussionUrlEpisode": 1174
     },
     "slime": {
       "lastEpisodeId": "GE00374382JAJP",
@@ -249,7 +251,7 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-08-15T16:30:34.083Z",
+    "planToWatchCheckedAt": "2026-08-16T16:35:33.080Z",
     "planToWatch": {
       "updatedAt": "2026-08-15T16:30:34.083Z",
       "entries": [
@@ -733,7 +735,7 @@
       ]
     },
     "watchingDashboardHashes": {
-      "one-piece": "e989175a6d7f5a378613306c18a4d0d09b140729",
+      "one-piece": "08d875b8f1dfa2496eb7cee3576f07b1ee787883",
       "slime": "8072c52ee9166701e6505542fd42c99031beb4e5",
       "mushoku-tensei-s3": "6369dcf13908fdbc0e294a78d605310e637dc24c",
       "smoking-behind-the-supermarket-with-you": "1c11acc7c79daced42fc5ad44b38c8820fdeae7a",
