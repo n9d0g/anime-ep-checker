@@ -198,10 +198,6 @@
       "waitingNotifiedForEpisode": null,
       "malMeanScore": 9.14,
       "googleCalendarEvents": {
-        "13": {
-          "eventId": "j3s7aup8jff36vfkeodfvbj8ho",
-          "startAt": "2026-08-19T14:00:00.000Z"
-        },
         "14": {
           "eventId": "sdndknfi84pg5k6snj67beivgc",
           "startAt": "2026-08-26T14:00:00.000Z"
@@ -741,7 +737,7 @@
       "smoking-behind-the-supermarket-with-you": "f644a1b10ef76209f0141effa53e695a8a0a8390",
       "bleach": "e604a63c66eb87b0cb282e7f6485a6ae76763212",
       "chainsmoker-cat": "1325821a2dac2d77bd108f546ec7a394a68385a9",
-      "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "c3df8dbf7b2e9024c20bc68d5ffc9527e9c20425"
+      "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "69514e9e3759e43a9b2b8dcf458cd4021e7c82be"
     }
   }
 }
