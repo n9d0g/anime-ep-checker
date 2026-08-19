@@ -189,10 +189,10 @@
       "discussionUrlEpisode": 4
     },
     "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": {
-      "lastEpisodeId": "GE00345558JAJP",
-      "lastEpisodeNumber": "12",
-      "lastEpisodeTitle": "From Now On",
-      "lastNotifiedAt": "2026-08-12T14:05:31.730Z",
+      "lastEpisodeId": "GE00345561JAJP",
+      "lastEpisodeNumber": "13",
+      "lastEpisodeTitle": "Stand Up",
+      "lastNotifiedAt": "2026-08-19T14:05:32.873Z",
       "seasonId": "GS00371932JAJP",
       "seasonTitle": "Season 4",
       "waitingNotifiedForEpisode": null,
@@ -731,13 +731,13 @@
       ]
     },
     "watchingDashboardHashes": {
-      "one-piece": "bcd3f34d18e8ae65eb8fea0e944e377877b0c4d9",
+      "one-piece": "30e00b0fb73e1a1c90ae06a9fd3aa9b30b42ed7c",
       "slime": "8072c52ee9166701e6505542fd42c99031beb4e5",
       "mushoku-tensei-s3": "3bcc3448d7491d680850377c30fa4f4f5843e51e",
       "smoking-behind-the-supermarket-with-you": "f644a1b10ef76209f0141effa53e695a8a0a8390",
       "bleach": "e604a63c66eb87b0cb282e7f6485a6ae76763212",
       "chainsmoker-cat": "1325821a2dac2d77bd108f546ec7a394a68385a9",
-      "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "69514e9e3759e43a9b2b8dcf458cd4021e7c82be"
+      "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "fbae3c108a393d8c0e05b7f3e9c5d9d7cf576cb8"
     }
   }
 }
