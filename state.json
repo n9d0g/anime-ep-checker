@@ -127,22 +127,20 @@
       }
     },
     "chainsmoker-cat": {
-      "lastEpisodeId": "82760638",
-      "lastEpisodeNumber": "7",
-      "lastEpisodeTitle": "Episode 7",
-      "lastNotifiedAt": "2026-08-13T16:24:08.053Z",
+      "lastEpisodeId": "82760639",
+      "lastEpisodeNumber": "8",
+      "lastEpisodeTitle": "Episode 8",
+      "lastNotifiedAt": "2026-08-20T16:25:39.790Z",
       "seasonId": "82760631",
       "seasonTitle": "Chainsmoker Cat",
       "waitingNotifiedForEpisode": null,
-      "malMeanScore": 7.04,
+      "malMeanScore": 7.06,
       "googleCalendarEvents": {
-        "8": {
-          "eventId": "ikugle81a1u9l92t4vljq84tlg",
-          "startAt": "2026-08-20T16:30:00.000Z"
+        "9": {
+          "eventId": "kv4mc9nog8kedk8lkf7f6ujc50",
+          "startAt": "2026-08-27T16:30:00.000Z"
         }
-      },
-      "discussionUrl": "https://www.reddit.com/r/anime/comments/1vnevmt/chainsmoker_cat_yani_neko_episode_7_discussion/",
-      "discussionUrlEpisode": 7
+      }
     },
     "bleach": {
       "lastEpisodeId": "anilist-60636-4",
@@ -725,12 +723,12 @@
       ]
     },
     "watchingDashboardHashes": {
-      "one-piece": "bcd3f34d18e8ae65eb8fea0e944e377877b0c4d9",
+      "one-piece": "30e00b0fb73e1a1c90ae06a9fd3aa9b30b42ed7c",
       "slime": "8072c52ee9166701e6505542fd42c99031beb4e5",
       "mushoku-tensei-s3": "e9b052f378248c63b0934691335095a7aaa9c1e3",
       "smoking-behind-the-supermarket-with-you": "bde8b080abec8c02639f77e241feeff8935729a0",
       "bleach": "7f2bbbe8885a1f234c60dac4cbc6acf26b0d61b6",
-      "chainsmoker-cat": "1325821a2dac2d77bd108f546ec7a394a68385a9",
+      "chainsmoker-cat": "5a534b1b66524dafd1e4d3782e9100d544a9ffd2",
       "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "fbae3c108a393d8c0e05b7f3e9c5d9d7cf576cb8"
     }
   }
