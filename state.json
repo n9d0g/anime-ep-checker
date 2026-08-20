@@ -124,7 +124,9 @@
           "eventId": "lt1i9sjcmfeo0rlte76p6rusqc",
           "startAt": "2026-09-24T16:00:00.000Z"
         }
-      }
+      },
+      "discussionUrl": "https://www.reddit.com/r/anime/comments/1vtmrmj/smoking_behind_the_supermarket_with_you_super_no/",
+      "discussionUrlEpisode": 7
     },
     "chainsmoker-cat": {
       "lastEpisodeId": "82760639",
@@ -239,7 +241,7 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-08-19T16:48:13.433Z",
+    "planToWatchCheckedAt": "2026-08-20T16:50:37.023Z",
     "planToWatch": {
       "updatedAt": "2026-08-15T16:30:34.083Z",
       "entries": [
@@ -723,10 +725,10 @@
       ]
     },
     "watchingDashboardHashes": {
-      "one-piece": "30e00b0fb73e1a1c90ae06a9fd3aa9b30b42ed7c",
+      "one-piece": "bcd3f34d18e8ae65eb8fea0e944e377877b0c4d9",
       "slime": "8072c52ee9166701e6505542fd42c99031beb4e5",
       "mushoku-tensei-s3": "e9b052f378248c63b0934691335095a7aaa9c1e3",
-      "smoking-behind-the-supermarket-with-you": "bde8b080abec8c02639f77e241feeff8935729a0",
+      "smoking-behind-the-supermarket-with-you": "b7436f322ef76e53e64a5353b173ef5357b519c7",
       "bleach": "7f2bbbe8885a1f234c60dac4cbc6acf26b0d61b6",
       "chainsmoker-cat": "5a534b1b66524dafd1e4d3782e9100d544a9ffd2",
       "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "fbae3c108a393d8c0e05b7f3e9c5d9d7cf576cb8"
