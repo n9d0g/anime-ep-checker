@@ -48,7 +48,9 @@
           "eventId": "pfkrqdeg9j8po6cphb7plc2cu4",
           "startAt": "2026-09-25T15:00:00.000Z"
         }
-      }
+      },
+      "discussionUrl": "https://www.reddit.com/r/anime/comments/1vuishe/tensei_shitara_slime_datta_ken_season_4_that_time/",
+      "discussionUrlEpisode": 19
     },
     "mushoku-tensei-s3": {
       "lastEpisodeId": "GE00374460JAJP",
@@ -237,9 +239,9 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-08-20T16:50:37.023Z",
+    "planToWatchCheckedAt": "2026-08-21T16:55:29.231Z",
     "planToWatch": {
-      "updatedAt": "2026-08-15T16:30:34.083Z",
+      "updatedAt": "2026-08-21T16:55:29.231Z",
       "entries": [
         {
           "malId": 61323,
@@ -274,7 +276,7 @@
             "dayOfWeek": "thursday",
             "startTime": "01:30"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/11/11636l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/11/11636l.webp",
           "numEpisodes": 26
         },
         {
@@ -295,7 +297,7 @@
             "dayOfWeek": "friday",
             "startTime": "00:55"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/10/77957l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/10/77957l.jpg",
           "numEpisodes": 12
         },
         {
@@ -329,7 +331,7 @@
           "malId": 61990,
           "title": "Cyberpunk: Edgerunners 2",
           "status": "not_yet_aired",
-          "startDate": "2026",
+          "startDate": "2026-10-20",
           "broadcast": null,
           "coverUrl": "https://cdn.myanimelist.net/images/anime/1880/158764l.jpg",
           "numEpisodes": 10
@@ -397,7 +399,7 @@
           "status": "finished_airing",
           "startDate": "2025-12-31",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1112/150697l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1112/150697l.jpg",
           "numEpisodes": 1
         },
         {
@@ -409,7 +411,7 @@
             "dayOfWeek": "saturday",
             "startTime": "00:00"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1160/122627l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1160/122627l.webp",
           "numEpisodes": 13
         },
         {
@@ -418,7 +420,7 @@
           "status": "not_yet_aired",
           "startDate": null,
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1792/154493l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1792/154493l.jpg",
           "numEpisodes": null
         },
         {
@@ -472,7 +474,7 @@
           "status": "finished_airing",
           "startDate": "2025-04-25",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1482/146928l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1482/146928l.jpg",
           "numEpisodes": 2
         },
         {
@@ -490,7 +492,7 @@
           "status": "finished_airing",
           "startDate": "2022-03-10",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1862/121020l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1862/121020l.webp",
           "numEpisodes": 10
         },
         {
@@ -547,7 +549,7 @@
           "status": "not_yet_aired",
           "startDate": null,
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1664/153382l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1664/153382l.webp",
           "numEpisodes": null
         },
         {
@@ -559,7 +561,7 @@
             "dayOfWeek": "monday",
             "startTime": "00:00"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1415/102477l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1415/102477l.webp",
           "numEpisodes": 13
         },
         {
@@ -589,7 +591,7 @@
           "status": "not_yet_aired",
           "startDate": "2027-01",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1812/158683l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1812/158683l.webp",
           "numEpisodes": null
         },
         {
@@ -607,7 +609,7 @@
           "status": "not_yet_aired",
           "startDate": "2027-10",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1619/156313l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1619/156313l.webp",
           "numEpisodes": null
         },
         {
@@ -676,7 +678,7 @@
           "status": "finished_airing",
           "startDate": "2020-09-18",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1825/110716l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1825/110716l.webp",
           "numEpisodes": 1
         },
         {
@@ -688,7 +690,7 @@
             "dayOfWeek": "friday",
             "startTime": "00:55"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1864/93518l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1864/93518l.jpg",
           "numEpisodes": 11
         },
         {
@@ -715,15 +717,15 @@
           "status": "not_yet_aired",
           "startDate": null,
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1702/156273l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1052/159561l.jpg",
           "numEpisodes": null
         }
       ]
     },
     "watchingDashboardHashes": {
-      "one-piece": "30e00b0fb73e1a1c90ae06a9fd3aa9b30b42ed7c",
-      "slime": "196a2886897362819046330d20f76508dabd1704",
-      "mushoku-tensei-s3": "e9b052f378248c63b0934691335095a7aaa9c1e3",
+      "one-piece": "bcd3f34d18e8ae65eb8fea0e944e377877b0c4d9",
+      "slime": "754f9930a5293722d6b7f38fb099b412c4a12c78",
+      "mushoku-tensei-s3": "6f1e4ed4dadce3a2ab88522cf4be5ec74dc84ee1",
       "smoking-behind-the-supermarket-with-you": "b7436f322ef76e53e64a5353b173ef5357b519c7",
       "bleach": "7f2bbbe8885a1f234c60dac4cbc6acf26b0d61b6",
       "chainsmoker-cat": "184b29d53703371a5d04628d8d4dcea37a2a76e2",
