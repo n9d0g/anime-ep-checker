@@ -28,10 +28,6 @@
       "waitingNotifiedForEpisode": null,
       "malMeanScore": 8.14,
       "googleCalendarEvents": {
-        "19": {
-          "eventId": "cd1dbpgpas476d9jujlp0dvruo",
-          "startAt": "2026-08-21T15:00:00.000Z"
-        },
         "20": {
           "eventId": "fd0aaoo6qqipnl8hv7lcftmle0",
           "startAt": "2026-08-28T15:00:00.000Z"
@@ -728,7 +724,7 @@
     },
     "watchingDashboardHashes": {
       "one-piece": "30e00b0fb73e1a1c90ae06a9fd3aa9b30b42ed7c",
-      "slime": "51e045e2112eaffffe71e50df863dced9eff8add",
+      "slime": "e30fdfd511373a9994ded4e096887ddda0885da7",
       "mushoku-tensei-s3": "e9b052f378248c63b0934691335095a7aaa9c1e3",
       "smoking-behind-the-supermarket-with-you": "b7436f322ef76e53e64a5353b173ef5357b519c7",
       "bleach": "7f2bbbe8885a1f234c60dac4cbc6acf26b0d61b6",
