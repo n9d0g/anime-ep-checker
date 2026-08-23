@@ -1,17 +1,20 @@
 {
   "shows": {
     "one-piece": {
-      "lastEpisodeId": "GE00376425JAJP",
-      "lastEpisodeNumber": "1174",
-      "lastEpisodeTitle": "Episode 1174",
-      "lastNotifiedAt": "2026-08-16T16:15:39.302Z",
+      "lastEpisodeId": "GE00376426JAJP",
+      "lastEpisodeNumber": "1175",
+      "lastEpisodeTitle": "Elbaph in Flames! Jinbe's Shoulder Throw Explodes!",
+      "lastNotifiedAt": "2026-08-23T17:29:36.214Z",
       "seasonId": "GS00376439JAJP",
       "seasonTitle": "Elbaph (1156-current)",
-      "waitingNotifiedForEpisode": 1175,
+      "waitingNotifiedForEpisode": null,
       "malMeanScore": 8.73,
-      "googleCalendarEvents": null,
-      "discussionUrl": "https://www.reddit.com/r/anime/comments/1vq10bh/one_piece_episode_1174_discussion/",
-      "discussionUrlEpisode": 1174
+      "googleCalendarEvents": {
+        "1176": {
+          "eventId": "ikddcu1kk8ciop0s5hjdkaj1ms",
+          "startAt": "2026-08-30T16:00:00.000Z"
+        }
+      }
     },
     "slime": {
       "lastEpisodeId": "GE00374383JAJP",
@@ -711,7 +714,7 @@
       ]
     },
     "watchingDashboardHashes": {
-      "one-piece": "0f8df85d13a074a1f7716c51040926d10b8b99a3",
+      "one-piece": "3b986576df6eb7066d7c2241326e138cab772043",
       "slime": "754f9930a5293722d6b7f38fb099b412c4a12c78",
       "mushoku-tensei-s3": "dcc550ab9b202fcf608d1e9ea6a8fb5ff68b3d60",
       "smoking-behind-the-supermarket-with-you": "b7436f322ef76e53e64a5353b173ef5357b519c7",
