@@ -7,7 +7,7 @@
       "lastNotifiedAt": "2026-08-16T16:15:39.302Z",
       "seasonId": "GS00376439JAJP",
       "seasonTitle": "Elbaph (1156-current)",
-      "waitingNotifiedForEpisode": null,
+      "waitingNotifiedForEpisode": 1175,
       "malMeanScore": 8.73,
       "googleCalendarEvents": null,
       "discussionUrl": "https://www.reddit.com/r/anime/comments/1vq10bh/one_piece_episode_1174_discussion/",
@@ -709,7 +709,7 @@
       ]
     },
     "watchingDashboardHashes": {
-      "one-piece": "72717b558651c8e47edefd505564d0eba514dc5f",
+      "one-piece": "199c62a12878a8748bab92ac043d072208193492",
       "slime": "754f9930a5293722d6b7f38fb099b412c4a12c78",
       "mushoku-tensei-s3": "6f9eb9cf204884ce50f2321181c3b11fb6b80cbd",
       "smoking-behind-the-supermarket-with-you": "b7436f322ef76e53e64a5353b173ef5357b519c7",
