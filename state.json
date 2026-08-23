@@ -53,19 +53,15 @@
       "discussionUrlEpisode": 19
     },
     "mushoku-tensei-s3": {
-      "lastEpisodeId": "GE00374460JAJP",
-      "lastEpisodeNumber": "8",
-      "lastEpisodeTitle": "The Flying Fortress",
-      "lastNotifiedAt": "2026-08-16T15:55:37.314Z",
+      "lastEpisodeId": "GE00374461JAJP",
+      "lastEpisodeNumber": "9",
+      "lastEpisodeTitle": "Lament",
+      "lastNotifiedAt": "2026-08-23T15:55:40.900Z",
       "seasonId": "GS00374452JAJP",
       "seasonTitle": "Season 3",
       "waitingNotifiedForEpisode": null,
-      "malMeanScore": 8.62,
+      "malMeanScore": 8.59,
       "googleCalendarEvents": {
-        "9": {
-          "eventId": "dj51p5g1tj8788f2fq0cl6c4qg",
-          "startAt": "2026-08-23T16:00:00.000Z"
-        },
         "10": {
           "eventId": "0vh2tl9005erlqknc2rbv23bas",
           "startAt": "2026-08-30T16:00:00.000Z"
@@ -86,9 +82,7 @@
           "eventId": "clt5seq9l4urcntpsu3hclf0qg",
           "startAt": "2026-09-27T16:00:00.000Z"
         }
-      },
-      "discussionUrl": "https://www.reddit.com/r/anime/comments/1vpzaiq/mushoku_tensei_jobless_reincarnation_season_3/",
-      "discussionUrlEpisode": 8
+      }
     },
     "smoking-behind-the-supermarket-with-you": {
       "lastEpisodeId": "GE00378531JAJP",
@@ -150,7 +144,7 @@
       "seasonId": "571475d5-8b1a-453f-a57f-26bb4dd13304",
       "seasonTitle": "Season 1",
       "waitingNotifiedForEpisode": null,
-      "malMeanScore": 9.04,
+      "malMeanScore": 9.14,
       "googleCalendarEvents": {
         "6": {
           "eventId": "8pbgm7n6u3j3h5k5jn3bg3ifok",
@@ -174,7 +168,8 @@
         }
       },
       "discussionUrl": "https://www.reddit.com/r/anime/comments/1vve70i/bleach_thousandyear_blood_war_the_calamity_bleach/",
-      "discussionUrlEpisode": 5
+      "discussionUrlEpisode": 5,
+      "malScoreAlertedAt": "2026-08-23T15:55:35.176Z"
     },
     "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": {
       "lastEpisodeId": "GE00345561JAJP",
@@ -719,11 +714,11 @@
       ]
     },
     "watchingDashboardHashes": {
-      "one-piece": "bcd3f34d18e8ae65eb8fea0e944e377877b0c4d9",
+      "one-piece": "2b05b3c7c99b0f8b02518541715de6ba9f37000e",
       "slime": "754f9930a5293722d6b7f38fb099b412c4a12c78",
-      "mushoku-tensei-s3": "6f1e4ed4dadce3a2ab88522cf4be5ec74dc84ee1",
+      "mushoku-tensei-s3": "6f9eb9cf204884ce50f2321181c3b11fb6b80cbd",
       "smoking-behind-the-supermarket-with-you": "b7436f322ef76e53e64a5353b173ef5357b519c7",
-      "bleach": "3b601bcb932f5b74b5b38b266abc95632daa9114",
+      "bleach": "0828a7cedcfa77743e346d2cccc9efe79cdb4cab",
       "chainsmoker-cat": "184b29d53703371a5d04628d8d4dcea37a2a76e2",
       "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "71cf381e1bf3fd09b6500dc397ca83575b942d2a"
     }
