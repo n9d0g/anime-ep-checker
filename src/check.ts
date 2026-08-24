@@ -22,6 +22,7 @@ import {
 import { syncWatchingDashboard } from './discord-dashboard.js'
 import {
   clearGoogleCalendarEventForEpisode,
+  clearGoogleCalendarEventsForShow,
   getGoogleCalendarConfigFromEnv,
   syncGoogleCalendarEvents,
 } from './google-calendar.js'
@@ -387,6 +388,39 @@ export async function checkShows({
   const noteStateChange = (reason: string) => {
     stateChangeReasons.push(reason)
     stateChanged = true
+  }
+
+  const calendarConfig = getGoogleCalendarConfigFromEnv()
+  const activeIds = new Set(shows.map((show) => show.id))
+
+  for (const showId of Object.keys(state.shows)) {
+    if (activeIds.has(showId)) {
+      continue
+    }
+
+    console.log(`Untracking removed show ${showId}...`)
+    try {
+      await clearGoogleCalendarEventsForShow(
+        calendarConfig,
+        showId,
+        state,
+        dryRun
+      )
+    } catch (error) {
+      console.warn(
+        `Google Calendar cleanup failed for ${showId}: ${
+          error instanceof Error ? error.message : error
+        }`
+      )
+    }
+
+    if (dryRun) {
+      noteStateChange(`would untrack ${showId}`)
+      continue
+    }
+
+    delete state.shows[showId]
+    noteStateChange(`untracked ${showId}`)
   }
 
   for (const show of shows) {

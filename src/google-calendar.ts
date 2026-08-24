@@ -395,6 +395,56 @@ export async function clearGoogleCalendarEventForEpisode(
   return true
 }
 
+export async function clearGoogleCalendarEventsForShow(
+  config: GoogleCalendarConfig,
+  showId: string,
+  state: StateFile,
+  dryRun = false
+): Promise<boolean> {
+  if (!hasCalendarConfig(config)) {
+    return false
+  }
+
+  const showState = state.shows[showId]
+  const deleteIds = new Set<string>()
+
+  if (showState?.googleCalendarEvents) {
+    for (const entry of Object.values(showState.googleCalendarEvents)) {
+      deleteIds.add(entry.eventId)
+    }
+  }
+
+  if (!dryRun) {
+    const listed = await listCalendarEventsForShow(config, showId)
+    for (const event of listed) {
+      deleteIds.add(event.id)
+    }
+  }
+
+  if (deleteIds.size === 0 && !showState?.googleCalendarEvents) {
+    return false
+  }
+
+  let changed = false
+  for (const eventId of deleteIds) {
+    if (dryRun) {
+      console.log(`  Would delete Google Calendar event ${eventId} for ${showId}`)
+      changed = true
+      continue
+    }
+    await deleteCalendarEvent(config, eventId)
+    changed = true
+    console.log(`  Google Calendar event deleted for ${showId}`)
+  }
+
+  if (showState) {
+    showState.googleCalendarEvents = null
+    changed = true
+  }
+
+  return changed
+}
+
 async function syncCalendarEventsForShow({
   config,
   show,

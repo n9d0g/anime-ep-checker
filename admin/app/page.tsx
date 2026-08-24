@@ -586,6 +586,7 @@ export default function AdminPage() {
       const data = (await response.json()) as {
         error?: string
         shows?: Show[]
+        cleanupTriggered?: boolean
       }
 
       if (!response.ok) {
@@ -595,7 +596,13 @@ export default function AdminPage() {
       const savedShows = (data.shows ?? []).map(showToForm)
       setShows(savedShows)
       setBaseline(serializeShows(savedShows))
-      toast.success('Saved to GitHub. The checker will use these on the next run.')
+      if (data.cleanupTriggered) {
+        toast.success(
+          'Saved to GitHub. Calendar and Discord cleanup will run shortly.'
+        )
+      } else {
+        toast.success('Saved to GitHub. The checker will use these on the next run.')
+      }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to save shows')
     } finally {

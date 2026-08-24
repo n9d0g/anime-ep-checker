@@ -167,13 +167,33 @@ function needsPlanToWatchCheck(state, now) {
   return now.getTime() - checkedMs >= PTW_CHECK_INTERVAL_MS
 }
 
+function hasOrphanedShows(shows, state) {
+  const activeIds = new Set(shows.map((show) => show.id))
+
+  for (const showId of Object.keys(state.shows ?? {})) {
+    if (!activeIds.has(showId)) {
+      return true
+    }
+  }
+
+  const messageIds = state.meta?.watchingDashboardMessageIds ?? {}
+  for (const showId of Object.keys(messageIds)) {
+    if (!activeIds.has(showId)) {
+      return true
+    }
+  }
+
+  return false
+}
+
 const showsFile = readJson(SHOWS_PATH, { shows: [] })
 const state = readJson(STATE_PATH, { shows: {} })
 const now = new Date()
 const shows = showsFile.shows ?? []
 const needsCheck = shows.some((show) => showNeedsCheck(show, state, now))
 const needsPtwCheck = needsPlanToWatchCheck(state, now)
-const shouldRun = needsCheck || needsPtwCheck
+const hasOrphans = hasOrphanedShows(shows, state)
+const shouldRun = needsCheck || needsPtwCheck || hasOrphans
 const activeModes = getActiveCheckModes(shows, state, now)
 
 const outputFile = process.env.GITHUB_OUTPUT
@@ -188,6 +208,9 @@ if (shouldRun) {
   }
   if (needsPtwCheck) {
     console.log('Plan-to-watch check is due (24h cadence).')
+  }
+  if (hasOrphans) {
+    console.log('Removed show still present in state; running cleanup.')
   }
 } else {
   console.log(

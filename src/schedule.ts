@@ -175,3 +175,22 @@ export function needsPlanToWatchCheck(
 
   return now.getTime() - checkedMs >= PTW_CHECK_INTERVAL_MS
 }
+
+export function hasOrphanedShows(shows: Show[], state: StateFile): boolean {
+  const activeIds = new Set(shows.map((show) => show.id))
+
+  for (const showId of Object.keys(state.shows)) {
+    if (!activeIds.has(showId)) {
+      return true
+    }
+  }
+
+  const messageIds = state.meta?.watchingDashboardMessageIds ?? {}
+  for (const showId of Object.keys(messageIds)) {
+    if (!activeIds.has(showId)) {
+      return true
+    }
+  }
+
+  return false
+}

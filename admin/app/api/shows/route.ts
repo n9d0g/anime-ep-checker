@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import {
+  dispatchCheckWorkflow,
   getShowsFile,
   parseDisneyIdFromUrl,
   parseNetflixIdFromUrl,
@@ -149,9 +150,32 @@ export async function PUT(request: Request) {
       ids.add(show.id)
     }
 
-    const { sha } = await getShowsFile()
+    const { content, sha } = await getShowsFile()
+    const previousIds = new Set(
+      ((content.shows ?? []) as Show[]).map((show) => show.id)
+    )
+
     await saveShowsFile(shows, sha)
-    return NextResponse.json({ ok: true, shows })
+
+    const newIds = new Set(shows.map((show) => show.id))
+    const removedIds = [...previousIds].filter((id) => !newIds.has(id))
+
+    let cleanupTriggered = false
+    if (removedIds.length > 0) {
+      try {
+        await dispatchCheckWorkflow(false)
+        cleanupTriggered = true
+      } catch (error) {
+        console.warn('Failed to dispatch cleanup check workflow:', error)
+      }
+    }
+
+    return NextResponse.json({
+      ok: true,
+      shows,
+      cleanupTriggered,
+      removedIds,
+    })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json({ error: message }, { status: 400 })
