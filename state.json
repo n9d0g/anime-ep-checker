@@ -120,24 +120,6 @@
       "discussionUrl": "https://www.reddit.com/r/anime/comments/1vtmrmj/smoking_behind_the_supermarket_with_you_super_no/",
       "discussionUrlEpisode": 7
     },
-    "chainsmoker-cat": {
-      "lastEpisodeId": "82760639",
-      "lastEpisodeNumber": "8",
-      "lastEpisodeTitle": "Episode 8",
-      "lastNotifiedAt": "2026-08-20T16:25:39.790Z",
-      "seasonId": "82760631",
-      "seasonTitle": "Chainsmoker Cat",
-      "waitingNotifiedForEpisode": null,
-      "malMeanScore": 7.06,
-      "googleCalendarEvents": {
-        "9": {
-          "eventId": "kv4mc9nog8kedk8lkf7f6ujc50",
-          "startAt": "2026-08-27T16:30:00.000Z"
-        }
-      },
-      "discussionUrl": "https://www.reddit.com/r/anime/comments/1vtnlfv/chainsmoker_cat_yani_neko_episode_8_discussion/",
-      "discussionUrlEpisode": 8
-    },
     "bleach": {
       "lastEpisodeId": "anilist-60636-5",
       "lastEpisodeNumber": "5",
@@ -217,7 +199,6 @@
       "slime": "1531376924490727525",
       "mushoku-tensei-s3": "1531376936910192792",
       "smoking-behind-the-supermarket-with-you": "1531670249173155863",
-      "chainsmoker-cat": "1531640110481932389",
       "bleach": "1531685830114939012",
       "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "1537064482776416328"
     },
@@ -717,11 +698,10 @@
     },
     "watchingDashboardHashes": {
       "one-piece": "cf98278df5c04c146015120af7fb40d267ad8af5",
-      "slime": "754f9930a5293722d6b7f38fb099b412c4a12c78",
-      "mushoku-tensei-s3": "2ed079605291403ac15691315a467747433b63c6",
-      "smoking-behind-the-supermarket-with-you": "b7436f322ef76e53e64a5353b173ef5357b519c7",
+      "slime": "b95fd30f65a468ac644975ccb5a8406c86330443",
+      "mushoku-tensei-s3": "9007acb245e1fc474f2ef03645d4df69a21f2e24",
+      "smoking-behind-the-supermarket-with-you": "8879fd8c18fba87c2ed13f40e0ee62f428acca53",
       "bleach": "abc2abb169a1b8d0e4976a837e967b8814e77baa",
-      "chainsmoker-cat": "184b29d53703371a5d04628d8d4dcea37a2a76e2",
       "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "30f3284a09648c8b64bee12957a0e2b6e7486e44"
     }
   }
