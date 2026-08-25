@@ -1,5 +1,10 @@
 import { NextResponse } from 'next/server'
-import { getShowsFile, getStateFile, saveStateFile } from '@/lib/github'
+import {
+  getShowsFile,
+  getStateFile,
+  NO_STORE_HEADERS,
+  saveStateFile,
+} from '@/lib/github'
 import { fetchMalAnimeDetails } from '@/lib/mal'
 import type { Show, ShowStateSummary, StateFile } from '@/lib/types'
 
@@ -72,6 +77,8 @@ async function saveStateWithRetry(state: StateFile): Promise<void> {
   await saveStateFile(state, refreshed.sha)
 }
 
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
   try {
     const [{ content: stateContent }, { content: showsContent }] =
@@ -81,10 +88,13 @@ export async function GET() {
     const shows = (showsContent.shows ?? []) as Show[]
     const enriched = await attachMalWatched(summaries, shows)
 
-    return NextResponse.json({ shows: enriched })
+    return NextResponse.json({ shows: enriched }, { headers: NO_STORE_HEADERS })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error'
-    return NextResponse.json({ error: message }, { status: 500 })
+    return NextResponse.json(
+      { error: message },
+      { status: 500, headers: NO_STORE_HEADERS }
+    )
   }
 }
 
@@ -118,16 +128,22 @@ export async function PATCH(request: Request) {
 
     await saveStateWithRetry(state)
 
-    return NextResponse.json({
-      ok: true,
-      show: {
-        lastEpisodeNumber: String(episodeNumber),
-        lastEpisodeTitle: existing.lastEpisodeTitle,
-        lastNotifiedAt: existing.lastNotifiedAt,
+    return NextResponse.json(
+      {
+        ok: true,
+        show: {
+          lastEpisodeNumber: String(episodeNumber),
+          lastEpisodeTitle: existing.lastEpisodeTitle,
+          lastNotifiedAt: existing.lastNotifiedAt,
+        },
       },
-    })
+      { headers: NO_STORE_HEADERS }
+    )
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error'
-    return NextResponse.json({ error: message }, { status: 400 })
+    return NextResponse.json(
+      { error: message },
+      { status: 400, headers: NO_STORE_HEADERS }
+    )
   }
 }

@@ -65,22 +65,6 @@
       "redditSearchTitle": "smoking_behind_the_supermarket_with_you_super_no_ura_de_yani_suu_futari"
     },
     {
-      "id": "chainsmoker-cat",
-      "title": "Yani Neko",
-      "provider": "netflix",
-      "schedule": {
-        "mode": "ongoing",
-        "startAt": "2026-07-02T16:30:00.000Z",
-        "startEpisode": 1,
-        "episodeCount": null,
-        "premiereBatchSize": 1
-      },
-      "netflixUrl": "https://www.netflix.com/title/82760630",
-      "netflixId": "82760630",
-      "malId": 63403,
-      "redditSearchTitle": "chainsmoker_cat_yani_neko"
-    },
-    {
       "id": "bleach",
       "title": "Bleach: Sennen Kessen-hen - Kashin-tan",
       "provider": "disney",

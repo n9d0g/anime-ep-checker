@@ -77,6 +77,14 @@ function serializeShows(shows: ShowFormValues[]): string {
   return JSON.stringify(shows)
 }
 
+const AUTO_REFRESH_MS = 15 * 60 * 1000
+const FOCUS_REFRESH_MIN_INTERVAL_MS = 60 * 1000
+const NO_STORE: RequestInit = { cache: 'no-store' }
+
+function noStoreFetch(input: RequestInfo | URL, init?: RequestInit) {
+  return fetch(input, { ...NO_STORE, ...init, cache: 'no-store' })
+}
+
 function episodeBadge(
   show: ShowFormValues,
   liveState?: ShowStateSummary
@@ -102,9 +110,7 @@ function episodeBadge(
     return {
       label,
       behind:
-        latestOut !== null &&
-        Number.isFinite(latestOut) &&
-        watched < latestOut,
+        latestOut !== null && Number.isFinite(latestOut) && watched < latestOut,
     }
   }
 
@@ -250,9 +256,9 @@ export default function AdminPage() {
   const toast = useToast()
   const [shows, setShows] = useState<ShowFormValues[]>([])
   const [baseline, setBaseline] = useState('')
-  const [showStates, setShowStates] = useState<Record<string, ShowStateSummary>>(
-    {}
-  )
+  const [showStates, setShowStates] = useState<
+    Record<string, ShowStateSummary>
+  >({})
   const [expanded, setExpanded] = useState<Record<string, boolean>>({})
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -263,79 +269,190 @@ export default function AdminPage() {
     Record<string, ReturnType<typeof setTimeout>>
   >({})
   const [malEditOpen, setMalEditOpen] = useState<Record<string, boolean>>({})
+  const showsRef = useRef(shows)
+  const baselineRef = useRef(baseline)
+  const savingRef = useRef(saving)
+  const episodeSaveStatusRef = useRef(episodeSaveStatus)
+  const loadInFlightRef = useRef(false)
+  const lastFetchAtRef = useRef(0)
+
+  showsRef.current = shows
+  baselineRef.current = baseline
+  savingRef.current = saving
+  episodeSaveStatusRef.current = episodeSaveStatus
 
   const isDirty = useMemo(
     () => baseline !== '' && serializeShows(shows) !== baseline,
     [shows, baseline]
   )
 
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const [showsResponse, stateResponse, syncResponse] = await Promise.all([
-          fetch('/api/shows'),
-          fetch('/api/state'),
-          fetch('/api/shows/sync-mal', { method: 'POST' }),
-        ])
+  function hasUnsavedLocalEdits(): boolean {
+    return (
+      baselineRef.current !== '' &&
+      serializeShows(showsRef.current) !== baselineRef.current
+    )
+  }
 
-        const showsData = (await showsResponse.json()) as {
-          error?: string
-          shows?: Show[]
-        }
-        const stateData = (await stateResponse.json()) as {
-          error?: string
-          shows?: Record<string, ShowStateSummary>
-        }
-        const syncData = (await syncResponse.json()) as {
-          error?: string
-          shows?: Show[]
-          changed?: boolean
-          resolvedIds?: string[]
-          updatedTitles?: string[]
-        }
+  function hasPendingEpisodeSave(): boolean {
+    return Object.values(episodeSaveStatusRef.current).some(
+      (status) => status === 'saving'
+    )
+  }
 
-        if (!showsResponse.ok) {
-          throw new Error(showsData.error || 'Failed to load shows')
-        }
+  async function loadRemoteData(
+    options: { silent?: boolean; syncMal?: boolean } = {}
+  ) {
+    const silent = options.silent ?? false
+    const syncMal = options.syncMal ?? false
 
-        if (!stateResponse.ok) {
-          throw new Error(stateData.error || 'Failed to load episode state')
-        }
+    if (loadInFlightRef.current) {
+      return
+    }
 
-        const loadedShows = (
-          syncResponse.ok && syncData.shows
-            ? syncData.shows
-            : showsData.shows ?? []
-        ).map(showToForm)
-
-        setShows(loadedShows)
-        setBaseline(serializeShows(loadedShows))
-        setShowStates(stateData.shows ?? {})
-
-        if (syncResponse.ok && syncData.changed) {
-          const parts: string[] = []
-          if (syncData.resolvedIds?.length) {
-            parts.push('linked MAL IDs')
-          }
-          if (syncData.updatedTitles?.length) {
-            parts.push('synced titles from MAL')
-          }
-          if (parts.length > 0) {
-            toast.success(`Auto-${parts.join(' and ')}.`)
-          }
-        } else if (!syncResponse.ok && syncData.error) {
-          console.warn('MAL sync skipped:', syncData.error)
-        }
-      } catch (error) {
-        toast.error(
-          error instanceof Error ? error.message : 'Failed to load shows'
-        )
-      } finally {
-        setLoading(false)
+    if (silent) {
+      if (
+        savingRef.current ||
+        hasUnsavedLocalEdits() ||
+        hasPendingEpisodeSave()
+      ) {
+        return
       }
     }
 
-    loadData()
+    loadInFlightRef.current = true
+    if (!silent) {
+      setLoading(true)
+    }
+
+    try {
+      const previousSerialized = silent
+        ? serializeShows(showsRef.current)
+        : null
+
+      const [showsResponse, stateResponse, syncResponse] = await Promise.all([
+        noStoreFetch('/api/shows'),
+        noStoreFetch('/api/state'),
+        syncMal
+          ? noStoreFetch('/api/shows/sync-mal', { method: 'POST' })
+          : Promise.resolve(null),
+      ])
+
+      const showsData = (await showsResponse.json()) as {
+        error?: string
+        shows?: Show[]
+      }
+      const stateData = (await stateResponse.json()) as {
+        error?: string
+        shows?: Record<string, ShowStateSummary>
+      }
+      const syncData = syncResponse
+        ? ((await syncResponse.json()) as {
+            error?: string
+            shows?: Show[]
+            changed?: boolean
+            resolvedIds?: string[]
+            updatedTitles?: string[]
+          })
+        : null
+
+      if (!showsResponse.ok) {
+        throw new Error(showsData.error || 'Failed to load shows')
+      }
+
+      if (!stateResponse.ok) {
+        throw new Error(stateData.error || 'Failed to load episode state')
+      }
+
+      const loadedShows = (
+        syncResponse?.ok && syncData?.changed && syncData.shows
+          ? syncData.shows
+          : (showsData.shows ?? [])
+      ).map(showToForm)
+
+      if (silent && (savingRef.current || hasUnsavedLocalEdits())) {
+        setShowStates(stateData.shows ?? {})
+        lastFetchAtRef.current = Date.now()
+        return
+      }
+
+      const nextSerialized = serializeShows(loadedShows)
+      setShows(loadedShows)
+      setBaseline(nextSerialized)
+      setShowStates(stateData.shows ?? {})
+      lastFetchAtRef.current = Date.now()
+
+      if (
+        silent &&
+        previousSerialized !== null &&
+        previousSerialized !== nextSerialized
+      ) {
+        toast.success('Shows updated.')
+      }
+
+      if (syncResponse?.ok && syncData?.changed) {
+        const parts: string[] = []
+        if (syncData.resolvedIds?.length) {
+          parts.push('linked MAL IDs')
+        }
+        if (syncData.updatedTitles?.length) {
+          parts.push('synced titles from MAL')
+        }
+        if (parts.length > 0) {
+          toast.success(`Auto-${parts.join(' and ')}.`)
+        }
+      } else if (syncResponse && !syncResponse.ok && syncData?.error) {
+        console.warn('MAL sync skipped:', syncData.error)
+      }
+    } catch (error) {
+      if (silent) {
+        console.warn(
+          'Background refresh failed:',
+          error instanceof Error ? error.message : error
+        )
+        return
+      }
+
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to load shows'
+      )
+    } finally {
+      loadInFlightRef.current = false
+      if (!silent) {
+        setLoading(false)
+      }
+    }
+  }
+
+  useEffect(() => {
+    void loadRemoteData({ syncMal: true })
+    // Initial load only; background refresh is handled separately.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      void loadRemoteData({ silent: true })
+    }, AUTO_REFRESH_MS)
+
+    function onVisibilityChange() {
+      if (document.visibilityState !== 'visible') {
+        return
+      }
+
+      if (Date.now() - lastFetchAtRef.current < FOCUS_REFRESH_MIN_INTERVAL_MS) {
+        return
+      }
+
+      void loadRemoteData({ silent: true })
+    }
+
+    document.addEventListener('visibilitychange', onVisibilityChange)
+
+    return () => {
+      window.clearInterval(interval)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
@@ -416,7 +533,7 @@ export default function AdminPage() {
     setEpisodeSaveStatus((current) => ({ ...current, [showId]: 'saving' }))
 
     try {
-      const response = await fetch('/api/mal/progress', {
+      const response = await noStoreFetch('/api/mal/progress', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ malId, episodeNumber }),
@@ -458,7 +575,7 @@ export default function AdminPage() {
     setEpisodeSaveStatus((current) => ({ ...current, [showId]: 'saving' }))
 
     try {
-      const response = await fetch('/api/state', {
+      const response = await noStoreFetch('/api/state', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ showId, episodeNumber }),
@@ -577,7 +694,7 @@ export default function AdminPage() {
     setSaving(true)
 
     try {
-      const response = await fetch('/api/shows', {
+      const response = await noStoreFetch('/api/shows', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ shows }),
@@ -601,10 +718,14 @@ export default function AdminPage() {
           'Saved to GitHub. Calendar and Discord cleanup will run shortly.'
         )
       } else {
-        toast.success('Saved to GitHub. The checker will use these on the next run.')
+        toast.success(
+          'Saved to GitHub. The checker will use these on the next run.'
+        )
       }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to save shows')
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to save shows'
+      )
     } finally {
       setSaving(false)
     }
@@ -625,7 +746,7 @@ export default function AdminPage() {
     }
 
     try {
-      const response = await fetch('/api/shows/delay', {
+      const response = await noStoreFetch('/api/shows/delay', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ showId: show.id }),
@@ -640,8 +761,8 @@ export default function AdminPage() {
       }
 
       const [showsResponse, stateResponse] = await Promise.all([
-        fetch('/api/shows'),
-        fetch('/api/state'),
+        noStoreFetch('/api/shows'),
+        noStoreFetch('/api/state'),
       ])
       const showsData = (await showsResponse.json()) as { shows?: Show[] }
       const stateData = (await stateResponse.json()) as {
@@ -693,7 +814,10 @@ export default function AdminPage() {
                 const open = isExpanded(show, index)
                 const liveState = show.id ? showStates[show.id] : undefined
                 const currentEpisode = getProgressEpisode(show, liveState)
-                const nextEpisodeToWatch = getNextEpisodeToWatch(show, liveState)
+                const nextEpisodeToWatch = getNextEpisodeToWatch(
+                  show,
+                  liveState
+                )
                 const { min, max } = getEpisodeBounds(show)
                 const watchUrl = getShowWatchUrl(showFormToWatchInput(show))
                 const discussionUrl =
@@ -708,7 +832,7 @@ export default function AdminPage() {
                   ? `https://myanimelist.net/anime/${show.malId}`
                   : null
                 const episodeStatus = show.id
-                  ? episodeSaveStatus[show.id] ?? ''
+                  ? (episodeSaveStatus[show.id] ?? '')
                   : ''
                 const episodeSaving = episodeStatus === 'saving'
 
@@ -811,7 +935,11 @@ export default function AdminPage() {
                               { value: 'disney', label: 'Disney+' },
                             ]}
                             onChange={(value) =>
-                              updateShow(index, 'provider', value as ShowProvider)
+                              updateShow(
+                                index,
+                                'provider',
+                                value as ShowProvider
+                              )
                             }
                           />
                         </div>
@@ -844,7 +972,11 @@ export default function AdminPage() {
                               id={`netflix-url-${index}`}
                               value={show.netflixUrl}
                               onChange={(event) =>
-                                updateShow(index, 'netflixUrl', event.target.value)
+                                updateShow(
+                                  index,
+                                  'netflixUrl',
+                                  event.target.value
+                                )
                               }
                               placeholder="https://www.netflix.com/title/..."
                               required
@@ -859,7 +991,11 @@ export default function AdminPage() {
                               id={`disney-url-${index}`}
                               value={show.disneyUrl}
                               onChange={(event) =>
-                                updateShow(index, 'disneyUrl', event.target.value)
+                                updateShow(
+                                  index,
+                                  'disneyUrl',
+                                  event.target.value
+                                )
                               }
                               placeholder="https://www.disneyplus.com/browse/entity-..."
                               required
@@ -895,12 +1031,18 @@ export default function AdminPage() {
                             type="datetime-local"
                             value={show.schedule.startAt}
                             onChange={(event) =>
-                              updateSchedule(index, 'startAt', event.target.value)
+                              updateSchedule(
+                                index,
+                                'startAt',
+                                event.target.value
+                              )
                             }
                             required
                           />
                           {startHint ? (
-                            <p className="hint schedule-start-hint">{startHint}</p>
+                            <p className="hint schedule-start-hint">
+                              {startHint}
+                            </p>
                           ) : null}
                           {show.id ? (
                             <div className="delay-actions">
@@ -1004,7 +1146,9 @@ export default function AdminPage() {
                           ) : null}
                         </div>
 
-                        {show.id && liveState && show.schedule.mode === 'finite' ? (
+                        {show.id &&
+                        liveState &&
+                        show.schedule.mode === 'finite' ? (
                           <div className="field">
                             <label htmlFor={`count-${index}`}>
                               Episodes in season
@@ -1040,7 +1184,8 @@ export default function AdminPage() {
                                     onClick={() =>
                                       setMalEditOpen((current) => ({
                                         ...current,
-                                        [cardKey(show, index)]: !current[cardKey(show, index)],
+                                        [cardKey(show, index)]:
+                                          !current[cardKey(show, index)],
                                       }))
                                     }
                                   >
@@ -1056,7 +1201,11 @@ export default function AdminPage() {
                                     min="1"
                                     value={show.malId}
                                     onChange={(event) =>
-                                      updateShow(index, 'malId', event.target.value)
+                                      updateShow(
+                                        index,
+                                        'malId',
+                                        event.target.value
+                                      )
                                     }
                                     placeholder="39535"
                                   />
@@ -1073,13 +1222,18 @@ export default function AdminPage() {
                                   min="1"
                                   value={show.malId}
                                   onChange={(event) =>
-                                    updateShow(index, 'malId', event.target.value)
+                                    updateShow(
+                                      index,
+                                      'malId',
+                                      event.target.value
+                                    )
                                   }
                                   placeholder="39535"
                                 />
                                 <p className="hint">
-                                  Leave blank to auto-match from the title on load,
-                                  or enter the ID from myanimelist.net/anime/
+                                  Leave blank to auto-match from the title on
+                                  load, or enter the ID from
+                                  myanimelist.net/anime/
                                   <strong>39535</strong>/...
                                 </p>
                               </div>
