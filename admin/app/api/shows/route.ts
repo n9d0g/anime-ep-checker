@@ -2,10 +2,11 @@ import { NextResponse } from 'next/server'
 import {
   dispatchCheckWorkflow,
   getShowsFile,
+  NO_STORE_HEADERS,
   parseDisneyIdFromUrl,
   parseNetflixIdFromUrl,
   parseSeriesIdFromUrl,
-  saveShowsFile,
+  saveShowsFileRetrying,
   slugify,
 } from '@/lib/github'
 import type { Show, ShowFormValues, ShowProvider } from '@/lib/types'
@@ -28,7 +29,8 @@ function normalizeShow(show: ShowFormValues): Show {
 
   if (provider === 'crunchyroll') {
     crunchyrollUrl = show.crunchyrollUrl.trim()
-    seriesId = show.seriesId || parseSeriesIdFromUrl(crunchyrollUrl) || undefined
+    seriesId =
+      show.seriesId || parseSeriesIdFromUrl(crunchyrollUrl) || undefined
     if (!seriesId) {
       throw new Error(`Invalid Crunchyroll URL: ${show.crunchyrollUrl}`)
     }
@@ -48,7 +50,9 @@ function normalizeShow(show: ShowFormValues): Show {
 
   const startAt = fromDatetimeLocalValue(show.schedule.startAt)
   if (!startAt) {
-    throw new Error(`Start date is required for ${title || seriesId || netflixId || disneyId}`)
+    throw new Error(
+      `Start date is required for ${title || seriesId || netflixId || disneyId}`
+    )
   }
 
   const startEpisode = Number(show.schedule.startEpisode)
@@ -86,8 +90,7 @@ function normalizeShow(show: ShowFormValues): Show {
 
   const redditSearchTitle = show.redditSearchTitle.trim() || undefined
   const id =
-    show.id ||
-    slugify(title || seriesId || netflixId || disneyId || 'show')
+    show.id || slugify(title || seriesId || netflixId || disneyId || 'show')
 
   const normalized: Show = {
     id,
@@ -123,6 +126,8 @@ function normalizeShow(show: ShowFormValues): Show {
   return normalized
 }
 
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
   try {
     const { content } = await getShowsFile()
@@ -130,10 +135,13 @@ export async function GET() {
       ...show,
       provider: show.provider ?? 'crunchyroll',
     }))
-    return NextResponse.json({ shows })
+    return NextResponse.json({ shows }, { headers: NO_STORE_HEADERS })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error'
-    return NextResponse.json({ error: message }, { status: 500 })
+    return NextResponse.json(
+      { error: message },
+      { status: 500, headers: NO_STORE_HEADERS }
+    )
   }
 }
 
@@ -150,12 +158,12 @@ export async function PUT(request: Request) {
       ids.add(show.id)
     }
 
-    const { content, sha } = await getShowsFile()
+    const { content } = await getShowsFile()
     const previousIds = new Set(
       ((content.shows ?? []) as Show[]).map((show) => show.id)
     )
 
-    await saveShowsFile(shows, sha)
+    await saveShowsFileRetrying(shows)
 
     const newIds = new Set(shows.map((show) => show.id))
     const removedIds = [...previousIds].filter((id) => !newIds.has(id))
@@ -170,14 +178,20 @@ export async function PUT(request: Request) {
       }
     }
 
-    return NextResponse.json({
-      ok: true,
-      shows,
-      cleanupTriggered,
-      removedIds,
-    })
+    return NextResponse.json(
+      {
+        ok: true,
+        shows,
+        cleanupTriggered,
+        removedIds,
+      },
+      { headers: NO_STORE_HEADERS }
+    )
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error'
-    return NextResponse.json({ error: message }, { status: 400 })
+    return NextResponse.json(
+      { error: message },
+      { status: 400, headers: NO_STORE_HEADERS }
+    )
   }
 }
