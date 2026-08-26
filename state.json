@@ -156,14 +156,14 @@
       "malScoreAlertedAt": "2026-08-23T15:55:35.176Z"
     },
     "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": {
-      "lastEpisodeId": "GE00345561JAJP",
-      "lastEpisodeNumber": "13",
-      "lastEpisodeTitle": "Stand Up",
-      "lastNotifiedAt": "2026-08-19T14:05:32.873Z",
+      "lastEpisodeId": "GE00345564JAJP",
+      "lastEpisodeNumber": "14",
+      "lastEpisodeTitle": "Five Obstacles",
+      "lastNotifiedAt": "2026-08-26T14:10:37.345Z",
       "seasonId": "GS00371932JAJP",
       "seasonTitle": "Season 4",
       "waitingNotifiedForEpisode": null,
-      "malMeanScore": 9.14,
+      "malMeanScore": 9.12,
       "googleCalendarEvents": {
         "15": {
           "eventId": "08fc67psppvme0facgj2didi14",
@@ -696,9 +696,9 @@
       "one-piece": "cf98278df5c04c146015120af7fb40d267ad8af5",
       "slime": "b95fd30f65a468ac644975ccb5a8406c86330443",
       "mushoku-tensei-s3": "9007acb245e1fc474f2ef03645d4df69a21f2e24",
-      "smoking-behind-the-supermarket-with-you": "0fff8782e9cf7e8262981d8b043ee10f0ccc793a",
+      "smoking-behind-the-supermarket-with-you": "221f9c863ea0cf48cc0860b42bba5a3c1bd8dc8c",
       "bleach": "0503d502684ed3a8bab987490bcf8564bbcf9297",
-      "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "8b9b79a8c3165c29871f7698f79fdf1458f20d6b"
+      "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "8c285fd19884cd3ea55c23fb2a56bc5153448f27"
     }
   }
 }
