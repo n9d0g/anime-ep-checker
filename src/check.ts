@@ -45,6 +45,7 @@ import {
   getExpectedDropAt,
   getNextExpectedEpisode,
   getCheckWindowMode,
+  hasOrphanedShows,
   isInCheckWindow,
   isPastWaitingGrace,
   needsPlanToWatchCheck,
@@ -391,36 +392,37 @@ export async function checkShows({
   }
 
   const calendarConfig = getGoogleCalendarConfigFromEnv()
-  const activeIds = new Set(shows.map((show) => show.id))
 
-  for (const showId of Object.keys(state.shows)) {
-    if (activeIds.has(showId)) {
-      continue
+  if (hasOrphanedShows(shows, state)) {
+    for (const showId of Object.keys(state.shows)) {
+      if (shows.some((show) => show.id === showId)) {
+        continue
+      }
+
+      console.log(`Untracking removed show ${showId}...`)
+      try {
+        await clearGoogleCalendarEventsForShow(
+          calendarConfig,
+          showId,
+          state,
+          dryRun
+        )
+      } catch (error) {
+        console.warn(
+          `Google Calendar cleanup failed for ${showId}: ${
+            error instanceof Error ? error.message : error
+          }`
+        )
+      }
+
+      if (dryRun) {
+        noteStateChange(`would untrack ${showId}`)
+        continue
+      }
+
+      delete state.shows[showId]
+      noteStateChange(`untracked ${showId}`)
     }
-
-    console.log(`Untracking removed show ${showId}...`)
-    try {
-      await clearGoogleCalendarEventsForShow(
-        calendarConfig,
-        showId,
-        state,
-        dryRun
-      )
-    } catch (error) {
-      console.warn(
-        `Google Calendar cleanup failed for ${showId}: ${
-          error instanceof Error ? error.message : error
-        }`
-      )
-    }
-
-    if (dryRun) {
-      noteStateChange(`would untrack ${showId}`)
-      continue
-    }
-
-    delete state.shows[showId]
-    noteStateChange(`untracked ${showId}`)
   }
 
   for (const show of shows) {

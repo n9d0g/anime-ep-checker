@@ -32,7 +32,7 @@ function parseStartDate(startDate: string): Date | null {
   return Number.isNaN(parsed.getTime()) ? null : parsed
 }
 
-export function getPlanToWatchAlertReason(
+function getPlanToWatchAlertReason(
   entry: MalPlanToWatchEntry,
   now: Date = new Date()
 ): PlanToWatchAlertReason | null {
@@ -72,7 +72,7 @@ function normalizeEntryForCompare(entry: PlanToWatchSnapshotEntry) {
   }
 }
 
-export function planToWatchEntriesMeaningfullyEqual(
+function planToWatchEntriesMeaningfullyEqual(
   previous: PlanToWatchSnapshotEntry[] | undefined,
   next: PlanToWatchSnapshotEntry[]
 ): boolean {

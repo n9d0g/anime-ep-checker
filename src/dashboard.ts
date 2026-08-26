@@ -51,15 +51,15 @@ const STATUS_COLORS: Record<DashboardStatus, number> = {
   out: 0x2ecc71,
 }
 
-export function getDashboardStatusLabel(status: DashboardStatus): string {
+function getDashboardStatusLabel(status: DashboardStatus): string {
   return STATUS_LABELS[status]
 }
 
-export function getDashboardStatusColor(status: DashboardStatus): number {
+function getDashboardStatusColor(status: DashboardStatus): number {
   return STATUS_COLORS[status]
 }
 
-export function resolveDashboardStatus(
+function resolveDashboardStatus(
   expectedAt: Date,
   now: Date,
   providerLatestEpisode: number | null,
@@ -185,7 +185,7 @@ export async function buildShowDashboardRow(
   }
 }
 
-export function buildDashboardEmbed(row: ShowDashboardRow) {
+function buildDashboardEmbed(row: ShowDashboardRow) {
   const title = row.show.title || row.show.id
   const provider = providerLabel(row.show.provider)
   const watchUrl = getShowWatchUrl(row.show)
@@ -225,7 +225,7 @@ export function buildDashboardEmbed(row: ShowDashboardRow) {
   }
 }
 
-export function buildDashboardNotificationContent(row: ShowDashboardRow): string {
+function buildDashboardNotificationContent(row: ShowDashboardRow): string {
   const title = row.show.title || row.show.id
   const nextEpisode =
     row.nextEpisode !== null ? `Episode ${row.nextEpisode}` : 'Season complete'
@@ -233,7 +233,7 @@ export function buildDashboardNotificationContent(row: ShowDashboardRow): string
   return `**${title}** — MAL ${row.malProgress} · Next ${nextEpisode} · ${status}`
 }
 
-export function buildDashboardMalComponents(
+function buildDashboardMalComponents(
   show: Show,
   discussionUrl?: string | null
 ) {
@@ -307,19 +307,4 @@ export function buildShowDashboardPayload(row: ShowDashboardRow) {
   }
 
   return payload
-}
-
-export function buildDashboardEmbeds(rows: ShowDashboardRow[]) {
-  if (rows.length === 0) {
-    return [
-      {
-        title: 'Watching',
-        description: 'No tracked shows yet.',
-        color: 0x8b98a5,
-        footer: { text: 'Anime Episode Checker' },
-      },
-    ]
-  }
-
-  return rows.map((row) => buildDashboardEmbed(row))
 }

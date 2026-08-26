@@ -2,7 +2,7 @@ import type { Show, ShowSchedule } from './types'
 
 const MS_PER_WEEK = 7 * 24 * 60 * 60 * 1000
 
-export function getPremiereBatchSize(schedule: ShowSchedule): number {
+function getPremiereBatchSize(schedule: ShowSchedule): number {
   return schedule.premiereBatchSize > 0 ? schedule.premiereBatchSize : 1
 }
 

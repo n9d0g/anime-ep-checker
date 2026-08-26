@@ -18,7 +18,7 @@ function buildSearchQueries(
   return [...new Set(queries)]
 }
 
-export function slugifyForReddit(value: string): string {
+function slugifyForReddit(value: string): string {
   return String(value)
     .toLowerCase()
     .replace(/['’]/g, '')

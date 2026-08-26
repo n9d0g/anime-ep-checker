@@ -3,7 +3,7 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
-export const STATE_COMMIT_MESSAGE_PATH = resolve(ROOT, 'state_commit_message.txt')
+const STATE_COMMIT_MESSAGE_PATH = resolve(ROOT, 'state_commit_message.txt')
 
 const SUBJECT_PREFIX = 'chore: 🧹 update checker state — '
 const MAX_SUBJECT_LENGTH = 120
@@ -13,7 +13,7 @@ function truncate(text: string, maxLength: number): string {
   return `${text.slice(0, maxLength - 1)}…`
 }
 
-export function formatStateCommitMessage(reasons: string[]): {
+function formatStateCommitMessage(reasons: string[]): {
   subject: string
   body: string
 } {

@@ -8,9 +8,7 @@ const CRON_INTERVAL_MS = 5 * 60 * 1000
 const WAITING_GRACE_MS = 15 * 60 * 1000
 const PTW_CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000
 
-export { WINDOW_BEFORE_MS, WINDOW_AFTER_DENSE_MS, LATE_POLL_INTERVAL_MS }
-
-export function getPremiereBatchSize(schedule: ShowSchedule): number {
+function getPremiereBatchSize(schedule: ShowSchedule): number {
   return schedule.premiereBatchSize > 0 ? schedule.premiereBatchSize : 1
 }
 
@@ -72,7 +70,7 @@ export function getNextExpectedEpisode(
   return next
 }
 
-export function isInDenseCheckWindow(
+function isInDenseCheckWindow(
   expectedAt: Date,
   now: Date = new Date()
 ): boolean {
@@ -84,7 +82,7 @@ export function isInDenseCheckWindow(
   )
 }
 
-export function isInLateCheckSlot(
+function isInLateCheckSlot(
   expectedAt: Date,
   now: Date = new Date()
 ): boolean {
@@ -126,37 +124,6 @@ export function isPastWaitingGrace(
 export function parseEpisodeNumber(value: string | undefined): number {
   const parsed = Number(value)
   return Number.isFinite(parsed) ? parsed : 0
-}
-
-export function showNeedsCheck(
-  show: Show,
-  state: StateFile,
-  now: Date = new Date()
-): boolean {
-  const previousState = state.shows[show.id] ?? null
-  const lastEpisodeNumber = previousState
-    ? parseEpisodeNumber(previousState.lastEpisodeNumber)
-    : null
-  const nextExpectedEp = getNextExpectedEpisode(show.schedule, lastEpisodeNumber)
-
-  if (nextExpectedEp === null) {
-    return false
-  }
-
-  const expectedAt = getExpectedDropAt(show.schedule, nextExpectedEp)
-  if (!expectedAt) {
-    return false
-  }
-
-  return isInCheckWindow(expectedAt, now)
-}
-
-export function anyShowNeedsCheck(
-  shows: Show[],
-  state: StateFile,
-  now: Date = new Date()
-): boolean {
-  return shows.some((show) => showNeedsCheck(show, state, now))
 }
 
 export function needsPlanToWatchCheck(

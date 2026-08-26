@@ -21,7 +21,7 @@ export function parseSeriesIdFromUrl(url: string): string {
   return match[1].toUpperCase()
 }
 
-export function buildWatchUrl(episode: CrunchyrollEpisode): string {
+function buildWatchUrl(episode: CrunchyrollEpisode): string {
   const slug = episode.slug_title || 'episode'
   return `https://www.crunchyroll.com/watch/${episode.id}/${slug}`
 }
@@ -50,7 +50,7 @@ interface TokenResponse {
   expires_in?: number
 }
 
-export async function getAccessToken(): Promise<string> {
+async function getAccessToken(): Promise<string> {
   const now = Date.now()
   if (cachedToken && now < tokenExpiresAt - 60_000) {
     return cachedToken
@@ -95,7 +95,7 @@ function pickLatestSeason(seasons: CrunchyrollSeason[]): CrunchyrollSeason {
   })
 }
 
-export function isEpisodeAvailable(
+function isEpisodeAvailable(
   episode: CrunchyrollEpisode,
   now: Date = new Date()
 ): boolean {
@@ -118,7 +118,7 @@ function parseEpisodeNumber(episode: CrunchyrollEpisode): number {
   return Number.isFinite(value) ? value : 0
 }
 
-export function pickLatestAvailableEpisode(
+function pickLatestAvailableEpisode(
   episodes: CrunchyrollEpisode[],
   now: Date = new Date()
 ): CrunchyrollEpisode | null {
@@ -145,7 +145,7 @@ interface ListResponse<T> {
   data?: T[]
 }
 
-export async function getSeriesInfo(seriesId: string): Promise<SeriesResponse> {
+async function getSeriesInfo(seriesId: string): Promise<SeriesResponse> {
   return apiFetch<SeriesResponse>(
     `/content/v2/cms/series/${seriesId}?locale=en-US`
   )

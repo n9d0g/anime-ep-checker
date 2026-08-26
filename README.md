@@ -313,7 +313,6 @@ Shows your MAL plan-to-watch list from `state.meta.planToWatch`, grouped into **
 | [`src/anilist.ts`](src/anilist.ts) | AniList airing schedule fallback for Disney+ shows |
 | [`src/reddit.ts`](src/reddit.ts) | r/anime discussion lookup (AutoLovepon RSS + search fallback) |
 | [`src/discord.ts`](src/discord.ts) | Discord bot/webhook alerts + score alerts |
-| [`src/discord-components-v2.ts`](src/discord-components-v2.ts) | Legacy Components V2 builders (unused by watching dashboard) |
 | [`src/discord-format.ts`](src/discord-format.ts) | Embed formatting helpers |
 | [`src/discord-dashboard.ts`](src/discord-dashboard.ts) | #watching dashboard sync |
 | [`src/google-calendar.ts`](src/google-calendar.ts) | Google Calendar episode sync |

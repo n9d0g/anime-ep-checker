@@ -143,7 +143,7 @@ async function getCachedMalAccessToken(): Promise<string | null> {
   return cachedAccessToken
 }
 
-export function isMalConfigured(): boolean {
+function isMalConfigured(): boolean {
   return getMalConfig() !== null
 }
 
@@ -226,15 +226,6 @@ export async function fetchMalAnimeDetails(
   }
   detailsCache.set(malId, result)
   return result
-}
-
-export async function fetchMalProgress(malId: number): Promise<MalFetchResult> {
-  const details = await fetchMalAnimeDetails(malId)
-  if (details.status === 'ok') {
-    const { watched, total } = details.details
-    return { status: 'ok', progress: { watched, total } }
-  }
-  return details
 }
 
 export function formatMalProgressLabel(result: MalFetchResult): string {

@@ -47,7 +47,7 @@ export function parseDisneyIdFromUrl(url: string): string {
   throw new Error(`Could not parse Disney+ ID from URL: ${url}`)
 }
 
-export function buildDisneyBrowseUrl(disneyId: string): string {
+function buildDisneyBrowseUrl(disneyId: string): string {
   if (/^[0-9a-f-]{36}$/i.test(disneyId)) {
     return `https://www.disneyplus.com/browse/entity-${disneyId}`
   }

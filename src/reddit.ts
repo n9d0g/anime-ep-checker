@@ -23,7 +23,7 @@ function decodeXmlEntities(value: string): string {
     .replace(/&#39;/g, "'")
 }
 
-export function slugifyForReddit(value: string): string {
+function slugifyForReddit(value: string): string {
   return String(value)
     .toLowerCase()
     .replace(/['’]/g, '')
@@ -66,7 +66,7 @@ function matchesDiscussionThread(
   )
 }
 
-export function parseAtomEntries(xml: string): AtomEntry[] {
+function parseAtomEntries(xml: string): AtomEntry[] {
   const entries: AtomEntry[] = []
   const entryRegex = /<entry>([\s\S]*?)<\/entry>/g
 

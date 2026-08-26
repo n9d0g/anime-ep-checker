@@ -1,5 +1,5 @@
-export const JST_TZ = 'Asia/Tokyo'
-export const EASTERN_TZ = 'America/New_York'
+const JST_TZ = 'Asia/Tokyo'
+const EASTERN_TZ = 'America/New_York'
 
 const DATETIME_LOCAL_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/
 

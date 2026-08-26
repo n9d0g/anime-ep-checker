@@ -1,4 +1,4 @@
-export const EASTERN_TZ = 'America/New_York'
+const EASTERN_TZ = 'America/New_York'
 
 export function formatEasternTime(isoOrDate: string | Date | null | undefined): string {
   if (!isoOrDate) return 'Unknown time'

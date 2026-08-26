@@ -1,4 +1,4 @@
-export const DISCORD_API = 'https://discord.com/api/v10'
+const DISCORD_API = 'https://discord.com/api/v10'
 
 export class DiscordApiError extends Error {
   status: number
@@ -10,7 +10,7 @@ export class DiscordApiError extends Error {
   }
 }
 
-export async function discordBotRequest(
+async function discordBotRequest(
   botToken: string,
   path: string,
   options: RequestInit = {}
@@ -149,7 +149,7 @@ export function shouldRecreateWatchingMessageOnEditFailure(
   return false
 }
 
-export async function deletePinnedSystemMessage(
+async function deletePinnedSystemMessage(
   botToken: string,
   channelId: string,
   pinnedMessageId: string
