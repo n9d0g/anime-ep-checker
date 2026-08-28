@@ -19,14 +19,14 @@
       "discussionUrlEpisode": 1175
     },
     "slime": {
-      "lastEpisodeId": "GE00374383JAJP",
-      "lastEpisodeNumber": "19",
-      "lastEpisodeTitle": "Death and Loss",
-      "lastNotifiedAt": "2026-08-21T15:05:37.186Z",
+      "lastEpisodeId": "GE00374384JAJP",
+      "lastEpisodeNumber": "20",
+      "lastEpisodeTitle": "Chronoa the Hero, Part 1",
+      "lastNotifiedAt": "2026-08-28T15:15:34.807Z",
       "seasonId": "GS00371777JAJP",
       "seasonTitle": "Season 4",
       "waitingNotifiedForEpisode": null,
-      "malMeanScore": 8.15,
+      "malMeanScore": 8.16,
       "googleCalendarEvents": {
         "21": {
           "eventId": "2gl0rv9dddiaa8db28e05ctois",
@@ -44,9 +44,7 @@
           "eventId": "pfkrqdeg9j8po6cphb7plc2cu4",
           "startAt": "2026-09-25T15:00:00.000Z"
         }
-      },
-      "discussionUrl": "https://www.reddit.com/r/anime/comments/1vuishe/tensei_shitara_slime_datta_ken_season_4_that_time/",
-      "discussionUrlEpisode": 19
+      }
     },
     "mushoku-tensei-s3": {
       "lastEpisodeId": "GE00374461JAJP",
@@ -686,7 +684,7 @@
     },
     "watchingDashboardHashes": {
       "one-piece": "a09a0d37255ea666e7da6bfad670f2109224e9c6",
-      "slime": "99d9e932983b74222d6b098fb665559b856106de",
+      "slime": "4f06b0ff34a3561caf22aca8cdf7b4fe449222fa",
       "mushoku-tensei-s3": "4c7078f7af9b29218a102c46f9ad3ce1aa2e18e2",
       "smoking-behind-the-supermarket-with-you": "1bc786ea3dfcad94f3ac4289cb2f545d4873c19a",
       "bleach": "0503d502684ed3a8bab987490bcf8564bbcf9297",
