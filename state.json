@@ -138,7 +138,9 @@
           "eventId": "a3tvnerll74dsc4maoe9h12ra0",
           "startAt": "2026-09-26T15:00:00.000Z"
         }
-      }
+      },
+      "discussionUrl": "https://www.reddit.com/r/anime/comments/1w1o99g/bleach_thousandyear_blood_war_the_calamity_bleach/",
+      "discussionUrlEpisode": 6
     },
     "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": {
       "lastEpisodeId": "GE00345564JAJP",
@@ -194,7 +196,7 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-08-28T16:50:34.510Z",
+    "planToWatchCheckedAt": "2026-08-29T16:55:38.398Z",
     "planToWatch": {
       "updatedAt": "2026-08-21T16:55:29.231Z",
       "entries": [
@@ -682,7 +684,7 @@
       "slime": "beef536f4966f84f1d2a31fa673d6a835b27e8ac",
       "mushoku-tensei-s3": "4c7078f7af9b29218a102c46f9ad3ce1aa2e18e2",
       "smoking-behind-the-supermarket-with-you": "1bc786ea3dfcad94f3ac4289cb2f545d4873c19a",
-      "bleach": "dadf7b3a65e0206312660e924859f002e44dca0e",
+      "bleach": "2bbc2178bd8402de954764e514f3bba3c3d2768e",
       "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "72c2b646f4da2c0bbf3ee8eb618d97af1b762cb5"
     }
   }
