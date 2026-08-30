@@ -9,12 +9,7 @@
       "seasonTitle": "Elbaph (1156-current)",
       "waitingNotifiedForEpisode": null,
       "malMeanScore": 8.73,
-      "googleCalendarEvents": {
-        "1176": {
-          "eventId": "ikddcu1kk8ciop0s5hjdkaj1ms",
-          "startAt": "2026-08-30T16:00:00.000Z"
-        }
-      },
+      "googleCalendarEvents": null,
       "discussionUrl": "https://www.reddit.com/r/anime/comments/1vwd94d/one_piece_episode_1175_discussion/",
       "discussionUrlEpisode": 1175
     },
@@ -74,7 +69,9 @@
           "eventId": "clt5seq9l4urcntpsu3hclf0qg",
           "startAt": "2026-09-27T16:00:00.000Z"
         }
-      }
+      },
+      "discussionUrl": "https://www.reddit.com/r/anime/comments/1w2jy30/mushoku_tensei_jobless_reincarnation_season_3/",
+      "discussionUrlEpisode": 10
     },
     "smoking-behind-the-supermarket-with-you": {
       "lastEpisodeId": "GE00378532JAJP",
@@ -676,7 +673,7 @@
     "watchingDashboardHashes": {
       "one-piece": "df929bafa1546748adbebf5dde38ef47361f9c9c",
       "slime": "beef536f4966f84f1d2a31fa673d6a835b27e8ac",
-      "mushoku-tensei-s3": "644b449994681f476ea3cefb946cfca8ff294430",
+      "mushoku-tensei-s3": "84db26a8f66294da591fdcbcec405805b254ed9a",
       "smoking-behind-the-supermarket-with-you": "1bc786ea3dfcad94f3ac4289cb2f545d4873c19a",
       "bleach": "89a57a872a8bbb52bcf6922eabaf01bc1e3b3318",
       "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "72c2b646f4da2c0bbf3ee8eb618d97af1b762cb5"
