@@ -1,17 +1,20 @@
 {
   "shows": {
     "one-piece": {
-      "lastEpisodeId": "GE00376426JAJP",
-      "lastEpisodeNumber": "1175",
-      "lastEpisodeTitle": "Elbaph in Flames! Jinbe's Shoulder Throw Explodes!",
-      "lastNotifiedAt": "2026-08-23T17:29:36.214Z",
+      "lastEpisodeId": "GE00376427JAJP",
+      "lastEpisodeNumber": "1176",
+      "lastEpisodeTitle": "The Threat of the Arrow-Arrow Fruit - Gunko vs. the Straw Hats",
+      "lastNotifiedAt": "2026-08-30T16:10:33.275Z",
       "seasonId": "GS00376439JAJP",
       "seasonTitle": "Elbaph (1156-current)",
       "waitingNotifiedForEpisode": null,
       "malMeanScore": 8.73,
-      "googleCalendarEvents": null,
-      "discussionUrl": "https://www.reddit.com/r/anime/comments/1vwd94d/one_piece_episode_1175_discussion/",
-      "discussionUrlEpisode": 1175
+      "googleCalendarEvents": {
+        "1177": {
+          "eventId": "3mtl1llo6j0bnj57j12man2ql8",
+          "startAt": "2026-09-06T16:00:00.000Z"
+        }
+      }
     },
     "slime": {
       "lastEpisodeId": "GE00374384JAJP",
@@ -671,7 +674,7 @@
       ]
     },
     "watchingDashboardHashes": {
-      "one-piece": "df929bafa1546748adbebf5dde38ef47361f9c9c",
+      "one-piece": "428d7ffd32bcbc11075d716bced8df6bde4664a8",
       "slime": "beef536f4966f84f1d2a31fa673d6a835b27e8ac",
       "mushoku-tensei-s3": "84db26a8f66294da591fdcbcec405805b254ed9a",
       "smoking-behind-the-supermarket-with-you": "1bc786ea3dfcad94f3ac4289cb2f545d4873c19a",
