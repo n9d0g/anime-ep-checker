@@ -192,9 +192,9 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-08-30T17:00:38.172Z",
+    "planToWatchCheckedAt": "2026-08-31T17:05:40.555Z",
     "planToWatch": {
-      "updatedAt": "2026-08-21T16:55:29.231Z",
+      "updatedAt": "2026-08-31T17:05:40.555Z",
       "entries": [
         {
           "malId": 61323,
@@ -205,7 +205,7 @@
             "dayOfWeek": "sunday",
             "startTime": "16:30"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1976/156319l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1036/159741l.webp",
           "numEpisodes": null
         },
         {
@@ -217,7 +217,7 @@
             "dayOfWeek": "friday",
             "startTime": "00:55"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1190/93472l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1190/93472l.jpg",
           "numEpisodes": 24
         },
         {
@@ -229,7 +229,7 @@
             "dayOfWeek": "thursday",
             "startTime": "01:30"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/11/11636l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/11/11636l.jpg",
           "numEpisodes": 26
         },
         {
@@ -334,7 +334,7 @@
           "status": "not_yet_aired",
           "startDate": null,
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1031/156352l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1915/159776l.jpg",
           "numEpisodes": null
         },
         {
@@ -418,7 +418,7 @@
             "dayOfWeek": "sunday",
             "startTime": "22:30"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1106/157174l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1755/159708l.jpg",
           "numEpisodes": 12
         },
         {
@@ -475,7 +475,7 @@
           "status": "not_yet_aired",
           "startDate": "2026-12-11",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1656/158840l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1656/158840l.webp",
           "numEpisodes": 1
         },
         {
@@ -484,7 +484,7 @@
           "status": "finished_airing",
           "startDate": "2020-01-17",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1803/117183l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1803/117183l.webp",
           "numEpisodes": 1
         },
         {
@@ -500,9 +500,9 @@
           "malId": 59928,
           "title": "Ookami to Koushinryou: Merchant Meets the Wise Wolf 2nd Season",
           "status": "not_yet_aired",
-          "startDate": null,
+          "startDate": "2027",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1664/153382l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1944/159799l.webp",
           "numEpisodes": null
         },
         {
@@ -544,7 +544,7 @@
           "status": "not_yet_aired",
           "startDate": "2027-01",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1812/158683l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1506/159677l.jpg",
           "numEpisodes": null
         },
         {
@@ -562,7 +562,7 @@
           "status": "not_yet_aired",
           "startDate": "2027-10",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1619/156313l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1619/156313l.jpg",
           "numEpisodes": null
         },
         {
@@ -610,7 +610,7 @@
           "status": "not_yet_aired",
           "startDate": null,
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1928/158795l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1928/158795l.webp",
           "numEpisodes": null
         },
         {
@@ -622,7 +622,7 @@
             "dayOfWeek": "sunday",
             "startTime": "16:30"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1120/152280l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1120/152280l.webp",
           "numEpisodes": 10
         },
         {
@@ -631,7 +631,7 @@
           "status": "finished_airing",
           "startDate": "2020-09-18",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1825/110716l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1825/110716l.jpg",
           "numEpisodes": 1
         },
         {
@@ -676,9 +676,9 @@
       ]
     },
     "watchingDashboardHashes": {
-      "one-piece": "0d51d36cb291dc7bc1c53310fcc368c791c9ef22",
-      "slime": "beef536f4966f84f1d2a31fa673d6a835b27e8ac",
-      "mushoku-tensei-s3": "84db26a8f66294da591fdcbcec405805b254ed9a",
+      "one-piece": "80986b7fa8b40c28df7cc0c17b11d2f35e16f908",
+      "slime": "d6128c7d8b5f146736b9fd37f8424211294a5224",
+      "mushoku-tensei-s3": "483db48c2746d2393b0bfbc0613b5405b10d7c68",
       "smoking-behind-the-supermarket-with-you": "1bc786ea3dfcad94f3ac4289cb2f545d4873c19a",
       "bleach": "89a57a872a8bbb52bcf6922eabaf01bc1e3b3318",
       "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "72c2b646f4da2c0bbf3ee8eb618d97af1b762cb5"
