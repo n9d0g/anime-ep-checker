@@ -139,14 +139,14 @@
       "discussionUrlEpisode": 6
     },
     "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": {
-      "lastEpisodeId": "GE00345564JAJP",
-      "lastEpisodeNumber": "14",
-      "lastEpisodeTitle": "Five Obstacles",
-      "lastNotifiedAt": "2026-08-26T14:10:37.345Z",
+      "lastEpisodeId": "GE00345567JAJP",
+      "lastEpisodeNumber": "15",
+      "lastEpisodeTitle": "A Single-Minded Star",
+      "lastNotifiedAt": "2026-09-02T14:10:54.401Z",
       "seasonId": "GS00371932JAJP",
       "seasonTitle": "Season 4",
       "waitingNotifiedForEpisode": null,
-      "malMeanScore": 9.12,
+      "malMeanScore": 9.11,
       "googleCalendarEvents": {
         "16": {
           "eventId": "f1j1n7sfvbtkv84308260hmcr8",
@@ -677,7 +677,7 @@
       "mushoku-tensei-s3": "483db48c2746d2393b0bfbc0613b5405b10d7c68",
       "smoking-behind-the-supermarket-with-you": "1bc786ea3dfcad94f3ac4289cb2f545d4873c19a",
       "bleach": "89a57a872a8bbb52bcf6922eabaf01bc1e3b3318",
-      "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "8c99c4e897394b019282a46f059822695ff394dd"
+      "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "a4bfa0aaab161a2339585a5b9e4022bb2fbe7666"
     }
   }
 }
