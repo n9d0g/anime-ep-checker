@@ -40,7 +40,9 @@
           "eventId": "pfkrqdeg9j8po6cphb7plc2cu4",
           "startAt": "2026-09-25T15:00:00.000Z"
         }
-      }
+      },
+      "discussionUrl": "https://www.reddit.com/r/anime/comments/1w76wyp/tensei_shitara_slime_datta_ken_season_4_that_time/",
+      "discussionUrlEpisode": 21
     },
     "mushoku-tensei-s3": {
       "lastEpisodeId": "GE00374462JAJP",
@@ -178,9 +180,9 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-09-03T17:20:35.523Z",
+    "planToWatchCheckedAt": "2026-09-04T17:25:37.039Z",
     "planToWatch": {
-      "updatedAt": "2026-08-31T17:05:40.555Z",
+      "updatedAt": "2026-09-04T17:25:37.039Z",
       "entries": [
         {
           "malId": 61323,
@@ -191,7 +193,7 @@
             "dayOfWeek": "sunday",
             "startTime": "16:30"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1036/159741l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1036/159741l.jpg",
           "numEpisodes": null
         },
         {
@@ -350,7 +352,7 @@
             "dayOfWeek": "saturday",
             "startTime": "00:00"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1160/122627l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1160/122627l.jpg",
           "numEpisodes": 13
         },
         {
@@ -380,7 +382,7 @@
           "status": "not_yet_aired",
           "startDate": null,
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1000/152184l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1000/152184l.webp",
           "numEpisodes": 1
         },
         {
@@ -422,7 +424,7 @@
           "status": "not_yet_aired",
           "startDate": "2027",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1353/159201l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1353/159201l.webp",
           "numEpisodes": null
         },
         {
@@ -431,7 +433,7 @@
           "status": "finished_airing",
           "startDate": "2022-03-10",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1862/121020l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1862/121020l.jpg",
           "numEpisodes": 10
         },
         {
@@ -461,7 +463,7 @@
           "status": "not_yet_aired",
           "startDate": "2026-12-11",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1656/158840l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1656/158840l.jpg",
           "numEpisodes": 1
         },
         {
@@ -530,16 +532,16 @@
           "status": "not_yet_aired",
           "startDate": "2027-01",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1506/159677l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1506/159677l.webp",
           "numEpisodes": null
         },
         {
           "malId": 56732,
           "title": "Sekai Saikou no Ansatsusha, Isekai Kizoku ni Tensei suru Season 2",
           "status": "not_yet_aired",
-          "startDate": "2027",
+          "startDate": "2027-01",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1626/156999l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1582/159858l.jpg",
           "numEpisodes": null
         },
         {
@@ -548,7 +550,7 @@
           "status": "not_yet_aired",
           "startDate": "2027-10",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1619/156313l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1619/156313l.webp",
           "numEpisodes": null
         },
         {
@@ -596,7 +598,7 @@
           "status": "not_yet_aired",
           "startDate": null,
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1928/158795l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1928/158795l.jpg",
           "numEpisodes": null
         },
         {
@@ -656,15 +658,15 @@
           "status": "not_yet_aired",
           "startDate": null,
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1052/159561l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1052/159561l.webp",
           "numEpisodes": null
         }
       ]
     },
     "watchingDashboardHashes": {
       "one-piece": "f06d86671bc9a2e31ce7e6c586aadb08033710a0",
-      "slime": "be88977335952277933b83fbdaf0354265f201c1",
-      "mushoku-tensei-s3": "b6f6903453f68d4b40c8ad3f543cdf3465ef4527",
+      "slime": "f7f52aea29226216967f18e29c6584002f2e3018",
+      "mushoku-tensei-s3": "61c3f8e15169c35543ecea51071a7aae68e6ea3f",
       "smoking-behind-the-supermarket-with-you": "95f8898ccdcc5fbf256fa0f6118deff1160457d3",
       "bleach": "89a57a872a8bbb52bcf6922eabaf01bc1e3b3318",
       "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "502241ffdc6b1202ed0a37f4608c442a9e131991"
