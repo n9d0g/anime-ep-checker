@@ -1,17 +1,20 @@
 {
   "shows": {
     "one-piece": {
-      "lastEpisodeId": "GE00376427JAJP",
-      "lastEpisodeNumber": "1176",
-      "lastEpisodeTitle": "The Threat of the Arrow-Arrow Fruit - Gunko vs. the Straw Hats",
-      "lastNotifiedAt": "2026-08-30T16:10:33.275Z",
+      "lastEpisodeId": "GE00376428JAJP",
+      "lastEpisodeNumber": "1177",
+      "lastEpisodeTitle": "A Despicable Hostage Game - Sommers's Brazen Demands",
+      "lastNotifiedAt": "2026-09-06T16:10:43.854Z",
       "seasonId": "GS00376439JAJP",
       "seasonTitle": "Elbaph (1156-current)",
       "waitingNotifiedForEpisode": null,
       "malMeanScore": 8.73,
-      "googleCalendarEvents": null,
-      "discussionUrl": "https://www.reddit.com/r/anime/comments/1w2loaq/one_piece_episode_1176_discussion/",
-      "discussionUrlEpisode": 1176
+      "googleCalendarEvents": {
+        "1178": {
+          "eventId": "0cqc5nj8uccp5r4gu1md9jjt9k",
+          "startAt": "2026-09-13T16:00:00.000Z"
+        }
+      }
     },
     "slime": {
       "lastEpisodeId": "GE00374385JAJP",
@@ -651,7 +654,7 @@
       ]
     },
     "watchingDashboardHashes": {
-      "one-piece": "61b454f7dc9ccd83cf0981d4a635d6bca14add33",
+      "one-piece": "7ea4721ae6c064ebb29893f291c368a3ff5d9f4a",
       "slime": "f7f52aea29226216967f18e29c6584002f2e3018",
       "mushoku-tensei-s3": "a7b3cdd70d760854e3603ad822973fbd560e6c52",
       "smoking-behind-the-supermarket-with-you": "95f8898ccdcc5fbf256fa0f6118deff1160457d3",
