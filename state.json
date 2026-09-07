@@ -172,7 +172,7 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-09-06T17:35:30.991Z",
+    "planToWatchCheckedAt": "2026-09-07T17:40:38.184Z",
     "planToWatch": {
       "updatedAt": "2026-09-04T17:25:37.039Z",
       "entries": [
@@ -657,9 +657,9 @@
     },
     "watchingDashboardHashes": {
       "one-piece": "89f56dcd4270f6c1c190c2d8f17646e552957c25",
-      "slime": "f7f52aea29226216967f18e29c6584002f2e3018",
+      "slime": "d5aa260840ef570b809ef833b5cd633c817e92d1",
       "mushoku-tensei-s3": "a7b3cdd70d760854e3603ad822973fbd560e6c52",
-      "smoking-behind-the-supermarket-with-you": "95f8898ccdcc5fbf256fa0f6118deff1160457d3",
+      "smoking-behind-the-supermarket-with-you": "f2b476ce1ca49cd30e589ec009cf0c5ab4ced438",
       "bleach": "54667e3bdd0571e1abfa29697d80d874cda3e061",
       "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "502241ffdc6b1202ed0a37f4608c442a9e131991"
     }
