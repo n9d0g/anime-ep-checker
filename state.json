@@ -132,10 +132,6 @@
       "waitingNotifiedForEpisode": null,
       "malMeanScore": 9.11,
       "googleCalendarEvents": {
-        "16": {
-          "eventId": "f1j1n7sfvbtkv84308260hmcr8",
-          "startAt": "2026-09-09T14:00:00.000Z"
-        },
         "17": {
           "eventId": "jui3rku443m6rq55r3ivd3jmfo",
           "startAt": "2026-09-16T14:00:00.000Z"
@@ -673,7 +669,7 @@
       "mushoku-tensei-s3": "aa87d35187c4f8ac3b516512b469ffcbed82f8c1",
       "smoking-behind-the-supermarket-with-you": "f2b476ce1ca49cd30e589ec009cf0c5ab4ced438",
       "bleach": "ff0bb73eed1e45c1cee27da3500a6db084eedea7",
-      "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "502241ffdc6b1202ed0a37f4608c442a9e131991"
+      "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "3ecc780f9ab05f0ec60dc47938cec6930f9eacea"
     }
   }
 }
