@@ -71,14 +71,14 @@
       "discussionUrlEpisode": 11
     },
     "smoking-behind-the-supermarket-with-you": {
-      "lastEpisodeId": "GE00378533JAJP",
-      "lastEpisodeNumber": "9",
-      "lastEpisodeTitle": "Asking Behind the Supermarket Alone",
-      "lastNotifiedAt": "2026-09-03T16:05:51.717Z",
+      "lastEpisodeId": "GE00378534JAJP",
+      "lastEpisodeNumber": "10",
+      "lastEpisodeTitle": "Shining Behind the Supermarket with You",
+      "lastNotifiedAt": "2026-09-10T16:05:36.597Z",
       "seasonId": "GS00378131JAJP",
       "seasonTitle": "Season 1",
       "waitingNotifiedForEpisode": null,
-      "malMeanScore": 8.33,
+      "malMeanScore": 8.32,
       "googleCalendarEvents": {
         "11": {
           "eventId": "supcgdm606u0t1ekrrb5jad5f0",
@@ -88,9 +88,7 @@
           "eventId": "lt1i9sjcmfeo0rlte76p6rusqc",
           "startAt": "2026-09-24T16:00:00.000Z"
         }
-      },
-      "discussionUrl": "https://www.reddit.com/r/anime/comments/1w6ar1k/smoking_behind_the_supermarket_with_you_super_no/",
-      "discussionUrlEpisode": 9
+      }
     },
     "bleach": {
       "lastEpisodeId": "anilist-60636-7",
@@ -663,7 +661,7 @@
       "one-piece": "e9d68cf551025e7e9a3f94f34776ca0b3afc7ebf",
       "slime": "91b0b042a79687298021f120a721b66bd1a5867d",
       "mushoku-tensei-s3": "aa87d35187c4f8ac3b516512b469ffcbed82f8c1",
-      "smoking-behind-the-supermarket-with-you": "a6862ef5d9c46b71543ce2757385c23130e57968",
+      "smoking-behind-the-supermarket-with-you": "82b4b1d09c87506e227d99b8be08573c06118ef2",
       "bleach": "ff0bb73eed1e45c1cee27da3500a6db084eedea7",
       "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "fa0b48a7efa21f5fc6235b2f33c00dc60fea16d9"
     }
