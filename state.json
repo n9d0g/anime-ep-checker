@@ -80,10 +80,6 @@
       "waitingNotifiedForEpisode": null,
       "malMeanScore": 8.33,
       "googleCalendarEvents": {
-        "10": {
-          "eventId": "vm7gesn7tj5n9qheocfqmmdbs4",
-          "startAt": "2026-09-10T16:00:00.000Z"
-        },
         "11": {
           "eventId": "supcgdm606u0t1ekrrb5jad5f0",
           "startAt": "2026-09-17T16:00:00.000Z"
@@ -665,9 +661,9 @@
     },
     "watchingDashboardHashes": {
       "one-piece": "e9d68cf551025e7e9a3f94f34776ca0b3afc7ebf",
-      "slime": "d5aa260840ef570b809ef833b5cd633c817e92d1",
+      "slime": "91b0b042a79687298021f120a721b66bd1a5867d",
       "mushoku-tensei-s3": "aa87d35187c4f8ac3b516512b469ffcbed82f8c1",
-      "smoking-behind-the-supermarket-with-you": "8955518f9af1fece55eecab08f67d34b7053a33a",
+      "smoking-behind-the-supermarket-with-you": "a6862ef5d9c46b71543ce2757385c23130e57968",
       "bleach": "ff0bb73eed1e45c1cee27da3500a6db084eedea7",
       "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "fa0b48a7efa21f5fc6235b2f33c00dc60fea16d9"
     }
