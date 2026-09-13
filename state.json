@@ -1,17 +1,20 @@
 {
   "shows": {
     "one-piece": {
-      "lastEpisodeId": "GE00376428JAJP",
-      "lastEpisodeNumber": "1177",
-      "lastEpisodeTitle": "A Despicable Hostage Game - Sommers's Brazen Demands",
-      "lastNotifiedAt": "2026-09-06T16:10:43.854Z",
+      "lastEpisodeId": "GE00376429JAJP",
+      "lastEpisodeNumber": "1178",
+      "lastEpisodeTitle": "Protect History and the Future - Robin and Gaban Go on the Attack",
+      "lastNotifiedAt": "2026-09-13T16:10:35.729Z",
       "seasonId": "GS00376439JAJP",
       "seasonTitle": "Elbaph (1156-current)",
       "waitingNotifiedForEpisode": null,
       "malMeanScore": 8.73,
-      "googleCalendarEvents": null,
-      "discussionUrl": "https://www.reddit.com/r/anime/comments/1w902vk/one_piece_episode_1177_discussion/",
-      "discussionUrlEpisode": 1177
+      "googleCalendarEvents": {
+        "1179": {
+          "eventId": "m9n61efqrc94rrualk0qptu3ns",
+          "startAt": "2026-09-20T16:00:00.000Z"
+        }
+      }
     },
     "slime": {
       "lastEpisodeId": "GE00374386JAJP",
@@ -643,7 +646,7 @@
       ]
     },
     "watchingDashboardHashes": {
-      "one-piece": "cb65a467ad4ed6417e114b62d5eb7e78cc10cbf8",
+      "one-piece": "139ba263cbeaf88ed397a0607d3fac09a8dd5491",
       "slime": "5e52093ef14f2b160dc90daed6f6c98abc4b1fe0",
       "mushoku-tensei-s3": "2434c67c9ebc182c73e9bd08f71211c3d7bfe128",
       "smoking-behind-the-supermarket-with-you": "0be892f113dfe02aa84ab8461b1bb3cb1788c3bd",
