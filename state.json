@@ -41,19 +41,15 @@
       "discussionUrlEpisode": 22
     },
     "mushoku-tensei-s3": {
-      "lastEpisodeId": "GE00374463JAJP",
-      "lastEpisodeNumber": "11",
-      "lastEpisodeTitle": "Turning Point 4",
-      "lastNotifiedAt": "2026-09-06T15:55:31.924Z",
+      "lastEpisodeId": "GE00374464JAJP",
+      "lastEpisodeNumber": "12",
+      "lastEpisodeTitle": "An End and a Beginning",
+      "lastNotifiedAt": "2026-09-13T15:55:32.820Z",
       "seasonId": "GS00374452JAJP",
       "seasonTitle": "Season 3",
       "waitingNotifiedForEpisode": null,
       "malMeanScore": 8.54,
       "googleCalendarEvents": {
-        "12": {
-          "eventId": "6f139kdc05ofmtghrd8si3m6d8",
-          "startAt": "2026-09-13T16:00:00.000Z"
-        },
         "13": {
           "eventId": "23fsqhhtsvuq7g5ten3v096fq8",
           "startAt": "2026-09-20T16:00:00.000Z"
@@ -62,9 +58,7 @@
           "eventId": "clt5seq9l4urcntpsu3hclf0qg",
           "startAt": "2026-09-27T16:00:00.000Z"
         }
-      },
-      "discussionUrl": "https://www.reddit.com/r/anime/comments/1w8yhtl/mushoku_tensei_jobless_reincarnation_season_3/",
-      "discussionUrlEpisode": 11
+      }
     },
     "smoking-behind-the-supermarket-with-you": {
       "lastEpisodeId": "GE00378534JAJP",
@@ -652,11 +646,11 @@
       ]
     },
     "watchingDashboardHashes": {
-      "one-piece": "39f62ab8d1a20a4c5f7ece5cec46fac4e0c81f66",
+      "one-piece": "18018143ca40ab35c21b17c041ecdd13374bc582",
       "slime": "5e52093ef14f2b160dc90daed6f6c98abc4b1fe0",
-      "mushoku-tensei-s3": "aa87d35187c4f8ac3b516512b469ffcbed82f8c1",
+      "mushoku-tensei-s3": "51a00502ef9413e3b1899d1f5f6fefcd56466661",
       "smoking-behind-the-supermarket-with-you": "0be892f113dfe02aa84ab8461b1bb3cb1788c3bd",
-      "bleach": "5629eab1a9c312b19c5f1d1c9e98ec4cd36236fd",
+      "bleach": "57fe27bf174775fa7bb5ed21d67c3a284ecb5113",
       "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "fa0b48a7efa21f5fc6235b2f33c00dc60fea16d9"
     }
   }
