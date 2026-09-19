@@ -82,7 +82,7 @@
       "lastNotifiedAt": "2026-09-12T15:05:35.415Z",
       "seasonId": "571475d5-8b1a-453f-a57f-26bb4dd13304",
       "seasonTitle": "Season 1",
-      "waitingNotifiedForEpisode": null,
+      "waitingNotifiedForEpisode": 9,
       "malMeanScore": 9.07,
       "googleCalendarEvents": {
         "10": {
@@ -635,7 +635,7 @@
       "slime": "855c457a2c93659d2fa943d80fdcb4254766e9c1",
       "mushoku-tensei-s3": "dbf71e09006030abff5ade0449df7994f3695244",
       "smoking-behind-the-supermarket-with-you": "3aa0c6042296c33caec163da8bbec9ac90874496",
-      "bleach": "6352beae658f92ce149185a60cb015dea4b1cd7b",
+      "bleach": "13623b664bde0e341677c3c15f862dab4edbcad4",
       "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "f2094076eb7913c68b437e5361374580a37e701f"
     }
   }
