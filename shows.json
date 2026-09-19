@@ -70,7 +70,7 @@
       "provider": "disney",
       "schedule": {
         "mode": "finite",
-        "startAt": "2026-07-25T15:00:00.000Z",
+        "startAt": "2026-08-01T15:00:00.000Z",
         "startEpisode": 1,
         "episodeCount": 10,
         "premiereBatchSize": 1
