@@ -1,17 +1,20 @@
 {
   "shows": {
     "one-piece": {
-      "lastEpisodeId": "GE00376429JAJP",
-      "lastEpisodeNumber": "1178",
-      "lastEpisodeTitle": "Protect History and the Future - Robin and Gaban Go on the Attack",
-      "lastNotifiedAt": "2026-09-13T16:10:35.729Z",
+      "lastEpisodeId": "GE00376430JAJP",
+      "lastEpisodeNumber": "1179",
+      "lastEpisodeTitle": "Episode 1179",
+      "lastNotifiedAt": "2026-09-20T16:10:40.933Z",
       "seasonId": "GS00376439JAJP",
       "seasonTitle": "Elbaph (1156-current)",
       "waitingNotifiedForEpisode": null,
       "malMeanScore": 8.73,
-      "googleCalendarEvents": null,
-      "discussionUrl": "https://www.reddit.com/r/anime/comments/1wfc6xj/one_piece_episode_1178_discussion/",
-      "discussionUrlEpisode": 1178
+      "googleCalendarEvents": {
+        "1180": {
+          "eventId": "3pm9si5kvnhp2485gp09f4i5ho",
+          "startAt": "2026-09-27T16:00:00.000Z"
+        }
+      }
     },
     "slime": {
       "lastEpisodeId": "GE00374387JAJP",
@@ -623,7 +626,7 @@
       ]
     },
     "watchingDashboardHashes": {
-      "one-piece": "a741f199528f6518ecf490053006f5125d24a599",
+      "one-piece": "18755c0154918a836da87aaad9207cbe12fb0727",
       "slime": "855c457a2c93659d2fa943d80fdcb4254766e9c1",
       "mushoku-tensei-s3": "735e540345199a92a72d1bfd42b0452be6af3d9f",
       "smoking-behind-the-supermarket-with-you": "3aa0c6042296c33caec163da8bbec9ac90874496",
