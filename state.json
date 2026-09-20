@@ -35,27 +35,20 @@
       }
     },
     "mushoku-tensei-s3": {
-      "lastEpisodeId": "GE00374464JAJP",
-      "lastEpisodeNumber": "12",
-      "lastEpisodeTitle": "An End and a Beginning",
-      "lastNotifiedAt": "2026-09-13T15:55:32.820Z",
+      "lastEpisodeId": "GE00374465JAJP",
+      "lastEpisodeNumber": "13",
+      "lastEpisodeTitle": "The Diary",
+      "lastNotifiedAt": "2026-09-20T15:55:48.219Z",
       "seasonId": "GS00374452JAJP",
       "seasonTitle": "Season 3",
       "waitingNotifiedForEpisode": null,
       "malMeanScore": 8.59,
       "googleCalendarEvents": {
-        "13": {
-          "eventId": "23fsqhhtsvuq7g5ten3v096fq8",
-          "startAt": "2026-09-20T16:00:00.000Z"
-        },
         "14": {
           "eventId": "clt5seq9l4urcntpsu3hclf0qg",
           "startAt": "2026-09-27T16:00:00.000Z"
         }
-      },
-      "discussionUrl": "https://www.reddit.com/r/anime/comments/1wfa192/mushoku_tensei_jobless_reincarnation_season_3/",
-      "discussionUrlEpisode": 12,
-      "malScoreAlertedAt": "2026-09-17T15:55:35.323Z"
+      }
     },
     "smoking-behind-the-supermarket-with-you": {
       "lastEpisodeId": "GE00378535JAJP",
@@ -84,7 +77,16 @@
       "seasonTitle": "Season 1",
       "waitingNotifiedForEpisode": 9,
       "malMeanScore": 9.07,
-      "googleCalendarEvents": null,
+      "googleCalendarEvents": {
+        "9": {
+          "eventId": "2upn0v0hsitcjhhkhtlgtnd26s",
+          "startAt": "2026-10-19T15:30:00.000Z"
+        },
+        "10": {
+          "eventId": "a3tvnerll74dsc4maoe9h12ra0",
+          "startAt": "2026-10-26T15:30:00.000Z"
+        }
+      },
       "discussionUrl": "https://www.reddit.com/r/anime/comments/1wefsn2/bleach_thousandyear_blood_war_the_calamity_bleach/",
       "discussionUrlEpisode": 8
     },
@@ -626,11 +628,11 @@
       ]
     },
     "watchingDashboardHashes": {
-      "one-piece": "944703fdbd1a4eb0612ed4c7ddc47afe3e1d8826",
+      "one-piece": "53c8c58c682f83b9a147487ae26d76ddd50d4851",
       "slime": "855c457a2c93659d2fa943d80fdcb4254766e9c1",
-      "mushoku-tensei-s3": "dbf71e09006030abff5ade0449df7994f3695244",
+      "mushoku-tensei-s3": "735e540345199a92a72d1bfd42b0452be6af3d9f",
       "smoking-behind-the-supermarket-with-you": "3aa0c6042296c33caec163da8bbec9ac90874496",
-      "bleach": "13623b664bde0e341677c3c15f862dab4edbcad4",
+      "bleach": "b4191f1eaf5bf06025905784bae073bf894f7f79",
       "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "f2094076eb7913c68b437e5361374580a37e701f"
     }
   }
