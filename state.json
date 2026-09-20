@@ -14,7 +14,9 @@
           "eventId": "3pm9si5kvnhp2485gp09f4i5ho",
           "startAt": "2026-09-27T16:00:00.000Z"
         }
-      }
+      },
+      "discussionUrl": "https://www.reddit.com/r/anime/comments/1wlkx8r/one_piece_episode_1179_discussion/",
+      "discussionUrlEpisode": 1179
     },
     "slime": {
       "lastEpisodeId": "GE00374387JAJP",
@@ -130,9 +132,9 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-09-19T17:25:32.116Z",
+    "planToWatchCheckedAt": "2026-09-20T17:30:42.512Z",
     "planToWatch": {
-      "updatedAt": "2026-09-12T16:50:40.252Z",
+      "updatedAt": "2026-09-20T17:30:42.512Z",
       "entries": [
         {
           "malId": 61323,
@@ -143,7 +145,7 @@
             "dayOfWeek": "sunday",
             "startTime": "16:30"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1036/159741l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1036/159741l.jpg",
           "numEpisodes": null
         },
         {
@@ -155,7 +157,7 @@
             "dayOfWeek": "friday",
             "startTime": "00:55"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1190/93472l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1190/93472l.webp",
           "numEpisodes": 24
         },
         {
@@ -167,7 +169,7 @@
             "dayOfWeek": "thursday",
             "startTime": "01:30"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/11/11636l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/11/11636l.jpg",
           "numEpisodes": 26
         },
         {
@@ -254,7 +256,7 @@
             "dayOfWeek": "sunday",
             "startTime": "01:00"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1902/129579l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1902/129579l.webp",
           "numEpisodes": 12
         },
         {
@@ -302,7 +304,7 @@
             "dayOfWeek": "saturday",
             "startTime": "00:00"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1160/122627l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1160/122627l.jpg",
           "numEpisodes": 13
         },
         {
@@ -350,7 +352,7 @@
         {
           "malId": 62811,
           "title": "Kimi no Koto ga Daidaidaidaidaisuki na 100-nin no Kanojo 3rd Season",
-          "status": "currently_airing",
+          "status": "finished_airing",
           "startDate": "2026-07-05",
           "broadcast": {
             "dayOfWeek": "sunday",
@@ -383,7 +385,7 @@
           "status": "finished_airing",
           "startDate": "2022-03-10",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1862/121020l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1862/121020l.jpg",
           "numEpisodes": 10
         },
         {
@@ -422,7 +424,7 @@
           "status": "finished_airing",
           "startDate": "2020-01-17",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1803/117183l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1803/117183l.jpg",
           "numEpisodes": 1
         },
         {
@@ -452,7 +454,7 @@
             "dayOfWeek": "monday",
             "startTime": "00:00"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1415/102477l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1415/102477l.webp",
           "numEpisodes": 13
         },
         {
@@ -482,7 +484,7 @@
           "status": "not_yet_aired",
           "startDate": "2027-01",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1506/159677l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1506/159677l.jpg",
           "numEpisodes": null
         },
         {
@@ -593,7 +595,7 @@
             "dayOfWeek": "friday",
             "startTime": "00:55"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1864/93518l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1864/93518l.webp",
           "numEpisodes": 11
         },
         {
@@ -626,7 +628,7 @@
       ]
     },
     "watchingDashboardHashes": {
-      "one-piece": "18755c0154918a836da87aaad9207cbe12fb0727",
+      "one-piece": "27e86ab294bbc5edcc672ccfe8f99f9450c5dd28",
       "slime": "855c457a2c93659d2fa943d80fdcb4254766e9c1",
       "mushoku-tensei-s3": "735e540345199a92a72d1bfd42b0452be6af3d9f",
       "smoking-behind-the-supermarket-with-you": "3aa0c6042296c33caec163da8bbec9ac90874496",
