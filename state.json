@@ -42,13 +42,14 @@
       "seasonId": "GS00374452JAJP",
       "seasonTitle": "Season 3",
       "waitingNotifiedForEpisode": null,
-      "malMeanScore": 8.59,
+      "malMeanScore": 8.65,
       "googleCalendarEvents": {
         "14": {
           "eventId": "clt5seq9l4urcntpsu3hclf0qg",
           "startAt": "2026-09-27T16:00:00.000Z"
         }
-      }
+      },
+      "malScoreAlertedAt": "2026-09-22T17:40:46.705Z"
     },
     "smoking-behind-the-supermarket-with-you": {
       "lastEpisodeId": "GE00378535JAJP",
@@ -132,7 +133,7 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-09-21T17:35:31.894Z",
+    "planToWatchCheckedAt": "2026-09-22T17:40:46.705Z",
     "planToWatch": {
       "updatedAt": "2026-09-20T17:30:42.512Z",
       "entries": [
@@ -630,10 +631,10 @@
     "watchingDashboardHashes": {
       "one-piece": "14b7201a76efbcfbb3afd2cac3b69f758843b069",
       "slime": "855c457a2c93659d2fa943d80fdcb4254766e9c1",
-      "mushoku-tensei-s3": "4f5895edff611c61d5bf7628e4bb46de104b2c0f",
+      "mushoku-tensei-s3": "ae99794dcaee51e190aba18125b359dc74af122c",
       "smoking-behind-the-supermarket-with-you": "3aa0c6042296c33caec163da8bbec9ac90874496",
       "bleach": "7cfaf89dad5bb69a1cd0d8292acd944074c0c5d3",
-      "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "bea9e453dbef9dbc7a2488fb3e5b8c38c2b1f4b6"
+      "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "f2094076eb7913c68b437e5361374580a37e701f"
     }
   }
 }
