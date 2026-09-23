@@ -129,9 +129,9 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-09-22T17:40:46.705Z",
+    "planToWatchCheckedAt": "2026-09-23T17:45:33.240Z",
     "planToWatch": {
-      "updatedAt": "2026-09-20T17:30:42.512Z",
+      "updatedAt": "2026-09-23T17:45:33.240Z",
       "entries": [
         {
           "malId": 61323,
@@ -179,6 +179,15 @@
           "numEpisodes": null
         },
         {
+          "malId": 61006,
+          "title": "Bocchi the Rock! 2nd Season",
+          "status": "not_yet_aired",
+          "startDate": null,
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1142/148003l.jpg",
+          "numEpisodes": null
+        },
+        {
           "malId": 31043,
           "title": "Boku dake ga Inai Machi",
           "status": "finished_airing",
@@ -187,7 +196,7 @@
             "dayOfWeek": "friday",
             "startTime": "00:55"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/10/77957l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/10/77957l.jpg",
           "numEpisodes": 12
         },
         {
@@ -214,7 +223,7 @@
           "status": "not_yet_aired",
           "startDate": null,
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1432/154522l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1432/154522l.webp",
           "numEpisodes": null
         },
         {
@@ -253,7 +262,7 @@
             "dayOfWeek": "sunday",
             "startTime": "01:00"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1902/129579l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1902/129579l.jpg",
           "numEpisodes": 12
         },
         {
@@ -262,7 +271,7 @@
           "status": "finished_airing",
           "startDate": "2025-11-07",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1438/154138l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1438/154138l.webp",
           "numEpisodes": 1
         },
         {
@@ -343,7 +352,7 @@
             "dayOfWeek": "sunday",
             "startTime": "22:30"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1093/145470l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1093/145470l.webp",
           "numEpisodes": 12
         },
         {
@@ -421,8 +430,17 @@
           "status": "finished_airing",
           "startDate": "2020-01-17",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1803/117183l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1803/117183l.webp",
           "numEpisodes": 1
+        },
+        {
+          "malId": 61398,
+          "title": "Make Heroine ga Oosugiru! 2nd Season",
+          "status": "not_yet_aired",
+          "startDate": null,
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1031/149060l.jpg",
+          "numEpisodes": null
         },
         {
           "malId": 58934,
@@ -432,6 +450,24 @@
           "broadcast": null,
           "coverUrl": "https://cdn.myanimelist.net/images/anime/1085/154496l.jpg",
           "numEpisodes": null
+        },
+        {
+          "malId": 64859,
+          "title": "One Piece Film: Baad",
+          "status": "not_yet_aired",
+          "startDate": null,
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1396/159706l.jpg",
+          "numEpisodes": 1
+        },
+        {
+          "malId": 64858,
+          "title": "One Piece Film: God Valley",
+          "status": "not_yet_aired",
+          "startDate": "2027",
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1170/159705l.jpg",
+          "numEpisodes": 1
         },
         {
           "malId": 59928,
@@ -451,7 +487,7 @@
             "dayOfWeek": "monday",
             "startTime": "00:00"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1415/102477l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1415/102477l.jpg",
           "numEpisodes": 13
         },
         {
@@ -571,7 +607,7 @@
             "dayOfWeek": "sunday",
             "startTime": "16:30"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1120/152280l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1120/152280l.webp",
           "numEpisodes": 10
         },
         {
@@ -580,7 +616,7 @@
           "status": "finished_airing",
           "startDate": "2020-09-18",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1825/110716l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1825/110716l.webp",
           "numEpisodes": 1
         },
         {
@@ -592,7 +628,7 @@
             "dayOfWeek": "friday",
             "startTime": "00:55"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1864/93518l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1864/93518l.jpg",
           "numEpisodes": 11
         },
         {
@@ -601,7 +637,7 @@
           "status": "finished_airing",
           "startDate": "2019-02-08",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1249/117182l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1249/117182l.webp",
           "numEpisodes": 1
         },
         {
@@ -625,12 +661,12 @@
       ]
     },
     "watchingDashboardHashes": {
-      "one-piece": "14b7201a76efbcfbb3afd2cac3b69f758843b069",
+      "one-piece": "0409f0ebeed47fb7453b021fc7093a6b360c4c78",
       "slime": "855c457a2c93659d2fa943d80fdcb4254766e9c1",
       "mushoku-tensei-s3": "ae99794dcaee51e190aba18125b359dc74af122c",
       "smoking-behind-the-supermarket-with-you": "3aa0c6042296c33caec163da8bbec9ac90874496",
-      "bleach": "7cfaf89dad5bb69a1cd0d8292acd944074c0c5d3",
-      "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "423075f0efdad3988276980369143f028089cfde"
+      "bleach": "68dbe41b8e4a0df2f95b0360a86abb801819d633",
+      "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "acb13295a3164196cc717c32af08787166e6946f"
     }
   }
 }
