@@ -58,7 +58,7 @@
       "lastNotifiedAt": "2026-09-17T16:05:33.421Z",
       "seasonId": "GS00378131JAJP",
       "seasonTitle": "Season 1",
-      "waitingNotifiedForEpisode": null,
+      "waitingNotifiedForEpisode": 12,
       "malMeanScore": 8.31,
       "googleCalendarEvents": null,
       "discussionUrl": "https://www.reddit.com/r/anime/comments/1wix9dk/smoking_behind_the_supermarket_with_you_super_no/",
@@ -659,7 +659,7 @@
       "one-piece": "14b7201a76efbcfbb3afd2cac3b69f758843b069",
       "slime": "855c457a2c93659d2fa943d80fdcb4254766e9c1",
       "mushoku-tensei-s3": "ae99794dcaee51e190aba18125b359dc74af122c",
-      "smoking-behind-the-supermarket-with-you": "947415dedc819b0df1d31a563fabd952c05071e5",
+      "smoking-behind-the-supermarket-with-you": "b0aaea2d90b1f0358bf2c7484f66db69ac0467df",
       "bleach": "68dbe41b8e4a0df2f95b0360a86abb801819d633",
       "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "acb13295a3164196cc717c32af08787166e6946f"
     }
