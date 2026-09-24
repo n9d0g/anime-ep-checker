@@ -369,6 +369,48 @@ export async function adjustMalWatchedEpisode(
   return { updated: true, watched: next, total }
 }
 
+export async function completeMalAnime(
+  malId: number,
+  score: number
+): Promise<{ watched: number; total: number | null }> {
+  if (!Number.isInteger(score) || score < 1 || score > 10) {
+    throw new Error('score must be an integer from 1 to 10')
+  }
+
+  const accessToken = await getMalAccessToken()
+  const { watched, total } = await fetchMalAnimeStatus(accessToken, malId)
+
+  const params = new URLSearchParams({
+    status: 'completed',
+    score: String(score),
+  })
+
+  const episodesWatched =
+    total !== null && total > 0 ? total : watched > 0 ? watched : 0
+  if (episodesWatched > 0) {
+    params.set('num_watched_episodes', String(episodesWatched))
+  }
+
+  const updateResponse = await fetch(
+    `https://api.myanimelist.net/v2/anime/${malId}/my_list_status`,
+    {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: params,
+    }
+  )
+
+  if (!updateResponse.ok) {
+    const body = await updateResponse.text()
+    throw new Error(`MAL list update failed (${updateResponse.status}): ${body}`)
+  }
+
+  return { watched: episodesWatched, total }
+}
+
 function parsePlanToWatchEntry(node: MalAnimelistNode): MalPlanToWatchEntry {
   const broadcast = node.broadcast
     ? {

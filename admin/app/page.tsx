@@ -224,6 +224,108 @@ function showFormToWatchInput(show: ShowFormValues): Show {
   }
 }
 
+interface CompletePrompt {
+  showId: string
+  malId: number
+  title: string
+  pendingEpisodeAtMax?: number
+}
+
+function CompleteRatingModal({
+  prompt,
+  submitting,
+  onCancel,
+  onConfirm,
+}: {
+  prompt: CompletePrompt
+  submitting: boolean
+  onCancel: () => void
+  onConfirm: (score: number) => void
+}) {
+  const [score, setScore] = useState<number | null>(null)
+
+  useEffect(() => {
+    setScore(null)
+  }, [prompt.showId])
+
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape' && !submitting) {
+        onCancel()
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [onCancel, submitting])
+
+  const label = prompt.title || prompt.showId
+
+  return (
+    <div
+      className="modal-overlay"
+      role="presentation"
+      onClick={(event) => {
+        if (event.target === event.currentTarget && !submitting) {
+          onCancel()
+        }
+      }}
+    >
+      <div
+        className="modal-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="complete-modal-title"
+      >
+        <h2 id="complete-modal-title" className="modal-title">
+          Rate {label}
+        </h2>
+        <p className="modal-subtitle">
+          Mark as completed on MyAnimeList and remove from tracked shows.
+        </p>
+        <div className="rating-grid" role="group" aria-label="Score from 1 to 10">
+          {Array.from({ length: 10 }, (_, index) => {
+            const value = index + 1
+            return (
+              <button
+                key={value}
+                type="button"
+                className={`rating-btn${score === value ? ' active' : ''}`}
+                aria-pressed={score === value}
+                disabled={submitting}
+                onClick={() => setScore(value)}
+              >
+                {value}
+              </button>
+            )
+          })}
+        </div>
+        <div className="modal-actions">
+          <button
+            className="btn btn-secondary"
+            type="button"
+            disabled={submitting}
+            onClick={onCancel}
+          >
+            Cancel
+          </button>
+          <button
+            className="btn"
+            type="button"
+            disabled={submitting || score === null}
+            onClick={() => {
+              if (score !== null) {
+                onConfirm(score)
+              }
+            }}
+          >
+            {submitting ? 'Saving…' : 'Mark completed'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function SegmentedControl<T extends string>({
   value,
   options,
@@ -269,6 +371,10 @@ export default function AdminPage() {
     Record<string, ReturnType<typeof setTimeout>>
   >({})
   const [malEditOpen, setMalEditOpen] = useState<Record<string, boolean>>({})
+  const [completePrompt, setCompletePrompt] = useState<CompletePrompt | null>(
+    null
+  )
+  const [completingShow, setCompletingShow] = useState(false)
   const showsRef = useRef(shows)
   const baselineRef = useRef(baseline)
   const savingRef = useRef(saving)
@@ -610,6 +716,127 @@ export default function AdminPage() {
     }
   }
 
+  function removeShowFromLocalAfterComplete(showId: string): void {
+    setShows((current) => current.filter((show) => show.id !== showId))
+    setShowStates((current) => {
+      const next = { ...current }
+      delete next[showId]
+      return next
+    })
+    setExpanded((current) => {
+      const next = { ...current }
+      delete next[showId]
+      return next
+    })
+    setEpisodeSaveStatus((current) => {
+      const next = { ...current }
+      delete next[showId]
+      return next
+    })
+    const timer = episodeDebounceRefs.current[showId]
+    if (timer) {
+      clearTimeout(timer)
+      delete episodeDebounceRefs.current[showId]
+    }
+
+    if (baselineRef.current !== '') {
+      try {
+        const baselineShows = JSON.parse(
+          baselineRef.current
+        ) as ShowFormValues[]
+        const filtered = baselineShows.filter((show) => show.id !== showId)
+        setBaseline(serializeShows(filtered))
+      } catch {
+        // Keep baseline unchanged if parse fails.
+      }
+    }
+  }
+
+  function openCompletePrompt(show: ShowFormValues, pendingEpisodeAtMax?: number) {
+    if (!show.id || !usesMalProgress(show)) {
+      return
+    }
+
+    const malId = Number(show.malId)
+    if (!Number.isFinite(malId) || malId < 1) {
+      return
+    }
+
+    const existingTimer = episodeDebounceRefs.current[show.id]
+    if (existingTimer) {
+      clearTimeout(existingTimer)
+      delete episodeDebounceRefs.current[show.id]
+    }
+
+    setCompletePrompt({
+      showId: show.id,
+      malId,
+      title: show.title.trim() || show.id,
+      pendingEpisodeAtMax,
+    })
+  }
+
+  function cancelCompletePrompt(): void {
+    const prompt = completePrompt
+    setCompletePrompt(null)
+
+    if (
+      prompt?.pendingEpisodeAtMax !== undefined &&
+      Number.isFinite(prompt.pendingEpisodeAtMax)
+    ) {
+      void persistMalProgress(
+        prompt.showId,
+        prompt.malId,
+        prompt.pendingEpisodeAtMax
+      )
+    }
+  }
+
+  async function confirmCompletePrompt(score: number): Promise<void> {
+    const prompt = completePrompt
+    if (!prompt) {
+      return
+    }
+
+    setCompletingShow(true)
+
+    try {
+      const response = await noStoreFetch('/api/mal/complete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          malId: prompt.malId,
+          showId: prompt.showId,
+          score,
+        }),
+      })
+
+      const data = (await response.json()) as {
+        error?: string
+        cleanupTriggered?: boolean
+      }
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to mark show completed')
+      }
+
+      removeShowFromLocalAfterComplete(prompt.showId)
+      setCompletePrompt(null)
+
+      toast.success(
+        data.cleanupTriggered
+          ? 'Marked completed on MAL. Discord and calendar cleanup will run shortly.'
+          : 'Marked completed on MAL and removed from tracked shows.'
+      )
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to mark show completed'
+      )
+    } finally {
+      setCompletingShow(false)
+    }
+  }
+
   function adjustEpisode(show: ShowFormValues, delta: number): void {
     if (!show.id) {
       return
@@ -659,6 +886,11 @@ export default function AdminPage() {
       const existingTimer = episodeDebounceRefs.current[show.id]
       if (existingTimer) {
         clearTimeout(existingTimer)
+      }
+
+      if (max !== null && next === max) {
+        openCompletePrompt(show, next)
+        return
       }
 
       episodeDebounceRefs.current[show.id] = setTimeout(() => {
@@ -1284,6 +1516,16 @@ export default function AdminPage() {
                         </details>
 
                         <div className="actions">
+                          {show.id && usesMalProgress(show) ? (
+                            <button
+                              className="btn btn-secondary"
+                              type="button"
+                              disabled={completingShow}
+                              onClick={() => openCompletePrompt(show)}
+                            >
+                              Mark as completed
+                            </button>
+                          ) : null}
                           <button
                             className="btn btn-danger"
                             type="button"
@@ -1332,6 +1574,15 @@ export default function AdminPage() {
           </div>
         </div>
       </div>
+
+      {completePrompt ? (
+        <CompleteRatingModal
+          prompt={completePrompt}
+          submitting={completingShow}
+          onCancel={cancelCompletePrompt}
+          onConfirm={(score) => void confirmCompletePrompt(score)}
+        />
+      ) : null}
     </>
   )
 }
