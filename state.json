@@ -51,17 +51,6 @@
       },
       "malScoreAlertedAt": "2026-09-22T17:40:46.705Z"
     },
-    "smoking-behind-the-supermarket-with-you": {
-      "lastEpisodeId": "GE00378536JAJP",
-      "lastEpisodeNumber": "12",
-      "lastEpisodeTitle": "Keeping It Going Behind the Supermarket with You",
-      "lastNotifiedAt": "2026-09-24T16:35:35.475Z",
-      "seasonId": "GS00378131JAJP",
-      "seasonTitle": "Season 1",
-      "waitingNotifiedForEpisode": null,
-      "malMeanScore": 8.31,
-      "googleCalendarEvents": null
-    },
     "bleach": {
       "lastEpisodeId": "anilist-60636-8",
       "lastEpisodeNumber": "8",
@@ -107,7 +96,6 @@
       "one-piece": "1531376914558615716",
       "slime": "1531376924490727525",
       "mushoku-tensei-s3": "1531376936910192792",
-      "smoking-behind-the-supermarket-with-you": "1531670249173155863",
       "bleach": "1531685830114939012",
       "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "1537064482776416328"
     },
@@ -657,8 +645,7 @@
       "one-piece": "14b7201a76efbcfbb3afd2cac3b69f758843b069",
       "slime": "855c457a2c93659d2fa943d80fdcb4254766e9c1",
       "mushoku-tensei-s3": "ae99794dcaee51e190aba18125b359dc74af122c",
-      "smoking-behind-the-supermarket-with-you": "b70096839f81dea50a50a46443f4227fc1f34bae",
-      "bleach": "68dbe41b8e4a0df2f95b0360a86abb801819d633",
+      "bleach": "830d9043a0a5a4e9aaae2f8fa9998ad38ca76a43",
       "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "acb13295a3164196cc717c32af08787166e6946f"
     }
   }
