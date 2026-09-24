@@ -49,22 +49,6 @@
       "redditSearchTitle": "mushoku_tensei_jobless_reincarnation_season_3"
     },
     {
-      "id": "smoking-behind-the-supermarket-with-you",
-      "title": "Super no Ura de Yani Suu Futari",
-      "provider": "crunchyroll",
-      "schedule": {
-        "mode": "finite",
-        "startAt": "2026-07-09T16:00:00.000Z",
-        "startEpisode": 1,
-        "episodeCount": 12,
-        "premiereBatchSize": 1
-      },
-      "crunchyrollUrl": "https://www.crunchyroll.com/series/GT00378116/smoking-behind-the-supermarket-with-you",
-      "seriesId": "GT00378116",
-      "malId": 62076,
-      "redditSearchTitle": "smoking_behind_the_supermarket_with_you_super_no_ura_de_yani_suu_futari"
-    },
-    {
       "id": "bleach",
       "title": "Bleach: Sennen Kessen-hen - Kashin-tan",
       "provider": "disney",
