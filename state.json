@@ -19,16 +19,15 @@
       "discussionUrlEpisode": 1179
     },
     "slime": {
-      "lastEpisodeId": "GE00374387JAJP",
-      "lastEpisodeNumber": "23",
-      "lastEpisodeTitle": "Granville's Hope",
-      "lastNotifiedAt": "2026-09-18T15:05:36.032Z",
+      "lastEpisodeId": "GE00374388JAJP",
+      "lastEpisodeNumber": "24",
+      "lastEpisodeTitle": "The Hero Awakens",
+      "lastNotifiedAt": "2026-09-25T15:05:36.625Z",
       "seasonId": "GS00371777JAJP",
       "seasonTitle": "Season 4",
       "waitingNotifiedForEpisode": null,
-      "malMeanScore": 8.26,
-      "googleCalendarEvents": null,
-      "malScoreAlertedAt": "2026-09-25T14:55:35.165Z"
+      "malMeanScore": 8.25,
+      "googleCalendarEvents": null
     },
     "mushoku-tensei-s3": {
       "lastEpisodeId": "GE00374465JAJP",
@@ -639,7 +638,7 @@
     },
     "watchingDashboardHashes": {
       "one-piece": "14b7201a76efbcfbb3afd2cac3b69f758843b069",
-      "slime": "6a2bb6c573034610a453fd4931535993b1fc275e",
+      "slime": "de316e28c62a982beda7d3717379b78808a2e663",
       "mushoku-tensei-s3": "17d2ea6d676609b16134bd6bcffd990cdebc77f4",
       "bleach": "68dbe41b8e4a0df2f95b0360a86abb801819d633",
       "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "acb13295a3164196cc717c32af08787166e6946f"
