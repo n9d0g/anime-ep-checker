@@ -100,14 +100,18 @@
         "alertedAt": "2026-08-10T15:45:42.943Z",
         "reason": "airing"
       },
+      "61987": {
+        "alertedAt": "2026-09-25T17:55:30.894Z",
+        "reason": "upcoming"
+      },
       "62811": {
         "alertedAt": "2026-07-30T17:20:31.143Z",
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-09-24T17:50:35.720Z",
+    "planToWatchCheckedAt": "2026-09-25T17:55:30.894Z",
     "planToWatch": {
-      "updatedAt": "2026-09-23T17:45:33.240Z",
+      "updatedAt": "2026-09-25T17:55:30.894Z",
       "entries": [
         {
           "malId": 61323,
@@ -130,7 +134,7 @@
             "dayOfWeek": "friday",
             "startTime": "00:55"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1190/93472l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1190/93472l.jpg",
           "numEpisodes": 24
         },
         {
@@ -142,7 +146,7 @@
             "dayOfWeek": "thursday",
             "startTime": "01:30"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/11/11636l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/11/11636l.webp",
           "numEpisodes": 26
         },
         {
@@ -190,7 +194,7 @@
           "status": "finished_airing",
           "startDate": "2007-03-03",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1410/112994l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1410/112994l.webp",
           "numEpisodes": 3
         },
         {
@@ -199,7 +203,7 @@
           "status": "not_yet_aired",
           "startDate": null,
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1432/154522l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1432/154522l.jpg",
           "numEpisodes": null
         },
         {
@@ -247,7 +251,7 @@
           "status": "finished_airing",
           "startDate": "2025-11-07",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1438/154138l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1438/154138l.jpg",
           "numEpisodes": 1
         },
         {
@@ -307,7 +311,7 @@
             "dayOfWeek": "wednesday",
             "startTime": "21:00"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1784/106428l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1784/106428l.webp",
           "numEpisodes": 12
         },
         {
@@ -328,7 +332,7 @@
             "dayOfWeek": "sunday",
             "startTime": "22:30"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1093/145470l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1093/145470l.jpg",
           "numEpisodes": 12
         },
         {
@@ -367,7 +371,7 @@
           "status": "finished_airing",
           "startDate": "2022-03-10",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1862/121020l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1862/121020l.webp",
           "numEpisodes": 10
         },
         {
@@ -406,7 +410,7 @@
           "status": "finished_airing",
           "startDate": "2020-01-17",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1803/117183l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1803/117183l.jpg",
           "numEpisodes": 1
         },
         {
@@ -542,7 +546,7 @@
           "malId": 63129,
           "title": "Tensei shitara Slime Datta Ken 4th Season Part 2",
           "status": "not_yet_aired",
-          "startDate": null,
+          "startDate": "2027-07",
           "broadcast": null,
           "coverUrl": "https://cdn.myanimelist.net/images/anime/1803/154473l.jpg",
           "numEpisodes": null
@@ -583,7 +587,7 @@
             "dayOfWeek": "sunday",
             "startTime": "16:30"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1120/152280l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1120/152280l.jpg",
           "numEpisodes": 10
         },
         {
@@ -592,7 +596,7 @@
           "status": "finished_airing",
           "startDate": "2020-09-18",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1825/110716l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1825/110716l.jpg",
           "numEpisodes": 1
         },
         {
@@ -604,7 +608,7 @@
             "dayOfWeek": "friday",
             "startTime": "00:55"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1864/93518l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1864/93518l.webp",
           "numEpisodes": 11
         },
         {
@@ -613,7 +617,7 @@
           "status": "finished_airing",
           "startDate": "2019-02-08",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1249/117182l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1249/117182l.jpg",
           "numEpisodes": 1
         },
         {
@@ -637,8 +641,8 @@
       ]
     },
     "watchingDashboardHashes": {
-      "one-piece": "14b7201a76efbcfbb3afd2cac3b69f758843b069",
-      "slime": "de316e28c62a982beda7d3717379b78808a2e663",
+      "one-piece": "0409f0ebeed47fb7453b021fc7093a6b360c4c78",
+      "slime": "ff7a9427cd18253032219145912d7f8dc50c6f59",
       "mushoku-tensei-s3": "17d2ea6d676609b16134bd6bcffd990cdebc77f4",
       "bleach": "68dbe41b8e4a0df2f95b0360a86abb801819d633",
       "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "acb13295a3164196cc717c32af08787166e6946f"
