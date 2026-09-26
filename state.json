@@ -18,17 +18,6 @@
       "discussionUrl": "https://www.reddit.com/r/anime/comments/1wlkx8r/one_piece_episode_1179_discussion/",
       "discussionUrlEpisode": 1179
     },
-    "slime": {
-      "lastEpisodeId": "GE00374388JAJP",
-      "lastEpisodeNumber": "24",
-      "lastEpisodeTitle": "The Hero Awakens",
-      "lastNotifiedAt": "2026-09-25T15:05:36.625Z",
-      "seasonId": "GS00371777JAJP",
-      "seasonTitle": "Season 4",
-      "waitingNotifiedForEpisode": null,
-      "malMeanScore": 8.25,
-      "googleCalendarEvents": null
-    },
     "mushoku-tensei-s3": {
       "lastEpisodeId": "GE00374465JAJP",
       "lastEpisodeNumber": "13",
@@ -44,7 +33,9 @@
           "startAt": "2026-09-27T16:00:00.000Z"
         }
       },
-      "malScoreAlertedAt": "2026-09-22T17:40:46.705Z"
+      "malScoreAlertedAt": "2026-09-22T17:40:46.705Z",
+      "discussionUrl": "https://www.reddit.com/r/anime/comments/1wljcy8/mushoku_tensei_jobless_reincarnation_season_3/",
+      "discussionUrlEpisode": 13
     },
     "bleach": {
       "lastEpisodeId": "anilist-60636-8",
@@ -89,7 +80,6 @@
     "watchingDashboardMessageId": null,
     "watchingDashboardMessageIds": {
       "one-piece": "1531376914558615716",
-      "slime": "1531376924490727525",
       "mushoku-tensei-s3": "1531376936910192792",
       "bleach": "1531685830114939012",
       "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "1537064482776416328"
@@ -641,10 +631,9 @@
       ]
     },
     "watchingDashboardHashes": {
-      "one-piece": "0409f0ebeed47fb7453b021fc7093a6b360c4c78",
-      "slime": "ff7a9427cd18253032219145912d7f8dc50c6f59",
-      "mushoku-tensei-s3": "17d2ea6d676609b16134bd6bcffd990cdebc77f4",
-      "bleach": "68dbe41b8e4a0df2f95b0360a86abb801819d633",
+      "one-piece": "14b7201a76efbcfbb3afd2cac3b69f758843b069",
+      "mushoku-tensei-s3": "2427e82c20b5478cddf769f9aedad2e15c893e44",
+      "bleach": "1d001c7a475e41d9616a3c5c6b2859d7932078e5",
       "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "acb13295a3164196cc717c32af08787166e6946f"
     }
   }
