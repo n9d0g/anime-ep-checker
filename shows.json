@@ -17,22 +17,6 @@
       "redditSearchTitle": "one_piece"
     },
     {
-      "id": "slime",
-      "title": "Tensei shitara Slime Datta Ken 4th Season",
-      "provider": "crunchyroll",
-      "schedule": {
-        "mode": "finite",
-        "startAt": "2026-04-17T15:00:00.000Z",
-        "startEpisode": 1,
-        "episodeCount": 24,
-        "premiereBatchSize": 1
-      },
-      "crunchyrollUrl": "https://www.crunchyroll.com/series/GYZJ43JMR/that-time-i-got-reincarnated-as-a-slime",
-      "seriesId": "GYZJ43JMR",
-      "malId": 59970,
-      "redditSearchTitle": "tensei_shitara_slime_datta_ken_season_4_that_time_i_got_reincarnated_as_a_slime"
-    },
-    {
       "id": "mushoku-tensei-s3",
       "title": "Mushoku Tensei III: Isekai Ittara Honki Dasu",
       "provider": "crunchyroll",
