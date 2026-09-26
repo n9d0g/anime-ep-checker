@@ -833,8 +833,9 @@ select:focus {
 }
 
 .toast-success {
-  border-color: color-mix(in srgb, var(--success) 45%, var(--border));
-  color: var(--success);
+  border-color: color-mix(in srgb, var(--success) 55%, var(--border));
+  background: color-mix(in srgb, var(--success) 32%, var(--panel-raised));
+  color: var(--text);
 }
 
 .toast-error {
