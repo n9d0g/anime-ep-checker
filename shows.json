@@ -17,22 +17,6 @@
       "redditSearchTitle": "one_piece"
     },
     {
-      "id": "mushoku-tensei-s3",
-      "title": "Mushoku Tensei III: Isekai Ittara Honki Dasu",
-      "provider": "crunchyroll",
-      "schedule": {
-        "mode": "finite",
-        "startAt": "2026-07-05T16:00:00.000Z",
-        "startEpisode": 1,
-        "episodeCount": 14,
-        "premiereBatchSize": 2
-      },
-      "crunchyrollUrl": "https://www.crunchyroll.com/series/G24H1N3MP/mushoku-tensei-jobless-reincarnation",
-      "seriesId": "G24H1N3MP",
-      "malId": 59193,
-      "redditSearchTitle": "mushoku_tensei_jobless_reincarnation_season_3"
-    },
-    {
       "id": "bleach",
       "title": "Bleach: Sennen Kessen-hen - Kashin-tan",
       "provider": "disney",
