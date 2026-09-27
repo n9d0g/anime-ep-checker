@@ -9,12 +9,7 @@
       "seasonTitle": "Elbaph (1156-current)",
       "waitingNotifiedForEpisode": null,
       "malMeanScore": 8.73,
-      "googleCalendarEvents": {
-        "1180": {
-          "eventId": "3pm9si5kvnhp2485gp09f4i5ho",
-          "startAt": "2026-09-27T16:00:00.000Z"
-        }
-      },
+      "googleCalendarEvents": null,
       "discussionUrl": "https://www.reddit.com/r/anime/comments/1wlkx8r/one_piece_episode_1179_discussion/",
       "discussionUrlEpisode": 1179
     },
@@ -27,7 +22,9 @@
       "seasonTitle": "Season 3",
       "waitingNotifiedForEpisode": null,
       "malMeanScore": 8.71,
-      "googleCalendarEvents": null
+      "googleCalendarEvents": null,
+      "discussionUrl": "https://www.reddit.com/r/anime/comments/1wrmf28/mushoku_tensei_jobless_reincarnation_season_3/",
+      "discussionUrlEpisode": 14
     },
     "bleach": {
       "lastEpisodeId": "anilist-60636-8",
@@ -624,7 +621,7 @@
     },
     "watchingDashboardHashes": {
       "one-piece": "7e70b82248d38554b320c8f7d20ded17b6c93119",
-      "mushoku-tensei-s3": "e1f0ce870ab62cea22e5eb38d7aad5587e4ecaa6",
+      "mushoku-tensei-s3": "57b6a734a50809c6d67d2dcdf67e4655e0f438c7",
       "bleach": "1d001c7a475e41d9616a3c5c6b2859d7932078e5",
       "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "acb13295a3164196cc717c32af08787166e6946f"
     }
