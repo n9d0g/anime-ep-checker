@@ -55,17 +55,20 @@ function PtwSectionSkeleton({ rowCount }: { rowCount: number }) {
       <SkeletonBar className="skeleton-heading" />
       <div className="panel show-list">
         {Array.from({ length: rowCount }, (_, index) => (
-          <article className="show-row" key={index}>
-            <div className="show-row-header skeleton-row">
-              <div className="show-row-leading">
-                <SkeletonBar
-                  className="skeleton-title"
-                  style={{ width: titleWidths[index % titleWidths.length] }}
-                />
+          <article className="show-row ptw-row" key={index}>
+            <div className="show-row-header ptw-row-header skeleton-row">
+              <div className="ptw-row-main">
+                <div className="show-row-leading">
+                  <SkeletonBar
+                    className="skeleton-title"
+                    style={{ width: titleWidths[index % titleWidths.length] }}
+                  />
+                </div>
+                <div className="show-row-trailing">
+                  <SkeletonBar className="skeleton-meta" />
+                </div>
               </div>
-              <div className="show-row-trailing">
-                <SkeletonBar className="skeleton-meta" />
-              </div>
+              <SkeletonBar className="skeleton-ptw-watch" />
             </div>
           </article>
         ))}

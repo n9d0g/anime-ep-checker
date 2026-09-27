@@ -158,8 +158,8 @@ function PtwSection({
           const malUrl = `https://myanimelist.net/anime/${entry.malId}`
 
           return (
-            <article className="show-row" key={entry.malId}>
-              <div className="show-row-header">
+            <article className="show-row ptw-row" key={entry.malId}>
+              <div className="show-row-header ptw-row-header">
                 <a
                   className="ptw-row-main"
                   href={malUrl}

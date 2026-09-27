@@ -254,19 +254,55 @@ h3 {
   color: inherit;
 }
 
+.ptw-row,
+.ptw-row .show-row-header {
+  overflow: visible;
+}
+
+.ptw-row-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 0.65rem;
+}
+
 .ptw-row-main {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
   min-width: 0;
-  flex: 1 1 0;
 }
 
 .ptw-watch-btn {
+  justify-self: end;
+  align-self: center;
+  white-space: nowrap;
   flex-shrink: 0;
-  padding: 0.3rem 0.65rem;
+  min-height: 2rem;
+  padding: 0.35rem 0.7rem;
   font-size: 0.75rem;
+}
+
+@media (max-width: 640px) {
+  .ptw-row-main {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.15rem;
+  }
+
+  .ptw-row-main .show-row-trailing {
+    justify-content: flex-start;
+  }
+
+  .ptw-row-main .ep-count {
+    padding-left: 0;
+    font-size: 0.75rem;
+  }
+
+  .ptw-watch-btn {
+    min-width: 4.25rem;
+  }
 }
 
 .ptw-updated {
@@ -324,6 +360,12 @@ h3 {
 .skeleton-heading {
   width: 5rem;
   height: 1rem;
+}
+
+.skeleton-ptw-watch {
+  width: 3.5rem;
+  height: 2rem;
+  flex-shrink: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
