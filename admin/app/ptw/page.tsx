@@ -1,10 +1,15 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import { MoveToWatchingModal } from '@/app/components/MoveToWatchingModal'
 import { TopHeader } from '@/app/components/TopHeader'
 import { PtwListSkeleton } from '@/app/components/ListSkeleton'
 import { useToast } from '@/app/components/Toast'
-import type { PlanToWatchSnapshot, PlanToWatchSnapshotEntry } from '@/lib/types'
+import type {
+  PlanToWatchSnapshot,
+  PlanToWatchSnapshotEntry,
+  ShowFormValues,
+} from '@/lib/types'
 
 function startOfUtcDay(date: Date): Date {
   return new Date(
@@ -131,10 +136,14 @@ function PtwSection({
   title,
   kind,
   entries,
+  movingMalId,
+  onWatch,
 }: {
   title: string
   kind: PtwSectionKind
   entries: PlanToWatchSnapshotEntry[]
+  movingMalId: number | null
+  onWatch: (entry: PlanToWatchSnapshotEntry) => void
 }) {
   if (entries.length === 0) {
     return null
@@ -150,21 +159,31 @@ function PtwSection({
 
           return (
             <article className="show-row" key={entry.malId}>
-              <a
-                className="show-row-header ptw-row-link"
-                href={malUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <div className="show-row-leading">
-                  <span className="show-row-title">{entry.title}</span>
-                </div>
-                {meta ? (
-                  <div className="show-row-trailing">
-                    <span className="ep-count">{meta}</span>
+              <div className="show-row-header">
+                <a
+                  className="ptw-row-main"
+                  href={malUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <div className="show-row-leading">
+                    <span className="show-row-title">{entry.title}</span>
                   </div>
-                ) : null}
-              </a>
+                  {meta ? (
+                    <div className="show-row-trailing">
+                      <span className="ep-count">{meta}</span>
+                    </div>
+                  ) : null}
+                </a>
+                <button
+                  className="btn btn-secondary ptw-watch-btn"
+                  type="button"
+                  disabled={movingMalId === entry.malId}
+                  onClick={() => onWatch(entry)}
+                >
+                  Watch
+                </button>
+              </div>
             </article>
           )
         })}
@@ -178,6 +197,10 @@ export default function PlanToWatchPage() {
   const [snapshot, setSnapshot] = useState<PlanToWatchSnapshot | null>(null)
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
+  const [watchEntry, setWatchEntry] = useState<PlanToWatchSnapshotEntry | null>(
+    null
+  )
+  const [moving, setMoving] = useState(false)
 
   const sections = useMemo(() => {
     const entries = snapshot?.entries ?? []
@@ -242,6 +265,75 @@ export default function PlanToWatchPage() {
     }
   }
 
+  function removeEntryFromSnapshot(malId: number) {
+    setSnapshot((current) => {
+      if (!current) {
+        return current
+      }
+
+      return {
+        ...current,
+        entries: current.entries.filter((entry) => entry.malId !== malId),
+      }
+    })
+  }
+
+  async function moveToWatching(values: ShowFormValues) {
+    const entry = watchEntry
+    if (!entry) {
+      return
+    }
+
+    setMoving(true)
+
+    try {
+      const response = await fetch('/api/ptw/watch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          malId: entry.malId,
+          title: entry.title,
+          provider: values.provider,
+          crunchyrollUrl: values.crunchyrollUrl,
+          netflixUrl: values.netflixUrl,
+          disneyUrl: values.disneyUrl,
+          schedule: values.schedule,
+        }),
+      })
+
+      const data = (await response.json()) as {
+        error?: string
+        malUpdated?: boolean
+        workflowTriggered?: boolean
+      }
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to move show to watching')
+      }
+
+      removeEntryFromSnapshot(entry.malId)
+      setWatchEntry(null)
+
+      if (!data.malUpdated) {
+        toast.success(
+          'Added to watching. MAL status could not be updated — mark it watching there if needed.'
+        )
+      } else if (data.workflowTriggered) {
+        toast.success(
+          'Moved to watching. The dashboard will refresh shortly.'
+        )
+      } else {
+        toast.success('Moved to watching.')
+      }
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to move show to watching'
+      )
+    } finally {
+      setMoving(false)
+    }
+  }
+
   useEffect(() => {
     void loadSnapshot()
   }, [])
@@ -283,9 +375,27 @@ export default function PlanToWatchPage() {
           </div>
         ) : (
           <div className="stack ptw-sections">
-            <PtwSection title="Airing" kind="airing" entries={sections.airing} />
-            <PtwSection title="Not yet aired" kind="upcoming" entries={sections.upcoming} />
-            <PtwSection title="Aired" kind="aired" entries={sections.aired} />
+            <PtwSection
+              title="Airing"
+              kind="airing"
+              entries={sections.airing}
+              movingMalId={moving ? (watchEntry?.malId ?? null) : null}
+              onWatch={setWatchEntry}
+            />
+            <PtwSection
+              title="Not yet aired"
+              kind="upcoming"
+              entries={sections.upcoming}
+              movingMalId={moving ? (watchEntry?.malId ?? null) : null}
+              onWatch={setWatchEntry}
+            />
+            <PtwSection
+              title="Aired"
+              kind="aired"
+              entries={sections.aired}
+              movingMalId={moving ? (watchEntry?.malId ?? null) : null}
+              onWatch={setWatchEntry}
+            />
           </div>
         )}
 
@@ -295,6 +405,19 @@ export default function PlanToWatchPage() {
           </p>
         ) : null}
       </main>
+
+      {watchEntry ? (
+        <MoveToWatchingModal
+          entry={watchEntry}
+          submitting={moving}
+          onCancel={() => {
+            if (!moving) {
+              setWatchEntry(null)
+            }
+          }}
+          onSubmit={(values) => void moveToWatching(values)}
+        />
+      ) : null}
     </>
   )
 }
