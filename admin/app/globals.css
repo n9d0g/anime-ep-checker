@@ -287,8 +287,19 @@ h3 {
 @media (max-width: 640px) {
   .ptw-row-main {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
+    justify-content: center;
     gap: 0.15rem;
+  }
+
+  .ptw-row-main .show-row-leading {
+    flex: 0 1 auto;
+    width: 100%;
+  }
+
+  .ptw-row-main .show-row-title {
+    display: block;
+    width: 100%;
   }
 
   .ptw-row-main .show-row-trailing {
