@@ -14,7 +14,9 @@
           "eventId": "k3utlhusor984eqbtm262jk0i0",
           "startAt": "2026-10-04T16:00:00.000Z"
         }
-      }
+      },
+      "discussionUrl": "https://www.reddit.com/r/anime/comments/1wrnyli/one_piece_episode_1180_discussion/",
+      "discussionUrlEpisode": 1180
     },
     "mushoku-tensei-s3": {
       "lastEpisodeId": "GE00374466JAJP",
@@ -78,6 +80,10 @@
     },
     "disneyCookieAlertSentAt": "2026-07-27T16:30:34.187Z",
     "planToWatchAlerts": {
+      "61323": {
+        "alertedAt": "2026-09-27T18:05:39.776Z",
+        "reason": "upcoming"
+      },
       "61483": {
         "alertedAt": "2026-08-10T15:45:42.943Z",
         "reason": "airing"
@@ -91,7 +97,7 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-09-26T18:00:43.397Z",
+    "planToWatchCheckedAt": "2026-09-27T18:05:39.776Z",
     "planToWatch": {
       "updatedAt": "2026-09-25T17:55:30.894Z",
       "entries": [
@@ -623,8 +629,8 @@
       ]
     },
     "watchingDashboardHashes": {
-      "one-piece": "fc469d23bf71ff7e92535fb7af0cd15ad69e4bfe",
-      "mushoku-tensei-s3": "57b6a734a50809c6d67d2dcdf67e4655e0f438c7",
+      "one-piece": "0e6369bacfa68a8ff664359bbd5d6fb35ab67373",
+      "mushoku-tensei-s3": "51c44ffed3dae1c6e257486c6a8bd7470fc08900",
       "bleach": "1d001c7a475e41d9616a3c5c6b2859d7932078e5",
       "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "acb13295a3164196cc717c32af08787166e6946f"
     }
