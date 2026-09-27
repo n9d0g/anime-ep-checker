@@ -248,9 +248,72 @@ h3 {
   gap: 1.5rem;
 }
 
-.ptw-row-link {
+.ptw-row-link,
+.ptw-row-main {
   text-decoration: none;
   color: inherit;
+}
+
+.ptw-row,
+.ptw-row .show-row-header {
+  overflow: visible;
+}
+
+.ptw-row-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 0.65rem;
+}
+
+.ptw-row-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.ptw-watch-btn {
+  justify-self: end;
+  align-self: center;
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-height: 2rem;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.75rem;
+}
+
+@media (max-width: 640px) {
+  .ptw-row-main {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    gap: 0.15rem;
+  }
+
+  .ptw-row-main .show-row-leading {
+    flex: 0 1 auto;
+    width: 100%;
+  }
+
+  .ptw-row-main .show-row-title {
+    display: block;
+    width: 100%;
+  }
+
+  .ptw-row-main .show-row-trailing {
+    justify-content: flex-start;
+  }
+
+  .ptw-row-main .ep-count {
+    padding-left: 0;
+    font-size: 0.75rem;
+  }
+
+  .ptw-watch-btn {
+    min-width: 4.25rem;
+  }
 }
 
 .ptw-updated {
@@ -308,6 +371,12 @@ h3 {
 .skeleton-heading {
   width: 5rem;
   height: 1rem;
+}
+
+.skeleton-ptw-watch {
+  width: 3.5rem;
+  height: 2rem;
+  flex-shrink: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -471,6 +540,12 @@ h3 {
   display: grid;
   gap: 14px;
   min-width: 0;
+}
+
+@media (min-width: 480px) {
+  .field-row-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 label,
@@ -885,6 +960,18 @@ select:focus {
   border-radius: var(--radius-sm);
   background: var(--panel);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+}
+
+.modal-panel-wide {
+  width: min(28rem, 100%);
+  max-height: min(90vh, 42rem);
+  overflow: auto;
+}
+
+.modal-form {
+  display: grid;
+  gap: 0.9rem;
+  margin-bottom: 1.15rem;
 }
 
 .modal-title {

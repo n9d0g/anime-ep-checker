@@ -199,13 +199,7 @@ export async function dispatchCheckWorkflow(force = true): Promise<void> {
   )
 }
 
-export function slugify(value: string): string {
-  return String(value)
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
-    .slice(0, 48)
-}
+export { slugify } from './slugify'
 
 export function parseSeriesIdFromUrl(url: string): string | null {
   const match = String(url).match(/\/series\/([A-Z0-9]+)/i)
