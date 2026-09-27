@@ -18,19 +18,6 @@
       "discussionUrl": "https://www.reddit.com/r/anime/comments/1wrnyli/one_piece_episode_1180_discussion/",
       "discussionUrlEpisode": 1180
     },
-    "mushoku-tensei-s3": {
-      "lastEpisodeId": "GE00374466JAJP",
-      "lastEpisodeNumber": "14",
-      "lastEpisodeTitle": "Resolve",
-      "lastNotifiedAt": "2026-09-27T15:55:40.745Z",
-      "seasonId": "GS00374452JAJP",
-      "seasonTitle": "Season 3",
-      "waitingNotifiedForEpisode": null,
-      "malMeanScore": 8.71,
-      "googleCalendarEvents": null,
-      "discussionUrl": "https://www.reddit.com/r/anime/comments/1wrmf28/mushoku_tensei_jobless_reincarnation_season_3/",
-      "discussionUrlEpisode": 14
-    },
     "bleach": {
       "lastEpisodeId": "anilist-60636-8",
       "lastEpisodeNumber": "8",
@@ -74,7 +61,6 @@
     "watchingDashboardMessageId": null,
     "watchingDashboardMessageIds": {
       "one-piece": "1531376914558615716",
-      "mushoku-tensei-s3": "1531376936910192792",
       "bleach": "1531685830114939012",
       "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "1537064482776416328"
     },
@@ -630,7 +616,6 @@
     },
     "watchingDashboardHashes": {
       "one-piece": "0e6369bacfa68a8ff664359bbd5d6fb35ab67373",
-      "mushoku-tensei-s3": "51c44ffed3dae1c6e257486c6a8bd7470fc08900",
       "bleach": "1d001c7a475e41d9616a3c5c6b2859d7932078e5",
       "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "acb13295a3164196cc717c32af08787166e6946f"
     }
