@@ -74,10 +74,6 @@
         "alertedAt": "2026-08-10T15:45:42.943Z",
         "reason": "airing"
       },
-      "61987": {
-        "alertedAt": "2026-09-25T17:55:30.894Z",
-        "reason": "upcoming"
-      },
       "62811": {
         "alertedAt": "2026-07-30T17:20:31.143Z",
         "reason": "airing"
@@ -347,18 +343,6 @@
           "broadcast": null,
           "coverUrl": "https://cdn.myanimelist.net/images/anime/1862/121020l.jpg",
           "numEpisodes": 10
-        },
-        {
-          "malId": 61987,
-          "title": "Kusuriya no Hitorigoto 3rd Season",
-          "status": "not_yet_aired",
-          "startDate": "2026-10-02",
-          "broadcast": {
-            "dayOfWeek": "friday",
-            "startTime": "23:00"
-          },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1949/159521l.jpg",
-          "numEpisodes": null
         },
         {
           "malId": 62841,
