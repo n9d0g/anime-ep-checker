@@ -61,6 +61,21 @@
       "crunchyrollUrl": "https://crunchyroll.com/series/G3KHEVDJ7/the-apothecary-diaries",
       "seriesId": "G3KHEVDJ7",
       "malId": 61987
+    },
+    {
+      "id": "ao-no-hako-season-2",
+      "title": "Ao no Hako Season 2",
+      "provider": "netflix",
+      "schedule": {
+        "mode": "ongoing",
+        "startAt": "2026-10-04T08:30:00.000Z",
+        "startEpisode": 1,
+        "episodeCount": null,
+        "premiereBatchSize": 1
+      },
+      "netflixUrl": "https://www.netflix.com/us/title/81663323?s=i&trkid=13747225&shareType=Title&shareUuid=2FE83D9D-BB1B-4DC7-A9D8-2B9ECBFCEFF0&trg=cp&unifiedEntityIdEncoded=Video%3A81663323&vlang=en",
+      "netflixId": "81663323",
+      "malId": 61323
     }
   ]
 }
