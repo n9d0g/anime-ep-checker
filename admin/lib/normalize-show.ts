@@ -2,8 +2,8 @@ import {
   parseDisneyIdFromUrl,
   parseNetflixIdFromUrl,
   parseSeriesIdFromUrl,
-  slugify,
 } from './github'
+import { slugify } from './slugify'
 import { fromDatetimeLocalValue } from './time'
 import type { Show, ShowFormValues, ShowProvider } from './types'
 

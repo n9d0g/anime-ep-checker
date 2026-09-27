@@ -1,4 +1,4 @@
-import { slugify } from './github'
+import { slugify } from './slugify'
 import { emptyShowForm, type PlanToWatchSnapshotEntry, type ShowFormValues } from './types'
 
 export type UnknownWatchField = 'provider' | 'startAt' | 'episodeCount'
