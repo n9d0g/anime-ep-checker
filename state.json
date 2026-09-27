@@ -66,10 +66,6 @@
     },
     "disneyCookieAlertSentAt": "2026-07-27T16:30:34.187Z",
     "planToWatchAlerts": {
-      "61323": {
-        "alertedAt": "2026-09-27T18:05:39.776Z",
-        "reason": "upcoming"
-      },
       "61483": {
         "alertedAt": "2026-08-10T15:45:42.943Z",
         "reason": "airing"
@@ -83,18 +79,6 @@
     "planToWatch": {
       "updatedAt": "2026-09-27T19:00:55.236Z",
       "entries": [
-        {
-          "malId": 61323,
-          "title": "Ao no Hako Season 2",
-          "status": "not_yet_aired",
-          "startDate": "2026-10-04",
-          "broadcast": {
-            "dayOfWeek": "sunday",
-            "startTime": "16:30"
-          },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1990/160267l.jpg",
-          "numEpisodes": null
-        },
         {
           "malId": 36649,
           "title": "Banana Fish",
