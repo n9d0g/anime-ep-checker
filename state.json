@@ -19,23 +19,15 @@
       "discussionUrlEpisode": 1179
     },
     "mushoku-tensei-s3": {
-      "lastEpisodeId": "GE00374465JAJP",
-      "lastEpisodeNumber": "13",
-      "lastEpisodeTitle": "The Diary",
-      "lastNotifiedAt": "2026-09-20T15:55:48.219Z",
+      "lastEpisodeId": "GE00374466JAJP",
+      "lastEpisodeNumber": "14",
+      "lastEpisodeTitle": "Resolve",
+      "lastNotifiedAt": "2026-09-27T15:55:40.745Z",
       "seasonId": "GS00374452JAJP",
       "seasonTitle": "Season 3",
       "waitingNotifiedForEpisode": null,
-      "malMeanScore": 8.65,
-      "googleCalendarEvents": {
-        "14": {
-          "eventId": "clt5seq9l4urcntpsu3hclf0qg",
-          "startAt": "2026-09-27T16:00:00.000Z"
-        }
-      },
-      "malScoreAlertedAt": "2026-09-22T17:40:46.705Z",
-      "discussionUrl": "https://www.reddit.com/r/anime/comments/1wljcy8/mushoku_tensei_jobless_reincarnation_season_3/",
-      "discussionUrlEpisode": 13
+      "malMeanScore": 8.71,
+      "googleCalendarEvents": null
     },
     "bleach": {
       "lastEpisodeId": "anilist-60636-8",
@@ -631,8 +623,8 @@
       ]
     },
     "watchingDashboardHashes": {
-      "one-piece": "14b7201a76efbcfbb3afd2cac3b69f758843b069",
-      "mushoku-tensei-s3": "2427e82c20b5478cddf769f9aedad2e15c893e44",
+      "one-piece": "7e70b82248d38554b320c8f7d20ded17b6c93119",
+      "mushoku-tensei-s3": "e1f0ce870ab62cea22e5eb38d7aad5587e4ecaa6",
       "bleach": "1d001c7a475e41d9616a3c5c6b2859d7932078e5",
       "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "acb13295a3164196cc717c32af08787166e6946f"
     }
