@@ -63,6 +63,29 @@ function PlanToWatchIcon() {
   )
 }
 
+function OnHoldIcon() {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect
+        x="4.25"
+        y="3.25"
+        width="2.5"
+        height="9.5"
+        rx="0.75"
+        fill="currentColor"
+      />
+      <rect
+        x="9.25"
+        y="3.25"
+        width="2.5"
+        height="9.5"
+        rx="0.75"
+        fill="currentColor"
+      />
+    </svg>
+  )
+}
+
 function LogOutIcon() {
   return (
     <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -159,6 +182,19 @@ export function TopHeader() {
                   <WatchingIcon />
                 </MenuIcon>
                 Watching
+              </Link>
+              <Link
+                className={`profile-menu-item profile-menu-link${
+                  pathname === '/on-hold' ? ' active' : ''
+                }`}
+                href="/on-hold"
+                role="menuitem"
+                onClick={() => setProfileMenuOpen(false)}
+              >
+                <MenuIcon>
+                  <OnHoldIcon />
+                </MenuIcon>
+                On hold
               </Link>
               <Link
                 className={`profile-menu-item profile-menu-link${

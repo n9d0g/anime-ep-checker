@@ -375,6 +375,7 @@ export default function AdminPage() {
     null
   )
   const [completingShow, setCompletingShow] = useState(false)
+  const [holdingShowId, setHoldingShowId] = useState<string | null>(null)
   const showsRef = useRef(shows)
   const baselineRef = useRef(baseline)
   const savingRef = useRef(saving)
@@ -834,6 +835,59 @@ export default function AdminPage() {
       )
     } finally {
       setCompletingShow(false)
+    }
+  }
+
+  async function putShowOnHold(show: ShowFormValues): Promise<void> {
+    if (!show.id || !usesMalProgress(show)) {
+      return
+    }
+
+    const malId = Number(show.malId)
+    if (!Number.isFinite(malId) || malId < 1) {
+      return
+    }
+
+    const label = show.title.trim() || show.id
+    if (
+      !window.confirm(
+        `Put "${label}" on hold? It will be removed from tracked shows and marked on hold on MyAnimeList.`
+      )
+    ) {
+      return
+    }
+
+    setHoldingShowId(show.id)
+
+    try {
+      const response = await noStoreFetch('/api/mal/on-hold', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ malId, showId: show.id }),
+      })
+
+      const data = (await response.json()) as {
+        error?: string
+        cleanupTriggered?: boolean
+      }
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to put show on hold')
+      }
+
+      removeShowFromLocalAfterComplete(show.id)
+
+      toast.success(
+        data.cleanupTriggered
+          ? 'On hold on MAL. Discord and calendar cleanup will run shortly.'
+          : 'On hold on MAL and removed from tracked shows.'
+      )
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to put show on hold'
+      )
+    } finally {
+      setHoldingShowId(null)
     }
   }
 
@@ -1517,14 +1571,28 @@ export default function AdminPage() {
 
                         <div className="actions">
                           {show.id && usesMalProgress(show) ? (
-                            <button
-                              className="btn btn-secondary"
-                              type="button"
-                              disabled={completingShow}
-                              onClick={() => openCompletePrompt(show)}
-                            >
-                              Mark as completed
-                            </button>
+                            <>
+                              <button
+                                className="btn btn-secondary"
+                                type="button"
+                                disabled={completingShow}
+                                onClick={() => openCompletePrompt(show)}
+                              >
+                                Mark as completed
+                              </button>
+                              <button
+                                className="btn btn-secondary"
+                                type="button"
+                                disabled={
+                                  completingShow || holdingShowId === show.id
+                                }
+                                onClick={() => void putShowOnHold(show)}
+                              >
+                                {holdingShowId === show.id
+                                  ? 'Saving…'
+                                  : 'On hold'}
+                              </button>
+                            </>
                           ) : null}
                           <button
                             className="btn btn-danger"

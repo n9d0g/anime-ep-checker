@@ -67,6 +67,16 @@ export interface PlanToWatchSnapshot {
   entries: PlanToWatchSnapshotEntry[]
 }
 
+export interface OnHoldSnapshotEntry {
+  show: Show
+  heldAt: string
+}
+
+export interface OnHoldSnapshot {
+  updatedAt: string
+  entries: OnHoldSnapshotEntry[]
+}
+
 export interface StateFile {
   shows: Record<string, ShowState>
   meta?: {
@@ -81,6 +91,7 @@ export interface StateFile {
       { alertedAt: string; reason: PlanToWatchAlertReason }
     >
     planToWatch?: PlanToWatchSnapshot
+    onHold?: OnHoldSnapshot
   }
 }
 

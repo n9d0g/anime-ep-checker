@@ -159,6 +159,29 @@ export async function saveShowsFileRetrying(
   throw lastError
 }
 
+export async function saveStateFileRetrying(
+  state: unknown,
+  message = 'chore: 🧹 update episode progress from admin CMS'
+) {
+  let { sha } = await getStateFile()
+  let lastError: unknown
+
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      await saveStateFile(state, sha, message)
+      return
+    } catch (error) {
+      lastError = error
+      if (!isGithubConflictError(error) || attempt === 2) {
+        throw error
+      }
+      sha = (await getStateFile()).sha
+    }
+  }
+
+  throw lastError
+}
+
 export async function saveStateFile(
   state: unknown,
   sha: string | null,

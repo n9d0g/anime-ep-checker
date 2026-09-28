@@ -369,7 +369,12 @@ export async function adjustMalWatchedEpisode(
   return { updated: true, watched: next, total }
 }
 
-export async function setMalWatchingStatus(malId: number): Promise<void> {
+export type MalUserListStatus = 'watching' | 'on_hold'
+
+export async function setMalAnimeListStatus(
+  malId: number,
+  status: MalUserListStatus
+): Promise<void> {
   const accessToken = await getMalAccessToken()
   const updateResponse = await fetch(
     `https://api.myanimelist.net/v2/anime/${malId}/my_list_status`,
@@ -379,9 +384,7 @@ export async function setMalWatchingStatus(malId: number): Promise<void> {
         Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: new URLSearchParams({
-        status: 'watching',
-      }),
+      body: new URLSearchParams({ status }),
     }
   )
 
@@ -389,6 +392,10 @@ export async function setMalWatchingStatus(malId: number): Promise<void> {
     const body = await updateResponse.text()
     throw new Error(`MAL list update failed (${updateResponse.status}): ${body}`)
   }
+}
+
+export async function setMalWatchingStatus(malId: number): Promise<void> {
+  await setMalAnimeListStatus(malId, 'watching')
 }
 
 export async function completeMalAnime(
