@@ -73,7 +73,7 @@
         "episodeCount": null,
         "premiereBatchSize": 1
       },
-      "netflixUrl": "https://www.netflix.com/us/title/81663323?s=i&trkid=13747225&shareType=Title&shareUuid=2FE83D9D-BB1B-4DC7-A9D8-2B9ECBFCEFF0&trg=cp&unifiedEntityIdEncoded=Video%3A81663323&vlang=en",
+      "netflixUrl": "https://www.netflix.com/title/81663323?shareUuid=2FE83D9D-BB1B-4DC7-A9D8-2B9ECBFCEFF0",
       "netflixId": "81663323",
       "malId": 61323
     }
