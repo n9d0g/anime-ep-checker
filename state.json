@@ -1,23 +1,5 @@
 {
   "shows": {
-    "one-piece": {
-      "lastEpisodeId": "GE00376431JAJP",
-      "lastEpisodeNumber": "1180",
-      "lastEpisodeTitle": "Episode 1180",
-      "lastNotifiedAt": "2026-09-27T16:05:37.513Z",
-      "seasonId": "GS00376439JAJP",
-      "seasonTitle": "Elbaph (1156-current)",
-      "waitingNotifiedForEpisode": null,
-      "malMeanScore": 8.72,
-      "googleCalendarEvents": {
-        "1181": {
-          "eventId": "k3utlhusor984eqbtm262jk0i0",
-          "startAt": "2026-10-04T16:00:00.000Z"
-        }
-      },
-      "discussionUrl": "https://www.reddit.com/r/anime/comments/1wrnyli/one_piece_episode_1180_discussion/",
-      "discussionUrlEpisode": 1180
-    },
     "bleach": {
       "lastEpisodeId": "anilist-60636-8",
       "lastEpisodeNumber": "8",
@@ -60,7 +42,6 @@
   "meta": {
     "watchingDashboardMessageId": null,
     "watchingDashboardMessageIds": {
-      "one-piece": "1531376914558615716",
       "bleach": "1531685830114939012",
       "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "1537064482776416328",
       "kusuriya-no-hitorigoto-3rd-season": "1554207487400484976",
@@ -635,7 +616,6 @@
       ]
     },
     "watchingDashboardHashes": {
-      "one-piece": "45d9df178ced3057d7de41cbe8229686a325bc82",
       "bleach": "0f0eb32a8bf84057efa2131580430435fbedfd40",
       "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "acb13295a3164196cc717c32af08787166e6946f",
       "kusuriya-no-hitorigoto-3rd-season": "07b66cc3ff8513268c4178b2d5628f0175b8cc2d",
