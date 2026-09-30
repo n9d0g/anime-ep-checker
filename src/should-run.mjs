@@ -1,6 +1,6 @@
 // Zero-dep gate for GitHub Actions (plain Node, no pnpm install).
 // Schedule logic mirrors src/schedule.ts — keep window constants and helpers in sync.
-/* global process, console */
+/* global process, console, fetch */
 import { appendFileSync, readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -186,6 +186,130 @@ function hasOrphanedShows(shows, state) {
   return false
 }
 
+// Keep in sync with src/reddit-feeds.ts
+const REDDIT_USER_AGENT = 'anime-ep-checker/1.0'
+const REDDIT_USER_FEEDS = [
+  {
+    id: 'animecorner',
+    username: 'animecorner',
+    titlePattern: /^top\s*10\b/i,
+  },
+  {
+    id: 'abysswatcherbel',
+    username: 'Abysswatcherbel',
+  },
+]
+
+function decodeXmlEntities(value) {
+  return value
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+}
+
+function extractPostId(rawId) {
+  const trimmed = rawId.trim()
+  const t3Match = trimmed.match(/(t3_[a-z0-9]+)/i)
+  if (t3Match) {
+    return t3Match[1]
+  }
+  return trimmed
+}
+
+function parseRedditUserFeedEntries(xml) {
+  const entries = []
+  const entryRegex = /<entry>([\s\S]*?)<\/entry>/g
+
+  for (const match of xml.matchAll(entryRegex)) {
+    const block = match[1]
+    const title = block.match(/<title[^>]*>([\s\S]*?)<\/title>/)?.[1] ?? ''
+    const rawId = block.match(/<id>([\s\S]*?)<\/id>/)?.[1] ?? ''
+    const link =
+      block.match(/<link[^>]*rel="alternate"[^>]*href="([^"]+)"/)?.[1] ??
+      block.match(/<link[^>]*href="([^"]+)"[^>]*rel="alternate"/)?.[1] ??
+      block.match(/<link[^>]*href="([^"]+)"/)?.[1] ??
+      ''
+
+    if (!title || !link) {
+      continue
+    }
+
+    const decodedTitle = decodeXmlEntities(title.trim())
+    if (decodedTitle.toLowerCase().startsWith('submitted by ')) {
+      continue
+    }
+
+    entries.push({
+      id: extractPostId(decodeXmlEntities(rawId)),
+      title: decodedTitle,
+    })
+  }
+
+  return entries
+}
+
+function matchesRedditFeedTitle(feed, title) {
+  if (!feed.titlePattern) {
+    return true
+  }
+  return feed.titlePattern.test(title)
+}
+
+async function fetchRedditUserFeedEntries(username) {
+  const url = `https://www.reddit.com/user/${username}/submitted.rss?limit=25`
+  const response = await fetch(url, {
+    headers: {
+      'User-Agent': REDDIT_USER_AGENT,
+      Accept:
+        'application/atom+xml,application/rss+xml,application/xml,text/xml,*/*',
+    },
+  })
+
+  if (response.status === 429) {
+    console.warn(
+      `Reddit user RSS rate limited (429) for u/${username}; gate treats as no new posts`
+    )
+    return null
+  }
+
+  if (!response.ok) {
+    console.warn(
+      `Reddit user RSS failed (${response.status}) for u/${username}; gate treats as no new posts`
+    )
+    return null
+  }
+
+  const xml = await response.text()
+  return parseRedditUserFeedEntries(xml)
+}
+
+async function needsRedditFeedCheck(state) {
+  const feedState = state.meta?.redditUserFeeds ?? {}
+
+  for (const feed of REDDIT_USER_FEEDS) {
+    if (!feedState[feed.id]) {
+      return true
+    }
+
+    const entries = await fetchRedditUserFeedEntries(feed.username)
+    if (!entries) {
+      continue
+    }
+
+    const seen = new Set(feedState[feed.id].seenPostIds ?? [])
+    const hasNew = entries.some(
+      (entry) => matchesRedditFeedTitle(feed, entry.title) && !seen.has(entry.id)
+    )
+    if (hasNew) {
+      return true
+    }
+  }
+
+  return false
+}
+
 const showsFile = readJson(SHOWS_PATH, { shows: [] })
 const state = readJson(STATE_PATH, { shows: {} })
 const now = new Date()
@@ -193,7 +317,9 @@ const shows = showsFile.shows ?? []
 const needsCheck = shows.some((show) => showNeedsCheck(show, state, now))
 const needsPtwCheck = needsPlanToWatchCheck(state, now)
 const hasOrphans = hasOrphanedShows(shows, state)
-const shouldRun = needsCheck || needsPtwCheck || hasOrphans
+const needsRedditCheck = await needsRedditFeedCheck(state)
+const shouldRun =
+  needsCheck || needsPtwCheck || hasOrphans || needsRedditCheck
 const activeModes = getActiveCheckModes(shows, state, now)
 
 const outputFile = process.env.GITHUB_OUTPUT
@@ -212,8 +338,11 @@ if (shouldRun) {
   if (hasOrphans) {
     console.log('Removed show still present in state; running cleanup.')
   }
+  if (needsRedditCheck) {
+    console.log('Reddit user feed check needed (new post or baseline).')
+  }
 } else {
   console.log(
-    'No shows in active check window and plan-to-watch check not due; skipping full check.'
+    'No shows in active check window, plan-to-watch check not due, and no new Reddit posts; skipping full check.'
   )
 }

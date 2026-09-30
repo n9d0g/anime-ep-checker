@@ -1,8 +1,18 @@
-const USER_AGENT = 'anime-ep-checker/1.0'
+export const REDDIT_USER_AGENT = 'anime-ep-checker/1.0'
+const USER_AGENT = REDDIT_USER_AGENT
 const AUTOLOVEPON_AUTHOR = 'AutoLovepon'
 const RSS_SEARCH_URL = 'https://www.reddit.com/r/anime/search.rss'
 
 let redditRateLimited = false
+
+export interface RedditAtomEntry {
+  id: string
+  title: string
+  href: string
+  author: string
+  published: string | null
+  subreddit: string | null
+}
 
 interface AtomEntry {
   title: string
@@ -66,14 +76,42 @@ function matchesDiscussionThread(
   )
 }
 
-function parseAtomEntries(xml: string): AtomEntry[] {
-  const entries: AtomEntry[] = []
+function extractPostId(rawId: string): string {
+  const trimmed = rawId.trim()
+  const t3Match = trimmed.match(/(t3_[a-z0-9]+)/i)
+  if (t3Match) {
+    return t3Match[1]
+  }
+  return trimmed
+}
+
+function parseSubredditFromEntry(block: string): string | null {
+  const categories = [
+    ...block.matchAll(/<category[^>]*term="([^"]+)"/g),
+  ].map((match) => match[1])
+
+  for (const term of categories) {
+    if (!term.startsWith('u_')) {
+      return term
+    }
+  }
+
+  return null
+}
+
+export function parseAtomEntries(xml: string): RedditAtomEntry[] {
+  const entries: RedditAtomEntry[] = []
   const entryRegex = /<entry>([\s\S]*?)<\/entry>/g
 
   for (const match of xml.matchAll(entryRegex)) {
     const block = match[1]
     const title = block.match(/<title[^>]*>([\s\S]*?)<\/title>/)?.[1] ?? ''
     const author = block.match(/<name>([\s\S]*?)<\/name>/)?.[1] ?? ''
+    const rawId = block.match(/<id>([\s\S]*?)<\/id>/)?.[1] ?? ''
+    const published =
+      block.match(/<published>([\s\S]*?)<\/published>/)?.[1] ??
+      block.match(/<updated>([\s\S]*?)<\/updated>/)?.[1] ??
+      null
     const link =
       block.match(/<link[^>]*rel="alternate"[^>]*href="([^"]+)"/)?.[1] ??
       block.match(/<link[^>]*href="([^"]+)"[^>]*rel="alternate"/)?.[1] ??
@@ -81,15 +119,31 @@ function parseAtomEntries(xml: string): AtomEntry[] {
       ''
 
     if (title && link) {
+      const decodedTitle = decodeXmlEntities(title.trim())
+      if (decodedTitle.toLowerCase().startsWith('submitted by ')) {
+        continue
+      }
+
       entries.push({
-        title: decodeXmlEntities(title.trim()),
+        id: extractPostId(decodeXmlEntities(rawId)),
+        title: decodedTitle,
         href: link,
         author: author.trim(),
+        published: published?.trim() ?? null,
+        subreddit: parseSubredditFromEntry(block),
       })
     }
   }
 
   return entries
+}
+
+function parseAtomEntriesForDiscussion(xml: string): AtomEntry[] {
+  return parseAtomEntries(xml).map((entry) => ({
+    title: entry.title,
+    href: entry.href,
+    author: entry.author,
+  }))
 }
 
 function isAutoLoveponEntry(entry: AtomEntry): boolean {
@@ -148,7 +202,7 @@ async function fetchAutoLoveponDiscussionUrl(
   }
 
   const xml = await response.text()
-  const entries = parseAtomEntries(xml)
+  const entries = parseAtomEntriesForDiscussion(xml)
 
   for (const entry of entries) {
     if (!isAutoLoveponEntry(entry)) {

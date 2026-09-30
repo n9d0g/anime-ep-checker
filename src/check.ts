@@ -29,6 +29,7 @@ import {
 import { fetchMalAnimeDetails } from './mal.js'
 import { syncMalScoreAlerts } from './mal-score.js'
 import { syncPlanToWatchAlerts } from './plan-to-watch.js'
+import { syncRedditUserFeeds } from './reddit-feeds.js'
 import { writeStateCommitMessage } from './state-commit.js'
 import {
   DisneyAuthError,
@@ -689,6 +690,25 @@ export async function checkShows({
         }`
       )
     }
+  }
+
+  try {
+    const redditResult = await syncRedditUserFeeds({
+      state,
+      discord,
+      now,
+      dryRun,
+    })
+    if (redditResult.changed) {
+      stateChangeReasons.push(...redditResult.reasons)
+      stateChanged = true
+    }
+  } catch (error) {
+    console.warn(
+      `Reddit user feed sync failed: ${
+        error instanceof Error ? error.message : error
+      }`
+    )
   }
 
   if (!dryRun) {

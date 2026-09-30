@@ -56,6 +56,18 @@ interface PlanToWatchAlertInput {
   reason: PlanToWatchAlertReason
 }
 
+export interface RedditPostAlertPost {
+  title: string
+  href: string
+  subreddit: string | null
+}
+
+interface RedditPostAlertInput {
+  discord: DiscordConfig
+  username: string
+  post: RedditPostAlertPost
+}
+
 function formatBroadcastLabel(
   broadcast: MalPlanToWatchEntry['broadcast']
 ): string | null {
@@ -248,6 +260,56 @@ export async function sendMalScoreAlert({
   const payload = { embeds: [embed] }
 
   if (hasBotConfig(discord)) {
+    await postBotMessage(discord.botToken!, discord.channelId!, payload)
+    return
+  }
+
+  if (discord.webhookUrl) {
+    await postWebhook(discord.webhookUrl, payload)
+    return
+  }
+
+  throw new Error(
+    'Discord not configured. Set DISCORD_BOT_TOKEN + DISCORD_CHANNEL_ID (preferred) or DISCORD_WEBHOOK_URL.'
+  )
+}
+
+export async function sendRedditPostAlert({
+  discord,
+  username,
+  post,
+}: RedditPostAlertInput): Promise<void> {
+  const subLabel = post.subreddit ? `r/${post.subreddit}` : 'Reddit'
+  const embed = {
+    title: post.title,
+    url: post.href,
+    description: `New post by u/${username} in ${subLabel}`,
+    color: 0xff4500,
+    timestamp: new Date().toISOString(),
+    footer: { text: 'Anime Episode Checker' },
+  }
+
+  const components = [
+    {
+      type: 1,
+      components: [
+        {
+          type: 2,
+          style: 5,
+          label: 'Reddit',
+          url: post.href,
+        },
+      ],
+    },
+  ]
+
+  const payload: Record<string, unknown> = {
+    content: `**${post.title}** — new post by u/${username}`,
+    embeds: [embed],
+  }
+
+  if (hasBotConfig(discord)) {
+    payload.components = components
     await postBotMessage(discord.botToken!, discord.channelId!, payload)
     return
   }

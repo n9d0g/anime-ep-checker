@@ -226,6 +226,17 @@ Set Discord/Netflix/MAL env vars in `.env` at the repo root for live checks.
 
 r/anime discussion links resolve to the AutoLovepon thread permalink when available (via Reddit search RSS), otherwise fall back to an r/anime search URL. No Reddit API secrets required.
 
+### Reddit user post alerts
+
+The checker watches public submission RSS feeds for selected Reddit accounts and posts to the same Discord channel as episode alerts (`DISCORD_CHANNEL_ID` or webhook).
+
+| Account | Filter |
+| --- | --- |
+| [u/animecorner](https://www.reddit.com/user/animecorner/) | Titles matching `Top 10 …` (weekly rankings and anticipated lists) |
+| [u/Abysswatcherbel](https://www.reddit.com/user/Abysswatcherbel/) | All posts (weekly r/anime karma ranking threads) |
+
+The Actions gate (`src/should-run.mjs`) fetches these feeds every 5 minutes; a full check runs when a feed has no baseline in `state.json` or when a new matching post appears. The first successful check **baselines** current posts without alerting; only newer posts notify afterward. Seen post IDs are stored under `state.meta.redditUserFeeds`.
+
 ### Discord episode alerts (`#anime-alerts`)
 
 Episode alerts use a **classic embed** with a MAL cover thumbnail, plus a top-level message line (e.g. **Yani Neko — Episode 4 is out**) so mobile notifications show readable text. Metadata (season, score, countdown, timing) lives in the embed; Watch / r/anime / MAL are link buttons below. **Mark watched** is not on alerts — update progress in `#watching` instead. Requires `DISCORD_BOT_TOKEN` + `DISCORD_CHANNEL_ID`; webhook fallback sends a simplified embed with markdown links.
@@ -312,6 +323,7 @@ Shows your MAL plan-to-watch list from `state.meta.planToWatch`, grouped into **
 | [`src/disney.ts`](src/disney.ts) | Disney+ explore API client (refresh token auth) |
 | [`src/anilist.ts`](src/anilist.ts) | AniList airing schedule fallback for Disney+ shows |
 | [`src/reddit.ts`](src/reddit.ts) | r/anime discussion lookup (AutoLovepon RSS + search fallback) |
+| [`src/reddit-feeds.ts`](src/reddit-feeds.ts) | Reddit user submission feeds + Discord alerts |
 | [`src/discord.ts`](src/discord.ts) | Discord bot/webhook alerts + score alerts |
 | [`src/discord-format.ts`](src/discord-format.ts) | Embed formatting helpers |
 | [`src/discord-dashboard.ts`](src/discord-dashboard.ts) | #watching dashboard sync |

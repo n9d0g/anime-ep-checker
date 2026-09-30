@@ -92,6 +92,10 @@ export interface StateFile {
     >
     planToWatch?: PlanToWatchSnapshot
     onHold?: OnHoldSnapshot
+    redditUserFeeds?: Record<
+      string,
+      { seenPostIds: string[]; checkedAt: string }
+    >
   }
 }
 
