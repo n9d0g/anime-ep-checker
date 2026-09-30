@@ -31,12 +31,7 @@
       "seasonTitle": "Season 4",
       "waitingNotifiedForEpisode": null,
       "malMeanScore": 9.18,
-      "googleCalendarEvents": {
-        "19": {
-          "eventId": "8ogb350uu1bln3dupk6sb4bamc",
-          "startAt": "2026-09-30T14:00:00.000Z"
-        }
-      },
+      "googleCalendarEvents": null,
       "malScoreAlertedAt": "2026-09-30T13:30:38.445Z"
     }
   },
@@ -618,7 +613,7 @@
     },
     "watchingDashboardHashes": {
       "bleach": "0f0eb32a8bf84057efa2131580430435fbedfd40",
-      "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "41b388d60071693f64ab0c494d3f02e82a9e600e",
+      "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "f6b368a5a7c8a18d9ca8a20ad123cdba49e272a2",
       "kusuriya-no-hitorigoto-3rd-season": "07b66cc3ff8513268c4178b2d5628f0175b8cc2d",
       "ao-no-hako-season-2": "b0327dbba5fc100c962385292b2745649ccef453"
     },
