@@ -30,13 +30,14 @@
       "seasonId": "GS00371932JAJP",
       "seasonTitle": "Season 4",
       "waitingNotifiedForEpisode": null,
-      "malMeanScore": 9.11,
+      "malMeanScore": 9.18,
       "googleCalendarEvents": {
         "19": {
           "eventId": "8ogb350uu1bln3dupk6sb4bamc",
           "startAt": "2026-09-30T14:00:00.000Z"
         }
-      }
+      },
+      "malScoreAlertedAt": "2026-09-30T13:30:38.445Z"
     }
   },
   "meta": {
@@ -617,7 +618,7 @@
     },
     "watchingDashboardHashes": {
       "bleach": "0f0eb32a8bf84057efa2131580430435fbedfd40",
-      "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "acb13295a3164196cc717c32af08787166e6946f",
+      "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "53bb751ba6c52a01b1b0035b08370797ca54b52d",
       "kusuriya-no-hitorigoto-3rd-season": "07b66cc3ff8513268c4178b2d5628f0175b8cc2d",
       "ao-no-hako-season-2": "b0327dbba5fc100c962385292b2745649ccef453"
     },
@@ -644,6 +645,38 @@
           "heldAt": "2026-09-28T21:46:38.715Z"
         }
       ]
+    },
+    "redditUserFeeds": {
+      "animecorner": {
+        "seenPostIds": [
+          "t3_1wpx3u6",
+          "t3_1wjoys6",
+          "t3_1wdeyxm",
+          "t3_1w73q05",
+          "t3_1w0pgu6",
+          "t3_1vugcaw",
+          "t3_1vo9rt5",
+          "t3_1vhzord",
+          "t3_1vbpufo",
+          "t3_1v5b0c1",
+          "t3_1uyzgyd",
+          "t3_1usxxgy",
+          "t3_1ug8a3j",
+          "t3_1ua807r",
+          "t3_1u3vmop",
+          "t3_1txkslo",
+          "t3_1tr0kqb",
+          "t3_1tkj6zn",
+          "t3_1tdw00s",
+          "t3_1t77lqa",
+          "t3_1t0sbgt",
+          "t3_1suf672",
+          "t3_1so3gn1",
+          "t3_1shmi9o",
+          "t3_1s7xema"
+        ],
+        "checkedAt": "2026-09-30T13:30:38.445Z"
+      }
     }
   }
 }
