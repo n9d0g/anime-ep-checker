@@ -21,24 +21,12 @@
       },
       "discussionUrl": "https://www.reddit.com/r/anime/comments/1wefsn2/bleach_thousandyear_blood_war_the_calamity_bleach/",
       "discussionUrlEpisode": 8
-    },
-    "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": {
-      "lastEpisodeId": "GE00345579JAJP",
-      "lastEpisodeNumber": "19",
-      "lastEpisodeTitle": "Episode 19",
-      "lastNotifiedAt": "2026-09-30T14:05:39.365Z",
-      "seasonId": "GS00371932JAJP",
-      "seasonTitle": "Season 4",
-      "waitingNotifiedForEpisode": null,
-      "malMeanScore": 9.18,
-      "googleCalendarEvents": null
     }
   },
   "meta": {
     "watchingDashboardMessageId": null,
     "watchingDashboardMessageIds": {
       "bleach": "1531685830114939012",
-      "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "1537064482776416328",
       "kusuriya-no-hitorigoto-3rd-season": "1554207487400484976",
       "ao-no-hako-season-2": "1554207496888131635"
     },
@@ -612,7 +600,6 @@
     },
     "watchingDashboardHashes": {
       "bleach": "0f0eb32a8bf84057efa2131580430435fbedfd40",
-      "re-zero-kara-hajimeru-isekai-seikatsu-4th-season": "bebc2278506db1e218b0993918ecb6331868ba2f",
       "kusuriya-no-hitorigoto-3rd-season": "07b66cc3ff8513268c4178b2d5628f0175b8cc2d",
       "ao-no-hako-season-2": "b0327dbba5fc100c962385292b2745649ccef453"
     },
