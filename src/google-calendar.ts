@@ -38,9 +38,15 @@ interface ServiceAccountCredentials {
 
 interface CalendarEventListItem {
   id: string
+  start?: { dateTime?: string }
   extendedProperties?: {
     private?: Record<string, string>
   }
+}
+
+interface ListedCalendarEvent {
+  id: string
+  startAt: string | null
 }
 
 interface CalendarEventListResponse {
@@ -314,12 +320,27 @@ interface DesiredCalendarEpisode {
   startAtIso: string
 }
 
+function indexListedEventsByEpisode(
+  events: CalendarEventListItem[]
+): Map<string, ListedCalendarEvent> {
+  const map = new Map<string, ListedCalendarEvent>()
+  for (const event of events) {
+    const episode = event.extendedProperties?.private?.[EPISODE_PROP]
+    if (episode) {
+      map.set(episode, {
+        id: event.id,
+        startAt: event.start?.dateTime ?? null,
+      })
+    }
+  }
+  return map
+}
+
 function getDesiredCalendarEpisodes(
   show: Show,
-  showState: ShowState,
+  lastEpisodeNumber: number | null,
   now: Date
 ): DesiredCalendarEpisode[] {
-  const lastEpisodeNumber = parseEpisodeNumber(showState.lastEpisodeNumber)
   const nextEpisode = getNextExpectedEpisode(show.schedule, lastEpisodeNumber)
   if (nextEpisode === null) {
     return []
@@ -445,6 +466,81 @@ export async function clearGoogleCalendarEventsForShow(
   return changed
 }
 
+async function syncPreBaselineCalendarEvents({
+  config,
+  show,
+  desired,
+  dryRun,
+  showTitle,
+}: {
+  config: GoogleCalendarConfig
+  show: Show
+  desired: DesiredCalendarEpisode[]
+  dryRun: boolean
+  showTitle: string
+}): Promise<boolean> {
+  const desiredKeys = new Set(desired.map((entry) => String(entry.episode)))
+  const listedEvents = dryRun
+    ? []
+    : await listCalendarEventsForShow(config, show.id)
+  const listedByEpisode = indexListedEventsByEpisode(listedEvents)
+
+  const deleteIds = new Set<string>()
+  for (const [episode, listed] of listedByEpisode.entries()) {
+    if (!desiredKeys.has(episode)) {
+      deleteIds.add(listed.id)
+    }
+  }
+
+  for (const eventId of deleteIds) {
+    if (dryRun) {
+      console.log(`  Would delete Google Calendar event ${eventId} for ${showTitle}`)
+      continue
+    }
+    await deleteCalendarEvent(config, eventId)
+    console.log(`  Google Calendar event deleted for ${showTitle}`)
+  }
+
+  for (const entry of desired) {
+    const key = String(entry.episode)
+    const body = buildEventBody(show, entry.episode, entry.expectedAt, null)
+    const listed = listedByEpisode.get(key)
+    const existingId = listed?.id ?? null
+    const listedStartAt = listed?.startAt ?? null
+
+    if (
+      existingId &&
+      listedStartAt &&
+      listedStartAt === entry.startAtIso
+    ) {
+      continue
+    }
+
+    if (dryRun) {
+      if (existingId) {
+        console.log(
+          `  Would update Google Calendar event for ${showTitle} ep ${entry.episode}`
+        )
+      } else {
+        console.log(
+          `  Would create Google Calendar event for ${showTitle} ep ${entry.episode}`
+        )
+      }
+      continue
+    }
+
+    if (existingId) {
+      await updateCalendarEvent(config, existingId, body)
+      console.log(`  Google Calendar event updated for ${showTitle} ep ${entry.episode}`)
+    } else {
+      await createCalendarEvent(config, body)
+      console.log(`  Google Calendar event created for ${showTitle} ep ${entry.episode}`)
+    }
+  }
+
+  return false
+}
+
 async function syncCalendarEventsForShow({
   config,
   show,
@@ -460,23 +556,26 @@ async function syncCalendarEventsForShow({
 }): Promise<boolean> {
   const showTitle = show.title || show.id
   const showState = state.shows[show.id]
+  const lastEpisodeNumber = showState
+    ? parseEpisodeNumber(showState.lastEpisodeNumber)
+    : null
+  const desired = getDesiredCalendarEpisodes(show, lastEpisodeNumber, now)
+
   if (!showState) {
-    console.log(`  Skipping Google Calendar for ${showTitle} (not baselined yet)`)
-    return false
+    return syncPreBaselineCalendarEvents({
+      config,
+      show,
+      desired,
+      dryRun,
+      showTitle,
+    })
   }
 
-  const desired = getDesiredCalendarEpisodes(show, showState, now)
   const desiredKeys = new Set(desired.map((entry) => String(entry.episode)))
   let changed = false
 
   const listedEvents = dryRun ? [] : await listCalendarEventsForShow(config, show.id)
-  const listedByEpisode = new Map<string, string>()
-  for (const event of listedEvents) {
-    const episode = event.extendedProperties?.private?.[EPISODE_PROP]
-    if (episode) {
-      listedByEpisode.set(episode, event.id)
-    }
-  }
+  const listedByEpisode = indexListedEventsByEpisode(listedEvents)
 
   const storedMap = showState.googleCalendarEvents ?? {}
   const deleteIds = new Set<string>()
@@ -487,9 +586,9 @@ async function syncCalendarEventsForShow({
     }
   }
 
-  for (const [episode, eventId] of listedByEpisode.entries()) {
+  for (const [episode, listed] of listedByEpisode.entries()) {
     if (!desiredKeys.has(episode)) {
-      deleteIds.add(eventId)
+      deleteIds.add(listed.id)
     }
   }
 
@@ -514,10 +613,11 @@ async function syncCalendarEventsForShow({
     )
     const body = buildEventBody(show, entry.episode, entry.expectedAt, episodeTitle)
     const stored = storedMap[key]
-    const listedId = listedByEpisode.get(key)
-    const existingId = stored?.eventId ?? listedId ?? null
+    const listed = listedByEpisode.get(key)
+    const existingId = stored?.eventId ?? listed?.id ?? null
+    const knownStartAt = stored?.startAt ?? listed?.startAt ?? null
 
-    if (existingId && stored?.startAt === entry.startAtIso) {
+    if (existingId && knownStartAt === entry.startAtIso) {
       nextMap[key] = { eventId: existingId, startAt: entry.startAtIso }
       continue
     }
