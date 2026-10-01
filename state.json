@@ -8,7 +8,7 @@
       "seasonId": "571475d5-8b1a-453f-a57f-26bb4dd13304",
       "seasonTitle": "Season 1",
       "waitingNotifiedForEpisode": 9,
-      "malMeanScore": 9.07,
+      "malMeanScore": 9.02,
       "googleCalendarEvents": {
         "9": {
           "eventId": "2upn0v0hsitcjhhkhtlgtnd26s",
@@ -20,7 +20,8 @@
         }
       },
       "discussionUrl": "https://www.reddit.com/r/anime/comments/1wefsn2/bleach_thousandyear_blood_war_the_calamity_bleach/",
-      "discussionUrlEpisode": 8
+      "discussionUrlEpisode": 8,
+      "malScoreAlertedAt": "2026-10-01T03:55:32.164Z"
     }
   },
   "meta": {
@@ -590,7 +591,7 @@
       ]
     },
     "watchingDashboardHashes": {
-      "bleach": "0f0eb32a8bf84057efa2131580430435fbedfd40",
+      "bleach": "b8633c99997d71799ad5b8b00ddbc4fe383ab020",
       "kusuriya-no-hitorigoto-3rd-season": "07b66cc3ff8513268c4178b2d5628f0175b8cc2d",
       "ao-no-hako-season-2": "05432325070e5661e814df82f69a687af23e3680"
     },
