@@ -29,6 +29,12 @@ export interface ShowsFile {
   shows: Show[]
 }
 
+export interface SeasonEpisodeAvailability {
+  episode: number
+  availableAt: string | null
+  available: boolean
+}
+
 export interface ShowState {
   lastEpisodeId: string
   lastEpisodeNumber: string
@@ -36,6 +42,7 @@ export interface ShowState {
   lastNotifiedAt: string
   seasonId: string
   seasonTitle: string
+  episodeOffset?: number | null
   waitingNotifiedForEpisode?: number | null
   malMeanScore?: number | null
   malScoreAlertedAt?: string | null
@@ -130,6 +137,7 @@ export interface EpisodeSnapshot {
   seasonTitle: string
   episode: ProviderEpisode
   watchUrl: string
+  seasonEpisodes?: SeasonEpisodeAvailability[]
 }
 
 export type TimingStatus = 'unknown' | 'on-time' | 'early' | 'late'

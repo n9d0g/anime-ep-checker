@@ -37,6 +37,7 @@ export interface ShowState {
   lastNotifiedAt: string
   seasonId: string
   seasonTitle: string
+  episodeOffset?: number | null
   waitingNotifiedForEpisode?: number | null
   malMeanScore?: number | null
   malScoreAlertedAt?: string | null

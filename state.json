@@ -22,36 +22,6 @@
       "discussionUrl": "https://www.reddit.com/r/anime/comments/1wefsn2/bleach_thousandyear_blood_war_the_calamity_bleach/",
       "discussionUrlEpisode": 8,
       "malScoreAlertedAt": "2026-10-01T03:55:32.164Z"
-    },
-    "kusuriya-no-hitorigoto-3rd-season": {
-      "lastEpisodeId": "GWDU7300N",
-      "lastEpisodeNumber": "48",
-      "lastEpisodeTitle": "The Beginning",
-      "lastNotifiedAt": "2026-10-01T12:22:25.476Z",
-      "seasonId": "G63VC291N",
-      "seasonTitle": "Season 2",
-      "waitingNotifiedForEpisode": null,
-      "googleCalendarEvents": {
-        "49": {
-          "eventId": "2luh79mtrvvgjs4svl1fcciq4s",
-          "startAt": "2027-09-03T15:00:00.000Z"
-        }
-      }
-    },
-    "ao-no-hako-season-2": {
-      "lastEpisodeId": "81664929",
-      "lastEpisodeNumber": "25",
-      "lastEpisodeTitle": "Even So",
-      "lastNotifiedAt": "2026-10-01T12:22:29.304Z",
-      "seasonId": "81663324",
-      "seasonTitle": "Season 1",
-      "waitingNotifiedForEpisode": null,
-      "googleCalendarEvents": {
-        "26": {
-          "eventId": "b2r93pdc5fiul18tp1sbmksfmg",
-          "startAt": "2027-03-28T08:30:00.000Z"
-        }
-      }
     }
   },
   "meta": {

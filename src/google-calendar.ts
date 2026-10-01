@@ -305,8 +305,10 @@ async function lookupCrunchyrollEpisodeTitle(
     }
 
     const episodes = await getSeasonEpisodes(season.id)
+    const providerEpisode =
+      episodeNumber + (showState.episodeOffset ?? 0)
     const match = episodes.find(
-      (episode) => Number(episode.episode) === episodeNumber
+      (episode) => Number(episode.episode) === providerEpisode
     )
     return match?.title?.trim() || null
   } catch {

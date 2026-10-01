@@ -1,4 +1,9 @@
-import type { CrunchyrollEpisode, CrunchyrollSeason, EpisodeSnapshot } from './types.js'
+import type {
+  CrunchyrollEpisode,
+  CrunchyrollSeason,
+  EpisodeSnapshot,
+  SeasonEpisodeAvailability,
+} from './types.js'
 
 const API_BASE = 'https://beta-api.crunchyroll.com'
 const AUTH_BASIC = 'Basic bm9haWhkZXZtXzZpeWcwYThsMHE6'
@@ -137,6 +142,34 @@ function pickLatestAvailableEpisode(
   })
 }
 
+function buildSeasonEpisodeAvailability(
+  episodes: CrunchyrollEpisode[],
+  now: Date = new Date()
+): SeasonEpisodeAvailability[] {
+  return episodes
+    .map((episode) => {
+      const episodeNumber = parseEpisodeNumber(episode)
+      if (episodeNumber <= 0) {
+        return null
+      }
+
+      const available = isEpisodeAvailable(episode, now)
+      const availableAt = available
+        ? episode.premium_available_date ??
+          episode.free_available_date ??
+          null
+        : null
+
+      return {
+        episode: episodeNumber,
+        available,
+        availableAt,
+      }
+    })
+    .filter((entry): entry is SeasonEpisodeAvailability => entry !== null)
+    .sort((a, b) => a.episode - b.episode)
+}
+
 interface SeriesResponse {
   data?: { title?: string }
 }
@@ -200,5 +233,6 @@ export async function getLatestAvailableEpisodeForSeries(
       availableAt: latestEpisode.premium_available_date ?? null,
     },
     watchUrl: buildWatchUrl(latestEpisode),
+    seasonEpisodes: buildSeasonEpisodeAvailability(episodes),
   }
 }

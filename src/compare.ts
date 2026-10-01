@@ -1,4 +1,10 @@
-import type { EpisodeSnapshot, ShowState, StateFile, TimingStatus } from './types.js'
+import type {
+  EpisodeSnapshot,
+  Show,
+  ShowState,
+  StateFile,
+  TimingStatus,
+} from './types.js'
 import { formatEasternTime } from './time.js'
 
 export function getShowState(
@@ -10,8 +16,12 @@ export function getShowState(
 
 export function createBaselineState(
   latestSnapshot: EpisodeSnapshot,
-  notifiedAt = new Date().toISOString()
+  options: {
+    notifiedAt?: string
+    episodeOffset?: number | null
+  } = {}
 ): ShowState {
+  const notifiedAt = options.notifiedAt ?? new Date().toISOString()
   return {
     lastEpisodeId: latestSnapshot.episode.id,
     lastEpisodeNumber: String(latestSnapshot.episode.episode ?? ''),
@@ -20,14 +30,27 @@ export function createBaselineState(
     seasonId: latestSnapshot.seasonId,
     seasonTitle: latestSnapshot.seasonTitle,
     waitingNotifiedForEpisode: null,
+    ...(options.episodeOffset !== undefined
+      ? { episodeOffset: options.episodeOffset }
+      : {}),
   }
 }
 
 export function createUpdatedState(
   latestSnapshot: EpisodeSnapshot,
   episodeNumber: number,
-  notifiedAt = new Date().toISOString()
+  options: {
+    notifiedAt?: string
+    episodeOffset?: number | null
+    previousState?: ShowState | null
+  } = {}
 ): ShowState {
+  const notifiedAt = options.notifiedAt ?? new Date().toISOString()
+  const episodeOffset =
+    options.episodeOffset ??
+    options.previousState?.episodeOffset ??
+    undefined
+
   return {
     lastEpisodeId: latestSnapshot.episode.id,
     lastEpisodeNumber: String(episodeNumber),
@@ -35,6 +58,23 @@ export function createUpdatedState(
     lastNotifiedAt: notifiedAt,
     seasonId: latestSnapshot.seasonId,
     seasonTitle: latestSnapshot.seasonTitle,
+    waitingNotifiedForEpisode: null,
+    ...(episodeOffset !== undefined ? { episodeOffset } : {}),
+  }
+}
+
+export function createPreviousSeasonBaseline(
+  show: Show,
+  notifiedAt = new Date().toISOString()
+): ShowState {
+  const beforeStart = Math.max(0, show.schedule.startEpisode - 1)
+  return {
+    lastEpisodeId: 'previous-season',
+    lastEpisodeNumber: String(beforeStart),
+    lastEpisodeTitle: '',
+    lastNotifiedAt: notifiedAt,
+    seasonId: '',
+    seasonTitle: '',
     waitingNotifiedForEpisode: null,
   }
 }

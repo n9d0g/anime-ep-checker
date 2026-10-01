@@ -4,10 +4,15 @@ import { fileURLToPath } from 'node:url'
 import { getLatestAiredEpisode } from './anilist.js'
 import {
   createBaselineState,
+  createPreviousSeasonBaseline,
   createUpdatedState,
   getShowState,
   getTimingStatus,
 } from './compare.js'
+import {
+  resolveEpisodeOffset,
+  toRelativeSnapshot,
+} from './episode-offset.js'
 import {
   getLatestAvailableEpisodeForSeries,
   parseSeriesIdFromUrl,
@@ -58,9 +63,14 @@ import {
   getShowWatchUrl,
   type EpisodeSnapshot,
   type Show,
+  type ShowState,
   type ShowsFile,
   type StateFile,
 } from './types.js'
+
+type RelativeEpisodeResult =
+  | { kind: 'previous_season' }
+  | { kind: 'snapshot'; snapshot: EpisodeSnapshot; episodeOffset: number }
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const SHOWS_PATH = resolve(ROOT, 'shows.json')
@@ -118,6 +128,60 @@ async function fetchLatestEpisode(show: Show): Promise<EpisodeSnapshot | null> {
   }
 
   return getLatestAvailableEpisodeForSeries(providerId)
+}
+
+function toRelativeEpisodeResult(
+  show: Show,
+  previousState: ShowState | null,
+  raw: EpisodeSnapshot
+): RelativeEpisodeResult {
+  const knownOffset = previousState?.episodeOffset
+  if (knownOffset != null) {
+    return {
+      kind: 'snapshot',
+      snapshot: toRelativeSnapshot(raw, knownOffset),
+      episodeOffset: knownOffset,
+    }
+  }
+
+  const resolved = resolveEpisodeOffset(show, raw)
+  if (resolved === null) {
+    return { kind: 'previous_season' }
+  }
+
+  const snapshot = toRelativeSnapshot(raw, resolved)
+  const relativeEpisode = parseEpisodeNumber(
+    String(snapshot.episode.episode ?? '')
+  )
+  if (relativeEpisode < show.schedule.startEpisode) {
+    return { kind: 'previous_season' }
+  }
+
+  return { kind: 'snapshot', snapshot, episodeOffset: resolved }
+}
+
+async function fetchRelativeEpisode(
+  show: Show,
+  previousState: ShowState | null
+): Promise<RelativeEpisodeResult | null> {
+  const raw = await fetchLatestEpisode(show)
+  if (!raw) {
+    return null
+  }
+
+  return toRelativeEpisodeResult(show, previousState, raw)
+}
+
+async function fetchRelativeEpisodeSnapshot(
+  show: Show,
+  state: StateFile
+): Promise<EpisodeSnapshot | null> {
+  const previousState = getShowState(state, show.id)
+  const result = await fetchRelativeEpisode(show, previousState)
+  if (!result || result.kind === 'previous_season') {
+    return null
+  }
+  return result.snapshot
 }
 
 async function tryDisneyAnilistFallback(
@@ -570,6 +634,31 @@ export async function checkShows({
       continue
     }
 
+    const relativeResult = toRelativeEpisodeResult(
+      show,
+      previousState,
+      latestSnapshot
+    )
+    let episodeOffsetToSave: number | undefined
+
+    if (relativeResult.kind === 'previous_season') {
+      if (!previousState) {
+        if (!dryRun) {
+          state.shows[showId] = createPreviousSeasonBaseline(show)
+        }
+        noteStateChange(`previous season baseline ${show.title || showId}`)
+        console.log('  Baseline: previous season only')
+      } else {
+        console.log('  Still waiting (previous season on provider)')
+      }
+      continue
+    }
+
+    latestSnapshot = relativeResult.snapshot
+    if (previousState?.episodeOffset == null) {
+      episodeOffsetToSave = relativeResult.episodeOffset
+    }
+
     if (!previousState) {
       const latestEpisodeNumber = parseEpisodeNumber(
         String(latestSnapshot.episode.episode ?? '')
@@ -591,17 +680,19 @@ export async function checkShows({
           noteStateChange,
         })
 
-        state.shows[showId] = createUpdatedState(
-          latestSnapshot,
-          latestEpisodeNumber
-        )
+        state.shows[showId] = createUpdatedState(latestSnapshot, latestEpisodeNumber, {
+          episodeOffset: episodeOffsetToSave,
+          previousState,
+        })
         noteStateChange(
           `catch-up episode alert ${show.title || showId} ep ${latestEpisodeNumber}`
         )
         continue
       }
 
-      state.shows[showId] = createBaselineState(latestSnapshot)
+      state.shows[showId] = createBaselineState(latestSnapshot, {
+        episodeOffset: episodeOffsetToSave,
+      })
       noteStateChange(
         `baseline ${show.title || showId} ep ${latestSnapshot.episode.episode}`
       )
@@ -629,7 +720,10 @@ export async function checkShows({
         noteStateChange,
       })
 
-      state.shows[showId] = createUpdatedState(latestSnapshot, nextExpectedEp)
+      state.shows[showId] = createUpdatedState(latestSnapshot, nextExpectedEp, {
+        episodeOffset: episodeOffsetToSave,
+        previousState,
+      })
       noteStateChange(
         `episode alert ${show.title || showId} ep ${nextExpectedEp}`
       )
@@ -739,7 +833,7 @@ export async function checkShows({
         state,
         now,
         dryRun,
-        fetchLatest: fetchLatestEpisode,
+        fetchLatest: (show) => fetchRelativeEpisodeSnapshot(show, state),
         inWindowForShow: (show) => isShowInCheckWindow(show, state, now, force),
       })
       if (dashboardResult.changed) {

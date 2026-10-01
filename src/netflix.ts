@@ -1,4 +1,4 @@
-import type { EpisodeSnapshot } from './types.js'
+import type { EpisodeSnapshot, SeasonEpisodeAvailability } from './types.js'
 
 const USER_AGENT =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.5.2 Safari/605.1.15'
@@ -247,19 +247,20 @@ export async function getLatestAvailableEpisodeForTitle(
 
   const episodeGraph = await pathEvaluate(cookie, authURL, episodePaths)
 
-  let best: {
-    seasonId: string
-    seasonTitle: string
+  interface SeasonEpisodeRow {
     episodeId: string
     episodeNumber: number
     title?: string
     availableAt: string | null
-  } | null = null
+    playable: boolean
+  }
 
-  for (const season of seasons) {
+  function collectSeasonRows(season: {
+    seasonId: string
+    summary?: SeasonSummary
+  }): SeasonEpisodeRow[] {
     const episodeNodes = episodeGraph.seasons?.[season.seasonId]?.episodes ?? {}
-    const seasonTitle =
-      season.summary?.name ?? `Season ${season.summary?.id ?? season.seasonId}`
+    const rows: SeasonEpisodeRow[] = []
 
     for (const key of Object.keys(episodeNodes)) {
       const node = episodeNodes[key]
@@ -269,40 +270,90 @@ export async function getLatestAvailableEpisodeForTitle(
       const video = episodeGraph.videos?.[episodeId]
       const summary = atomValue(video?.summary)
       const availability = atomValue(video?.availability)
-      if (!isEpisodePlayable(summary, availability)) continue
-
       const episodeNumber = summary?.episode ?? summary?.idx ?? Number(key) + 1
       if (!Number.isFinite(episodeNumber)) continue
 
-      if (!best || episodeNumber > best.episodeNumber) {
-        best = {
-          seasonId: season.seasonId,
-          seasonTitle,
-          episodeId,
-          episodeNumber,
-          title: atomValue(video?.title),
-          availableAt: availability?.availabilityDate ?? null,
-        }
-      }
+      const playable = isEpisodePlayable(summary, availability)
+      rows.push({
+        episodeId,
+        episodeNumber,
+        title: atomValue(video?.title),
+        availableAt: availability?.availabilityDate ?? null,
+        playable,
+      })
+    }
+
+    return rows.sort((a, b) => a.episodeNumber - b.episodeNumber)
+  }
+
+  function pickBestPlayable(rows: SeasonEpisodeRow[]): SeasonEpisodeRow | null {
+    const playable = rows.filter((row) => row.playable)
+    if (playable.length === 0) {
+      return null
+    }
+    return playable.reduce((best, row) =>
+      row.episodeNumber > best.episodeNumber ? row : best
+    )
+  }
+
+  function toSeasonAvailability(rows: SeasonEpisodeRow[]): SeasonEpisodeAvailability[] {
+    return rows.map((row) => ({
+      episode: row.episodeNumber,
+      available: row.playable,
+      availableAt: row.playable ? row.availableAt : null,
+    }))
+  }
+
+  function buildSnapshot(
+    season: { seasonId: string; summary?: SeasonSummary },
+    rows: SeasonEpisodeRow[],
+    best: SeasonEpisodeRow
+  ): EpisodeSnapshot {
+    const seasonTitle =
+      season.summary?.name ?? `Season ${season.summary?.id ?? season.seasonId}`
+
+    return {
+      provider: 'netflix',
+      seriesId: netflixId,
+      seriesTitle,
+      seasonId: season.seasonId,
+      seasonTitle,
+      episode: {
+        id: best.episodeId,
+        episode: best.episodeNumber,
+        title: best.title,
+        availableAt: best.playable ? best.availableAt : null,
+      },
+      watchUrl: `https://www.netflix.com/watch/${best.episodeId}`,
+      seasonEpisodes: toSeasonAvailability(rows),
     }
   }
 
-  if (!best) {
-    return null
+  const newestSeason = seasons[seasons.length - 1]
+  const newestRows = collectSeasonRows(newestSeason)
+  const newestBest = pickBestPlayable(newestRows)
+
+  if (newestBest) {
+    return buildSnapshot(newestSeason, newestRows, newestBest)
   }
 
-  return {
-    provider: 'netflix',
-    seriesId: netflixId,
-    seriesTitle,
-    seasonId: best.seasonId,
-    seasonTitle: best.seasonTitle,
-    episode: {
-      id: best.episodeId,
-      episode: best.episodeNumber,
-      title: best.title,
-      availableAt: best.availableAt,
-    },
-    watchUrl: `https://www.netflix.com/watch/${best.episodeId}`,
+  if (newestRows.length > 0) {
+    const placeholder = newestRows[newestRows.length - 1]
+    return buildSnapshot(newestSeason, newestRows, {
+      ...placeholder,
+      playable: false,
+      availableAt: null,
+    })
   }
+
+  for (let index = seasons.length - 2; index >= 0; index--) {
+    const season = seasons[index]
+    const rows = collectSeasonRows(season)
+    const seasonBest = pickBestPlayable(rows)
+    if (seasonBest) {
+      return buildSnapshot(season, rows, seasonBest)
+    }
+  }
+
+  return null
 }
