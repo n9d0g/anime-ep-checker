@@ -22,6 +22,37 @@
       "discussionUrl": "https://www.reddit.com/r/anime/comments/1wefsn2/bleach_thousandyear_blood_war_the_calamity_bleach/",
       "discussionUrlEpisode": 8,
       "malScoreAlertedAt": "2026-10-01T03:55:32.164Z"
+    },
+    "kusuriya-no-hitorigoto-3rd-season": {
+      "lastEpisodeId": "previous-season",
+      "lastEpisodeNumber": "0",
+      "lastEpisodeTitle": "",
+      "lastNotifiedAt": "2026-10-01T12:46:10.942Z",
+      "seasonId": "",
+      "seasonTitle": "",
+      "waitingNotifiedForEpisode": null,
+      "googleCalendarEvents": {
+        "1": {
+          "eventId": "02s372gpcf0ku2m772josg3cj0",
+          "startAt": "2026-10-02T15:00:00.000Z"
+        }
+      }
+    },
+    "ao-no-hako-season-2": {
+      "lastEpisodeId": "81664929",
+      "lastEpisodeNumber": "25",
+      "lastEpisodeTitle": "Even So",
+      "lastNotifiedAt": "2026-10-01T12:46:15.389Z",
+      "seasonId": "81663324",
+      "seasonTitle": "Season 1",
+      "waitingNotifiedForEpisode": null,
+      "episodeOffset": 0,
+      "googleCalendarEvents": {
+        "26": {
+          "eventId": "b2r93pdc5fiul18tp1sbmksfmg",
+          "startAt": "2027-03-28T08:30:00.000Z"
+        }
+      }
     }
   },
   "meta": {
@@ -50,7 +81,7 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-10-01T12:22:22.735Z",
+    "planToWatchCheckedAt": "2026-10-01T12:46:10.376Z",
     "planToWatch": {
       "updatedAt": "2026-09-30T20:11:57.145Z",
       "entries": [
@@ -592,7 +623,7 @@
     },
     "watchingDashboardHashes": {
       "bleach": "b8633c99997d71799ad5b8b00ddbc4fe383ab020",
-      "kusuriya-no-hitorigoto-3rd-season": "bf3cf84fd53b91cd9cd9634e9e3fc87bf7d804af",
+      "kusuriya-no-hitorigoto-3rd-season": "07b66cc3ff8513268c4178b2d5628f0175b8cc2d",
       "ao-no-hako-season-2": "d9e9623bdc66a39df95c81db145f4b0fc8f4b197"
     },
     "onHold": {
