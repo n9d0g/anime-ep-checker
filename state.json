@@ -24,18 +24,15 @@
       "malScoreAlertedAt": "2026-10-01T03:55:32.164Z"
     },
     "kusuriya-no-hitorigoto-3rd-season": {
-      "lastEpisodeId": "previous-season",
-      "lastEpisodeNumber": "0",
-      "lastEpisodeTitle": "",
-      "lastNotifiedAt": "2026-10-02T14:55:40.025Z",
-      "seasonId": "",
-      "seasonTitle": "",
+      "lastEpisodeId": "GE00384327JAJP",
+      "lastEpisodeNumber": "1",
+      "lastEpisodeTitle": "Episode 49",
+      "lastNotifiedAt": "2026-10-02T15:00:47.907Z",
+      "seasonId": "GS00384044JAJP",
+      "seasonTitle": "Season 3",
       "waitingNotifiedForEpisode": null,
+      "episodeOffset": 48,
       "googleCalendarEvents": {
-        "1": {
-          "eventId": "02s372gpcf0ku2m772josg3cj0",
-          "startAt": "2026-10-02T15:00:00.000Z"
-        },
         "2": {
           "eventId": "oh1vigsije124tm91ot9sng9s4",
           "startAt": "2026-10-09T15:00:00.000Z"
@@ -699,7 +696,7 @@
     },
     "watchingDashboardHashes": {
       "bleach": "b8633c99997d71799ad5b8b00ddbc4fe383ab020",
-      "kusuriya-no-hitorigoto-3rd-season": "6161889b79bd1b2d892f832e12b87c023a5f791f",
+      "kusuriya-no-hitorigoto-3rd-season": "e3fb7956f124f29c2baa61e13ca419cf3d6bdd1c",
       "ao-no-hako-season-2": "b0327dbba5fc100c962385292b2745649ccef453"
     },
     "onHold": {
