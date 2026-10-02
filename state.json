@@ -22,6 +22,113 @@
       "discussionUrl": "https://www.reddit.com/r/anime/comments/1wefsn2/bleach_thousandyear_blood_war_the_calamity_bleach/",
       "discussionUrlEpisode": 8,
       "malScoreAlertedAt": "2026-10-01T03:55:32.164Z"
+    },
+    "kusuriya-no-hitorigoto-3rd-season": {
+      "lastEpisodeId": "previous-season",
+      "lastEpisodeNumber": "0",
+      "lastEpisodeTitle": "",
+      "lastNotifiedAt": "2026-10-02T14:55:40.025Z",
+      "seasonId": "",
+      "seasonTitle": "",
+      "waitingNotifiedForEpisode": null,
+      "googleCalendarEvents": {
+        "1": {
+          "eventId": "02s372gpcf0ku2m772josg3cj0",
+          "startAt": "2026-10-02T15:00:00.000Z"
+        },
+        "2": {
+          "eventId": "oh1vigsije124tm91ot9sng9s4",
+          "startAt": "2026-10-09T15:00:00.000Z"
+        },
+        "3": {
+          "eventId": "5p80otl4ppqo0i4enmqr8gnrck",
+          "startAt": "2026-10-16T15:00:00.000Z"
+        },
+        "4": {
+          "eventId": "o0rpi15mrm5t2hj4tam7hf5ho4",
+          "startAt": "2026-10-23T15:00:00.000Z"
+        },
+        "5": {
+          "eventId": "6g3klcm5r94g15u2t1fu0jhkco",
+          "startAt": "2026-10-30T15:00:00.000Z"
+        },
+        "6": {
+          "eventId": "ccaa0t7f1md9237lnp4sm205hs",
+          "startAt": "2026-11-06T15:00:00.000Z"
+        },
+        "7": {
+          "eventId": "2dbpv5aqjvvmq2fd751qol1ebk",
+          "startAt": "2026-11-13T15:00:00.000Z"
+        },
+        "8": {
+          "eventId": "lhlb87i6p5p2oa8u45drcdu8bk",
+          "startAt": "2026-11-20T15:00:00.000Z"
+        },
+        "9": {
+          "eventId": "0lm1dneetna9or5koq6cdgphks",
+          "startAt": "2026-11-27T15:00:00.000Z"
+        },
+        "10": {
+          "eventId": "140g16jrcf4pkep72q4jg3ocd0",
+          "startAt": "2026-12-04T15:00:00.000Z"
+        },
+        "11": {
+          "eventId": "g6b9htdv36q0j23oqp1j10s9u8",
+          "startAt": "2026-12-11T15:00:00.000Z"
+        },
+        "12": {
+          "eventId": "5jrh2n999hl1q0hfvocpktubkk",
+          "startAt": "2026-12-18T15:00:00.000Z"
+        },
+        "13": {
+          "eventId": "02ioq3qkju4gk14mgnkaign3fg",
+          "startAt": "2026-12-25T15:00:00.000Z"
+        },
+        "14": {
+          "eventId": "cfsue313til8rngngligskme6s",
+          "startAt": "2027-01-01T15:00:00.000Z"
+        },
+        "15": {
+          "eventId": "eg3nfbqn74mb3fmv6negr4st70",
+          "startAt": "2027-01-08T15:00:00.000Z"
+        },
+        "16": {
+          "eventId": "n21q02jif8ttqk8vrrd31205rs",
+          "startAt": "2027-01-15T15:00:00.000Z"
+        },
+        "17": {
+          "eventId": "cr4vh74iqi9dk55l628gk85djc",
+          "startAt": "2027-01-22T15:00:00.000Z"
+        },
+        "18": {
+          "eventId": "v9k260agl912plqt1rq670s0a4",
+          "startAt": "2027-01-29T15:00:00.000Z"
+        },
+        "19": {
+          "eventId": "upfbtr705mh999bl1d2ec70i7g",
+          "startAt": "2027-02-05T15:00:00.000Z"
+        },
+        "20": {
+          "eventId": "eah5lme1a6vad36ivosfhpk8p0",
+          "startAt": "2027-02-12T15:00:00.000Z"
+        },
+        "21": {
+          "eventId": "mahavfe54gdq4qsjnuovb6tgr8",
+          "startAt": "2027-02-19T15:00:00.000Z"
+        },
+        "22": {
+          "eventId": "nna8an1ds4tu7k0info4728ebg",
+          "startAt": "2027-02-26T15:00:00.000Z"
+        },
+        "23": {
+          "eventId": "28g388543c8si520qp2sm066uk",
+          "startAt": "2027-03-05T15:00:00.000Z"
+        },
+        "24": {
+          "eventId": "f1004321ig8iv29h7ebq16lsno",
+          "startAt": "2027-03-12T15:00:00.000Z"
+        }
+      }
     }
   },
   "meta": {
@@ -592,7 +699,7 @@
     },
     "watchingDashboardHashes": {
       "bleach": "b8633c99997d71799ad5b8b00ddbc4fe383ab020",
-      "kusuriya-no-hitorigoto-3rd-season": "07b66cc3ff8513268c4178b2d5628f0175b8cc2d",
+      "kusuriya-no-hitorigoto-3rd-season": "6161889b79bd1b2d892f832e12b87c023a5f791f",
       "ao-no-hako-season-2": "b0327dbba5fc100c962385292b2745649ccef453"
     },
     "onHold": {
