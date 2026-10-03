@@ -125,7 +125,8 @@
           "eventId": "f1004321ig8iv29h7ebq16lsno",
           "startAt": "2027-03-12T15:00:00.000Z"
         }
-      }
+      },
+      "malMeanScore": 8.67
     }
   },
   "meta": {
@@ -154,9 +155,9 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-10-02T12:25:51.379Z",
+    "planToWatchCheckedAt": "2026-10-03T12:30:36.333Z",
     "planToWatch": {
-      "updatedAt": "2026-09-30T20:11:57.145Z",
+      "updatedAt": "2026-10-03T12:30:36.333Z",
       "entries": [
         {
           "malId": 61323,
@@ -179,7 +180,7 @@
             "dayOfWeek": "friday",
             "startTime": "00:55"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1190/93472l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1190/93472l.jpg",
           "numEpisodes": 24
         },
         {
@@ -221,7 +222,7 @@
             "dayOfWeek": "friday",
             "startTime": "00:55"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/10/77957l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/10/77957l.jpg",
           "numEpisodes": 12
         },
         {
@@ -296,7 +297,7 @@
           "status": "not_yet_aired",
           "startDate": null,
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1915/159776l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1915/159776l.jpg",
           "numEpisodes": null
         },
         {
@@ -413,14 +414,14 @@
         {
           "malId": 61987,
           "title": "Kusuriya no Hitorigoto 3rd Season",
-          "status": "not_yet_aired",
+          "status": "currently_airing",
           "startDate": "2026-10-02",
           "broadcast": {
             "dayOfWeek": "friday",
             "startTime": "23:00"
           },
           "coverUrl": "https://cdn.myanimelist.net/images/anime/1028/160277l.jpg",
-          "numEpisodes": null
+          "numEpisodes": 12
         },
         {
           "malId": 62841,
@@ -429,7 +430,7 @@
           "startDate": "2027-04",
           "broadcast": null,
           "coverUrl": "https://cdn.myanimelist.net/images/anime/1667/152812l.jpg",
-          "numEpisodes": null
+          "numEpisodes": 12
         },
         {
           "malId": 62844,
@@ -521,7 +522,7 @@
           "status": "not_yet_aired",
           "startDate": null,
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1775/158856l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1775/158856l.jpg",
           "numEpisodes": 1
         },
         {
@@ -602,7 +603,7 @@
           "status": "finished_airing",
           "startDate": "2026-02-27",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1447/153665l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1447/153665l.webp",
           "numEpisodes": 1
         },
         {
@@ -620,7 +621,7 @@
           "status": "not_yet_aired",
           "startDate": "2027",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1711/156333l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1711/156333l.jpg",
           "numEpisodes": null
         },
         {
@@ -641,7 +642,7 @@
             "dayOfWeek": "sunday",
             "startTime": "16:30"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1120/152280l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1120/152280l.jpg",
           "numEpisodes": 10
         },
         {
@@ -662,7 +663,7 @@
             "dayOfWeek": "friday",
             "startTime": "00:55"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1864/93518l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1864/93518l.webp",
           "numEpisodes": 11
         },
         {
@@ -671,7 +672,7 @@
           "status": "finished_airing",
           "startDate": "2019-02-08",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1249/117182l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1249/117182l.webp",
           "numEpisodes": 1
         },
         {
@@ -696,7 +697,7 @@
     },
     "watchingDashboardHashes": {
       "bleach": "b8633c99997d71799ad5b8b00ddbc4fe383ab020",
-      "kusuriya-no-hitorigoto-3rd-season": "e3fb7956f124f29c2baa61e13ca419cf3d6bdd1c",
+      "kusuriya-no-hitorigoto-3rd-season": "e57f7cd3677d98e4ef3a4b2a1689a824918bfd3e",
       "ao-no-hako-season-2": "b0327dbba5fc100c962385292b2745649ccef453"
     },
     "onHold": {
