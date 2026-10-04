@@ -127,6 +127,22 @@
         }
       },
       "malMeanScore": 8.67
+    },
+    "ao-no-hako-season-2": {
+      "lastEpisodeId": "82716331",
+      "lastEpisodeNumber": "1",
+      "lastEpisodeTitle": "Déjà Vu",
+      "lastNotifiedAt": "2026-10-04T08:25:33.277Z",
+      "seasonId": "82715728",
+      "seasonTitle": "Season 2",
+      "waitingNotifiedForEpisode": null,
+      "episodeOffset": 25,
+      "googleCalendarEvents": {
+        "2": {
+          "eventId": "h8v6q205bqf1ksjmd5r9d1qdnc",
+          "startAt": "2026-10-11T08:30:00.000Z"
+        }
+      }
     }
   },
   "meta": {
@@ -697,8 +713,8 @@
     },
     "watchingDashboardHashes": {
       "bleach": "b8633c99997d71799ad5b8b00ddbc4fe383ab020",
-      "kusuriya-no-hitorigoto-3rd-season": "e57f7cd3677d98e4ef3a4b2a1689a824918bfd3e",
-      "ao-no-hako-season-2": "b0327dbba5fc100c962385292b2745649ccef453"
+      "kusuriya-no-hitorigoto-3rd-season": "1adf4e478204bdb7e5a556c1569376a4fd3e2add",
+      "ao-no-hako-season-2": "4ba21ca0331e2b9ad935f4f1119466a92bc134c9"
     },
     "onHold": {
       "updatedAt": "2026-09-28T21:46:38.715Z",
