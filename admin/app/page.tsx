@@ -1723,42 +1723,43 @@ export default function AdminPage() {
                                 required
                               />
                             </div>
+
+                            <div className="actions">
+                              {show.id && usesMalProgress(show) ? (
+                                <>
+                                  <button
+                                    className="btn btn-secondary"
+                                    type="button"
+                                    disabled={completingShow}
+                                    onClick={() => openCompletePrompt(show)}
+                                  >
+                                    Mark as completed
+                                  </button>
+                                  <button
+                                    className="btn btn-secondary"
+                                    type="button"
+                                    disabled={
+                                      completingShow ||
+                                      holdingShowId === show.id
+                                    }
+                                    onClick={() => void putShowOnHold(show)}
+                                  >
+                                    {holdingShowId === show.id
+                                      ? 'Saving…'
+                                      : 'On hold'}
+                                  </button>
+                                </>
+                              ) : null}
+                              <button
+                                className="btn btn-danger"
+                                type="button"
+                                onClick={() => removeShow(index)}
+                              >
+                                Remove show
+                              </button>
+                            </div>
                           </div>
                         </details>
-
-                        <div className="actions">
-                          {show.id && usesMalProgress(show) ? (
-                            <>
-                              <button
-                                className="btn btn-secondary"
-                                type="button"
-                                disabled={completingShow}
-                                onClick={() => openCompletePrompt(show)}
-                              >
-                                Mark as completed
-                              </button>
-                              <button
-                                className="btn btn-secondary"
-                                type="button"
-                                disabled={
-                                  completingShow || holdingShowId === show.id
-                                }
-                                onClick={() => void putShowOnHold(show)}
-                              >
-                                {holdingShowId === show.id
-                                  ? 'Saving…'
-                                  : 'On hold'}
-                              </button>
-                            </>
-                          ) : null}
-                          <button
-                            className="btn btn-danger"
-                            type="button"
-                            onClick={() => removeShow(index)}
-                          >
-                            Remove show
-                          </button>
-                        </div>
                       </div>
                     ) : null}
                   </article>
