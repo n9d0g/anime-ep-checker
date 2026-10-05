@@ -169,25 +169,27 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-10-05T12:40:33.728Z",
+    "planToWatchCheckedAt": "2026-10-05T18:40:02.858Z",
     "planToWatch": {
-      "updatedAt": "2026-10-04T12:35:29.055Z",
+      "updatedAt": "2026-10-05T18:40:02.858Z",
       "entries": [
         {
           "malId": 36649,
           "title": "Banana Fish",
+          "titleEnglish": "Banana Fish",
           "status": "finished_airing",
           "startDate": "2018-07-06",
           "broadcast": {
             "dayOfWeek": "friday",
             "startTime": "00:55"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1190/93472l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1190/93472l.jpg",
           "numEpisodes": 24
         },
         {
           "malId": 57,
           "title": "Beck",
+          "titleEnglish": "Beck: Mongolian Chop Squad",
           "status": "finished_airing",
           "startDate": "2004-10-07",
           "broadcast": {
@@ -209,6 +211,7 @@
         {
           "malId": 61006,
           "title": "Bocchi the Rock! 2nd Season",
+          "titleEnglish": "Bocchi the Rock! Season 2",
           "status": "not_yet_aired",
           "startDate": null,
           "broadcast": null,
@@ -218,6 +221,7 @@
         {
           "malId": 31043,
           "title": "Boku dake ga Inai Machi",
+          "titleEnglish": "Erased",
           "status": "finished_airing",
           "startDate": "2016-01-08",
           "broadcast": {
@@ -230,6 +234,7 @@
         {
           "malId": 63735,
           "title": "Boku no Kokoro no Yabai Yatsu 3rd Season",
+          "titleEnglish": "The Dangers in My Heart Season 3",
           "status": "not_yet_aired",
           "startDate": "2027",
           "broadcast": null,
@@ -239,6 +244,7 @@
         {
           "malId": 1689,
           "title": "Byousoku 5 Centimeter",
+          "titleEnglish": "5 Centimeters per Second",
           "status": "finished_airing",
           "startDate": "2007-03-03",
           "broadcast": null,
@@ -248,6 +254,7 @@
         {
           "malId": 63143,
           "title": "Chainsaw Man: Shikaku-hen",
+          "titleEnglish": "Chainsaw Man: Assassins Arc",
           "status": "not_yet_aired",
           "startDate": null,
           "broadcast": null,
@@ -257,6 +264,7 @@
         {
           "malId": 61990,
           "title": "Cyberpunk: Edgerunners 2",
+          "titleEnglish": "Cyberpunk: Edgerunners 2",
           "status": "not_yet_aired",
           "startDate": "2026-10-20",
           "broadcast": null,
@@ -266,6 +274,7 @@
         {
           "malId": 62516,
           "title": "Dandadan 3rd Season",
+          "titleEnglish": "Dan Da Dan Season 3",
           "status": "not_yet_aired",
           "startDate": "2027",
           "broadcast": null,
@@ -275,6 +284,7 @@
         {
           "malId": 59068,
           "title": "Dungeon Meshi Season 2",
+          "titleEnglish": "Delicious in Dungeon Season 2",
           "status": "not_yet_aired",
           "startDate": "2027-10",
           "broadcast": null,
@@ -284,6 +294,7 @@
         {
           "malId": 50197,
           "title": "Ijiranaide, Nagatoro-san 2nd Attack",
+          "titleEnglish": "Don't Toy with Me, Miss Nagatoro 2nd Attack",
           "status": "finished_airing",
           "startDate": "2023-01-08",
           "broadcast": {
@@ -296,6 +307,7 @@
         {
           "malId": 63824,
           "title": "Jujutsu Kaisen: Shimetsu Kaiyuu - Kouhen",
+          "titleEnglish": "Jujutsu Kaisen: The Culling Game Part 2",
           "status": "not_yet_aired",
           "startDate": null,
           "broadcast": null,
@@ -305,6 +317,7 @@
         {
           "malId": 57584,
           "title": "Kage no Jitsuryokusha ni Naritakute! Movie: Zankyou-hen",
+          "titleEnglish": "The Eminence in Shadow: Lost Echoes",
           "status": "not_yet_aired",
           "startDate": "2027",
           "broadcast": null,
@@ -314,6 +327,7 @@
         {
           "malId": 61903,
           "title": "Kaguya-sama wa Kokurasetai: Otona e no Kaidan",
+          "titleEnglish": "Kaguya-sama: Love Is War - Stairway to Adulthood",
           "status": "finished_airing",
           "startDate": "2025-12-31",
           "broadcast": null,
@@ -323,6 +337,7 @@
         {
           "malId": 43608,
           "title": "Kaguya-sama wa Kokurasetai: Ultra Romantic",
+          "titleEnglish": "Kaguya-sama: Love is War -Ultra Romantic-",
           "status": "finished_airing",
           "startDate": "2022-04-09",
           "broadcast": {
@@ -335,6 +350,7 @@
         {
           "malId": 63136,
           "title": "Kaijuu 8-gou: Kanketsu-hen",
+          "titleEnglish": "Kaiju No. 8: Final Chapter",
           "status": "not_yet_aired",
           "startDate": null,
           "broadcast": null,
@@ -344,6 +360,7 @@
         {
           "malId": 39198,
           "title": "Kanata no Astra",
+          "titleEnglish": "Astra Lost in Space",
           "status": "finished_airing",
           "startDate": "2019-07-03",
           "broadcast": {
@@ -356,6 +373,7 @@
         {
           "malId": 62546,
           "title": "Kimetsu no Yaiba Movie 2: Mugenjou-hen",
+          "titleEnglish": "Demon Slayer: Kimetsu no Yaiba Infinity Castle II",
           "status": "not_yet_aired",
           "startDate": null,
           "broadcast": null,
@@ -365,6 +383,7 @@
         {
           "malId": 57616,
           "title": "Kimi no Koto ga Daidaidaidaidaisuki na 100-nin no Kanojo 2nd Season",
+          "titleEnglish": "The 100 Girlfriends Who Really, Really, Really, Really, Really Love You Season 2",
           "status": "finished_airing",
           "startDate": "2025-01-12",
           "broadcast": {
@@ -377,6 +396,7 @@
         {
           "malId": 62811,
           "title": "Kimi no Koto ga Daidaidaidaidaisuki na 100-nin no Kanojo 3rd Season",
+          "titleEnglish": "The 100 Girlfriends Who Really, Really, Really, Really, Really Love You Season 3",
           "status": "finished_airing",
           "startDate": "2026-07-05",
           "broadcast": {
@@ -389,6 +409,7 @@
         {
           "malId": 59833,
           "title": "Kono Subarashii Sekai ni Shukufuku wo! 3: Bonus Stage",
+          "titleEnglish": "KonoSuba: God's Blessing on This Wonderful World! 3 OVA",
           "status": "finished_airing",
           "startDate": "2025-04-25",
           "broadcast": null,
@@ -398,6 +419,7 @@
         {
           "malId": 61203,
           "title": "Kono Subarashii Sekai ni Shukufuku wo! 4",
+          "titleEnglish": "KonoSuba: God's Blessing on This Wonderful World! 4",
           "status": "not_yet_aired",
           "startDate": "2027",
           "broadcast": null,
@@ -407,36 +429,27 @@
         {
           "malId": 49909,
           "title": "Kotarou wa Hitorigurashi",
+          "titleEnglish": "Kotaro Lives Alone",
           "status": "finished_airing",
           "startDate": "2022-03-10",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1862/121020l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1862/121020l.webp",
           "numEpisodes": 10
-        },
-        {
-          "malId": 61987,
-          "title": "Kusuriya no Hitorigoto 3rd Season",
-          "status": "currently_airing",
-          "startDate": "2026-10-02",
-          "broadcast": {
-            "dayOfWeek": "friday",
-            "startTime": "23:00"
-          },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1028/160277l.jpg",
-          "numEpisodes": 12
         },
         {
           "malId": 62841,
           "title": "Kusuriya no Hitorigoto 3rd Season Part 2",
+          "titleEnglish": "The Apothecary Diaries Season 3 Part 2",
           "status": "not_yet_aired",
           "startDate": "2027-04",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1667/152812l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1667/152812l.webp",
           "numEpisodes": 12
         },
         {
           "malId": 62844,
           "title": "Kusuriya no Hitorigoto Movie: Bouhi no Hihou",
+          "titleEnglish": "The Apothecary Diaries Movie",
           "status": "not_yet_aired",
           "startDate": "2026-12-11",
           "broadcast": null,
@@ -446,15 +459,17 @@
         {
           "malId": 36862,
           "title": "Made in Abyss Movie 3: Fukaki Tamashii no Reimei",
+          "titleEnglish": "Made in Abyss: Dawn of the Deep Soul",
           "status": "finished_airing",
           "startDate": "2020-01-17",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1803/117183l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1803/117183l.jpg",
           "numEpisodes": 1
         },
         {
           "malId": 61398,
           "title": "Make Heroine ga Oosugiru! 2nd Season",
+          "titleEnglish": "Makeine: Too Many Losing Heroines! Season 2",
           "status": "not_yet_aired",
           "startDate": null,
           "broadcast": null,
@@ -464,42 +479,47 @@
         {
           "malId": 58934,
           "title": "Mashle: Sanma Taisou Shinkakusha Saishuu Shiken-hen",
+          "titleEnglish": "Mashle: Magic and Muscles - The Tri-Magicathlon Divine Visionary Final Exam Arc",
           "status": "not_yet_aired",
           "startDate": "2027-01",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1085/154496l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1085/154496l.webp",
           "numEpisodes": null
         },
         {
           "malId": 65077,
           "title": "Mushoku Tensei III: Isekai Ittara Honki Dasu Part 2",
+          "titleEnglish": "Mushoku Tensei: Jobless Reincarnation Season 3 Part 2",
           "status": "not_yet_aired",
           "startDate": "2027",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1216/160273l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1216/160273l.webp",
           "numEpisodes": null
         },
         {
           "malId": 64859,
           "title": "One Piece Film: Baad",
+          "titleEnglish": "One Piece Film: Baad",
           "status": "not_yet_aired",
           "startDate": null,
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1727/160101l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1396/159706l.jpg",
           "numEpisodes": 1
         },
         {
           "malId": 64858,
           "title": "One Piece Film: God Valley",
+          "titleEnglish": "One Piece Film: God Valley",
           "status": "not_yet_aired",
           "startDate": "2027",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1836/160100l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1170/159705l.jpg",
           "numEpisodes": 1
         },
         {
           "malId": 59928,
           "title": "Ookami to Koushinryou: Merchant Meets the Wise Wolf 2nd Season",
+          "titleEnglish": "Spice and Wolf: Merchant Meets the Wise Wolf Season 2",
           "status": "not_yet_aired",
           "startDate": "2027",
           "broadcast": null,
@@ -509,6 +529,7 @@
         {
           "malId": 32729,
           "title": "Orange",
+          "titleEnglish": "Orange",
           "status": "finished_airing",
           "startDate": "2016-07-04",
           "broadcast": {
@@ -521,6 +542,7 @@
         {
           "malId": 64546,
           "title": "Ore dake Level Up na Ken: Beyond the System",
+          "titleEnglish": "Solo Leveling: Beyond the System",
           "status": "not_yet_aired",
           "startDate": null,
           "broadcast": null,
@@ -530,6 +552,7 @@
         {
           "malId": 60146,
           "title": "Saikyou no Ousama, Nidome no Jinsei wa Nani wo Suru?",
+          "titleEnglish": "The Beginning After the End",
           "status": "finished_airing",
           "startDate": "2025-04-02",
           "broadcast": {
@@ -542,6 +565,7 @@
         {
           "malId": 63139,
           "title": "Sakamoto Days 2nd Season",
+          "titleEnglish": "Sakamoto Days Season 2",
           "status": "not_yet_aired",
           "startDate": "2027-01",
           "broadcast": null,
@@ -551,6 +575,7 @@
         {
           "malId": 56732,
           "title": "Sekai Saikou no Ansatsusha, Isekai Kizoku ni Tensei suru Season 2",
+          "titleEnglish": "The World's Finest Assassin Gets Reincarnated in Another World as an Aristocrat Season 2",
           "status": "not_yet_aired",
           "startDate": "2027-01",
           "broadcast": null,
@@ -560,6 +585,7 @@
         {
           "malId": 63816,
           "title": "Sousou no Frieren: Ougonkyou-hen",
+          "titleEnglish": "Frieren: Beyond Journey's End - Golden Land Arc",
           "status": "not_yet_aired",
           "startDate": "2027-10",
           "broadcast": null,
@@ -569,6 +595,7 @@
         {
           "malId": 53393,
           "title": "Tengoku Daimakyou",
+          "titleEnglish": "Heavenly Delusion",
           "status": "finished_airing",
           "startDate": "2023-04-01",
           "broadcast": {
@@ -581,6 +608,7 @@
         {
           "malId": 61483,
           "title": "Tenmaku no Jaadugar",
+          "titleEnglish": "Jaadugar: A Witch in Mongolia",
           "status": "finished_airing",
           "startDate": "2026-07-04",
           "broadcast": {
@@ -593,6 +621,7 @@
         {
           "malId": 63129,
           "title": "Tensei shitara Slime Datta Ken 4th Season Part 2",
+          "titleEnglish": "That Time I Got Reincarnated as a Slime Season 4 Part 2",
           "status": "not_yet_aired",
           "startDate": "2027-07",
           "broadcast": null,
@@ -602,15 +631,17 @@
         {
           "malId": 59971,
           "title": "Tensei shitara Slime Datta Ken Movie 2: Soukai no Namida-hen",
+          "titleEnglish": "That Time I Got Reincarnated as a Slime the Movie: Tears of the Azure Sea",
           "status": "finished_airing",
           "startDate": "2026-02-27",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1447/153665l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1447/153665l.jpg",
           "numEpisodes": 1
         },
         {
           "malId": 65070,
           "title": "Tensei shitara Slime Datta Ken: Clayman Revenge",
+          "titleEnglish": "That Time I Got Reincarnated as a Slime: Clayman's Revenge",
           "status": "not_yet_aired",
           "startDate": "2027-04",
           "broadcast": null,
@@ -620,6 +651,7 @@
         {
           "malId": 59873,
           "title": "Tokidoki Bosotto Russia-go de Dereru Tonari no Alya-san Season 2",
+          "titleEnglish": "Alya Sometimes Hides Her Feelings in Russian Season 2",
           "status": "not_yet_aired",
           "startDate": "2027",
           "broadcast": null,
@@ -629,6 +661,7 @@
         {
           "malId": 64516,
           "title": "Tongari Boushi no Atelier 2nd Season",
+          "titleEnglish": "Witch Hat Atelier Season 2",
           "status": "not_yet_aired",
           "startDate": null,
           "broadcast": null,
@@ -638,6 +671,7 @@
         {
           "malId": 61930,
           "title": "Uma Musume: Cinderella Gray Part 2",
+          "titleEnglish": "Umamusume: Cinderella Gray Part 2",
           "status": "finished_airing",
           "startDate": "2025-10-05",
           "broadcast": {
@@ -650,15 +684,17 @@
         {
           "malId": 37987,
           "title": "Violet Evergarden Movie",
+          "titleEnglish": "Violet Evergarden: The Movie",
           "status": "finished_airing",
           "startDate": "2020-09-18",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1825/110716l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1825/110716l.webp",
           "numEpisodes": 1
         },
         {
           "malId": 35968,
           "title": "Wotaku ni Koi wa Muzukashii",
+          "titleEnglish": "Wotakoi: Love is Hard for Otaku",
           "status": "finished_airing",
           "startDate": "2018-04-13",
           "broadcast": {
@@ -671,6 +707,7 @@
         {
           "malId": 37055,
           "title": "Youjo Senki Movie",
+          "titleEnglish": "Saga of Tanya the Evil: The Movie",
           "status": "finished_airing",
           "startDate": "2019-02-08",
           "broadcast": null,
@@ -680,6 +717,7 @@
         {
           "malId": 64463,
           "title": "Youkoso Jitsuryoku Shijou Shugi no Kyoushitsu e 5th Season",
+          "titleEnglish": "Classroom of the Elite 5th Season",
           "status": "not_yet_aired",
           "startDate": null,
           "broadcast": null,
@@ -689,6 +727,7 @@
         {
           "malId": 63794,
           "title": "[Oshi no Ko] 4th Season",
+          "titleEnglish": "[Oshi No Ko] Season 4",
           "status": "not_yet_aired",
           "startDate": null,
           "broadcast": null,
