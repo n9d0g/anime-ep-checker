@@ -236,7 +236,7 @@ export function TopHeader() {
             aria-haspopup="menu"
             onClick={() => setProfileMenuOpen((open) => !open)}
           >
-            <img src="/icon.jpg" alt="" />
+            <img src="/icons/icon-192.png" alt="" />
           </button>
           {profileMenuOpen ? (
             <div className="profile-menu-dropdown" role="menu">

@@ -14,8 +14,11 @@ export const metadata: Metadata = {
   description: 'Manage tracked Crunchyroll, Netflix, and Disney+ shows',
   manifest: '/manifest.webmanifest',
   icons: {
-    icon: '/icon.jpg',
-    apple: '/apple-icon.jpg',
+    icon: [
+      { url: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: [{ url: '/icons/icon-180.png', sizes: '180x180', type: 'image/png' }],
   },
   appleWebApp: {
     capable: true,

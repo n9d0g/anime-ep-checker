@@ -2,6 +2,15 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { isAuthorizedRequest } from './lib/auth'
 
+function isPublicPwaAsset(pathname: string): boolean {
+  return (
+    pathname === '/manifest.webmanifest' ||
+    pathname.startsWith('/icons/') ||
+    pathname === '/icon.jpg' ||
+    pathname === '/apple-icon.jpg'
+  )
+}
+
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
@@ -9,7 +18,8 @@ export function proxy(request: NextRequest) {
     pathname.startsWith('/api/auth') ||
     pathname.startsWith('/api/discord/interactions') ||
     pathname.startsWith('/api/mal/callback') ||
-    pathname === '/login'
+    pathname === '/login' ||
+    isPublicPwaAsset(pathname)
   ) {
     return NextResponse.next()
   }
@@ -25,5 +35,7 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|icons/).*)',
+  ],
 }
