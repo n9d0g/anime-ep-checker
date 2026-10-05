@@ -135,14 +135,16 @@ Success messages include branch, short commit SHA, commit subject, time (ET), an
 
 The admin app lives in [`admin/`](admin/) and runs on [Cloudflare Workers](https://developers.cloudflare.com/workers/) via [vinext](https://github.com/cloudflare/vinext) (`vite dev` / `vite build`).
 
-**GitHub Actions (deploy):** set `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` as repository secrets. Pushes to `main` under `admin/**` deploy automatically.
+**GitHub Actions (deploy):** set `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` as repository secrets. Pushes to `main` under `admin/**` deploy automatically via [`.github/workflows/deploy-admin.yml`](.github/workflows/deploy-admin.yml).
 
-**Worker secrets (runtime):** from the `admin/` directory, set each variable from [`admin/.env.example`](admin/.env.example):
+Do **not** connect this repo in the Cloudflare dashboard (Workers Builds). That integration runs `wrangler deploy` from the repo root without a vinext build and will fail. Deploys are GitHub Actions only.
+
+**Worker secrets (runtime):** after the first successful deploy, from the `admin/` directory set each variable from [`admin/.env.example`](admin/.env.example):
 
 ```bash
 cd admin
-wrangler secret put ADMIN_PASSWORD
-wrangler secret put GITHUB_TOKEN
+npx wrangler secret put ADMIN_PASSWORD --name anime-ep-checker-admin
+npx wrangler secret put GITHUB_TOKEN --name anime-ep-checker-admin
 # …repeat for every key in .env.example
 ```
 
@@ -175,7 +177,7 @@ wrangler secret put GITHUB_TOKEN
 1. Create an API client at [myanimelist.net/apiconfig](https://myanimelist.net/apiconfig)
 2. Set redirect URI to your admin callback URL
 3. Open **/mal** on your deployed admin and connect your account
-4. Copy the refresh token into Worker secrets as `MAL_REFRESH_TOKEN` (`wrangler secret put MAL_REFRESH_TOKEN`)
+4. Copy the refresh token into Worker secrets as `MAL_REFRESH_TOKEN` (`npx wrangler secret put MAL_REFRESH_TOKEN --name anime-ep-checker-admin`)
 
 **Finding a MAL anime ID:** open the anime on MyAnimeList and copy the number from the URL:
 
