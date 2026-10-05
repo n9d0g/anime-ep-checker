@@ -232,7 +232,7 @@ export async function handleSlashCommand(
 
     if (!channelId) {
       return {
-        content: 'DISCORD_CHANNEL_ID is not configured on Vercel.',
+        content: 'DISCORD_CHANNEL_ID is not configured on Cloudflare.',
       }
     }
 

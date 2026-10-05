@@ -14,6 +14,7 @@ export interface ShowSchedule {
 export interface Show {
   id: string
   title: string
+  titleEnglish?: string
   provider: ShowProvider
   crunchyrollUrl?: string
   seriesId?: string
@@ -52,6 +53,7 @@ export interface ShowState {
 export interface PlanToWatchSnapshotEntry {
   malId: number
   title: string
+  titleEnglish?: string
   status: string
   startDate: string | null
   broadcast: {
@@ -105,6 +107,7 @@ export interface ShowStateSummary {
 export interface ShowFormValues {
   id: string
   title: string
+  titleEnglish?: string
   provider: ShowProvider
   crunchyrollUrl: string
   seriesId: string
@@ -152,6 +155,7 @@ export function showToForm(show: Show): ShowFormValues {
   return {
     id: show.id,
     title: show.title,
+    titleEnglish: show.titleEnglish,
     provider,
     crunchyrollUrl: show.crunchyrollUrl ?? '',
     seriesId: show.seriesId ?? '',

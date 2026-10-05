@@ -13,6 +13,7 @@ export interface ShowSchedule {
 export interface Show {
   id: string
   title: string
+  titleEnglish?: string
   provider: ShowProvider
   crunchyrollUrl?: string
   seriesId?: string
@@ -59,6 +60,7 @@ export type PlanToWatchAlertReason = 'airing' | 'upcoming'
 export interface PlanToWatchSnapshotEntry {
   malId: number
   title: string
+  titleEnglish?: string
   status: string
   startDate: string | null
   broadcast: {

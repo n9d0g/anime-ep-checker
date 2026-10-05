@@ -1,12 +1,13 @@
 import { getShowsFile, isGithubConflictError, saveShowsFile } from './github'
 import { resolveMalIdFromSearch, type MalSearchResult } from './mal-match'
-import { fetchMalAnimeTitle, searchMalAnime } from './mal'
+import { fetchMalAnimeTitles, searchMalAnime } from './mal'
 import type { Show } from './types'
 
 export interface MalShowUpdate {
   id: string
   malId?: number
   title: string
+  titleEnglish?: string
 }
 
 export interface SyncMalResult {
@@ -59,6 +60,10 @@ export function applyMalUpdatesToShows(
       updatedTitles.push(show.id || update.title)
     }
 
+    if (update.titleEnglish !== undefined) {
+      next.titleEnglish = update.titleEnglish || undefined
+    }
+
     return next
   })
 
@@ -66,37 +71,39 @@ export function applyMalUpdatesToShows(
 }
 
 async function collectMalUpdates(shows: Show[]): Promise<MalShowUpdate[]> {
-  const updates: MalShowUpdate[] = []
-
-  for (const show of shows) {
-    const next: MalShowUpdate = {
-      id: show.id,
-      malId: show.malId,
-      title: show.title,
-    }
-
-    if (!next.malId) {
-      const resolved = await resolveMissingMalId(show)
-      if (resolved) {
-        next.malId = resolved
+  return Promise.all(
+    shows.map(async (show) => {
+      const next: MalShowUpdate = {
+        id: show.id,
+        malId: show.malId,
+        title: show.title,
+        titleEnglish: show.titleEnglish,
       }
-    }
 
-    if (next.malId) {
-      try {
-        const malTitle = await fetchMalAnimeTitle(next.malId)
-        if (malTitle) {
-          next.title = malTitle
+      if (!next.malId) {
+        const resolved = await resolveMissingMalId(show)
+        if (resolved) {
+          next.malId = resolved
         }
-      } catch {
-        // Skip title sync when MAL lookup fails for a single show.
       }
-    }
 
-    updates.push(next)
-  }
+      if (next.malId) {
+        try {
+          const malTitles = await fetchMalAnimeTitles(next.malId)
+          if (malTitles.title) {
+            next.title = malTitles.title
+          }
+          if (malTitles.titleEnglish) {
+            next.titleEnglish = malTitles.titleEnglish
+          }
+        } catch {
+          // Skip title sync when MAL lookup fails for a single show.
+        }
+      }
 
-  return updates
+      return next
+    })
+  )
 }
 
 function withDefaultProvider(shows: Show[]): Show[] {

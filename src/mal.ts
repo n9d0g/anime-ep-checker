@@ -13,6 +13,7 @@ export interface MalAnimeDetails {
 export interface MalPlanToWatchEntry {
   malId: number
   title: string
+  titleEnglish?: string
   status: string
   startDate: string | null
   broadcast: {
@@ -61,6 +62,11 @@ interface MalAnimeResponse {
 interface MalAnimelistNode {
   id: number
   title: string
+  alternative_titles?: {
+    en?: string
+    ja?: string
+    synonyms?: string[]
+  }
   status?: string
   start_date?: string
   num_episodes?: number
@@ -86,7 +92,7 @@ const MAL_ANIME_FIELDS =
   'num_episodes,my_list_status,mean,main_picture'
 
 const MAL_ANIMELIST_FIELDS =
-  'list_status,num_episodes,start_date,broadcast,main_picture,status'
+  'list_status,num_episodes,start_date,broadcast,main_picture,status,alternative_titles'
 
 let cachedAccessToken: string | null | undefined
 const detailsCache = new Map<number, MalFetchDetailsResult>()
@@ -252,9 +258,12 @@ function parsePlanToWatchEntry(node: MalAnimelistNode): MalPlanToWatchEntry {
       }
     : null
 
+  const titleEnglish = node.alternative_titles?.en?.trim() || undefined
+
   return {
     malId: node.id,
     title: node.title,
+    titleEnglish,
     status: node.status ?? '',
     startDate: node.start_date ?? null,
     broadcast,

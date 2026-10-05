@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
+import { SearchOverlay } from '@/app/components/SearchOverlay'
 
 function MenuIcon({ children }: { children: ReactNode }) {
   return (
@@ -86,6 +87,26 @@ function OnHoldIcon() {
   )
 }
 
+function SearchIcon() {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle
+        cx="7"
+        cy="7"
+        r="4.25"
+        stroke="currentColor"
+        strokeWidth="1.25"
+      />
+      <path
+        d="M10.25 10.25L13.5 13.5"
+        stroke="currentColor"
+        strokeWidth="1.25"
+        strokeLinecap="round"
+      />
+    </svg>
+  )
+}
+
 function LogOutIcon() {
   return (
     <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -117,6 +138,37 @@ export function TopHeader() {
   const pathname = usePathname()
   const profileMenuRef = useRef<HTMLDivElement>(null)
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
+
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      const target = event.target as HTMLElement | null
+      const tag = target?.tagName?.toLowerCase()
+      const isTyping =
+        tag === 'input' ||
+        tag === 'textarea' ||
+        tag === 'select' ||
+        target?.isContentEditable
+
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault()
+        setSearchOpen(true)
+        setProfileMenuOpen(false)
+        return
+      }
+
+      if (!isTyping && event.key === '/') {
+        event.preventDefault()
+        setSearchOpen(true)
+        setProfileMenuOpen(false)
+      }
+    }
+
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.removeEventListener('keydown', onKeyDown)
+    }
+  }, [])
 
   useEffect(() => {
     if (!profileMenuOpen) {
@@ -157,7 +209,19 @@ export function TopHeader() {
     <header className="top-header">
       <div className="top-header-inner">
         <span className="top-header-brand">Anime Episode Checker</span>
-        <div className="profile-menu" ref={profileMenuRef}>
+        <div className="top-header-actions">
+          <button
+            className="header-icon-btn"
+            type="button"
+            aria-label="Search shows"
+            onClick={() => {
+              setSearchOpen(true)
+              setProfileMenuOpen(false)
+            }}
+          >
+            <SearchIcon />
+          </button>
+          <div className="profile-menu" ref={profileMenuRef}>
           <button
             className="profile-menu-btn"
             type="button"
@@ -226,8 +290,10 @@ export function TopHeader() {
               </button>
             </div>
           ) : null}
+          </div>
         </div>
       </div>
+      <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
     </header>
   )
 }

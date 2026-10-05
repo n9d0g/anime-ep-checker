@@ -1,0 +1,118 @@
+name: Deploy admin to Cloudflare Workers
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'admin/**'
+
+concurrency:
+  group: deploy-admin
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: admin
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.34.5
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24.19.0'
+          cache: pnpm
+          cache-dependency-path: admin/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Deploy to Cloudflare Workers
+        id: cloudflare
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: pnpm exec vinext-cloudflare deploy 2>&1 | tee deploy.log
+
+      - name: Post deploy notification to Discord
+        if: always()
+        env:
+          DISCORD_DEPLOY_WEBHOOK_URL: ${{ secrets.DISCORD_DEPLOY_WEBHOOK_URL }}
+          DEPLOY_OUTCOME: ${{ steps.cloudflare.outcome }}
+          BRANCH: ${{ github.ref_name }}
+          SHORT_SHA: ${{ github.sha }}
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+          CLOUDFLARE_WORKERS_SUBDOMAIN: ${{ secrets.CLOUDFLARE_WORKERS_SUBDOMAIN }}
+        run: |
+          if [ -z "$DISCORD_DEPLOY_WEBHOOK_URL" ]; then
+            echo "DISCORD_DEPLOY_WEBHOOK_URL is not set; skipping."
+            exit 0
+          fi
+
+          if [ -n "$CLOUDFLARE_WORKERS_SUBDOMAIN" ]; then
+            export WORKER_HOST="anime-ep-checker-admin.${CLOUDFLARE_WORKERS_SUBDOMAIN}.workers.dev"
+          else
+            export WORKER_HOST="anime-ep-checker-admin"
+          fi
+
+          payload_json=$(python3 -c '
+          import json, os
+          from datetime import datetime
+          from zoneinfo import ZoneInfo
+
+          outcome = os.environ.get("DEPLOY_OUTCOME", "failure")
+          host = os.environ.get("WORKER_HOST", "anime-ep-checker-admin")
+          branch = os.environ.get("BRANCH") or "unknown"
+          short_sha = (os.environ.get("SHORT_SHA") or "")[:7] or "unknown"
+          details = os.environ.get("COMMIT_MSG") or "Unknown commit"
+
+          now = datetime.now(ZoneInfo("America/New_York"))
+          time_str = now.strftime("%Y-%m-%d %H:%M:%S %Z")
+
+          code_block = (
+              f"Branch: {branch}\n"
+              f"Commit: {short_sha}\n"
+              f"Details: {details}\n"
+              f"Time: {time_str}"
+          )
+
+          if outcome == "success":
+              live_url = f"https://{host}"
+              header = f"🚀 **{host}** deployed successfully!"
+              footer = f"🔗 **Live URL:** {live_url}"
+          else:
+              code_block += "\nError: Cloudflare Workers deploy failed"
+              header = f"❌ **{host}** deployment failed!"
+              footer = "🔗 **Check logs:** GitHub Actions → Deploy admin to Cloudflare Workers"
+
+          content = f"{header}\n\n```\n{code_block}\n```\n\n{footer}"
+
+          if len(content) > 2000:
+              overflow = len(content) - 2000
+              max_details = max(0, len(details) - overflow - 3)
+              details = details[:max_details] + "..."
+              code_block = (
+                  f"Branch: {branch}\n"
+                  f"Commit: {short_sha}\n"
+                  f"Details: {details}\n"
+                  f"Time: {time_str}"
+              )
+              if outcome != "success":
+                  code_block += "\nError: Cloudflare Workers deploy failed"
+              content = f"{header}\n\n```\n{code_block}\n```\n\n{footer}"
+
+          print(json.dumps({"content": content}))
+          ')
+
+          curl -fsS -X POST "$DISCORD_DEPLOY_WEBHOOK_URL" \
+            -H "Content-Type: application/json" \
+            -H "User-Agent: anime-ep-checker-deploy/1.0" \
+            -d "$payload_json"

@@ -17,6 +17,7 @@ export const dynamic = 'force-dynamic'
 interface PtwWatchBody {
   malId?: number
   title?: string
+  titleEnglish?: string
   provider?: ShowFormValues['provider']
   crunchyrollUrl?: string
   netflixUrl?: string
@@ -69,6 +70,7 @@ export async function POST(request: Request) {
     const show = normalizeShow({
       id: uniqueShowId(title, malId, existingIds),
       title,
+      titleEnglish: body.titleEnglish?.trim() || undefined,
       provider: body.provider,
       crunchyrollUrl: body.crunchyrollUrl ?? '',
       seriesId: '',

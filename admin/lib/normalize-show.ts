@@ -114,5 +114,10 @@ export function normalizeShow(show: ShowFormValues): Show {
     normalized.redditSearchTitle = redditSearchTitle
   }
 
+  const titleEnglish = show.titleEnglish?.trim()
+  if (titleEnglish) {
+    normalized.titleEnglish = titleEnglish
+  }
+
   return normalized
 }

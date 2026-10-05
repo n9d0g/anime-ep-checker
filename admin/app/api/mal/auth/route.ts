@@ -16,7 +16,7 @@ export async function GET(request: Request) {
   const clientId = process.env.MAL_CLIENT_ID?.trim()
   if (!clientId) {
     return NextResponse.json(
-      { error: 'MAL_CLIENT_ID is not configured on Vercel.' },
+      { error: 'MAL_CLIENT_ID is not configured on Cloudflare.' },
       { status: 500 }
     )
   }

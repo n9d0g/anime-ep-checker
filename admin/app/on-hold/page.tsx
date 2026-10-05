@@ -3,6 +3,9 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { TopHeader } from '@/app/components/TopHeader'
+import { ShowTitleDisplay } from '@/app/components/ShowTitleDisplay'
+import { useHashScrollHighlight } from '@/app/components/useHashScrollHighlight'
+import { cacheKeys, readJsonCache, writeJsonCache } from '@/lib/client-cache'
 import { PtwListSkeleton } from '@/app/components/ListSkeleton'
 import { useToast } from '@/app/components/Toast'
 import type { OnHoldSnapshot, OnHoldSnapshotEntry } from '@/lib/types'
@@ -24,6 +27,7 @@ function formatHeldMeta(entry: OnHoldSnapshotEntry): string {
 
 export default function OnHoldPage() {
   const toast = useToast()
+  useHashScrollHighlight()
   const [snapshot, setSnapshot] = useState<OnHoldSnapshot | null>(null)
   const [loading, setLoading] = useState(true)
   const [restoringId, setRestoringId] = useState<string | null>(null)
@@ -42,7 +46,11 @@ export default function OnHoldPage() {
         throw new Error(data.error || 'Failed to load on-hold list')
       }
 
-      setSnapshot(data.onHold ?? null)
+      const next = data.onHold ?? null
+      setSnapshot(next)
+      if (next) {
+        writeJsonCache(cacheKeys.onHold, next)
+      }
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : 'Failed to load on-hold list'
@@ -119,6 +127,12 @@ export default function OnHoldPage() {
   }
 
   useEffect(() => {
+    const cached = readJsonCache<OnHoldSnapshot>(cacheKeys.onHold)
+    if (cached?.entries?.length) {
+      setSnapshot(cached)
+      setLoading(false)
+    }
+
     void loadSnapshot()
   }, [])
 
@@ -154,7 +168,11 @@ export default function OnHoldPage() {
               const restoring = restoringId === entry.show.id
 
               return (
-                <article className="show-row ptw-row" key={entry.show.id}>
+                <article
+                  className="show-row ptw-row"
+                  id={`show-${entry.show.id}`}
+                  key={entry.show.id}
+                >
                   <div className="show-row-header ptw-row-header">
                     {malUrl ? (
                       <a
@@ -164,9 +182,10 @@ export default function OnHoldPage() {
                         rel="noopener noreferrer"
                       >
                         <div className="show-row-leading">
-                          <span className="show-row-title">
-                            {entry.show.title || entry.show.id}
-                          </span>
+                          <ShowTitleDisplay
+                            title={entry.show.title || entry.show.id}
+                            titleEnglish={entry.show.titleEnglish}
+                          />
                         </div>
                         {meta ? (
                           <div className="show-row-trailing">
@@ -177,9 +196,10 @@ export default function OnHoldPage() {
                     ) : (
                       <div className="ptw-row-main">
                         <div className="show-row-leading">
-                          <span className="show-row-title">
-                            {entry.show.title || entry.show.id}
-                          </span>
+                          <ShowTitleDisplay
+                            title={entry.show.title || entry.show.id}
+                            titleEnglish={entry.show.titleEnglish}
+                          />
                         </div>
                         {meta ? (
                           <div className="show-row-trailing">

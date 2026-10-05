@@ -33,20 +33,21 @@ export default function MalSetupPage() {
           </li>
           <li>
             Set redirect URI to your admin callback, e.g.{' '}
-            <code>https://your-admin.vercel.app/api/mal/callback</code>
+            <code>https://anime-ep-checker-admin.&lt;your-subdomain&gt;.workers.dev/api/mal/callback</code>
           </li>
           <li>
             Add <code>MAL_CLIENT_ID</code>, <code>MAL_CLIENT_SECRET</code>, and{' '}
-            <code>MAL_REDIRECT_URI</code> to Vercel.
+            <code>MAL_REDIRECT_URI</code> as Cloudflare Worker secrets (
+            <code>wrangler secret put</code>).
           </li>
           <li>
             Register your Discord interactions URL in the Discord Developer
             Portal:{' '}
-            <code>https://your-admin.vercel.app/api/discord/interactions</code>
+            <code>https://anime-ep-checker-admin.&lt;your-subdomain&gt;.workers.dev/api/discord/interactions</code>
           </li>
           <li>
             Click connect below, then paste the refresh token into{' '}
-            <code>MAL_REFRESH_TOKEN</code> on Vercel.
+            <code>MAL_REFRESH_TOKEN</code> on Cloudflare.
           </li>
         </ol>
 

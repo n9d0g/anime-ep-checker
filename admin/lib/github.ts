@@ -79,11 +79,10 @@ async function getBranchHeadSha(): Promise<string> {
   return data.object.sha
 }
 
-async function getRepoFile(path: string) {
+async function getRepoFileAtRef(path: string, ref: string) {
   const { repo } = getConfig()
-  const headSha = await getBranchHeadSha()
   const data = await githubFetch<GitHubContentResponse>(
-    `/repos/${repo}/contents/${path}?ref=${encodeURIComponent(headSha)}`
+    `/repos/${repo}/contents/${path}?ref=${encodeURIComponent(ref)}`
   )
 
   if (!data) {
@@ -94,6 +93,32 @@ async function getRepoFile(path: string) {
     Buffer.from(data.content, 'base64').toString('utf8')
   )
   return { content, sha: data.sha }
+}
+
+async function getRepoFile(path: string) {
+  const headSha = await getBranchHeadSha()
+  return getRepoFileAtRef(path, headSha)
+}
+
+export async function getRepoFiles<T extends string>(paths: T[]) {
+  const headSha = await getBranchHeadSha()
+  const entries = await Promise.all(
+    paths.map(async (path) => {
+      const file = await getRepoFileAtRef(path, headSha)
+      return { path, file }
+    })
+  )
+
+  const result: Partial<Record<T, { content: unknown; sha: string | null }>> =
+    {}
+
+  for (const entry of entries) {
+    result[entry.path as T] = entry.file
+      ? { content: entry.file.content, sha: entry.file.sha }
+      : { content: null, sha: null }
+  }
+
+  return { headSha, files: result }
 }
 
 export async function getShowsFile() {

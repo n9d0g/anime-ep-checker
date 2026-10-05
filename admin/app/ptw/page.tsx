@@ -3,6 +3,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import { MoveToWatchingModal } from '@/app/components/MoveToWatchingModal'
 import { TopHeader } from '@/app/components/TopHeader'
+import { ShowTitleDisplay } from '@/app/components/ShowTitleDisplay'
+import { useHashScrollHighlight } from '@/app/components/useHashScrollHighlight'
+import { cacheKeys, readJsonCache, writeJsonCache } from '@/lib/client-cache'
 import { PtwListSkeleton } from '@/app/components/ListSkeleton'
 import { useToast } from '@/app/components/Toast'
 import type {
@@ -158,7 +161,11 @@ function PtwSection({
           const malUrl = `https://myanimelist.net/anime/${entry.malId}`
 
           return (
-            <article className="show-row ptw-row" key={entry.malId}>
+            <article
+              className="show-row ptw-row"
+              id={`show-${entry.malId}`}
+              key={entry.malId}
+            >
               <div className="show-row-header ptw-row-header">
                 <a
                   className="ptw-row-main"
@@ -167,7 +174,10 @@ function PtwSection({
                   rel="noopener noreferrer"
                 >
                   <div className="show-row-leading">
-                    <span className="show-row-title">{entry.title}</span>
+                    <ShowTitleDisplay
+                      title={entry.title}
+                      titleEnglish={entry.titleEnglish}
+                    />
                   </div>
                   {meta ? (
                     <div className="show-row-trailing">
@@ -194,6 +204,7 @@ function PtwSection({
 
 export default function PlanToWatchPage() {
   const toast = useToast()
+  useHashScrollHighlight()
   const [snapshot, setSnapshot] = useState<PlanToWatchSnapshot | null>(null)
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
@@ -228,7 +239,11 @@ export default function PlanToWatchPage() {
         throw new Error(data.error || 'Failed to load plan-to-watch list')
       }
 
-      setSnapshot(data.planToWatch ?? null)
+      const next = data.planToWatch ?? null
+      setSnapshot(next)
+      if (next) {
+        writeJsonCache(cacheKeys.ptw, next)
+      }
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : 'Failed to load plan-to-watch list'
@@ -293,6 +308,7 @@ export default function PlanToWatchPage() {
         body: JSON.stringify({
           malId: entry.malId,
           title: entry.title,
+          titleEnglish: entry.titleEnglish,
           provider: values.provider,
           crunchyrollUrl: values.crunchyrollUrl,
           netflixUrl: values.netflixUrl,
@@ -335,6 +351,12 @@ export default function PlanToWatchPage() {
   }
 
   useEffect(() => {
+    const cached = readJsonCache<PlanToWatchSnapshot>(cacheKeys.ptw)
+    if (cached?.entries?.length) {
+      setSnapshot(cached)
+      setLoading(false)
+    }
+
     void loadSnapshot()
   }, [])
 

@@ -140,6 +140,7 @@ export async function syncPlanToWatchAlerts({
     (entry) => ({
       malId: entry.malId,
       title: entry.title,
+      titleEnglish: entry.titleEnglish,
       status: entry.status,
       startDate: entry.startDate,
       broadcast: entry.broadcast,

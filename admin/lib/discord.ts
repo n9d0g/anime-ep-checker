@@ -164,7 +164,7 @@ export async function createBotChannelMessage(
 ): Promise<void> {
   const botToken = process.env.DISCORD_BOT_TOKEN?.trim()
   if (!botToken) {
-    throw new Error('DISCORD_BOT_TOKEN is not configured on Vercel.')
+    throw new Error('DISCORD_BOT_TOKEN is not configured on Cloudflare.')
   }
 
   const response = await fetch(

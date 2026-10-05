@@ -3,7 +3,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { TopHeader } from '@/app/components/TopHeader'
 import { ShowListSkeleton } from '@/app/components/ListSkeleton'
+import { ShowTitleDisplay } from '@/app/components/ShowTitleDisplay'
+import { useHashScrollHighlight } from '@/app/components/useHashScrollHighlight'
 import { useToast } from '@/app/components/Toast'
+import { cacheKeys, readJsonCache, writeJsonCache } from '@/lib/client-cache'
 import { buildAnimeDiscussionSearchUrl } from '@/lib/reddit'
 import { getShowWatchUrl } from '@/lib/shows'
 import {
@@ -356,6 +359,7 @@ function SegmentedControl<T extends string>({
 
 export default function AdminPage() {
   const toast = useToast()
+  useHashScrollHighlight()
   const [shows, setShows] = useState<ShowFormValues[]>([])
   const [baseline, setBaseline] = useState('')
   const [showStates, setShowStates] = useState<
@@ -406,6 +410,97 @@ export default function AdminPage() {
     )
   }
 
+  async function mergeWatchedFromApi() {
+    try {
+      const response = await noStoreFetch('/api/mal/watched')
+      const data = (await response.json()) as {
+        watchedByShowId?: Record<string, number | null>
+      }
+      if (!response.ok || !data.watchedByShowId) {
+        return
+      }
+
+      setShowStates((current) => {
+        const next = { ...current }
+        for (const [showId, watched] of Object.entries(data.watchedByShowId ?? {})) {
+          if (!next[showId]) {
+            continue
+          }
+          next[showId] = { ...next[showId], watchedEpisode: watched }
+        }
+        return next
+      })
+    } catch {
+      // Watched counts are optional for the first paint.
+    }
+  }
+
+  async function applyMalBackground() {
+    try {
+      const [watchedResponse, syncResponse] = await Promise.all([
+        noStoreFetch('/api/mal/watched'),
+        noStoreFetch('/api/shows/sync-mal', { method: 'POST' }),
+      ])
+
+      const watchedData = (await watchedResponse.json()) as {
+        error?: string
+        watchedByShowId?: Record<string, number | null>
+      }
+      const syncData = (await syncResponse.json()) as {
+        error?: string
+        shows?: Show[]
+        changed?: boolean
+        resolvedIds?: string[]
+        updatedTitles?: string[]
+      }
+
+      if (watchedResponse.ok && watchedData.watchedByShowId) {
+        setShowStates((current) => {
+          const next = { ...current }
+          for (const [showId, watched] of Object.entries(
+            watchedData.watchedByShowId ?? {}
+          )) {
+            if (!next[showId]) {
+              continue
+            }
+            next[showId] = {
+              ...next[showId],
+              watchedEpisode: watched,
+            }
+          }
+          return next
+        })
+      }
+
+      if (syncResponse.ok && syncData.changed && syncData.shows) {
+        const loadedShows = syncData.shows.map(showToForm)
+        const nextSerialized = serializeShows(loadedShows)
+        if (!savingRef.current && !hasUnsavedLocalEdits()) {
+          setShows(loadedShows)
+          setBaseline(nextSerialized)
+        }
+
+        const parts: string[] = []
+        if (syncData.resolvedIds?.length) {
+          parts.push('linked MAL IDs')
+        }
+        if (syncData.updatedTitles?.length) {
+          parts.push('synced titles from MAL')
+        }
+        if (parts.length > 0) {
+          toast.success(`Auto-${parts.join(' and ')}.`)
+        }
+      } else if (!syncResponse.ok && syncData.error) {
+        console.warn('MAL sync skipped:', syncData.error)
+      }
+    } catch (error) {
+      console.warn(
+        'MAL background sync failed:',
+        error instanceof Error ? error.message : error
+      )
+    }
+  }
+
   async function loadRemoteData(
     options: { silent?: boolean; syncMal?: boolean } = {}
   ) {
@@ -436,48 +531,21 @@ export default function AdminPage() {
         ? serializeShows(showsRef.current)
         : null
 
-      const [showsResponse, stateResponse, syncResponse] = await Promise.all([
-        noStoreFetch('/api/shows'),
-        noStoreFetch('/api/state'),
-        syncMal
-          ? noStoreFetch('/api/shows/sync-mal', { method: 'POST' })
-          : Promise.resolve(null),
-      ])
-
-      const showsData = (await showsResponse.json()) as {
+      const bootstrapResponse = await noStoreFetch('/api/bootstrap')
+      const bootstrapData = (await bootstrapResponse.json()) as {
         error?: string
         shows?: Show[]
-      }
-      const stateData = (await stateResponse.json()) as {
-        error?: string
-        shows?: Record<string, ShowStateSummary>
-      }
-      const syncData = syncResponse
-        ? ((await syncResponse.json()) as {
-            error?: string
-            shows?: Show[]
-            changed?: boolean
-            resolvedIds?: string[]
-            updatedTitles?: string[]
-          })
-        : null
-
-      if (!showsResponse.ok) {
-        throw new Error(showsData.error || 'Failed to load shows')
+        showStates?: Record<string, ShowStateSummary>
       }
 
-      if (!stateResponse.ok) {
-        throw new Error(stateData.error || 'Failed to load episode state')
+      if (!bootstrapResponse.ok) {
+        throw new Error(bootstrapData.error || 'Failed to load shows')
       }
 
-      const loadedShows = (
-        syncResponse?.ok && syncData?.changed && syncData.shows
-          ? syncData.shows
-          : (showsData.shows ?? [])
-      ).map(showToForm)
+      const loadedShows = (bootstrapData.shows ?? []).map(showToForm)
 
       if (silent && (savingRef.current || hasUnsavedLocalEdits())) {
-        setShowStates(stateData.shows ?? {})
+        setShowStates(bootstrapData.showStates ?? {})
         lastFetchAtRef.current = Date.now()
         return
       }
@@ -485,8 +553,13 @@ export default function AdminPage() {
       const nextSerialized = serializeShows(loadedShows)
       setShows(loadedShows)
       setBaseline(nextSerialized)
-      setShowStates(stateData.shows ?? {})
+      setShowStates(bootstrapData.showStates ?? {})
       lastFetchAtRef.current = Date.now()
+
+      writeJsonCache(cacheKeys.bootstrap, {
+        shows: bootstrapData.shows ?? [],
+        showStates: bootstrapData.showStates ?? {},
+      })
 
       if (
         silent &&
@@ -496,19 +569,10 @@ export default function AdminPage() {
         toast.success('Shows updated.')
       }
 
-      if (syncResponse?.ok && syncData?.changed) {
-        const parts: string[] = []
-        if (syncData.resolvedIds?.length) {
-          parts.push('linked MAL IDs')
-        }
-        if (syncData.updatedTitles?.length) {
-          parts.push('synced titles from MAL')
-        }
-        if (parts.length > 0) {
-          toast.success(`Auto-${parts.join(' and ')}.`)
-        }
-      } else if (syncResponse && !syncResponse.ok && syncData?.error) {
-        console.warn('MAL sync skipped:', syncData.error)
+      if (syncMal) {
+        void applyMalBackground()
+      } else {
+        void mergeWatchedFromApi()
       }
     } catch (error) {
       if (silent) {
@@ -531,6 +595,19 @@ export default function AdminPage() {
   }
 
   useEffect(() => {
+    const cached = readJsonCache<{
+      shows: Show[]
+      showStates: Record<string, ShowStateSummary>
+    }>(cacheKeys.bootstrap)
+
+    if (cached?.shows?.length) {
+      const forms = cached.shows.map(showToForm)
+      setShows(forms)
+      setBaseline(serializeShows(forms))
+      setShowStates(cached.showStates ?? {})
+      setLoading(false)
+    }
+
     void loadRemoteData({ syncMal: true })
     // Initial load only; background refresh is handled separately.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1127,6 +1204,7 @@ export default function AdminPage() {
 
                 return (
                   <article
+                    id={show.id ? `show-${show.id}` : undefined}
                     className={`show-row${open ? ' expanded' : ''}`}
                     key={cardKey(show, index)}
                   >
@@ -1141,9 +1219,10 @@ export default function AdminPage() {
                           className={`provider-dot ${providerDotClass(show.provider)}`}
                           aria-hidden="true"
                         />
-                        <span className="show-row-title">
-                          {show.title || `Show ${index + 1}`}
-                        </span>
+                        <ShowTitleDisplay
+                          title={show.title || `Show ${index + 1}`}
+                          titleEnglish={show.titleEnglish}
+                        />
                       </div>
                       <div className="show-row-trailing">
                         <span

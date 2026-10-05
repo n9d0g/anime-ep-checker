@@ -51,7 +51,7 @@ export async function GET(request: Request) {
 </head>
 <body>
   <h1>MyAnimeList connected</h1>
-  <p>Copy this refresh token into your Vercel project as <code>MAL_REFRESH_TOKEN</code>, then redeploy.</p>
+  <p>Copy this refresh token into your Cloudflare Worker as <code>MAL_REFRESH_TOKEN</code>, then redeploy.</p>
   <pre>${refreshToken}</pre>
   <p><a href="/mal">Back to MAL setup</a> · <a href="/">Admin home</a></p>
 </body>

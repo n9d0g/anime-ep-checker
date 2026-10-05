@@ -1124,3 +1124,149 @@ select:focus {
     flex: 1;
   }
 }
+
+.show-row-title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  min-width: 0;
+}
+
+.show-row-subtitle {
+  font-size: 0.78rem;
+  font-style: italic;
+  color: var(--hint);
+  line-height: 1.25;
+}
+
+.top-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.header-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 0.45rem;
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.header-icon-btn:hover {
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+
+.header-icon-btn svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.search-overlay-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: max(4rem, 12vh) 1rem 1rem;
+  background: rgb(0 0 0 / 0.45);
+}
+
+.search-overlay {
+  width: min(32rem, 100%);
+  max-height: min(28rem, 70vh);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.65rem;
+  background: var(--surface);
+  box-shadow: 0 12px 40px rgb(0 0 0 / 0.25);
+}
+
+.search-overlay-input {
+  width: 100%;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 0.45rem;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.92rem;
+}
+
+.search-overlay-results {
+  overflow: auto;
+  min-height: 0;
+}
+
+.search-overlay-empty {
+  margin: 0.5rem 0;
+  font-size: 0.85rem;
+  color: var(--hint);
+  text-align: center;
+}
+
+.search-overlay-group {
+  margin-bottom: 0.5rem;
+}
+
+.search-overlay-group-title {
+  margin: 0 0 0.25rem;
+  padding: 0 0.25rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--hint);
+}
+
+.search-overlay-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.search-overlay-item {
+  width: 100%;
+  display: block;
+  padding: 0.45rem 0.5rem;
+  border: none;
+  border-radius: 0.4rem;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.search-overlay-item:hover,
+.search-overlay-item.active {
+  background: var(--surface-raised);
+}
+
+.search-overlay-item-title .show-row-title {
+  font-size: 0.88rem;
+}
+
+@keyframes search-highlight-pulse {
+  0%,
+  100% {
+    box-shadow: none;
+  }
+  50% {
+    box-shadow: inset 0 0 0 2px var(--accent);
+  }
+}
+
+.search-highlight {
+  animation: search-highlight-pulse 0.6s ease-in-out 2;
+}

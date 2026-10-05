@@ -1,12 +1,12 @@
 # Anime Episode Checker
 
-Checks **Crunchyroll**, **Netflix**, or **Disney+** for newly available anime episodes and sends Discord alerts when an episode drops. Manage tracked shows through a small admin CMS on Vercel.
+Checks **Crunchyroll**, **Netflix**, or **Disney+** for newly available anime episodes and sends Discord alerts when an episode drops. Manage tracked shows through a small admin CMS on Cloudflare Workers.
 
 ## How it works
 
 ```mermaid
 flowchart LR
-  Admin[Vercel CMS] -->|GitHub Contents API| Shows[shows.json]
+  Admin[Cloudflare admin] -->|GitHub Contents API| Shows[shows.json]
   Cron[GitHub Actions cron] --> Shows
   Cron --> CR[Crunchyroll API]
   Cron --> NF[Netflix Shakti API]
@@ -15,8 +15,8 @@ flowchart LR
   Cron -->|bot message| Discord[Discord channel]
   Cron -->|dashboard| Watching[#watching channel]
   Cron -->|Google Calendar| Calendar[Google Calendar]
-  Discord -->|MAL button| Vercel[Vercel interactions]
-  Vercel --> MAL[MyAnimeList API]
+  Discord -->|MAL button| AdminWorker[Cloudflare interactions]
+  AdminWorker --> MAL[MyAnimeList API]
   Cron --> MAL
 ```
 
@@ -27,7 +27,7 @@ flowchart LR
 5. When the expected episode becomes available, it posts to **Discord** (notification-friendly message with MAL cover thumbnail, episode metadata, and Watch / r/anime / MAL link buttons) and updates [`state.json`](state.json).
 6. If an episode is **late** (15+ min past expected), it sends a one-time **still waiting** Discord message.
 7. Each run also refreshes a **#watching dashboard** (MAL progress + next drops) and syncs **Discord Scheduled Events** for upcoming episodes.
-8. The **Vercel admin** edits `shows.json` in your repo.
+8. The **Cloudflare admin** edits `shows.json` in your repo.
 
 ## Schedule model
 
@@ -93,9 +93,9 @@ If **Check anime episodes** is slow or fails at **Getting action download info**
 5. Create channels and copy IDs:
    - Episode alerts → `DISCORD_CHANNEL_ID`
    - Watching dashboard → `DISCORD_WATCHING_CHANNEL_ID`
-6. Copy your server (guild) ID → `DISCORD_GUILD_ID` (Vercel admin: slash command registration)
-7. Copy the application **Public Key** → `DISCORD_PUBLIC_KEY` (Vercel)
-8. Under **Interactions**, set the endpoint URL to `https://your-admin.vercel.app/api/discord/interactions`
+6. Copy your server (guild) ID → `DISCORD_GUILD_ID` (admin Worker: slash command registration)
+7. Copy the application **Public Key** → `DISCORD_PUBLIC_KEY` (Cloudflare Worker secrets)
+8. Under **Interactions**, set the endpoint URL to `https://anime-ep-checker-admin.<your-subdomain>.workers.dev/api/discord/interactions`
 
 Optional fallback: a legacy webhook via `DISCORD_WEBHOOK_URL` (no MAL button, no dashboard).
 
@@ -122,20 +122,29 @@ The workflow uses the default `GITHUB_TOKEN` to commit `state.json` updates.
 
 ### 2b. Discord deploy notifications
 
-When the **Vercel admin** production deploy succeeds or fails, GitHub receives a `vercel.deployment.success`, `vercel.deployment.error`, or `vercel.deployment.failed` event and [`.github/workflows/notify-deploy.yml`](.github/workflows/notify-deploy.yml) posts to your deploy channel.
+Pushes to `main` that change `admin/**` run [`.github/workflows/deploy-admin.yml`](.github/workflows/deploy-admin.yml), which deploys the admin Worker and posts success or failure to your deploy Discord channel.
 
 1. Create a webhook in your **deploy** Discord channel (not the episode-alerts channel).
 2. Add it as GitHub secret `DISCORD_DEPLOY_WEBHOOK_URL`.
-3. Ensure the repo is connected to Vercel with the GitHub integration (default for Vercel imports).
+3. Add Cloudflare deploy secrets: `CLOUDFLARE_API_TOKEN` (Workers edit) and `CLOUDFLARE_ACCOUNT_ID`.
+4. Optional: `CLOUDFLARE_WORKERS_SUBDOMAIN` (the `*.workers.dev` subdomain from your Cloudflare account) so deploy messages include the full live URL.
 
-Success messages include branch, short commit SHA, commit subject, time (ET), and live URL (`https://{project}.vercel.app` for `main`). Failure messages add the deployment error status and a **Check logs** link to the unique deployment URL. Preview deployments are ignored (`environment == production` only). Commits that only change checker runtime files (e.g. `state.json` at repo root) do not touch `admin/`, so Vercel skips rebuilds and deploy Discord notifications are not posted.
+Success messages include branch, short commit SHA, commit subject, time (ET), and the Workers URL. Failure messages point at the GitHub Actions logs. Commits that only change checker runtime files (e.g. `state.json` at repo root) do not touch `admin/`, so no admin deploy runs.
 
-### 3. Vercel admin CMS
+### 3. Cloudflare admin CMS
 
-1. Import this repo in [Vercel](https://vercel.com)
-2. Set **Root Directory** to `admin`
-3. Set package manager to **pnpm**
-4. Add environment variables (see [`admin/.env.example`](admin/.env.example)):
+The admin app lives in [`admin/`](admin/) and runs on [Cloudflare Workers](https://developers.cloudflare.com/workers/) via [vinext](https://github.com/cloudflare/vinext) (`vite dev` / `vite build`).
+
+**GitHub Actions (deploy):** set `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` as repository secrets. Pushes to `main` under `admin/**` deploy automatically.
+
+**Worker secrets (runtime):** from the `admin/` directory, set each variable from [`admin/.env.example`](admin/.env.example):
+
+```bash
+cd admin
+wrangler secret put ADMIN_PASSWORD
+wrangler secret put GITHUB_TOKEN
+# …repeat for every key in .env.example
+```
 
 | Variable | Description |
 |----------|-------------|
@@ -149,15 +158,24 @@ Success messages include branch, short commit SHA, commit subject, time (ET), an
 | `DISCORD_CHANNEL_ID` | Episode alerts channel (slash `/score-alert`) |
 | `MAL_CLIENT_ID` | MAL API client ID |
 | `MAL_CLIENT_SECRET` | MAL API client secret |
-| `MAL_REDIRECT_URI` | `https://your-admin.vercel.app/api/mal/callback` |
+| `MAL_REDIRECT_URI` | `https://anime-ep-checker-admin.<your-subdomain>.workers.dev/api/mal/callback` |
 | `MAL_REFRESH_TOKEN` | From one-time OAuth at `/mal` |
+
+**After the first deploy:**
+
+1. Note your Workers URL: `https://anime-ep-checker-admin.<your-subdomain>.workers.dev`
+2. Update the MAL API client redirect URI and `MAL_REDIRECT_URI` to `…/api/mal/callback`
+3. Update the Discord **Interactions** endpoint to `…/api/discord/interactions`
+4. Shut down the old Vercel project if you migrated from it
+
+**Local dev:** `cd admin && pnpm install && pnpm dev` (vinext on port 3001). Copy `.env.example` to `.env.local` for secrets. Auth uses `proxy.ts` the same as on Workers.
 
 ### 4. MyAnimeList
 
 1. Create an API client at [myanimelist.net/apiconfig](https://myanimelist.net/apiconfig)
 2. Set redirect URI to your admin callback URL
 3. Open **/mal** on your deployed admin and connect your account
-4. Copy the refresh token into Vercel as `MAL_REFRESH_TOKEN` and redeploy
+4. Copy the refresh token into Worker secrets as `MAL_REFRESH_TOKEN` (`wrangler secret put MAL_REFRESH_TOKEN`)
 
 **Finding a MAL anime ID:** open the anime on MyAnimeList and copy the number from the URL:
 
@@ -243,7 +261,7 @@ Episode alerts use a **classic embed** with a MAL cover thumbnail, plus a top-le
 
 ### Discord watching dashboard
 
-The bot maintains a **pinned message per tracked show** in `#watching` using a **classic embed** (MAL cover thumbnail, status, progress, score, next episode, countdown, expected drop) plus a top-level **notification line** (e.g. **One Piece** — MAL 1100 / ? · Next Episode 1160 · Upcoming) so mobile push previews show readable text. Each card also includes **Watch** and **r/anime** link buttons when available. Shows with a `malId` get **− / +** buttons and a **Set progress…** modal. Requires `DISCORD_BOT_TOKEN`, `DISCORD_WATCHING_CHANNEL_ID`, `DISCORD_PUBLIC_KEY` + MAL secrets on **Vercel** (for button clicks), and **MAL secrets on GitHub Actions** (for dashboard sync). If MAL is missing from Actions, the dashboard shows **MAL not configured**; if auth fails, it shows **MAL unavailable**.
+The bot maintains a **pinned message per tracked show** in `#watching` using a **classic embed** (MAL cover thumbnail, status, progress, score, next episode, countdown, expected drop) plus a top-level **notification line** (e.g. **One Piece** — MAL 1100 / ? · Next Episode 1160 · Upcoming) so mobile push previews show readable text. Each card also includes **Watch** and **r/anime** link buttons when available. Shows with a `malId` get **− / +** buttons and a **Set progress…** modal. Requires `DISCORD_BOT_TOKEN`, `DISCORD_WATCHING_CHANNEL_ID`, `DISCORD_PUBLIC_KEY` + MAL secrets on the **admin Worker** (for button clicks), and **MAL secrets on GitHub Actions** (for dashboard sync). If MAL is missing from Actions, the dashboard shows **MAL not configured**; if auth fails, it shows **MAL unavailable**.
 
 ### MAL score alerts
 
@@ -270,7 +288,7 @@ DISCORD_BOT_TOKEN=... DISCORD_GUILD_ID=... pnpm register-commands
 
 Slash replies are **deferred** (Discord shows "thinking…" briefly) so GitHub/MAL lookups can finish before the ephemeral result appears. Redeploy the admin app after updating slash command handling.
 
-Requires `DISCORD_GUILD_ID`, `DISCORD_BOT_TOKEN`, and `DISCORD_CHANNEL_ID` on Vercel for `/score-alert`. All commands use the same interactions endpoint as MAL buttons.
+Requires `DISCORD_GUILD_ID`, `DISCORD_BOT_TOKEN`, and `DISCORD_CHANNEL_ID` on the admin Worker for `/score-alert`. All commands use the same interactions endpoint as MAL buttons.
 
 ### Google Calendar sync
 
@@ -294,7 +312,7 @@ When an episode drops, its calendar event is removed. Use **Delay +1 week** in t
 
 ## CMS usage
 
-1. Open your Vercel admin URL and sign in
+1. Open your Cloudflare admin URL and sign in
 2. Use the profile menu to switch between **Watching** (`/`) and **Plan to watch** (`/ptw`)
 3. On **Watching**, choose **Crunchyroll**, **Netflix**, or **Disney+** and paste the series/title URL
 4. **MAL anime ID** is optional: if left blank, the admin tries to auto-match from the show title on load; once linked, the ID is hidden under **More options** (still editable)
@@ -334,9 +352,9 @@ Shows your MAL plan-to-watch list from `state.meta.planToWatch`, grouped into **
 | [`src/plan-to-watch.ts`](src/plan-to-watch.ts) | MAL plan-to-watch airing alerts |
 | [`scripts/register-discord-commands.ts`](scripts/register-discord-commands.ts) | Register guild slash commands |
 | [`src/should-run.mjs`](src/should-run.mjs) | Cheap gate for Actions (no marketplace actions on skip path) |
-| [`admin/`](admin/) | Vercel CMS + Discord/MAL interactions |
+| [`admin/`](admin/) | Cloudflare CMS + Discord/MAL interactions (vinext) |
 | [`.github/workflows/check-episodes.yml`](.github/workflows/check-episodes.yml) | Gate + full episode check (`schedule`, `workflow_dispatch`, or external cron) |
-| [`.github/workflows/notify-deploy.yml`](.github/workflows/notify-deploy.yml) | Discord notify on Vercel production deploy |
+| [`.github/workflows/deploy-admin.yml`](.github/workflows/deploy-admin.yml) | Deploy admin Worker + Discord deploy notify |
 
 ## Notes
 

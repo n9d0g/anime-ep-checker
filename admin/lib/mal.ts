@@ -17,6 +17,11 @@ interface MalMainPicture {
 
 interface MalAnimeResponse {
   title?: string
+  alternative_titles?: {
+    en?: string
+    ja?: string
+    synonyms?: string[]
+  }
   num_episodes?: number
   mean?: number
   main_picture?: MalMainPicture
@@ -26,6 +31,11 @@ interface MalAnimeResponse {
 interface MalAnimelistNode {
   id: number
   title: string
+  alternative_titles?: {
+    en?: string
+    ja?: string
+    synonyms?: string[]
+  }
   status?: string
   start_date?: string
   num_episodes?: number
@@ -65,11 +75,12 @@ const MAL_ANIME_FIELDS =
   'title,num_episodes,my_list_status,mean,main_picture'
 
 const MAL_ANIMELIST_FIELDS =
-  'list_status,num_episodes,start_date,broadcast,main_picture,status'
+  'list_status,num_episodes,start_date,broadcast,main_picture,status,alternative_titles'
 
 export interface MalPlanToWatchEntry {
   malId: number
   title: string
+  titleEnglish?: string
   status: string
   startDate: string | null
   broadcast: {
@@ -97,7 +108,7 @@ function getMalClientConfig() {
   const clientSecret = process.env.MAL_CLIENT_SECRET?.trim()
 
   if (!clientId || !clientSecret) {
-    throw new Error('MAL_CLIENT_ID and MAL_CLIENT_SECRET must be set on Vercel.')
+    throw new Error('MAL_CLIENT_ID and MAL_CLIENT_SECRET must be set on Cloudflare.')
   }
 
   return { clientId, clientSecret }
@@ -109,7 +120,7 @@ function getMalRefreshConfig() {
 
   if (!refreshToken) {
     throw new Error(
-      'MAL_REFRESH_TOKEN is not set. Connect MAL from /mal and paste the refresh token into Vercel.'
+      'MAL_REFRESH_TOKEN is not set. Connect MAL from /mal and paste the refresh token into Cloudflare Worker secrets.'
     )
   }
 
@@ -150,7 +161,15 @@ export async function exchangeMalCode(
   return response.json() as Promise<MalTokenResponse>
 }
 
+let cachedMalAccessToken: string | null = null
+let malAccessTokenExpiresAt = 0
+
 async function getMalAccessToken(): Promise<string> {
+  const now = Date.now()
+  if (cachedMalAccessToken && malAccessTokenExpiresAt > now + 60_000) {
+    return cachedMalAccessToken
+  }
+
   const { clientId, clientSecret, refreshToken } = getMalRefreshConfig()
 
   const response = await fetch('https://myanimelist.net/v1/oauth2/token', {
@@ -170,7 +189,9 @@ async function getMalAccessToken(): Promise<string> {
   }
 
   const data = (await response.json()) as MalTokenResponse
-  return data.access_token
+  cachedMalAccessToken = data.access_token
+  malAccessTokenExpiresAt = now + (data.expires_in ?? 3600) * 1000
+  return cachedMalAccessToken
 }
 
 export async function updateMalWatchedEpisode(
@@ -448,9 +469,12 @@ function parsePlanToWatchEntry(node: MalAnimelistNode): MalPlanToWatchEntry {
       }
     : null
 
+  const titleEnglish = node.alternative_titles?.en?.trim() || undefined
+
   return {
     malId: node.id,
     title: node.title,
+    titleEnglish,
     status: node.status ?? '',
     startDate: node.start_date ?? null,
     broadcast,
@@ -549,10 +573,12 @@ export async function searchMalAnime(query: string) {
   }))
 }
 
-export async function fetchMalAnimeTitle(malId: number): Promise<string | null> {
+export async function fetchMalAnimeTitles(
+  malId: number
+): Promise<{ title: string | null; titleEnglish: string | null }> {
   const accessToken = await getMalAccessToken()
   const response = await fetch(
-    `https://api.myanimelist.net/v2/anime/${malId}?fields=title`,
+    `https://api.myanimelist.net/v2/anime/${malId}?fields=title,alternative_titles`,
     {
       headers: { Authorization: `Bearer ${accessToken}` },
     }
@@ -564,5 +590,13 @@ export async function fetchMalAnimeTitle(malId: number): Promise<string | null> 
   }
 
   const data = (await response.json()) as MalAnimeResponse
-  return data.title?.trim() || null
+  return {
+    title: data.title?.trim() || null,
+    titleEnglish: data.alternative_titles?.en?.trim() || null,
+  }
+}
+
+export async function fetchMalAnimeTitle(malId: number): Promise<string | null> {
+  const { title } = await fetchMalAnimeTitles(malId)
+  return title
 }
