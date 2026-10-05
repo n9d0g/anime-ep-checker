@@ -51,17 +51,23 @@ jobs:
           SHORT_SHA: ${{ github.sha }}
           COMMIT_MSG: ${{ github.event.head_commit.message }}
           CLOUDFLARE_WORKERS_SUBDOMAIN: ${{ secrets.CLOUDFLARE_WORKERS_SUBDOMAIN }}
+          ADMIN_LIVE_URL: ${{ secrets.ADMIN_LIVE_URL }}
         run: |
           if [ -z "$DISCORD_DEPLOY_WEBHOOK_URL" ]; then
             echo "DISCORD_DEPLOY_WEBHOOK_URL is not set; skipping."
             exit 0
           fi
 
-          if [ -n "$CLOUDFLARE_WORKERS_SUBDOMAIN" ]; then
-            export WORKER_HOST="anime-ep-checker-admin.${CLOUDFLARE_WORKERS_SUBDOMAIN}.workers.dev"
+          DEFAULT_ADMIN_LIVE_URL="https://anime-ep-checker-admin.nate-584.workers.dev/"
+          if [ -n "$ADMIN_LIVE_URL" ]; then
+            export LIVE_URL="${ADMIN_LIVE_URL%/}/"
+          elif [ -n "$CLOUDFLARE_WORKERS_SUBDOMAIN" ]; then
+            export LIVE_URL="https://anime-ep-checker-admin.${CLOUDFLARE_WORKERS_SUBDOMAIN}.workers.dev/"
           else
-            export WORKER_HOST="anime-ep-checker-admin"
+            export LIVE_URL="$DEFAULT_ADMIN_LIVE_URL"
           fi
+          export WORKER_HOST="${LIVE_URL#https://}"
+          export WORKER_HOST="${WORKER_HOST%/}"
 
           payload_json=$(python3 -c '
           import json, os
@@ -69,7 +75,8 @@ jobs:
           from zoneinfo import ZoneInfo
 
           outcome = os.environ.get("DEPLOY_OUTCOME", "failure")
-          host = os.environ.get("WORKER_HOST", "anime-ep-checker-admin")
+          host = os.environ.get("WORKER_HOST", "anime-ep-checker-admin.nate-584.workers.dev")
+          live_url = os.environ.get("LIVE_URL", "https://anime-ep-checker-admin.nate-584.workers.dev/")
           branch = os.environ.get("BRANCH") or "unknown"
           short_sha = (os.environ.get("SHORT_SHA") or "")[:7] or "unknown"
           details = os.environ.get("COMMIT_MSG") or "Unknown commit"
@@ -85,7 +92,6 @@ jobs:
           )
 
           if outcome == "success":
-              live_url = f"https://{host}"
               header = f"🚀 **{host}** deployed successfully!"
               footer = f"🔗 **Live URL:** {live_url}"
           else:

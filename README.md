@@ -129,7 +129,7 @@ Pushes to `main` that change `admin/**` run [`.github/workflows/deploy-admin.yml
 1. Create a webhook in your **deploy** Discord channel (not the episode-alerts channel).
 2. Add it as GitHub secret `DISCORD_DEPLOY_WEBHOOK_URL`.
 3. Add Cloudflare deploy secrets: `CLOUDFLARE_API_TOKEN` (Workers edit) and `CLOUDFLARE_ACCOUNT_ID`.
-4. Optional: `CLOUDFLARE_WORKERS_SUBDOMAIN` (the `*.workers.dev` subdomain from your Cloudflare account) so deploy messages include the full live URL.
+4. Optional: `CLOUDFLARE_WORKERS_SUBDOMAIN` (the `*.workers.dev` subdomain from your Cloudflare account) or `ADMIN_LIVE_URL` (full admin URL) so deploy messages link to the CMS. Defaults to `https://anime-ep-checker-admin.nate-584.workers.dev/` when neither is set.
 
 Success messages include branch, short commit SHA, commit subject, time (ET), and the Workers URL. Failure messages point at the GitHub Actions logs. Commits that only change checker runtime files (e.g. `state.json` at repo root) do not touch `admin/`, so no admin deploy runs.
 
