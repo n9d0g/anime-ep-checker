@@ -28,6 +28,8 @@ jobs:
         id: gate
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
         run: |
           mkdir -p gate-tmp
           REF="${GITHUB_REF_NAME}"
@@ -92,6 +94,8 @@ jobs:
           DISNEY_REGION: ${{ secrets.DISNEY_REGION }}
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
           GOOGLE_CALENDAR_ID: ${{ secrets.GOOGLE_CALENDAR_ID }}
+          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
         run: pnpm check ${{ github.event.inputs.force == 'true' && '--force' || '' }}
 
       - name: Update Disney refresh token secret

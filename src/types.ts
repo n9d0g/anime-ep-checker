@@ -103,7 +103,12 @@ export interface StateFile {
     onHold?: OnHoldSnapshot
     redditUserFeeds?: Record<
       string,
-      { seenPostIds: string[]; checkedAt: string }
+      {
+        seenPostIds: string[]
+        checkedAt: string
+        lastErrorAt?: string
+        errorAlertSentAt?: string
+      }
     >
   }
 }

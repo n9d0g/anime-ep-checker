@@ -187,7 +187,10 @@ function hasOrphanedShows(shows, state) {
 }
 
 // Keep in sync with src/reddit-feeds.ts
-const REDDIT_USER_AGENT = 'anime-ep-checker/1.0'
+const REDDIT_USER_AGENT = 'node:anime-ep-checker:1.0 (by /u/n9d0g)'
+const REDDIT_FEED_STALE_MS = 2 * 60 * 60 * 1000
+
+let cachedRedditOAuthToken = null
 const REDDIT_USER_FEEDS = [
   {
     id: 'animecorner',
@@ -257,7 +260,99 @@ function matchesRedditFeedTitle(feed, title) {
   return feed.titlePattern.test(title)
 }
 
-async function fetchRedditUserFeedEntries(username) {
+function getRedditCredentials() {
+  const clientId = process.env.REDDIT_CLIENT_ID?.trim()
+  const clientSecret = process.env.REDDIT_CLIENT_SECRET?.trim()
+  if (!clientId || !clientSecret) {
+    return null
+  }
+  return { clientId, clientSecret }
+}
+
+async function getRedditAccessToken() {
+  const creds = getRedditCredentials()
+  if (!creds) {
+    return null
+  }
+
+  const now = Date.now()
+  if (cachedRedditOAuthToken && cachedRedditOAuthToken.expiresAt > now + 60_000) {
+    return cachedRedditOAuthToken.token
+  }
+
+  const basic = Buffer.from(
+    `${creds.clientId}:${creds.clientSecret}`
+  ).toString('base64')
+
+  const response = await fetch('https://www.reddit.com/api/v1/access_token', {
+    method: 'POST',
+    headers: {
+      'User-Agent': REDDIT_USER_AGENT,
+      Authorization: `Basic ${basic}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: 'grant_type=client_credentials',
+  })
+
+  if (!response.ok) {
+    console.warn(`Reddit OAuth token failed (${response.status})`)
+    return null
+  }
+
+  const data = await response.json()
+  cachedRedditOAuthToken = {
+    token: data.access_token,
+    expiresAt: now + data.expires_in * 1000,
+  }
+  return cachedRedditOAuthToken.token
+}
+
+function mapOAuthListingToEntries(json) {
+  const children = json?.data?.children ?? []
+  const entries = []
+
+  for (const child of children) {
+    const data = child?.data
+    if (!data?.id || !data.title) {
+      continue
+    }
+    entries.push({
+      id: `t3_${data.id}`,
+      title: data.title,
+    })
+  }
+
+  return entries
+}
+
+async function fetchRedditUserFeedEntriesOAuth(username, token) {
+  const url = `https://oauth.reddit.com/user/${username}/submitted?limit=25&raw_json=1`
+  const response = await fetch(url, {
+    headers: {
+      'User-Agent': REDDIT_USER_AGENT,
+      Authorization: `bearer ${token}`,
+    },
+  })
+
+  if (response.status === 429) {
+    console.warn(
+      `Reddit OAuth rate limited (429) for u/${username}; gate treats as fetch failure`
+    )
+    return { ok: false, status: 429 }
+  }
+
+  if (!response.ok) {
+    console.warn(
+      `Reddit OAuth listing failed (${response.status}) for u/${username}; gate treats as fetch failure`
+    )
+    return { ok: false, status: response.status }
+  }
+
+  const json = await response.json()
+  return { ok: true, entries: mapOAuthListingToEntries(json) }
+}
+
+async function fetchRedditUserFeedEntriesRss(username) {
   const url = `https://www.reddit.com/user/${username}/submitted.rss?limit=25`
   const response = await fetch(url, {
     headers: {
@@ -269,37 +364,59 @@ async function fetchRedditUserFeedEntries(username) {
 
   if (response.status === 429) {
     console.warn(
-      `Reddit user RSS rate limited (429) for u/${username}; gate treats as no new posts`
+      `Reddit user RSS rate limited (429) for u/${username}; gate treats as fetch failure`
     )
-    return null
+    return { ok: false, status: 429 }
   }
 
   if (!response.ok) {
     console.warn(
-      `Reddit user RSS failed (${response.status}) for u/${username}; gate treats as no new posts`
+      `Reddit user RSS failed (${response.status}) for u/${username}; gate treats as fetch failure`
     )
-    return null
+    return { ok: false, status: response.status }
   }
 
   const xml = await response.text()
-  return parseRedditUserFeedEntries(xml)
+  return { ok: true, entries: parseRedditUserFeedEntries(xml) }
+}
+
+async function fetchRedditUserFeedEntries(username) {
+  const token = await getRedditAccessToken()
+  if (token) {
+    return fetchRedditUserFeedEntriesOAuth(username, token)
+  }
+  return fetchRedditUserFeedEntriesRss(username)
+}
+
+function feedSuccessIsStale(checkedAt, now) {
+  if (!checkedAt) {
+    return true
+  }
+  return now.getTime() - new Date(checkedAt).getTime() > REDDIT_FEED_STALE_MS
 }
 
 async function needsRedditFeedCheck(state) {
   const feedState = state.meta?.redditUserFeeds ?? {}
+  const now = new Date()
 
   for (const feed of REDDIT_USER_FEEDS) {
     if (!feedState[feed.id]) {
       return true
     }
 
-    const entries = await fetchRedditUserFeedEntries(feed.username)
-    if (!entries) {
+    const result = await fetchRedditUserFeedEntries(feed.username)
+    if (!result.ok) {
+      if (feedSuccessIsStale(feedState[feed.id].checkedAt, now)) {
+        console.log(
+          `Reddit feed u/${feed.username} fetch failed; last success is stale — running full check`
+        )
+        return true
+      }
       continue
     }
 
     const seen = new Set(feedState[feed.id].seenPostIds ?? [])
-    const hasNew = entries.some(
+    const hasNew = result.entries.some(
       (entry) => matchesRedditFeedTitle(feed, entry.title) && !seen.has(entry.id)
     )
     if (hasNew) {

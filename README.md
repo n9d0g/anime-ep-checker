@@ -117,6 +117,8 @@ Optional fallback: a legacy webhook via `DISCORD_WEBHOOK_URL` (no MAL button, no
 | `GOOGLE_SERVICE_ACCOUNT_JSON` | Full JSON key for a Google service account with Calendar access (see [Google Calendar sync](#google-calendar-sync)) |
 | `GOOGLE_CALENDAR_ID` | Calendar ID for your Anime Drops calendar |
 | `DISCORD_DEPLOY_WEBHOOK_URL` | Webhook for a separate **deploy** Discord channel |
+| `REDDIT_CLIENT_ID` | Reddit “script” app client ID (user post alerts; see [Reddit user post alerts](#reddit-user-post-alerts)) |
+| `REDDIT_CLIENT_SECRET` | Reddit app secret |
 
 The workflow uses the default `GITHUB_TOKEN` to commit `state.json` updates.
 
@@ -170,7 +172,7 @@ npx wrangler secret put GITHUB_TOKEN --name anime-ep-checker-admin
 3. Update the Discord **Interactions** endpoint to `…/api/discord/interactions`
 4. Shut down the old Vercel project if you migrated from it
 
-**Local dev:** `cd admin && pnpm install && pnpm dev` (vinext on port 3001). Copy `.env.example` to `.env.local` for secrets. Auth uses `proxy.ts` the same as on Workers.
+**Local dev:** `cd admin && pnpm install && pnpm dev` (vinext on port 3001). Put secrets in `admin/.env` or `admin/.env.local`; they are loaded for every name declared with `bindings.secret()` in [`admin/cloudflare.config.ts`](admin/cloudflare.config.ts). Auth uses `proxy.ts` the same as on Workers.
 
 ### 4. MyAnimeList
 
@@ -248,14 +250,18 @@ r/anime discussion links resolve to the AutoLovepon thread permalink when availa
 
 ### Reddit user post alerts
 
-The checker watches public submission RSS feeds for selected Reddit accounts and posts to the same Discord channel as episode alerts (`DISCORD_CHANNEL_ID` or webhook).
+The checker polls selected Reddit accounts via the **OAuth API** (`oauth.reddit.com`) and posts to the same Discord channel as episode alerts (`DISCORD_CHANNEL_ID` or webhook). GitHub Actions often blocks logged-out RSS; set `REDDIT_CLIENT_ID` and `REDDIT_CLIENT_SECRET` so fetches use app-only OAuth.
+
+1. Open [reddit.com/prefs/apps](https://www.reddit.com/prefs/apps) → **create another app** → type **script** (name e.g. `anime-ep-checker`; redirect URI can be `http://localhost`).
+2. Copy the string under the app name → `REDDIT_CLIENT_ID`; copy **secret** → `REDDIT_CLIENT_SECRET`.
+3. Add both as GitHub Actions secrets (gate + check jobs).
 
 | Account | Filter |
 | --- | --- |
 | [u/animecorner](https://www.reddit.com/user/animecorner/) | Titles matching `Top 10 …` (weekly rankings and anticipated lists) |
 | [u/Abysswatcherbel](https://www.reddit.com/user/Abysswatcherbel/) | All posts (weekly r/anime karma ranking threads) |
 
-The Actions gate (`src/should-run.mjs`) fetches these feeds every 5 minutes; a full check runs when a feed has no baseline in `state.json` or when a new matching post appears. The first successful check **baselines** current posts without alerting; only newer posts notify afterward. Seen post IDs are stored under `state.meta.redditUserFeeds`.
+The Actions gate (`src/should-run.mjs`) polls these feeds every 5 minutes; a full check runs when a feed has no baseline in `state.json`, when a new matching post appears, or when fetches keep failing and the last successful check is stale. The first successful check **baselines** current posts without alerting; only newer posts notify afterward. If a feed cannot be fetched for 6+ hours after the last success, the checker posts a one-time **Reddit user feed check failing** warning. Seen post IDs are stored under `state.meta.redditUserFeeds`.
 
 ### Discord episode alerts (`#anime-alerts`)
 

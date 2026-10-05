@@ -1,4 +1,11 @@
-import { getShowsFile, isGithubConflictError, saveShowsFile } from './github'
+import {
+  getShowsFile,
+  getStateFile,
+  isGithubConflictError,
+  saveShowsFile,
+  saveStateFileRetrying,
+} from './github'
+import type { OnHoldSnapshotEntry, StateFile } from './types'
 import { resolveMalIdFromSearch, type MalSearchResult } from './mal-match'
 import { fetchMalAnimeTitles, searchMalAnime } from './mal'
 import type { Show } from './types'
@@ -14,7 +21,13 @@ export interface SyncMalResult {
   changed: boolean
   resolvedIds: string[]
   updatedTitles: string[]
+  updatedEnglish: string[]
   shows: Show[]
+}
+
+export interface SyncOnHoldEnglishResult {
+  changed: boolean
+  updatedShowIds: string[]
 }
 
 async function resolveMissingMalId(show: Show): Promise<number | null> {
@@ -35,12 +48,18 @@ async function resolveMissingMalId(show: Show): Promise<number | null> {
 export function applyMalUpdatesToShows(
   currentShows: Show[],
   updates: MalShowUpdate[]
-): { shows: Show[]; resolvedIds: string[]; updatedTitles: string[] } {
+): {
+  shows: Show[]
+  resolvedIds: string[]
+  updatedTitles: string[]
+  updatedEnglish: string[]
+} {
   const updatesById = new Map(
     updates.filter((update) => update.id).map((update) => [update.id, update])
   )
   const resolvedIds: string[] = []
   const updatedTitles: string[] = []
+  const updatedEnglish: string[] = []
 
   const shows = currentShows.map((show) => {
     const update = updatesById.get(show.id)
@@ -61,13 +80,91 @@ export function applyMalUpdatesToShows(
     }
 
     if (update.titleEnglish !== undefined) {
-      next.titleEnglish = update.titleEnglish || undefined
+      const nextEnglish = update.titleEnglish || undefined
+      if (nextEnglish !== show.titleEnglish) {
+        next.titleEnglish = nextEnglish
+        updatedEnglish.push(show.id || show.title)
+      }
     }
 
     return next
   })
 
-  return { shows, resolvedIds, updatedTitles }
+  return { shows, resolvedIds, updatedTitles, updatedEnglish }
+}
+
+function englishTitleNeedsSync(show: Show): boolean {
+  return Boolean(show.malId) && !show.titleEnglish?.trim()
+}
+
+export async function syncOnHoldEnglishTitles(): Promise<SyncOnHoldEnglishResult> {
+  const { content } = await getStateFile()
+  const state = content as StateFile
+  const onHold = state.meta?.onHold
+  const entries = onHold?.entries ?? []
+
+  const targets = entries.filter((entry) => englishTitleNeedsSync(entry.show))
+  if (targets.length === 0) {
+    return { changed: false, updatedShowIds: [] }
+  }
+
+  const titlesByMalId = new Map(
+    await Promise.all(
+      targets.map(async (entry) => {
+        const malId = entry.show.malId!
+        try {
+          const malTitles = await fetchMalAnimeTitles(malId)
+          return [malId, malTitles.titleEnglish?.trim() || ''] as const
+        } catch {
+          return [malId, ''] as const
+        }
+      })
+    )
+  )
+
+  const updatedShowIds: string[] = []
+  const nextEntries: OnHoldSnapshotEntry[] = entries.map((entry) => {
+    const malId = entry.show.malId
+    if (!malId) {
+      return entry
+    }
+
+    const titleEnglish = titlesByMalId.get(malId)
+    if (!titleEnglish || entry.show.titleEnglish === titleEnglish) {
+      return entry
+    }
+
+    updatedShowIds.push(entry.show.id)
+    return {
+      ...entry,
+      show: {
+        ...entry.show,
+        titleEnglish,
+      },
+    }
+  })
+
+  if (updatedShowIds.length === 0) {
+    return { changed: false, updatedShowIds: [] }
+  }
+
+  const nextState: StateFile = {
+    ...state,
+    meta: {
+      ...state.meta,
+      onHold: {
+        ...onHold!,
+        entries: nextEntries,
+      },
+    },
+  }
+
+  await saveStateFileRetrying(
+    nextState,
+    'chore: 🧹 sync English titles for on-hold shows from admin'
+  )
+
+  return { changed: true, updatedShowIds }
 }
 
 async function collectMalUpdates(shows: Show[]): Promise<MalShowUpdate[]> {
@@ -123,12 +220,14 @@ export async function syncShowsWithMal(): Promise<SyncMalResult> {
 
   if (
     initialMerge.resolvedIds.length === 0 &&
-    initialMerge.updatedTitles.length === 0
+    initialMerge.updatedTitles.length === 0 &&
+    initialMerge.updatedEnglish.length === 0
   ) {
     return {
       changed: false,
       resolvedIds: [],
       updatedTitles: [],
+      updatedEnglish: [],
       shows: initialShows,
     }
   }
@@ -141,11 +240,16 @@ export async function syncShowsWithMal(): Promise<SyncMalResult> {
     )
     const merged = applyMalUpdatesToShows(latestShows, updates)
 
-    if (merged.resolvedIds.length === 0 && merged.updatedTitles.length === 0) {
+    if (
+      merged.resolvedIds.length === 0 &&
+      merged.updatedTitles.length === 0 &&
+      merged.updatedEnglish.length === 0
+    ) {
       return {
         changed: false,
         resolvedIds: [],
         updatedTitles: [],
+        updatedEnglish: [],
         shows: latestShows,
       }
     }
@@ -160,6 +264,7 @@ export async function syncShowsWithMal(): Promise<SyncMalResult> {
         changed: true,
         resolvedIds: merged.resolvedIds,
         updatedTitles: merged.updatedTitles,
+        updatedEnglish: merged.updatedEnglish,
         shows: merged.shows,
       }
     } catch (error) {

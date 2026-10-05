@@ -505,6 +505,48 @@ export async function sendWaitingAlert({
   )
 }
 
+export async function sendRedditFeedErrorAlert({
+  discord,
+  username,
+  status,
+}: {
+  discord: DiscordConfig
+  username: string
+  status: number
+}): Promise<void> {
+  const description =
+    `Could not fetch submissions for u/${username} (HTTP ${status}). ` +
+    'Reddit often blocks logged-out RSS from GitHub Actions; set `REDDIT_CLIENT_ID` and `REDDIT_CLIENT_SECRET` (see README). ' +
+    'Post alerts are paused until fetches succeed again.'
+
+  const payload = {
+    embeds: [
+      {
+        title: 'Reddit user feed check failing',
+        description,
+        color: 0xe67e22,
+        footer: {
+          text: 'Anime Episode Checker',
+        },
+      },
+    ],
+  }
+
+  if (hasBotConfig(discord)) {
+    await postBotMessage(discord.botToken!, discord.channelId!, payload)
+    return
+  }
+
+  if (discord.webhookUrl) {
+    await postWebhook(discord.webhookUrl, payload)
+    return
+  }
+
+  throw new Error(
+    'Discord not configured. Set DISCORD_BOT_TOKEN + DISCORD_CHANNEL_ID (preferred) or DISCORD_WEBHOOK_URL.'
+  )
+}
+
 export async function sendNetflixCookieAlert(
   discord: DiscordConfig
 ): Promise<void> {

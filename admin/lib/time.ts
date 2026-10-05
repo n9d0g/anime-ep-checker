@@ -73,3 +73,47 @@ export function formatEasternTime(
     minute: '2-digit',
   })
 }
+
+function ordinalDay(day: number): string {
+  const mod10 = day % 10
+  const mod100 = day % 100
+  if (mod100 >= 11 && mod100 <= 13) {
+    return `${day}th`
+  }
+  if (mod10 === 1) return `${day}st`
+  if (mod10 === 2) return `${day}nd`
+  if (mod10 === 3) return `${day}rd`
+  return `${day}th`
+}
+
+export function formatEasternShortMilitary(
+  isoOrDate: string | Date | null | undefined
+): string {
+  if (!isoOrDate) return 'Unknown time'
+
+  const date = typeof isoOrDate === 'string' ? new Date(isoOrDate) : isoOrDate
+  if (Number.isNaN(date.getTime())) return 'Invalid date'
+
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: EASTERN_TZ,
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+    timeZoneName: 'short',
+  }).formatToParts(date)
+
+  const get = (type: Intl.DateTimeFormatPartTypes) =>
+    parts.find((part) => part.type === type)?.value ?? ''
+
+  const weekday = get('weekday').replace(/\.$/, '')
+  const month = get('month')
+  const dayNum = Number(get('day'))
+  const hour = get('hour').padStart(2, '0')
+  const minute = get('minute').padStart(2, '0')
+  const tz = get('timeZoneName')
+
+  return `${weekday} ${month} ${ordinalDay(dayNum)}, ${hour}:${minute} ${tz}`
+}

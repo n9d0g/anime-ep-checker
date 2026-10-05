@@ -52,3 +52,28 @@ test('applyMalUpdatesToShows applies title and malId updates to remaining shows'
   assert.deepEqual(result.updatedTitles, ['bleach'])
   assert.equal(result.shows[1]?.title, 'One Piece')
 })
+
+test('applyMalUpdatesToShows records English-only title changes', () => {
+  const current = [
+    show({
+      id: 'kusuriya',
+      title: 'Kusuriya no Hitorigoto',
+      malId: 527,
+    }),
+  ]
+  const updates = [
+    {
+      id: 'kusuriya',
+      title: 'Kusuriya no Hitorigoto',
+      malId: 527,
+      titleEnglish: 'The Apothecary Diaries',
+    },
+  ]
+
+  const result = applyMalUpdatesToShows(current, updates)
+
+  assert.equal(result.shows[0]?.titleEnglish, 'The Apothecary Diaries')
+  assert.deepEqual(result.updatedEnglish, ['kusuriya'])
+  assert.equal(result.updatedTitles.length, 0)
+  assert.equal(result.resolvedIds.length, 0)
+})

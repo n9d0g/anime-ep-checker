@@ -1,19 +1,22 @@
 import { NextResponse } from 'next/server'
 import { NO_STORE_HEADERS } from '@/lib/github'
-import { syncShowsWithMal } from '@/lib/sync-mal'
+import { syncOnHoldEnglishTitles, syncShowsWithMal } from '@/lib/sync-mal'
 
 export const dynamic = 'force-dynamic'
 
 export async function POST() {
   try {
     const result = await syncShowsWithMal()
+    const onHoldEnglish = await syncOnHoldEnglishTitles()
 
     return NextResponse.json(
       {
         ok: true,
-        changed: result.changed,
+        changed: result.changed || onHoldEnglish.changed,
         resolvedIds: result.resolvedIds,
         updatedTitles: result.updatedTitles,
+        updatedEnglish: result.updatedEnglish,
+        onHoldEnglishUpdated: onHoldEnglish.updatedShowIds,
         shows: result.shows,
       },
       { headers: NO_STORE_HEADERS }

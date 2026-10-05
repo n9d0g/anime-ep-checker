@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useRouter } from 'next/navigation'
 import { ShowTitleDisplay } from '@/app/components/ShowTitleDisplay'
 import {
@@ -140,11 +141,11 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
     setActiveIndex(0)
   }, [query])
 
-  if (!open) {
+  if (!open || typeof document === 'undefined') {
     return null
   }
 
-  return (
+  return createPortal(
     <div
       className="search-overlay-backdrop"
       role="presentation"
@@ -213,6 +214,7 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

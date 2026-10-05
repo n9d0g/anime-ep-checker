@@ -16,7 +16,7 @@ import {
   isEpisodeInSchedule,
   parseEpisodeNumber,
 } from '@/lib/schedule'
-import { formatEasternTime } from '@/lib/time'
+import { formatEasternShortMilitary, formatEasternTime } from '@/lib/time'
 import {
   emptyShowForm,
   fromDatetimeLocalValue,
@@ -74,6 +74,88 @@ function scheduleStartHint(
   }
 
   return `Eastern: ${eastern} · Next ep ${nextEpisode}: ${formatEasternTime(expectedAt)}`
+}
+
+function nextEpisodeScheduleLine(
+  show: ShowFormValues,
+  liveState?: ShowStateSummary
+): string | null {
+  const schedule = formScheduleToSchedule(show)
+  if (!schedule.startAt) {
+    return null
+  }
+
+  const lastEpisode = liveState?.lastEpisodeNumber
+    ? parseEpisodeNumber(liveState.lastEpisodeNumber)
+    : null
+  const nextEpisode = getNextExpectedEpisode(schedule, lastEpisode)
+
+  if (nextEpisode === null) {
+    return 'No further episodes on schedule'
+  }
+
+  const expectedAt = getExpectedDropAt(schedule, nextEpisode)
+  if (!expectedAt) {
+    return `Next: Episode ${nextEpisode}`
+  }
+
+  return `Next: Episode ${nextEpisode} - ${formatEasternShortMilitary(expectedAt)}`
+}
+
+function getNextEpisodeDropTime(
+  show: ShowFormValues,
+  liveState?: ShowStateSummary
+): number | null {
+  const schedule = formScheduleToSchedule(show)
+  if (!schedule.startAt) {
+    return null
+  }
+
+  const lastEpisode = liveState?.lastEpisodeNumber
+    ? parseEpisodeNumber(liveState.lastEpisodeNumber)
+    : null
+  const nextEpisode = getNextExpectedEpisode(schedule, lastEpisode)
+
+  if (nextEpisode === null) {
+    return null
+  }
+
+  const expectedAt = getExpectedDropAt(schedule, nextEpisode)
+  if (!expectedAt) {
+    return null
+  }
+
+  return expectedAt.getTime()
+}
+
+function compareShowsByNextDrop(
+  a: { show: ShowFormValues; index: number },
+  b: { show: ShowFormValues; index: number },
+  showStates: Record<string, ShowStateSummary>
+): number {
+  const timeA = getNextEpisodeDropTime(
+    a.show,
+    a.show.id ? showStates[a.show.id] : undefined
+  )
+  const timeB = getNextEpisodeDropTime(
+    b.show,
+    b.show.id ? showStates[b.show.id] : undefined
+  )
+
+  if (timeA === null && timeB === null) {
+    return a.index - b.index
+  }
+  if (timeA === null) {
+    return 1
+  }
+  if (timeB === null) {
+    return -1
+  }
+  if (timeA !== timeB) {
+    return timeA - timeB
+  }
+
+  return a.index - b.index
 }
 
 function serializeShows(shows: ShowFormValues[]): string {
@@ -395,6 +477,14 @@ export default function AdminPage() {
   const isDirty = useMemo(
     () => baseline !== '' && serializeShows(shows) !== baseline,
     [shows, baseline]
+  )
+
+  const showsForDisplay = useMemo(
+    () =>
+      shows
+        .map((show, index) => ({ show, index }))
+        .sort((a, b) => compareShowsByNextDrop(a, b, showStates)),
+    [shows, showStates]
   )
 
   function hasUnsavedLocalEdits(): boolean {
@@ -1173,7 +1263,7 @@ export default function AdminPage() {
             <div className="panel empty">No shows yet. Add one below.</div>
           ) : (
             <div className="panel show-list">
-              {shows.map((show, index) => {
+              {showsForDisplay.map(({ show, index }) => {
                 const open = isExpanded(show, index)
                 const liveState = show.id ? showStates[show.id] : undefined
                 const currentEpisode = getProgressEpisode(show, liveState)
@@ -1201,6 +1291,7 @@ export default function AdminPage() {
 
                 const episodeBadgeInfo = episodeBadge(show, liveState)
                 const startHint = scheduleStartHint(show, liveState)
+                const nextEpisodeLine = nextEpisodeScheduleLine(show, liveState)
 
                 return (
                   <article
@@ -1222,6 +1313,13 @@ export default function AdminPage() {
                         <ShowTitleDisplay
                           title={show.title || `Show ${index + 1}`}
                           titleEnglish={show.titleEnglish}
+                          belowSubtitle={
+                            nextEpisodeLine ? (
+                              <span className="show-row-next-episode">
+                                {nextEpisodeLine}
+                              </span>
+                            ) : null
+                          }
                         />
                       </div>
                       <div className="show-row-trailing">
@@ -1240,18 +1338,6 @@ export default function AdminPage() {
 
                     {open ? (
                       <div className="show-row-body">
-                        <div className="field">
-                          <label htmlFor={`title-${index}`}>Title</label>
-                          <input
-                            id={`title-${index}`}
-                            value={show.title}
-                            onChange={(event) =>
-                              updateShow(index, 'title', event.target.value)
-                            }
-                            placeholder="One Piece"
-                          />
-                        </div>
-
                         {watchUrl || discussionUrl || malUrl ? (
                           <div className="quick-links">
                             {watchUrl ? (
@@ -1289,255 +1375,247 @@ export default function AdminPage() {
                           </div>
                         ) : null}
 
-                        <div className="field">
-                          <span id={`provider-label-${index}`}>Provider</span>
-                          <SegmentedControl
-                            ariaLabel="Provider"
-                            value={show.provider}
-                            options={[
-                              { value: 'crunchyroll', label: 'Crunchyroll' },
-                              { value: 'netflix', label: 'Netflix' },
-                              { value: 'disney', label: 'Disney+' },
-                            ]}
-                            onChange={(value) =>
-                              updateShow(
-                                index,
-                                'provider',
-                                value as ShowProvider
-                              )
-                            }
-                          />
-                        </div>
-
-                        {show.provider === 'crunchyroll' ? (
+                        {show.id && liveState ? (
                           <div className="field">
-                            <label htmlFor={`url-${index}`}>
-                              Crunchyroll series URL
-                            </label>
-                            <input
-                              id={`url-${index}`}
-                              value={show.crunchyrollUrl}
-                              onChange={(event) =>
-                                updateShow(
-                                  index,
-                                  'crunchyrollUrl',
-                                  event.target.value
-                                )
-                              }
-                              placeholder="https://www.crunchyroll.com/series/..."
-                              required
-                            />
-                          </div>
-                        ) : show.provider === 'netflix' ? (
-                          <div className="field">
-                            <label htmlFor={`netflix-url-${index}`}>
-                              Netflix title URL
-                            </label>
-                            <input
-                              id={`netflix-url-${index}`}
-                              value={show.netflixUrl}
-                              onChange={(event) =>
-                                updateShow(
-                                  index,
-                                  'netflixUrl',
-                                  event.target.value
-                                )
-                              }
-                              placeholder="https://www.netflix.com/title/..."
-                              required
-                            />
-                          </div>
-                        ) : (
-                          <div className="field">
-                            <label htmlFor={`disney-url-${index}`}>
-                              Disney+ title URL
-                            </label>
-                            <input
-                              id={`disney-url-${index}`}
-                              value={show.disneyUrl}
-                              onChange={(event) =>
-                                updateShow(
-                                  index,
-                                  'disneyUrl',
-                                  event.target.value
-                                )
-                              }
-                              placeholder="https://www.disneyplus.com/browse/entity-..."
-                              required
-                            />
-                          </div>
-                        )}
-
-                        <div className="field">
-                          <span id={`mode-label-${index}`}>Schedule type</span>
-                          <SegmentedControl
-                            ariaLabel="Schedule type"
-                            value={show.schedule.mode}
-                            options={[
-                              { value: 'finite', label: 'Finite season' },
-                              { value: 'ongoing', label: 'Ongoing' },
-                            ]}
-                            onChange={(value) =>
-                              updateSchedule(
-                                index,
-                                'mode',
-                                value as 'finite' | 'ongoing'
-                              )
-                            }
-                          />
-                        </div>
-
-                        <div className="field">
-                          <label htmlFor={`start-${index}`}>
-                            Start date and time (Japan Time / JST)
-                          </label>
-                          <input
-                            id={`start-${index}`}
-                            type="datetime-local"
-                            value={show.schedule.startAt}
-                            onChange={(event) =>
-                              updateSchedule(
-                                index,
-                                'startAt',
-                                event.target.value
-                              )
-                            }
-                            required
-                          />
-                          {startHint ? (
-                            <p className="hint schedule-start-hint">
-                              {startHint}
-                            </p>
-                          ) : null}
-                          {show.id ? (
-                            <div className="delay-actions">
-                              <button
-                                className="btn btn-secondary"
-                                type="button"
-                                onClick={() => void delayShowByOneWeek(show)}
+                            <label>Current episode</label>
+                            <div className="episode-stepper-row">
+                              <div
+                                className="episode-stepper"
+                                role="group"
+                                aria-label="Current episode"
                               >
-                                Delay +1 week
-                              </button>
-                              <p className="hint">
-                                Shifts all future drops by 7 days and rebuilds
-                                Discord and Google Calendar events.
-                              </p>
-                            </div>
-                          ) : null}
-                        </div>
-
-                        <div className="field-row">
-                          <div className="field">
-                            <label htmlFor={`start-ep-${index}`}>
-                              Episode on start date
-                            </label>
-                            <input
-                              id={`start-ep-${index}`}
-                              type="number"
-                              min="1"
-                              value={show.schedule.startEpisode}
-                              onChange={(event) =>
-                                updateSchedule(
-                                  index,
-                                  'startEpisode',
-                                  event.target.value
-                                )
-                              }
-                              required
-                            />
-                          </div>
-
-                          {show.id && liveState ? (
-                            <div className="field">
-                              <label>Current episode</label>
-                              <div className="episode-stepper-row">
-                                <div
-                                  className="episode-stepper"
-                                  role="group"
-                                  aria-label="Current episode"
+                                <button
+                                  className="episode-stepper-btn"
+                                  type="button"
+                                  aria-label="Decrease episode"
+                                  disabled={
+                                    episodeSaving ||
+                                    currentEpisode === null ||
+                                    currentEpisode <= min
+                                  }
+                                  onClick={() => adjustEpisode(show, -1)}
                                 >
-                                  <button
-                                    className="episode-stepper-btn"
-                                    type="button"
-                                    aria-label="Decrease episode"
-                                    disabled={
-                                      episodeSaving ||
-                                      currentEpisode === null ||
-                                      currentEpisode <= min
-                                    }
-                                    onClick={() => adjustEpisode(show, -1)}
-                                  >
-                                    −
-                                  </button>
-                                  <span className="episode-stepper-value">
-                                    {currentEpisode ?? '—'}
-                                  </span>
-                                  <button
-                                    className="episode-stepper-btn"
-                                    type="button"
-                                    aria-label="Increase episode"
-                                    disabled={
-                                      episodeSaving ||
-                                      currentEpisode === null ||
-                                      (max !== null && currentEpisode >= max)
-                                    }
-                                    onClick={() => adjustEpisode(show, 1)}
-                                  >
-                                    +
-                                  </button>
-                                </div>
+                                  −
+                                </button>
+                                <span className="episode-stepper-value">
+                                  {currentEpisode ?? '—'}
+                                </span>
+                                <button
+                                  className="episode-stepper-btn"
+                                  type="button"
+                                  aria-label="Increase episode"
+                                  disabled={
+                                    episodeSaving ||
+                                    currentEpisode === null ||
+                                    (max !== null && currentEpisode >= max)
+                                  }
+                                  onClick={() => adjustEpisode(show, 1)}
+                                >
+                                  +
+                                </button>
                               </div>
                             </div>
-                          ) : show.schedule.mode === 'finite' ? (
+                          </div>
+                        ) : null}
+
+                        <details className="disclosure" open={!show.id}>
+                          <summary>More options</summary>
+                          <div className="disclosure-body">
                             <div className="field">
-                              <label htmlFor={`count-${index}`}>
-                                Episodes in season
+                              <label htmlFor={`title-${index}`}>Title</label>
+                              <input
+                                id={`title-${index}`}
+                                value={show.title}
+                                onChange={(event) =>
+                                  updateShow(index, 'title', event.target.value)
+                                }
+                                placeholder="One Piece"
+                              />
+                            </div>
+
+                            <div className="field">
+                              <span id={`provider-label-${index}`}>
+                                Provider
+                              </span>
+                              <SegmentedControl
+                                ariaLabel="Provider"
+                                value={show.provider}
+                                options={[
+                                  { value: 'crunchyroll', label: 'Crunchyroll' },
+                                  { value: 'netflix', label: 'Netflix' },
+                                  { value: 'disney', label: 'Disney+' },
+                                ]}
+                                onChange={(value) =>
+                                  updateShow(
+                                    index,
+                                    'provider',
+                                    value as ShowProvider
+                                  )
+                                }
+                              />
+                            </div>
+
+                            {show.provider === 'crunchyroll' ? (
+                              <div className="field">
+                                <label htmlFor={`url-${index}`}>
+                                  Crunchyroll series URL
+                                </label>
+                                <input
+                                  id={`url-${index}`}
+                                  value={show.crunchyrollUrl}
+                                  onChange={(event) =>
+                                    updateShow(
+                                      index,
+                                      'crunchyrollUrl',
+                                      event.target.value
+                                    )
+                                  }
+                                  placeholder="https://www.crunchyroll.com/series/..."
+                                  required
+                                />
+                              </div>
+                            ) : show.provider === 'netflix' ? (
+                              <div className="field">
+                                <label htmlFor={`netflix-url-${index}`}>
+                                  Netflix title URL
+                                </label>
+                                <input
+                                  id={`netflix-url-${index}`}
+                                  value={show.netflixUrl}
+                                  onChange={(event) =>
+                                    updateShow(
+                                      index,
+                                      'netflixUrl',
+                                      event.target.value
+                                    )
+                                  }
+                                  placeholder="https://www.netflix.com/title/..."
+                                  required
+                                />
+                              </div>
+                            ) : (
+                              <div className="field">
+                                <label htmlFor={`disney-url-${index}`}>
+                                  Disney+ title URL
+                                </label>
+                                <input
+                                  id={`disney-url-${index}`}
+                                  value={show.disneyUrl}
+                                  onChange={(event) =>
+                                    updateShow(
+                                      index,
+                                      'disneyUrl',
+                                      event.target.value
+                                    )
+                                  }
+                                  placeholder="https://www.disneyplus.com/browse/entity-..."
+                                  required
+                                />
+                              </div>
+                            )}
+
+                            <div className="field">
+                              <span id={`mode-label-${index}`}>
+                                Schedule type
+                              </span>
+                              <SegmentedControl
+                                ariaLabel="Schedule type"
+                                value={show.schedule.mode}
+                                options={[
+                                  { value: 'finite', label: 'Finite season' },
+                                  { value: 'ongoing', label: 'Ongoing' },
+                                ]}
+                                onChange={(value) =>
+                                  updateSchedule(
+                                    index,
+                                    'mode',
+                                    value as 'finite' | 'ongoing'
+                                  )
+                                }
+                              />
+                            </div>
+
+                            <div className="field">
+                              <label htmlFor={`start-${index}`}>
+                                Start date and time (Japan Time / JST)
                               </label>
                               <input
-                                id={`count-${index}`}
-                                type="number"
-                                min="1"
-                                value={show.schedule.episodeCount}
+                                id={`start-${index}`}
+                                type="datetime-local"
+                                value={show.schedule.startAt}
                                 onChange={(event) =>
                                   updateSchedule(
                                     index,
-                                    'episodeCount',
+                                    'startAt',
+                                    event.target.value
+                                  )
+                                }
+                                required
+                              />
+                              {startHint ? (
+                                <p className="hint schedule-start-hint">
+                                  {startHint}
+                                </p>
+                              ) : null}
+                              {show.id ? (
+                                <div className="delay-actions">
+                                  <button
+                                    className="btn btn-secondary"
+                                    type="button"
+                                    onClick={() => void delayShowByOneWeek(show)}
+                                  >
+                                    Delay +1 week
+                                  </button>
+                                  <p className="hint">
+                                    Shifts all future drops by 7 days and rebuilds
+                                    Discord and Google Calendar events.
+                                  </p>
+                                </div>
+                              ) : null}
+                            </div>
+
+                            <div className="field">
+                              <label htmlFor={`start-ep-${index}`}>
+                                Episode on start date
+                              </label>
+                              <input
+                                id={`start-ep-${index}`}
+                                type="number"
+                                min="1"
+                                value={show.schedule.startEpisode}
+                                onChange={(event) =>
+                                  updateSchedule(
+                                    index,
+                                    'startEpisode',
                                     event.target.value
                                   )
                                 }
                                 required
                               />
                             </div>
-                          ) : null}
-                        </div>
 
-                        {show.id &&
-                        liveState &&
-                        show.schedule.mode === 'finite' ? (
-                          <div className="field">
-                            <label htmlFor={`count-${index}`}>
-                              Episodes in season
-                            </label>
-                            <input
-                              id={`count-${index}`}
-                              type="number"
-                              min="1"
-                              value={show.schedule.episodeCount}
-                              onChange={(event) =>
-                                updateSchedule(
-                                  index,
-                                  'episodeCount',
-                                  event.target.value
-                                )
-                              }
-                              required
-                            />
-                          </div>
-                        ) : null}
+                            {show.schedule.mode === 'finite' ? (
+                              <div className="field">
+                                <label htmlFor={`count-${index}`}>
+                                  Episodes in season
+                                </label>
+                                <input
+                                  id={`count-${index}`}
+                                  type="number"
+                                  min="1"
+                                  value={show.schedule.episodeCount}
+                                  onChange={(event) =>
+                                    updateSchedule(
+                                      index,
+                                      'episodeCount',
+                                      event.target.value
+                                    )
+                                  }
+                                  required
+                                />
+                              </div>
+                            ) : null}
 
-                        <details className="disclosure">
-                          <summary>More options</summary>
-                          <div className="disclosure-body">
                             {show.malId ? (
                               <div className="field">
                                 <label>MAL linked</label>

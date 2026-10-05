@@ -10,6 +10,17 @@ export default defineConfig({
     env: {
       ASSETS: bindings.assets(),
       IMAGES: bindings.images(),
+      ADMIN_PASSWORD: bindings.secret(),
+      GITHUB_TOKEN: bindings.secret(),
+      GITHUB_REPO: bindings.secret(),
+      GITHUB_BRANCH: bindings.secret(),
+      DISCORD_PUBLIC_KEY: bindings.secret(),
+      DISCORD_BOT_TOKEN: bindings.secret(),
+      DISCORD_CHANNEL_ID: bindings.secret(),
+      MAL_CLIENT_ID: bindings.secret(),
+      MAL_CLIENT_SECRET: bindings.secret(),
+      MAL_REDIRECT_URI: bindings.secret(),
+      MAL_REFRESH_TOKEN: bindings.secret(),
     },
   }),
 });

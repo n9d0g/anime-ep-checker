@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { MoveToWatchingModal } from '@/app/components/MoveToWatchingModal'
 import { TopHeader } from '@/app/components/TopHeader'
 import { ShowTitleDisplay } from '@/app/components/ShowTitleDisplay'
@@ -208,6 +208,7 @@ export default function PlanToWatchPage() {
   const [snapshot, setSnapshot] = useState<PlanToWatchSnapshot | null>(null)
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
+  const autoEnglishRefreshStarted = useRef(false)
   const [watchEntry, setWatchEntry] = useState<PlanToWatchSnapshotEntry | null>(
     null
   )
@@ -244,6 +245,14 @@ export default function PlanToWatchPage() {
       if (next) {
         writeJsonCache(cacheKeys.ptw, next)
       }
+
+      const needsEnglishTitles =
+        (next?.entries?.length ?? 0) > 0 &&
+        !next?.entries.some((entry) => entry.titleEnglish?.trim())
+      if (needsEnglishTitles && !autoEnglishRefreshStarted.current) {
+        autoEnglishRefreshStarted.current = true
+        void refreshSnapshot(true)
+      }
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : 'Failed to load plan-to-watch list'
@@ -253,7 +262,7 @@ export default function PlanToWatchPage() {
     }
   }
 
-  async function refreshSnapshot() {
+  async function refreshSnapshot(silent = false) {
     setRefreshing(true)
 
     try {
@@ -267,14 +276,22 @@ export default function PlanToWatchPage() {
         throw new Error(data.error || 'Failed to refresh plan-to-watch list')
       }
 
-      setSnapshot(data.planToWatch ?? null)
-      toast.success('Refreshed from MyAnimeList.')
+      const refreshed = data.planToWatch ?? null
+      setSnapshot(refreshed)
+      if (refreshed) {
+        writeJsonCache(cacheKeys.ptw, refreshed)
+      }
+      if (!silent) {
+        toast.success('Refreshed from MyAnimeList.')
+      }
     } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : 'Failed to refresh plan-to-watch list'
-      )
+      if (!silent) {
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : 'Failed to refresh plan-to-watch list'
+        )
+      }
     } finally {
       setRefreshing(false)
     }
@@ -380,7 +397,7 @@ export default function PlanToWatchPage() {
           <button
             className="btn btn-secondary"
             type="button"
-            onClick={() => void refreshSnapshot()}
+            onClick={() => void refreshSnapshot(false)}
             disabled={loading || refreshing}
           >
             {refreshing ? 'Refreshing…' : 'Refresh'}

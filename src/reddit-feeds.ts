@@ -1,12 +1,14 @@
-import { sendRedditPostAlert, type DiscordConfig } from './discord.js'
 import {
-  parseAtomEntries,
-  REDDIT_USER_AGENT,
-  type RedditAtomEntry,
-} from './reddit.js'
+  sendRedditFeedErrorAlert,
+  sendRedditPostAlert,
+  type DiscordConfig,
+} from './discord.js'
+import { fetchRedditUserSubmissions } from './reddit.js'
 import type { StateFile } from './types.js'
 
 const SEEN_POST_IDS_LIMIT = 50
+const ERROR_ALERT_AFTER_MS = 6 * 60 * 60 * 1000
+const CHECKED_AT_BUMP_MS = 60 * 60 * 1000
 
 export interface RedditUserFeedConfig {
   id: string
@@ -49,16 +51,6 @@ function matchesFeedTitle(feed: RedditUserFeedConfig, title: string): boolean {
   return feed.titlePattern.test(title)
 }
 
-function toUserPost(entry: RedditAtomEntry): RedditUserPost {
-  return {
-    id: entry.id,
-    title: entry.title,
-    href: entry.href,
-    published: entry.published,
-    subreddit: entry.subreddit,
-  }
-}
-
 function sortPostsOldestFirst(posts: RedditUserPost[]): RedditUserPost[] {
   return [...posts].sort((a, b) => {
     const aMs = a.published ? new Date(a.published).getTime() : 0
@@ -77,33 +69,35 @@ function trimSeenPostIds(ids: string[], feedOrderIds: string[]): string[] {
   return combined.slice(-SEEN_POST_IDS_LIMIT)
 }
 
+export function shouldSendFeedErrorAlert(
+  feedState: {
+    checkedAt: string
+    errorAlertSentAt?: string
+  },
+  now: Date
+): boolean {
+  const lastSuccessMs = new Date(feedState.checkedAt).getTime()
+  if (now.getTime() - lastSuccessMs < ERROR_ALERT_AFTER_MS) {
+    return false
+  }
+
+  if (!feedState.errorAlertSentAt) {
+    return true
+  }
+
+  return (
+    new Date(feedState.errorAlertSentAt).getTime() < lastSuccessMs
+  )
+}
+
 export async function fetchUserSubmissions(
   username: string
 ): Promise<RedditUserPost[] | null> {
-  const url = `https://www.reddit.com/user/${username}/submitted.rss?limit=25`
-  const response = await fetch(url, {
-    headers: {
-      'User-Agent': REDDIT_USER_AGENT,
-      Accept: 'application/atom+xml,application/rss+xml,application/xml,text/xml,*/*',
-    },
-  })
-
-  if (response.status === 429) {
-    console.warn(
-      `Reddit user RSS rate limited (429) for u/${username}; skipping this feed`
-    )
+  const result = await fetchRedditUserSubmissions(username)
+  if (!result.ok) {
     return null
   }
-
-  if (!response.ok) {
-    console.warn(
-      `Reddit user RSS failed (${response.status}) for u/${username}`
-    )
-    return null
-  }
-
-  const xml = await response.text()
-  return parseAtomEntries(xml).map(toUserPost)
+  return result.posts
 }
 
 export async function syncRedditUserFeeds({
@@ -125,13 +119,61 @@ export async function syncRedditUserFeeds({
   for (const feed of REDDIT_USER_FEEDS) {
     console.log(`Checking Reddit feed u/${feed.username}...`)
 
-    const posts = await fetchUserSubmissions(feed.username)
-    if (!posts) {
+    const result = await fetchRedditUserSubmissions(feed.username)
+    const feedState = nextFeeds[feed.id]
+
+    if (!result.ok) {
+      if (!feedState) {
+        console.warn(
+          `  Reddit fetch failed (${result.status}); no baseline yet for u/${feed.username}`
+        )
+        continue
+      }
+
+      const shouldAlert = shouldSendFeedErrorAlert(feedState, now)
+      let errorAlertSentAt = feedState.errorAlertSentAt
+
+      if (shouldAlert) {
+        if (!dryRun && hasDiscordConfig(discord)) {
+          await sendRedditFeedErrorAlert({
+            discord,
+            username: feed.username,
+            status: result.status,
+          })
+          console.log(
+            `  Reddit feed error alert sent for u/${feed.username} (${result.status})`
+          )
+          errorAlertSentAt = checkedAt
+          reasons.push(`reddit feed error u/${feed.username}`)
+        } else if (dryRun) {
+          console.log(
+            `  Would send Reddit feed error alert for u/${feed.username} (${result.status})`
+          )
+        }
+      }
+
+      const errorState: {
+        seenPostIds: string[]
+        checkedAt: string
+        lastErrorAt: string
+        errorAlertSentAt?: string
+      } = {
+        seenPostIds: feedState.seenPostIds,
+        checkedAt: feedState.checkedAt,
+        lastErrorAt: checkedAt,
+      }
+      if (errorAlertSentAt) {
+        errorState.errorAlertSentAt = errorAlertSentAt
+      } else if (feedState.errorAlertSentAt) {
+        errorState.errorAlertSentAt = feedState.errorAlertSentAt
+      }
+      nextFeeds[feed.id] = errorState
+      changed = true
       continue
     }
 
+    const posts = result.posts
     const matching = posts.filter((post) => matchesFeedTitle(feed, post.title))
-    const feedState = nextFeeds[feed.id]
     const seenSet = new Set(feedState?.seenPostIds ?? [])
     const isFirstRun = !feedState
 
@@ -153,10 +195,22 @@ export async function syncRedditUserFeeds({
       matching.filter((post) => !seenSet.has(post.id))
     )
 
+    const prevCheckedAt = feedState.checkedAt
+    const shouldBumpCheckedAt =
+      !prevCheckedAt ||
+      now.getTime() - new Date(prevCheckedAt).getTime() > CHECKED_AT_BUMP_MS
+
     if (newPosts.length === 0) {
       nextFeeds[feed.id] = {
         seenPostIds: feedState.seenPostIds,
-        checkedAt,
+        checkedAt: shouldBumpCheckedAt ? checkedAt : prevCheckedAt,
+      }
+      if (
+        feedState.errorAlertSentAt ||
+        feedState.lastErrorAt ||
+        shouldBumpCheckedAt
+      ) {
+        changed = true
       }
       console.log('  No new matching posts')
       continue
@@ -197,7 +251,7 @@ export async function syncRedditUserFeeds({
 
     nextFeeds[feed.id] = {
       seenPostIds: mergedSeen,
-      checkedAt,
+      checkedAt: checkedAt,
     }
     changed = true
   }

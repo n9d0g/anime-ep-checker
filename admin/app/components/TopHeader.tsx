@@ -208,7 +208,13 @@ export function TopHeader() {
   return (
     <header className="top-header">
       <div className="top-header-inner">
-        <span className="top-header-brand">Anime Episode Checker</span>
+        <Link
+          href="/"
+          className="top-header-brand"
+          onClick={() => setProfileMenuOpen(false)}
+        >
+          Anime Episode Checker
+        </Link>
         <div className="top-header-actions">
           <button
             className="header-icon-btn"
