@@ -13,7 +13,8 @@
       },
       "disneyUrl": "https://www.disneyplus.com/browse/entity-571475d5-8b1a-453f-a57f-26bb4dd13304",
       "disneyId": "571475d5-8b1a-453f-a57f-26bb4dd13304",
-      "malId": 60636
+      "malId": 60636,
+      "titleEnglish": "Bleach: Thousand-Year Blood War - The Calamity"
     },
     {
       "id": "kusuriya-no-hitorigoto-3rd-season",
@@ -28,7 +29,8 @@
       },
       "crunchyrollUrl": "https://crunchyroll.com/series/G3KHEVDJ7/the-apothecary-diaries",
       "seriesId": "G3KHEVDJ7",
-      "malId": 61987
+      "malId": 61987,
+      "titleEnglish": "The Apothecary Diaries Season 3"
     },
     {
       "id": "ao-no-hako-season-2",
@@ -43,7 +45,8 @@
       },
       "netflixUrl": "https://www.netflix.com/title/81663323?shareUuid=2FE83D9D-BB1B-4DC7-A9D8-2B9ECBFCEFF0",
       "netflixId": "81663323",
-      "malId": 61323
+      "malId": 61323,
+      "titleEnglish": "Blue Box Season 2"
     }
   ]
 }
