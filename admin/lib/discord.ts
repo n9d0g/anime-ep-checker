@@ -133,7 +133,11 @@ export async function editOriginalInteractionResponse(
     `https://discord.com/api/v10/webhooks/${applicationId}/${token}/messages/@original`,
     {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'User-Agent':
+          'DiscordBot (https://github.com/n9d0g/anime-ep-checker, 1.0)',
+      },
       body: JSON.stringify(data),
     }
   )
@@ -174,6 +178,8 @@ export async function createBotChannelMessage(
       headers: {
         Authorization: `Bot ${botToken}`,
         'Content-Type': 'application/json',
+        'User-Agent':
+          'DiscordBot (https://github.com/n9d0g/anime-ep-checker, 1.0)',
       },
       body: JSON.stringify(payload),
     }

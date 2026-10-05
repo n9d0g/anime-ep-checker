@@ -53,6 +53,7 @@ async function githubFetch<T>(
       Authorization: `Bearer ${token}`,
       'X-GitHub-Api-Version': '2022-11-28',
       'Cache-Control': 'no-cache',
+      'User-Agent': 'anime-ep-checker-admin',
       ...options.headers,
     },
   })
