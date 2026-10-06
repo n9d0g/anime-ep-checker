@@ -571,7 +571,8 @@ label,
 }
 
 input,
-select {
+select,
+textarea {
   width: 100%;
   max-width: 100%;
   min-width: 0;
@@ -579,7 +580,8 @@ select {
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   background: var(--input-bg);
-  font-size: 0.88rem;
+  /* 16px minimum avoids iOS Safari auto-zoom on focus */
+  font-size: 1rem;
   color: var(--text);
   outline: none;
   transition: border-color 0.15s;
@@ -1228,7 +1230,7 @@ select:focus {
   border-radius: 0.45rem;
   background: var(--bg);
   color: var(--text);
-  font-size: 0.92rem;
+  font-size: 1rem;
 }
 
 .search-overlay-results {
