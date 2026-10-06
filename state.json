@@ -738,7 +738,7 @@
     },
     "watchingDashboardHashes": {
       "bleach": "e53d4999351ff54a99d4c4612986c0eb91da54f0",
-      "kusuriya-no-hitorigoto-3rd-season": "83c4ee9953fc59cc0496acb5dc18b322e0bbd89e",
+      "kusuriya-no-hitorigoto-3rd-season": "a47658b83cc07a6927af8a289f224dbec8ec4bfa",
       "ao-no-hako-season-2": "ee265e70df4cf299838de6c1f5fc0e74a98fe868"
     },
     "onHold": {
@@ -826,7 +826,7 @@
           "t3_1sjfuo9"
         ],
         "checkedAt": "2026-10-01T15:30:59.628Z",
-        "lastErrorAt": "2026-10-06T10:25:32.786Z",
+        "lastErrorAt": "2026-10-06T10:30:40.316Z",
         "errorAlertSentAt": "2026-10-05T19:05:52.354Z"
       }
     }
