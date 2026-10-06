@@ -1,4 +1,4 @@
-const DEFAULT_ADMIN_ORIGIN = 'https://anime-ep-checker-admin.nate-584.workers.dev'
+const DEFAULT_ADMIN_ORIGIN = 'https://anime-ep-checker.dev'
 
 /** Canonical origin for Open Graph / link previews (Notion, Slack, etc.). */
 export function getAdminPublicOrigin(): string {

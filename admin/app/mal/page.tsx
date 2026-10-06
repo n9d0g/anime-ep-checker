@@ -33,7 +33,7 @@ export default function MalSetupPage() {
           </li>
           <li>
             Set redirect URI to your admin callback, e.g.{' '}
-            <code>https://anime-ep-checker-admin.&lt;your-subdomain&gt;.workers.dev/api/mal/callback</code>
+            <code>https://anime-ep-checker.dev/api/mal/callback</code>
           </li>
           <li>
             Add <code>MAL_CLIENT_ID</code>, <code>MAL_CLIENT_SECRET</code>, and{' '}
@@ -43,7 +43,7 @@ export default function MalSetupPage() {
           <li>
             Register your Discord interactions URL in the Discord Developer
             Portal:{' '}
-            <code>https://anime-ep-checker-admin.&lt;your-subdomain&gt;.workers.dev/api/discord/interactions</code>
+            <code>https://anime-ep-checker.dev/api/discord/interactions</code>
           </li>
           <li>
             Click connect below, then paste the refresh token into{' '}

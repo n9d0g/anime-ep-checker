@@ -6,6 +6,8 @@ export default defineConfig({
     entrypoint: "vinext/server/fetch-handler",
     compatibilityDate: "2026-10-05",
     compatibilityFlags: ["nodejs_compat"],
+    domains: ["anime-ep-checker.dev"],
+    workersDev: false,
     assets: { notFoundHandling: "none" },
     env: {
       ASSETS: bindings.assets(),

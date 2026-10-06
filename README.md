@@ -95,7 +95,7 @@ If **Check anime episodes** is slow or fails at **Getting action download info**
    - Watching dashboard → `DISCORD_WATCHING_CHANNEL_ID`
 6. Copy your server (guild) ID → `DISCORD_GUILD_ID` (admin Worker: slash command registration)
 7. Copy the application **Public Key** → `DISCORD_PUBLIC_KEY` (Cloudflare Worker secrets)
-8. Under **Interactions**, set the endpoint URL to `https://anime-ep-checker-admin.<your-subdomain>.workers.dev/api/discord/interactions`
+8. Under **Interactions**, set the endpoint URL to `https://anime-ep-checker.dev/api/discord/interactions`
 
 Optional fallback: a legacy webhook via `DISCORD_WEBHOOK_URL` (no MAL button, no dashboard).
 
@@ -129,13 +129,13 @@ Pushes to `main` that change `admin/**` run [`.github/workflows/deploy-admin.yml
 1. Create a webhook in your **deploy** Discord channel (not the episode-alerts channel).
 2. Add it as GitHub secret `DISCORD_DEPLOY_WEBHOOK_URL`.
 3. Add Cloudflare deploy secrets: `CLOUDFLARE_API_TOKEN` (Workers edit) and `CLOUDFLARE_ACCOUNT_ID`.
-4. Optional: `CLOUDFLARE_WORKERS_SUBDOMAIN` (the `*.workers.dev` subdomain from your Cloudflare account) or `ADMIN_LIVE_URL` (full admin URL) so deploy messages link to the CMS. Defaults to `https://anime-ep-checker-admin.nate-584.workers.dev/` when neither is set.
+4. Optional: `ADMIN_LIVE_URL` (full admin URL) so deploy messages link to the CMS. Defaults to `https://anime-ep-checker.dev/` when unset.
 
-Success messages include branch, short commit SHA, commit subject, time (ET), and the Workers URL. Failure messages point at the GitHub Actions logs. Commits that only change checker runtime files (e.g. `state.json` at repo root) do not touch `admin/`, so no admin deploy runs.
+Success messages include branch, short commit SHA, commit subject, time (ET), and the admin URL. Failure messages point at the GitHub Actions logs. Commits that only change checker runtime files (e.g. `state.json` at repo root) do not touch `admin/`, so no admin deploy runs.
 
 ### 3. Cloudflare admin CMS
 
-The admin app lives in [`admin/`](admin/) and runs on [Cloudflare Workers](https://developers.cloudflare.com/workers/) via [vinext](https://github.com/cloudflare/vinext) (`vite dev` / `vite build`).
+The admin app lives in [`admin/`](admin/) and runs on [Cloudflare Workers](https://developers.cloudflare.com/workers/) via [vinext](https://github.com/cloudflare/vinext) (`vite dev` / `vite build`). Production is served at `https://anime-ep-checker.dev` (custom domain in [`admin/cloudflare.config.ts`](admin/cloudflare.config.ts); `workers.dev` is disabled).
 
 **GitHub Actions (deploy):** set `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` as repository secrets. Pushes to `main` under `admin/**` deploy automatically via [`.github/workflows/deploy-admin.yml`](.github/workflows/deploy-admin.yml).
 
@@ -162,12 +162,12 @@ npx wrangler secret put GITHUB_TOKEN --name anime-ep-checker-admin
 | `DISCORD_CHANNEL_ID` | Episode alerts channel (slash `/score-alert`) |
 | `MAL_CLIENT_ID` | MAL API client ID |
 | `MAL_CLIENT_SECRET` | MAL API client secret |
-| `MAL_REDIRECT_URI` | `https://anime-ep-checker-admin.<your-subdomain>.workers.dev/api/mal/callback` |
+| `MAL_REDIRECT_URI` | `https://anime-ep-checker.dev/api/mal/callback` |
 | `MAL_REFRESH_TOKEN` | From one-time OAuth at `/mal` |
 
 **After the first deploy:**
 
-1. Note your Workers URL: `https://anime-ep-checker-admin.<your-subdomain>.workers.dev`
+1. Note your admin URL: `https://anime-ep-checker.dev`
 2. Update the MAL API client redirect URI and `MAL_REDIRECT_URI` to `…/api/mal/callback`
 3. Update the Discord **Interactions** endpoint to `…/api/discord/interactions`
 4. Shut down the old Vercel project if you migrated from it
