@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { mapOAuthListingToSubmissions } from './reddit.js'
-import { shouldSendFeedErrorAlert } from './reddit-feeds.js'
+import {
+  applyRedditFeedFetchFailure,
+  shouldSendFeedErrorAlert,
+} from './reddit-feeds.js'
 
 test('mapOAuthListingToSubmissions maps listing children to t3_ ids', () => {
   const posts = mapOAuthListingToSubmissions({
@@ -59,6 +62,50 @@ test('shouldSendFeedErrorAlert does not repeat until another successful check', 
   }
 
   assert.equal(shouldSendFeedErrorAlert(feedState, now), false)
+})
+
+test('applyRedditFeedFetchFailure sets lastErrorAt on first failure', () => {
+  const feedState = {
+    seenPostIds: ['t3_1'],
+    checkedAt: '2026-10-01T15:30:59.628Z',
+  }
+  const checkedAt = '2026-10-06T12:40:00.000Z'
+
+  const update = applyRedditFeedFetchFailure(feedState, checkedAt)
+
+  assert.ok(update)
+  assert.equal(update.state.lastErrorAt, checkedAt)
+  assert.deepEqual(update.state.seenPostIds, feedState.seenPostIds)
+  assert.equal(update.state.checkedAt, feedState.checkedAt)
+})
+
+test('applyRedditFeedFetchFailure is a no-op on repeated failure', () => {
+  const feedState = {
+    seenPostIds: ['t3_1'],
+    checkedAt: '2026-10-01T15:30:59.628Z',
+    lastErrorAt: '2026-10-05T19:00:00.000Z',
+    errorAlertSentAt: '2026-10-05T19:05:00.000Z',
+  }
+
+  assert.equal(
+    applyRedditFeedFetchFailure(feedState, '2026-10-06T12:40:00.000Z'),
+    null
+  )
+})
+
+test('applyRedditFeedFetchFailure updates errorAlertSentAt when a new alert fires', () => {
+  const feedState = {
+    seenPostIds: ['t3_1'],
+    checkedAt: '2026-10-01T15:30:59.628Z',
+    lastErrorAt: '2026-10-05T19:00:00.000Z',
+  }
+  const alertSentAt = '2026-10-06T08:00:00.000Z'
+
+  const update = applyRedditFeedFetchFailure(feedState, '2026-10-06T12:40:00.000Z', alertSentAt)
+
+  assert.ok(update)
+  assert.equal(update.state.errorAlertSentAt, alertSentAt)
+  assert.equal(update.state.lastErrorAt, feedState.lastErrorAt)
 })
 
 test('shouldSendFeedErrorAlert allows another warning after a new successful check', () => {

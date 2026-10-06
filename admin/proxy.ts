@@ -2,6 +2,13 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { isAuthorizedRequest } from './lib/auth'
 
+const ROBOTS_TAG = 'noindex, nofollow'
+
+function withRobotsTag(response: NextResponse): NextResponse {
+  response.headers.set('X-Robots-Tag', ROBOTS_TAG)
+  return response
+}
+
 function isPublicPwaAsset(pathname: string): boolean {
   return (
     pathname === '/manifest.webmanifest' ||
@@ -21,17 +28,21 @@ export function proxy(request: NextRequest) {
     pathname === '/login' ||
     isPublicPwaAsset(pathname)
   ) {
-    return NextResponse.next()
+    return withRobotsTag(NextResponse.next())
   }
 
   if (!isAuthorizedRequest(request)) {
     if (pathname.startsWith('/api/')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return withRobotsTag(
+        NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      )
     }
-    return NextResponse.redirect(new URL('/login', request.url))
+    return withRobotsTag(
+      NextResponse.redirect(new URL('/login', request.url))
+    )
   }
 
-  return NextResponse.next()
+  return withRobotsTag(NextResponse.next())
 }
 
 export const config = {

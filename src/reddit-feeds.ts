@@ -69,6 +69,48 @@ function trimSeenPostIds(ids: string[], feedOrderIds: string[]): string[] {
   return combined.slice(-SEEN_POST_IDS_LIMIT)
 }
 
+export interface RedditUserFeedState {
+  seenPostIds: string[]
+  checkedAt: string
+  lastErrorAt?: string
+  errorAlertSentAt?: string
+}
+
+/** Persist feed error state without bumping lastErrorAt on every failed poll. */
+export function applyRedditFeedFetchFailure(
+  feedState: RedditUserFeedState,
+  checkedAt: string,
+  errorAlertSentAt?: string
+): { state: RedditUserFeedState; changed: true } | null {
+  const isFirstFailure = !feedState.lastErrorAt
+
+  if (isFirstFailure) {
+    const state: RedditUserFeedState = {
+      seenPostIds: feedState.seenPostIds,
+      checkedAt: feedState.checkedAt,
+      lastErrorAt: checkedAt,
+    }
+    if (errorAlertSentAt) {
+      state.errorAlertSentAt = errorAlertSentAt
+    } else if (feedState.errorAlertSentAt) {
+      state.errorAlertSentAt = feedState.errorAlertSentAt
+    }
+    return { state, changed: true }
+  }
+
+  if (errorAlertSentAt && errorAlertSentAt !== feedState.errorAlertSentAt) {
+    return {
+      state: {
+        ...feedState,
+        errorAlertSentAt,
+      },
+      changed: true,
+    }
+  }
+
+  return null
+}
+
 export function shouldSendFeedErrorAlert(
   feedState: {
     checkedAt: string
@@ -152,23 +194,15 @@ export async function syncRedditUserFeeds({
         }
       }
 
-      const errorState: {
-        seenPostIds: string[]
-        checkedAt: string
-        lastErrorAt: string
-        errorAlertSentAt?: string
-      } = {
-        seenPostIds: feedState.seenPostIds,
-        checkedAt: feedState.checkedAt,
-        lastErrorAt: checkedAt,
+      const failureUpdate = applyRedditFeedFetchFailure(
+        feedState,
+        checkedAt,
+        errorAlertSentAt
+      )
+      if (failureUpdate) {
+        nextFeeds[feed.id] = failureUpdate.state
+        changed = true
       }
-      if (errorAlertSentAt) {
-        errorState.errorAlertSentAt = errorAlertSentAt
-      } else if (feedState.errorAlertSentAt) {
-        errorState.errorAlertSentAt = feedState.errorAlertSentAt
-      }
-      nextFeeds[feed.id] = errorState
-      changed = true
       continue
     }
 

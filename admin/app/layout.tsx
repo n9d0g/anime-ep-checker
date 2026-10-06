@@ -32,6 +32,10 @@ export const metadata: Metadata = {
     description: siteDescription,
     images: ['/icons/icon-512.png'],
   },
+  robots: {
+    index: false,
+    follow: false,
+  },
   manifest: '/manifest.webmanifest',
   icons: {
     icon: [

@@ -406,7 +406,16 @@ async function needsRedditFeedCheck(state) {
 
     const result = await fetchRedditUserFeedEntries(feed.username)
     if (!result.ok) {
-      if (feedSuccessIsStale(feedState[feed.id].checkedAt, now)) {
+      const entry = feedState[feed.id]
+      if (feedSuccessIsStale(entry.checkedAt, now)) {
+        const alertSentAt = entry.errorAlertSentAt
+        const lastSuccessAt = entry.checkedAt
+        if (
+          alertSentAt &&
+          new Date(alertSentAt).getTime() >= new Date(lastSuccessAt).getTime()
+        ) {
+          continue
+        }
         console.log(
           `Reddit feed u/${feed.username} fetch failed; last success is stale — running full check`
         )
