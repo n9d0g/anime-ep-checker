@@ -233,13 +233,12 @@ function buildDashboardNotificationContent(row: ShowDashboardRow): string {
   return `**${title}** — MAL ${row.malProgress} · Next ${nextEpisode} · ${status}`
 }
 
-function buildDashboardMalComponents(
+function buildDashboardLinkComponents(
   show: Show,
   discussionUrl?: string | null
 ) {
-  const rows: Array<Record<string, unknown>> = []
-  const watchUrl = getShowWatchUrl(show)
   const linkButtons: Array<Record<string, unknown>> = []
+  const watchUrl = getShowWatchUrl(show)
 
   if (watchUrl) {
     linkButtons.push({
@@ -259,44 +258,20 @@ function buildDashboardMalComponents(
     })
   }
 
-  if (show.malId) {
-    rows.push({
-      type: 1,
-      components: [
-        {
-          type: 2,
-          style: 2,
-          label: '−',
-          custom_id: `mal:dec:${show.malId}`,
-        },
-        {
-          type: 2,
-          style: 3,
-          label: '+',
-          custom_id: `mal:inc:${show.malId}`,
-        },
-        {
-          type: 2,
-          style: 2,
-          label: 'Set progress…',
-          custom_id: `mal:set-btn:${show.malId}`,
-        },
-      ],
-    })
+  if (linkButtons.length === 0) {
+    return []
   }
 
-  if (linkButtons.length > 0) {
-    rows.push({
+  return [
+    {
       type: 1,
       components: linkButtons,
-    })
-  }
-
-  return rows
+    },
+  ]
 }
 
 export function buildShowDashboardPayload(row: ShowDashboardRow) {
-  const components = buildDashboardMalComponents(row.show, row.discussionUrl)
+  const components = buildDashboardLinkComponents(row.show, row.discussionUrl)
   const payload: Record<string, unknown> = {
     content: buildDashboardNotificationContent(row),
     embeds: [buildDashboardEmbed(row)],

@@ -23,7 +23,6 @@
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-server-dom-webpack": "^19.3.0",
-    "tweetnacl": "^1.0.3",
     "vinext": "^1.0.1"
   },
   "devDependencies": {

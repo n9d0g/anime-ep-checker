@@ -23,7 +23,6 @@ export function proxy(request: NextRequest) {
 
   if (
     pathname.startsWith('/api/auth') ||
-    pathname.startsWith('/api/discord/interactions') ||
     pathname.startsWith('/api/mal/callback') ||
     pathname === '/login' ||
     isPublicPwaAsset(pathname)

@@ -1771,7 +1771,7 @@ export default function AdminPage() {
           <p className="setup-link">
             <a href="/mal">MAL setup</a>
             <span className="setup-link-sep">·</span>
-            One-time OAuth for Discord &quot;Mark watched&quot;
+            One-time MAL OAuth for CMS sync
           </p>
         </section>
       </main>

@@ -15,8 +15,7 @@ flowchart LR
   Cron -->|bot message| Discord[Discord channel]
   Cron -->|dashboard| Watching[#watching channel]
   Cron -->|Google Calendar| Calendar[Google Calendar]
-  Discord -->|MAL button| AdminWorker[Cloudflare interactions]
-  AdminWorker --> MAL[MyAnimeList API]
+  Admin --> MAL[MyAnimeList API]
   Cron --> MAL
 ```
 
@@ -93,11 +92,10 @@ If **Check anime episodes** is slow or fails at **Getting action download info**
 5. Create channels and copy IDs:
    - Episode alerts → `DISCORD_CHANNEL_ID`
    - Watching dashboard → `DISCORD_WATCHING_CHANNEL_ID`
-6. Copy your server (guild) ID → `DISCORD_GUILD_ID` (admin Worker: slash command registration)
-7. Copy the application **Public Key** → `DISCORD_PUBLIC_KEY` (Cloudflare Worker secrets)
-8. Under **Interactions**, set the endpoint URL to `https://anime-ep-checker.dev/api/discord/interactions`
 
-Optional fallback: a legacy webhook via `DISCORD_WEBHOOK_URL` (no MAL button, no dashboard).
+Optional fallback: a legacy webhook via `DISCORD_WEBHOOK_URL` (no dashboard).
+
+Discord is **outbound only** (checker posts alerts and updates `#watching`). You do not need an Interactions Endpoint URL or admin Worker Discord secrets.
 
 ### 2. GitHub Actions secrets
 
@@ -156,10 +154,6 @@ npx wrangler secret put GITHUB_TOKEN --name anime-ep-checker-admin
 | `GITHUB_TOKEN` | PAT with `contents: write` on this repo |
 | `GITHUB_REPO` | `your-username/anime-ep-checker` |
 | `GITHUB_BRANCH` | `main` (optional) |
-| `DISCORD_PUBLIC_KEY` | Discord app public key |
-| `DISCORD_BOT_TOKEN` | Bot token (slash `/score-alert`, optional dashboard refresh) |
-| `DISCORD_GUILD_ID` | Server ID (slash command registration) |
-| `DISCORD_CHANNEL_ID` | Episode alerts channel (slash `/score-alert`) |
 | `MAL_CLIENT_ID` | MAL API client ID |
 | `MAL_CLIENT_SECRET` | MAL API client secret |
 | `MAL_REDIRECT_URI` | `https://anime-ep-checker.dev/api/mal/callback` |
@@ -169,8 +163,7 @@ npx wrangler secret put GITHUB_TOKEN --name anime-ep-checker-admin
 
 1. Note your admin URL: `https://anime-ep-checker.dev`
 2. Update the MAL API client redirect URI and `MAL_REDIRECT_URI` to `…/api/mal/callback`
-3. Update the Discord **Interactions** endpoint to `…/api/discord/interactions`
-4. Shut down the old Vercel project if you migrated from it
+3. Shut down the old Vercel project if you migrated from it
 
 **Local dev:** `cd admin && pnpm install && pnpm dev` (vinext on port 3001). Put secrets in `admin/.env` or `admin/.env.local`; they are loaded for every name declared with `bindings.secret()` in [`admin/cloudflare.config.ts`](admin/cloudflare.config.ts). Auth uses `proxy.ts` the same as on Workers.
 
@@ -265,11 +258,11 @@ The Actions gate (`src/should-run.mjs`) polls these feeds every 5 minutes; a ful
 
 ### Discord episode alerts (`#anime-alerts`)
 
-Episode alerts use a **classic embed** with a MAL cover thumbnail, plus a top-level message line (e.g. **Yani Neko — Episode 4 is out**) so mobile notifications show readable text. Metadata (season, score, countdown, timing) lives in the embed; Watch / r/anime / MAL are link buttons below. **Mark watched** is not on alerts — update progress in `#watching` instead. Requires `DISCORD_BOT_TOKEN` + `DISCORD_CHANNEL_ID`; webhook fallback sends a simplified embed with markdown links.
+Episode alerts use a **classic embed** with a MAL cover thumbnail, plus a top-level message line (e.g. **Yani Neko — Episode 4 is out**) so mobile notifications show readable text. Metadata (season, score, countdown, timing) lives in the embed; Watch / r/anime / MAL are link buttons below. Requires `DISCORD_BOT_TOKEN` + `DISCORD_CHANNEL_ID`; webhook fallback sends a simplified embed with markdown links.
 
 ### Discord watching dashboard
 
-The bot maintains a **pinned message per tracked show** in `#watching` using a **classic embed** (MAL cover thumbnail, status, progress, score, next episode, countdown, expected drop) plus a top-level **notification line** (e.g. **One Piece** — MAL 1100 / ? · Next Episode 1160 · Upcoming) so mobile push previews show readable text. Each card also includes **Watch** and **r/anime** link buttons when available. Shows with a `malId` get **− / +** buttons and a **Set progress…** modal. Requires `DISCORD_BOT_TOKEN`, `DISCORD_WATCHING_CHANNEL_ID`, `DISCORD_PUBLIC_KEY` + MAL secrets on the **admin Worker** (for button clicks), and **MAL secrets on GitHub Actions** (for dashboard sync). If MAL is missing from Actions, the dashboard shows **MAL not configured**; if auth fails, it shows **MAL unavailable**.
+The bot maintains a **pinned message per tracked show** in `#watching` using a **classic embed** (MAL cover thumbnail, status, progress, score, next episode, countdown, expected drop) plus a top-level **notification line** (e.g. **One Piece** — MAL 1100 / ? · Next Episode 1160 · Upcoming) so mobile push previews show readable text. Each card also includes **Watch** and **r/anime** link buttons when available. Requires `DISCORD_BOT_TOKEN`, `DISCORD_WATCHING_CHANNEL_ID`, and **MAL secrets on GitHub Actions** (for dashboard sync). Update MAL progress from the admin CMS, not from Discord. If MAL is missing from Actions, the dashboard shows **MAL not configured**; if auth fails, it shows **MAL unavailable**.
 
 ### MAL score alerts
 
@@ -278,25 +271,6 @@ On each checker run, the bot compares each show’s MAL **mean score** to the la
 ### Plan-to-watch airing alerts
 
 Once per day (or whenever a tracked show is in its drop window), the checker fetches your MAL **plan to watch** list and sends a **one-shot** Discord alert for each title that is either **currently airing** or **starts within the next 7 days**. Alerted MAL IDs are stored in `state.json` so you only get pinged once per title; removing a show from plan-to-watch and re-adding it later can alert again. The full PTW list is also saved to `state.meta.planToWatch` for the admin **/ptw** page. Requires the same MAL OAuth secrets as the watching dashboard.
-
-### Slash commands
-
-Guild slash commands (register once after deploy):
-
-```bash
-DISCORD_BOT_TOKEN=... DISCORD_GUILD_ID=... pnpm register-commands
-```
-
-| Command | Description |
-|---------|-------------|
-| `/next` | Ephemeral list of upcoming drops with countdown + MAL score |
-| `/show` | Rich card for one tracked show (cover, progress, score, next ep) |
-| `/mal` | `up` / `down` / `set` watched episodes on MAL |
-| `/score-alert` | Manually post a score pickup or drop to `#anime-alerts` |
-
-Slash replies are **deferred** (Discord shows "thinking…" briefly) so GitHub/MAL lookups can finish before the ephemeral result appears. Redeploy the admin app after updating slash command handling.
-
-Requires `DISCORD_GUILD_ID`, `DISCORD_BOT_TOKEN`, and `DISCORD_CHANNEL_ID` on the admin Worker for `/score-alert`. All commands use the same interactions endpoint as MAL buttons.
 
 ### Google Calendar sync
 
@@ -358,9 +332,8 @@ Shows your MAL plan-to-watch list from `state.meta.planToWatch`, grouped into **
 | [`src/mal.ts`](src/mal.ts) | MAL read-only progress (checker) |
 | [`src/mal-score.ts`](src/mal-score.ts) | MAL score spike/tank detection |
 | [`src/plan-to-watch.ts`](src/plan-to-watch.ts) | MAL plan-to-watch airing alerts |
-| [`scripts/register-discord-commands.ts`](scripts/register-discord-commands.ts) | Register guild slash commands |
 | [`src/should-run.mjs`](src/should-run.mjs) | Cheap gate for Actions (no marketplace actions on skip path) |
-| [`admin/`](admin/) | Cloudflare CMS + Discord/MAL interactions (vinext) |
+| [`admin/`](admin/) | Cloudflare CMS (vinext) |
 | [`.github/workflows/check-episodes.yml`](.github/workflows/check-episodes.yml) | Gate + full episode check (`schedule`, `workflow_dispatch`, or external cron) |
 | [`.github/workflows/deploy-admin.yml`](.github/workflows/deploy-admin.yml) | Deploy admin Worker + Discord deploy notify |
 

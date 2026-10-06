@@ -9,8 +9,8 @@ export default function MalSetupPage() {
         <div>
           <h1>MyAnimeList setup</h1>
           <p className="subtitle">
-            Connect your MAL account so Discord &quot;Mark watched on MAL&quot;
-            buttons can update your list.
+            Connect your MAL account so the admin CMS can sync list progress and
+            show MAL data on tracked shows.
           </p>
         </div>
         <Link className="btn btn-secondary" href="/">
@@ -39,11 +39,6 @@ export default function MalSetupPage() {
             Add <code>MAL_CLIENT_ID</code>, <code>MAL_CLIENT_SECRET</code>, and{' '}
             <code>MAL_REDIRECT_URI</code> as Cloudflare Worker secrets (
             <code>wrangler secret put</code>).
-          </li>
-          <li>
-            Register your Discord interactions URL in the Discord Developer
-            Portal:{' '}
-            <code>https://anime-ep-checker.dev/api/discord/interactions</code>
           </li>
           <li>
             Click connect below, then paste the refresh token into{' '}
