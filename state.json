@@ -160,16 +160,12 @@
         "alertedAt": "2026-08-10T15:45:42.943Z",
         "reason": "airing"
       },
-      "61987": {
-        "alertedAt": "2026-09-28T19:05:33.284Z",
-        "reason": "upcoming"
-      },
       "62811": {
         "alertedAt": "2026-07-30T17:20:31.143Z",
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-10-05T18:40:02.858Z",
+    "planToWatchCheckedAt": "2026-10-06T18:40:39.221Z",
     "planToWatch": {
       "updatedAt": "2026-10-05T18:40:02.858Z",
       "entries": [
@@ -737,9 +733,9 @@
       ]
     },
     "watchingDashboardHashes": {
-      "bleach": "e53d4999351ff54a99d4c4612986c0eb91da54f0",
-      "kusuriya-no-hitorigoto-3rd-season": "83c4ee9953fc59cc0496acb5dc18b322e0bbd89e",
-      "ao-no-hako-season-2": "ee265e70df4cf299838de6c1f5fc0e74a98fe868"
+      "bleach": "716f350fae093bc4df390b1588a4da75f9ccc096",
+      "kusuriya-no-hitorigoto-3rd-season": "d16e2209b364fedd343e3dd47a2e0a285cd2bb12",
+      "ao-no-hako-season-2": "d69737fd05a74d95472965c93b98c81ae2c9f26a"
     },
     "onHold": {
       "updatedAt": "2026-09-28T21:46:38.715Z",
@@ -795,7 +791,7 @@
           "t3_1shmi9o",
           "t3_1s7xema"
         ],
-        "checkedAt": "2026-10-06T12:00:41.801Z"
+        "checkedAt": "2026-10-06T18:40:39.221Z"
       },
       "abysswatcherbel": {
         "seenPostIds": [
