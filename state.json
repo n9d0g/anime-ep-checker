@@ -141,6 +141,46 @@
         "2": {
           "eventId": "h8v6q205bqf1ksjmd5r9d1qdnc",
           "startAt": "2026-10-11T08:30:00.000Z"
+        },
+        "3": {
+          "eventId": "nr660m5cff931mj1639taelbu0",
+          "startAt": "2026-10-18T08:30:00.000Z"
+        },
+        "4": {
+          "eventId": "4855n94epl05lqm1tdsk7rb0mo",
+          "startAt": "2026-10-25T08:30:00.000Z"
+        },
+        "5": {
+          "eventId": "mjskr7r7m6sudsh6vpcs1l9p38",
+          "startAt": "2026-11-01T08:30:00.000Z"
+        },
+        "6": {
+          "eventId": "46fk7p9p6uovka0f0vgnfe0su8",
+          "startAt": "2026-11-08T08:30:00.000Z"
+        },
+        "7": {
+          "eventId": "ougd2i2rg80cf7l82ihdag8ks4",
+          "startAt": "2026-11-15T08:30:00.000Z"
+        },
+        "8": {
+          "eventId": "kenpnq9j5r1ho8t5luagb1t21g",
+          "startAt": "2026-11-22T08:30:00.000Z"
+        },
+        "9": {
+          "eventId": "fhtr1n7uakjsbo3k7ujklo6o70",
+          "startAt": "2026-11-29T08:30:00.000Z"
+        },
+        "10": {
+          "eventId": "54p8ev2bcqh3241gctvvi01nco",
+          "startAt": "2026-12-06T08:30:00.000Z"
+        },
+        "11": {
+          "eventId": "i95ngqnprhttmfhq4kcbk9es14",
+          "startAt": "2026-12-13T08:30:00.000Z"
+        },
+        "12": {
+          "eventId": "s1so7ebf6f4g8r9ql7ni003scc",
+          "startAt": "2026-12-20T08:30:00.000Z"
         }
       },
       "malMeanScore": 8.19,
@@ -165,7 +205,7 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-10-06T18:40:39.221Z",
+    "planToWatchCheckedAt": "2026-10-07T18:45:39.084Z",
     "planToWatch": {
       "updatedAt": "2026-10-05T18:40:02.858Z",
       "entries": [
@@ -735,7 +775,7 @@
     "watchingDashboardHashes": {
       "bleach": "716f350fae093bc4df390b1588a4da75f9ccc096",
       "kusuriya-no-hitorigoto-3rd-season": "d16e2209b364fedd343e3dd47a2e0a285cd2bb12",
-      "ao-no-hako-season-2": "d69737fd05a74d95472965c93b98c81ae2c9f26a"
+      "ao-no-hako-season-2": "0e2bf04e9670cab201f9c8702790acf7c240c09a"
     },
     "onHold": {
       "updatedAt": "2026-09-28T21:46:38.715Z",
@@ -791,7 +831,7 @@
           "t3_1shmi9o",
           "t3_1s7xema"
         ],
-        "checkedAt": "2026-10-06T18:40:39.221Z"
+        "checkedAt": "2026-10-07T18:45:39.084Z"
       },
       "abysswatcherbel": {
         "seenPostIds": [
