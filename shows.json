@@ -37,10 +37,10 @@
       "title": "Ao no Hako Season 2",
       "provider": "netflix",
       "schedule": {
-        "mode": "ongoing",
+        "mode": "finite",
         "startAt": "2026-10-04T08:30:00.000Z",
         "startEpisode": 1,
-        "episodeCount": null,
+        "episodeCount": 12,
         "premiereBatchSize": 1
       },
       "netflixUrl": "https://www.netflix.com/title/81663323?shareUuid=2FE83D9D-BB1B-4DC7-A9D8-2B9ECBFCEFF0",
