@@ -24,14 +24,15 @@
       "malScoreAlertedAt": "2026-10-01T03:55:32.164Z"
     },
     "kusuriya-no-hitorigoto-3rd-season": {
-      "lastEpisodeId": "GE00384327JAJP",
-      "lastEpisodeNumber": "1",
-      "lastEpisodeTitle": "Episode 49",
-      "lastNotifiedAt": "2026-10-02T15:00:47.907Z",
+      "lastEpisodeId": "GE00384328JAJP",
+      "lastEpisodeNumber": "2",
+      "lastEpisodeTitle": "The Fire-Rat Cloak",
+      "lastNotifiedAt": "2026-10-09T15:05:39.078Z",
       "seasonId": "GS00384044JAJP",
       "seasonTitle": "Season 3",
       "waitingNotifiedForEpisode": null,
       "episodeOffset": 48,
+      "malMeanScore": 8.64,
       "googleCalendarEvents": {
         "3": {
           "eventId": "5p80otl4ppqo0i4enmqr8gnrck",
@@ -121,8 +122,7 @@
           "eventId": "f1004321ig8iv29h7ebq16lsno",
           "startAt": "2027-03-12T15:00:00.000Z"
         }
-      },
-      "malMeanScore": 8.67
+      }
     },
     "ao-no-hako-season-2": {
       "lastEpisodeId": "82716331",
@@ -770,7 +770,7 @@
     },
     "watchingDashboardHashes": {
       "bleach": "716f350fae093bc4df390b1588a4da75f9ccc096",
-      "kusuriya-no-hitorigoto-3rd-season": "b40d50b0053a20e7113c38fb6687f40554ec4bca",
+      "kusuriya-no-hitorigoto-3rd-season": "e8c4d9d30222df0d30ca1e454b0b747af717db73",
       "ao-no-hako-season-2": "0e2bf04e9670cab201f9c8702790acf7c240c09a"
     },
     "onHold": {
