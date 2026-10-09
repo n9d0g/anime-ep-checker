@@ -23,6 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       should_check: ${{ steps.gate.outputs.should_check }}
+      reddit_check: ${{ steps.gate.outputs.reddit_check }}
     steps:
       - name: Decide if full check is needed
         id: gate
@@ -96,6 +97,7 @@ jobs:
           GOOGLE_CALENDAR_ID: ${{ secrets.GOOGLE_CALENDAR_ID }}
           REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
           REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
+          REDDIT_FEED_CHECK: ${{ needs.gate.outputs.reddit_check == 'true' }}
         run: pnpm check ${{ github.event.inputs.force == 'true' && '--force' || '' }}
 
       - name: Update Disney refresh token secret

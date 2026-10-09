@@ -108,6 +108,7 @@ export interface StateFile {
         checkedAt: string
         lastErrorAt?: string
         errorAlertSentAt?: string
+        lastPostPublishedAt?: string
       }
     >
   }

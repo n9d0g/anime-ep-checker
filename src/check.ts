@@ -786,23 +786,28 @@ export async function checkShows({
     }
   }
 
-  try {
-    const redditResult = await syncRedditUserFeeds({
-      state,
-      discord,
-      now,
-      dryRun,
-    })
-    if (redditResult.changed) {
-      stateChangeReasons.push(...redditResult.reasons)
-      stateChanged = true
+  // The Actions gate sets REDDIT_FEED_CHECK=false when no feed needs a fetch,
+  // so episode-window runs don't hit Reddit again.
+  if (force || process.env.REDDIT_FEED_CHECK !== 'false') {
+    try {
+      const redditResult = await syncRedditUserFeeds({
+        state,
+        discord,
+        now,
+        dryRun,
+        force,
+      })
+      if (redditResult.changed) {
+        stateChangeReasons.push(...redditResult.reasons)
+        stateChanged = true
+      }
+    } catch (error) {
+      console.warn(
+        `Reddit user feed sync failed: ${
+          error instanceof Error ? error.message : error
+        }`
+      )
     }
-  } catch (error) {
-    console.warn(
-      `Reddit user feed sync failed: ${
-        error instanceof Error ? error.message : error
-      }`
-    )
   }
 
   if (!dryRun) {

@@ -3,8 +3,14 @@ import { test } from 'node:test'
 import { mapOAuthListingToSubmissions } from './reddit.js'
 import {
   applyRedditFeedFetchFailure,
+  getRedditFeedWindowStart,
+  isRedditFeedDue,
+  isRedditFeedPollSlot,
   shouldSendFeedErrorAlert,
 } from './reddit-feeds.js'
+
+const FRIDAY = { postDays: [5] }
+const SUNDAY = { postDays: [0] }
 
 test('mapOAuthListingToSubmissions maps listing children to t3_ ids', () => {
   const posts = mapOAuthListingToSubmissions({
@@ -116,4 +122,71 @@ test('shouldSendFeedErrorAlert allows another warning after a new successful che
   }
 
   assert.equal(shouldSendFeedErrorAlert(feedState, now), true)
+})
+
+test('getRedditFeedWindowStart opens at Eastern midnight on the posting day', () => {
+  // Fri Oct 9 2026, 00:30 EDT
+  const start = getRedditFeedWindowStart(FRIDAY, new Date('2026-10-09T04:30:00.000Z'))
+  assert.equal(start?.toISOString(), '2026-10-09T04:00:00.000Z')
+})
+
+test('getRedditFeedWindowStart is closed just before Eastern midnight', () => {
+  // Thu Oct 8 2026, 23:59 EDT (already Friday in UTC)
+  assert.equal(
+    getRedditFeedWindowStart(FRIDAY, new Date('2026-10-09T03:59:00.000Z')),
+    null
+  )
+})
+
+test('getRedditFeedWindowStart covers the following grace day', () => {
+  // Sat Oct 10 2026, 22:00 EDT
+  const start = getRedditFeedWindowStart(FRIDAY, new Date('2026-10-11T02:00:00.000Z'))
+  assert.equal(start?.toISOString(), '2026-10-09T04:00:00.000Z')
+  // Sun Oct 11 2026, 00:30 EDT
+  assert.equal(
+    getRedditFeedWindowStart(FRIDAY, new Date('2026-10-11T04:30:00.000Z')),
+    null
+  )
+})
+
+test('getRedditFeedWindowStart uses EST after DST ends', () => {
+  // Sun Nov 8 2026, 12:00 EST
+  const start = getRedditFeedWindowStart(SUNDAY, new Date('2026-11-08T17:00:00.000Z'))
+  assert.equal(start?.toISOString(), '2026-11-08T05:00:00.000Z')
+})
+
+test('isRedditFeedDue stops once a post from this window is seen', () => {
+  const now = new Date('2026-10-09T20:00:00.000Z')
+  assert.equal(isRedditFeedDue(FRIDAY, {}, now), true)
+  assert.equal(
+    isRedditFeedDue(FRIDAY, { lastPostPublishedAt: '2026-10-02T15:00:00.000Z' }, now),
+    true
+  )
+  assert.equal(
+    isRedditFeedDue(FRIDAY, { lastPostPublishedAt: '2026-10-09T15:00:00.000Z' }, now),
+    false
+  )
+  assert.equal(isRedditFeedDue(SUNDAY, {}, now), false)
+})
+
+test('isRedditFeedPollSlot fires once per 15 minutes on a 5-minute cron', () => {
+  const base = new Date('2026-10-09T15:00:00.000Z').getTime()
+  const fired = [0, 5, 10, 15, 20, 25, 30].map((minutes) =>
+    isRedditFeedPollSlot(new Date(base + minutes * 60 * 1000))
+  )
+  assert.deepEqual(fired, [true, false, false, true, false, false, true])
+})
+
+test('shouldSendFeedErrorAlert measures staleness from the window start', () => {
+  const windowStart = new Date('2026-10-09T04:00:00.000Z')
+  const feedState = { checkedAt: '2026-10-03T12:00:00.000Z' }
+
+  assert.equal(
+    shouldSendFeedErrorAlert(feedState, new Date('2026-10-09T06:00:00.000Z'), windowStart),
+    false
+  )
+  assert.equal(
+    shouldSendFeedErrorAlert(feedState, new Date('2026-10-09T11:00:00.000Z'), windowStart),
+    true
+  )
 })

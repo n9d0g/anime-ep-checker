@@ -1,6 +1,6 @@
 // Zero-dep gate for GitHub Actions (plain Node, no pnpm install).
 // Schedule logic mirrors src/schedule.ts — keep window constants and helpers in sync.
-/* global process, console, fetch */
+/* global process, console, fetch, Buffer */
 import { appendFileSync, readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -189,6 +189,9 @@ function hasOrphanedShows(shows, state) {
 // Keep in sync with src/reddit-feeds.ts
 const REDDIT_USER_AGENT = 'node:anime-ep-checker:1.0 (by /u/n9d0g)'
 const REDDIT_FEED_STALE_MS = 2 * 60 * 60 * 1000
+const EASTERN_TZ = 'America/New_York'
+const REDDIT_FEED_WINDOW_DAYS = 2
+const REDDIT_FEED_POLL_INTERVAL_MS = 15 * 60 * 1000
 
 let cachedRedditOAuthToken = null
 const REDDIT_USER_FEEDS = [
@@ -196,12 +199,66 @@ const REDDIT_USER_FEEDS = [
     id: 'animecorner',
     username: 'animecorner',
     titlePattern: /^top\s*10\b/i,
+    postDays: [5],
   },
   {
     id: 'abysswatcherbel',
     username: 'Abysswatcherbel',
+    postDays: [0],
   },
 ]
+
+function getEasternParts(ms) {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: EASTERN_TZ,
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+    hourCycle: 'h23',
+  }).formatToParts(new Date(ms))
+  const result = {}
+  for (const part of parts) {
+    if (part.type !== 'literal') {
+      result[part.type] = Number(part.value)
+    }
+  }
+  return result
+}
+
+function getEasternMidnight(year, month, day) {
+  const utcMidnight = Date.UTC(year, month - 1, day)
+  const p = getEasternParts(utcMidnight)
+  const offsetMs =
+    Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second) -
+    utcMidnight
+  return new Date(utcMidnight - offsetMs)
+}
+
+function getRedditFeedWindowStart(feed, now) {
+  const today = getEasternParts(now.getTime())
+  for (let daysBack = 0; daysBack < REDDIT_FEED_WINDOW_DAYS; daysBack++) {
+    const day = new Date(Date.UTC(today.year, today.month - 1, today.day - daysBack))
+    if (feed.postDays.includes(day.getUTCDay())) {
+      return getEasternMidnight(
+        day.getUTCFullYear(),
+        day.getUTCMonth() + 1,
+        day.getUTCDate()
+      )
+    }
+  }
+  return null
+}
+
+function isRedditFeedPollSlot(now) {
+  const ms = now.getTime()
+  return (
+    Math.floor(ms / REDDIT_FEED_POLL_INTERVAL_MS) !==
+    Math.floor((ms - CRON_INTERVAL_MS) / REDDIT_FEED_POLL_INTERVAL_MS)
+  )
+}
 
 function decodeXmlEntities(value) {
   return value
@@ -388,32 +445,40 @@ async function fetchRedditUserFeedEntries(username) {
   return fetchRedditUserFeedEntriesRss(username)
 }
 
-function feedSuccessIsStale(checkedAt, now) {
-  if (!checkedAt) {
-    return true
-  }
-  return now.getTime() - new Date(checkedAt).getTime() > REDDIT_FEED_STALE_MS
-}
-
-async function needsRedditFeedCheck(state) {
+async function needsRedditFeedCheck(state, now) {
   const feedState = state.meta?.redditUserFeeds ?? {}
-  const now = new Date()
 
   for (const feed of REDDIT_USER_FEEDS) {
-    if (!feedState[feed.id]) {
+    const entry = feedState[feed.id]
+    if (!entry) {
       return true
+    }
+
+    // Only poll on the account's posting day (+1 grace day, Eastern), every
+    // 15 minutes, until this window's post has been seen.
+    const windowStart = getRedditFeedWindowStart(feed, now)
+    if (!windowStart) {
+      continue
+    }
+    const lastPostMs = entry.lastPostPublishedAt
+      ? new Date(entry.lastPostPublishedAt).getTime()
+      : 0
+    if (lastPostMs >= windowStart.getTime()) {
+      continue
+    }
+    if (!isRedditFeedPollSlot(now)) {
+      continue
     }
 
     const result = await fetchRedditUserFeedEntries(feed.username)
     if (!result.ok) {
-      const entry = feedState[feed.id]
-      if (feedSuccessIsStale(entry.checkedAt, now)) {
+      const lastSuccessMs = Math.max(
+        entry.checkedAt ? new Date(entry.checkedAt).getTime() : 0,
+        windowStart.getTime()
+      )
+      if (now.getTime() - lastSuccessMs > REDDIT_FEED_STALE_MS) {
         const alertSentAt = entry.errorAlertSentAt
-        const lastSuccessAt = entry.checkedAt
-        if (
-          alertSentAt &&
-          new Date(alertSentAt).getTime() >= new Date(lastSuccessAt).getTime()
-        ) {
+        if (alertSentAt && new Date(alertSentAt).getTime() >= lastSuccessMs) {
           continue
         }
         console.log(
@@ -443,7 +508,7 @@ const shows = showsFile.shows ?? []
 const needsCheck = shows.some((show) => showNeedsCheck(show, state, now))
 const needsPtwCheck = needsPlanToWatchCheck(state, now)
 const hasOrphans = hasOrphanedShows(shows, state)
-const needsRedditCheck = await needsRedditFeedCheck(state)
+const needsRedditCheck = await needsRedditFeedCheck(state, now)
 const shouldRun =
   needsCheck || needsPtwCheck || hasOrphans || needsRedditCheck
 const activeModes = getActiveCheckModes(shows, state, now)
@@ -451,6 +516,7 @@ const activeModes = getActiveCheckModes(shows, state, now)
 const outputFile = process.env.GITHUB_OUTPUT
 if (outputFile) {
   appendFileSync(outputFile, `should_check=${shouldRun}\n`)
+  appendFileSync(outputFile, `reddit_check=${needsRedditCheck}\n`)
 }
 
 if (shouldRun) {
