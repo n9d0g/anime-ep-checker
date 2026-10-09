@@ -8,9 +8,26 @@ import { useHashScrollHighlight } from '@/app/components/useHashScrollHighlight'
 import { cacheKeys, readJsonCache, writeJsonCache } from '@/lib/client-cache'
 import { PtwListSkeleton } from '@/app/components/ListSkeleton'
 import { useToast } from '@/app/components/Toast'
+import {
+  AnimeDetailsBody,
+  type AnimeFact,
+} from '@/app/components/AnimeDetailsBody'
+import {
+  cleanSynopsis,
+  formatAirDates,
+  formatBroadcast,
+  formatCount,
+  formatEpisodes,
+  formatMalDate,
+  formatRating,
+  formatSeason,
+  formatSource,
+} from '@/lib/anime-format'
 import type {
   PlanToWatchSnapshot,
   PlanToWatchSnapshotEntry,
+  PtwDetails,
+  PtwDetailsList,
   ShowFormValues,
 } from '@/lib/types'
 
@@ -135,18 +152,108 @@ function formatTrailingMeta(
   return parts.join(' · ')
 }
 
+const AIRED_LABELS: Record<PtwSectionKind, string> = {
+  airing: 'Airing',
+  upcoming: 'Premieres',
+  aired: 'Aired',
+}
+
+function PtwDetailsPanel({
+  entry,
+  kind,
+  details,
+  detailsLoading,
+}: {
+  entry: PlanToWatchSnapshotEntry
+  kind: PtwSectionKind
+  details: PtwDetails | undefined
+  detailsLoading: boolean
+}) {
+  const airDates = details
+    ? formatAirDates(details.startDate, details.endDate)
+    : formatMalDate(entry.startDate)
+  const season = details ? formatSeason(details.season) : null
+  const added = details ? formatMalDate(details.addedAt) : null
+
+  const facts: AnimeFact[] = [
+    [
+      'MAL score',
+      details?.meanScore
+        ? `${details.meanScore.toFixed(2)}${
+            details.rank ? ` · ranked #${formatCount(details.rank)}` : ''
+          }`
+        : null,
+    ],
+    [
+      'Popularity',
+      details?.popularity
+        ? `#${formatCount(details.popularity)}${
+            details.numListUsers
+              ? ` · ${formatCount(details.numListUsers)} members`
+              : ''
+          }`
+        : null,
+    ],
+    [
+      'Format',
+      details
+        ? formatEpisodes(details)
+        : entry.numEpisodes
+          ? `${entry.numEpisodes} ep`
+          : null,
+    ],
+    [
+      AIRED_LABELS[kind],
+      airDates && season ? `${airDates} (${season})` : (airDates ?? season),
+    ],
+    [
+      'Broadcast',
+      kind === 'aired'
+        ? null
+        : formatBroadcast(details?.broadcast ?? entry.broadcast),
+    ],
+    ['Source', details ? formatSource(details.source) : null],
+    ['Rating', details ? formatRating(details.rating) : null],
+    ['Studio', details?.studios.join(', ') || null],
+    ['Genres', details?.genres.join(', ') || null],
+    ['Added', added ? `~${added} (last MAL update)` : null],
+  ]
+
+  return (
+    <AnimeDetailsBody
+      malId={entry.malId}
+      coverUrl={details?.coverUrl ?? entry.coverUrl}
+      facts={facts}
+      synopsis={cleanSynopsis(details?.synopsis ?? null)}
+      footer={
+        !details && detailsLoading ? (
+          <p className="anime-details-loading">Loading details from MAL…</p>
+        ) : null
+      }
+    />
+  )
+}
+
 function PtwSection({
   title,
   kind,
   entries,
   movingMalId,
   onWatch,
+  detailsById,
+  detailsLoading,
+  expandedId,
+  onToggle,
 }: {
   title: string
   kind: PtwSectionKind
   entries: PlanToWatchSnapshotEntry[]
   movingMalId: number | null
   onWatch: (entry: PlanToWatchSnapshotEntry) => void
+  detailsById: Map<number, PtwDetails>
+  detailsLoading: boolean
+  expandedId: number | null
+  onToggle: (malId: number) => void
 }) {
   if (entries.length === 0) {
     return null
@@ -158,20 +265,20 @@ function PtwSection({
       <div className="panel show-list">
         {entries.map((entry) => {
           const meta = formatTrailingMeta(entry, kind)
-          const malUrl = `https://myanimelist.net/anime/${entry.malId}`
+          const open = expandedId === entry.malId
 
           return (
             <article
-              className="show-row ptw-row"
+              className={`show-row ptw-row${open ? ' expanded' : ''}`}
               id={`show-${entry.malId}`}
               key={entry.malId}
             >
               <div className="show-row-header ptw-row-header">
-                <a
-                  className="ptw-row-main"
-                  href={malUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  className="ptw-row-main ptw-row-toggle"
+                  type="button"
+                  aria-expanded={open}
+                  onClick={() => onToggle(entry.malId)}
                 >
                   <div className="show-row-leading">
                     <ShowTitleDisplay
@@ -179,12 +286,13 @@ function PtwSection({
                       titleEnglish={entry.titleEnglish}
                     />
                   </div>
-                  {meta ? (
-                    <div className="show-row-trailing">
-                      <span className="ep-count">{meta}</span>
-                    </div>
-                  ) : null}
-                </a>
+                  <div className="show-row-trailing">
+                    {meta ? <span className="ep-count">{meta}</span> : null}
+                    <span className={`chevron ${open ? 'expanded' : ''}`}>
+                      ▼
+                    </span>
+                  </div>
+                </button>
                 <button
                   className="btn btn-secondary ptw-watch-btn"
                   type="button"
@@ -194,6 +302,14 @@ function PtwSection({
                   Watch
                 </button>
               </div>
+              {open ? (
+                <PtwDetailsPanel
+                  entry={entry}
+                  kind={kind}
+                  details={detailsById.get(entry.malId)}
+                  detailsLoading={detailsLoading}
+                />
+              ) : null}
             </article>
           )
         })}
@@ -204,7 +320,6 @@ function PtwSection({
 
 export default function PlanToWatchPage() {
   const toast = useToast()
-  useHashScrollHighlight()
   const [snapshot, setSnapshot] = useState<PlanToWatchSnapshot | null>(null)
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
@@ -213,6 +328,16 @@ export default function PlanToWatchPage() {
     null
   )
   const [moving, setMoving] = useState(false)
+  const [details, setDetails] = useState<PtwDetailsList | null>(null)
+  const [detailsLoading, setDetailsLoading] = useState(true)
+  const [expandedId, setExpandedId] = useState<number | null>(null)
+
+  useHashScrollHighlight(Boolean(snapshot?.entries?.length))
+
+  const detailsById = useMemo(
+    () => new Map((details?.details ?? []).map((item) => [item.malId, item])),
+    [details]
+  )
 
   const sections = useMemo(() => {
     const entries = snapshot?.entries ?? []
@@ -260,6 +385,33 @@ export default function PlanToWatchPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  async function loadDetails() {
+    setDetailsLoading(true)
+
+    try {
+      const response = await fetch('/api/ptw/details', { cache: 'no-store' })
+      const data = (await response.json()) as {
+        error?: string
+        details?: PtwDetailsList
+      }
+
+      if (!response.ok || !data.details) {
+        throw new Error(data.error || 'Failed to load plan-to-watch details')
+      }
+
+      setDetails(data.details)
+      writeJsonCache(cacheKeys.ptwDetails, data.details)
+    } catch (error) {
+      console.warn('Plan-to-watch details unavailable:', error)
+    } finally {
+      setDetailsLoading(false)
+    }
+  }
+
+  function toggleExpanded(malId: number) {
+    setExpandedId((current) => (current === malId ? null : malId))
   }
 
   async function refreshSnapshot(silent = false) {
@@ -374,7 +526,19 @@ export default function PlanToWatchPage() {
       setLoading(false)
     }
 
+    const cachedDetails = readJsonCache<PtwDetailsList>(cacheKeys.ptwDetails)
+    if (cachedDetails?.details?.length) {
+      setDetails(cachedDetails)
+    }
+
+    // Expand the row a search result links to.
+    const match = /^#show-(\d+)$/.exec(window.location.hash)
+    if (match) {
+      setExpandedId(Number(match[1]))
+    }
+
     void loadSnapshot()
+    void loadDetails()
   }, [])
 
   const hasEntries =
@@ -391,13 +555,17 @@ export default function PlanToWatchPage() {
           <div>
             <h1>Plan to watch</h1>
             <p className="subtitle">
-              MyAnimeList plan-to-watch list grouped by airing status.
+              MyAnimeList plan-to-watch list grouped by airing status. Tap a
+              show for details.
             </p>
           </div>
           <button
             className="btn btn-secondary"
             type="button"
-            onClick={() => void refreshSnapshot(false)}
+            onClick={() => {
+              void refreshSnapshot(false)
+              void loadDetails()
+            }}
             disabled={loading || refreshing}
           >
             {refreshing ? 'Refreshing…' : 'Refresh'}
@@ -420,6 +588,10 @@ export default function PlanToWatchPage() {
               entries={sections.airing}
               movingMalId={moving ? (watchEntry?.malId ?? null) : null}
               onWatch={setWatchEntry}
+              detailsById={detailsById}
+              detailsLoading={detailsLoading}
+              expandedId={expandedId}
+              onToggle={toggleExpanded}
             />
             <PtwSection
               title="Not yet aired"
@@ -427,6 +599,10 @@ export default function PlanToWatchPage() {
               entries={sections.upcoming}
               movingMalId={moving ? (watchEntry?.malId ?? null) : null}
               onWatch={setWatchEntry}
+              detailsById={detailsById}
+              detailsLoading={detailsLoading}
+              expandedId={expandedId}
+              onToggle={toggleExpanded}
             />
             <PtwSection
               title="Aired"
@@ -434,6 +610,10 @@ export default function PlanToWatchPage() {
               entries={sections.aired}
               movingMalId={moving ? (watchEntry?.malId ?? null) : null}
               onWatch={setWatchEntry}
+              detailsById={detailsById}
+              detailsLoading={detailsLoading}
+              expandedId={expandedId}
+              onToggle={toggleExpanded}
             />
           </div>
         )}

@@ -332,6 +332,145 @@ h3 {
   margin-top: 1rem;
 }
 
+.watched-controls {
+  gap: 0.6rem;
+}
+
+.watched-stats {
+  margin: 0;
+}
+
+.watched-group-count {
+  margin-left: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--hint);
+  font-variant-numeric: tabular-nums;
+}
+
+.watched-score {
+  min-width: 1.75rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--radius-sm);
+  background: var(--panel-raised);
+  border: 1px solid var(--border);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.watched-score.unscored {
+  color: var(--hint);
+  font-weight: 500;
+}
+
+.anime-details-body {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+}
+
+.anime-details-cover {
+  width: 84px;
+  aspect-ratio: 225 / 318;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--panel);
+}
+
+.anime-details {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.anime-details-facts {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0;
+  font-size: 0.84rem;
+}
+
+.anime-details-facts > div {
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr);
+  gap: 0.75rem;
+}
+
+.anime-details-facts dt {
+  color: var(--muted);
+}
+
+.anime-details-facts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.anime-details-mal-link {
+  font-size: 0.82rem;
+  justify-self: start;
+}
+
+.anime-details-synopsis {
+  display: grid;
+  gap: 0.3rem;
+  justify-items: start;
+}
+
+.anime-details-synopsis p {
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  white-space: pre-line;
+}
+
+.anime-details-synopsis p.clamped {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.anime-details-synopsis .text-btn {
+  font-size: 0.8rem;
+}
+
+.anime-details-loading {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--hint);
+}
+
+.ptw-row-toggle {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  font: inherit;
+}
+
+.ptw-row-toggle .chevron {
+  margin-left: 0.15rem;
+}
+
+@media (max-width: 640px) {
+  .watched-date {
+    display: none;
+  }
+
+  .anime-details-cover {
+    width: 64px;
+  }
+
+  .anime-details-facts > div {
+    grid-template-columns: 5.5rem minmax(0, 1fr);
+  }
+}
+
 @keyframes skeleton-pulse {
   0%,
   100% {

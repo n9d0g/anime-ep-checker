@@ -1,6 +1,8 @@
 const BOOTSTRAP_CACHE_KEY = 'aec-admin-bootstrap-v1'
 const PTW_CACHE_KEY = 'aec-admin-ptw-v1'
 const ON_HOLD_CACHE_KEY = 'aec-admin-on-hold-v1'
+const WATCHED_CACHE_KEY = 'aec-admin-watched-v1'
+const PTW_DETAILS_CACHE_KEY = 'aec-admin-ptw-details-v1'
 
 export function readJsonCache<T>(key: string): T | null {
   if (typeof window === 'undefined') {
@@ -34,4 +36,6 @@ export const cacheKeys = {
   bootstrap: BOOTSTRAP_CACHE_KEY,
   ptw: PTW_CACHE_KEY,
   onHold: ON_HOLD_CACHE_KEY,
+  watched: WATCHED_CACHE_KEY,
+  ptwDetails: PTW_DETAILS_CACHE_KEY,
 }

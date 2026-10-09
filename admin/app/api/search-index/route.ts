@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getRepoFiles, NO_STORE_HEADERS } from '@/lib/github'
+import { fetchCompletedAnime } from '@/lib/mal'
 import type { SearchIndexItem } from '@/lib/search'
 import type { Show, StateFile } from '@/lib/types'
 
@@ -7,7 +8,14 @@ export const dynamic = 'force-dynamic'
 
 export async function GET() {
   try {
-    const { files } = await getRepoFiles(['shows.json', 'state.json'])
+    const [{ files }, completed] = await Promise.all([
+      getRepoFiles(['shows.json', 'state.json']),
+      // Search still works for tracked lists if MAL is unavailable.
+      fetchCompletedAnime().catch((error) => {
+        console.warn('Watched list unavailable for search:', error)
+        return []
+      }),
+    ])
     const shows = ((files['shows.json']?.content as { shows?: Show[] })?.shows ??
       []) as Show[]
     const state = (files['state.json']?.content ?? { shows: {} }) as StateFile
@@ -41,6 +49,16 @@ export async function GET() {
         title: entry.show.title,
         titleEnglish: entry.show.titleEnglish,
         href: `/on-hold#show-${entry.show.id}`,
+      })
+    }
+
+    for (const entry of completed) {
+      items.push({
+        category: 'watched',
+        id: String(entry.malId),
+        title: entry.title,
+        titleEnglish: entry.titleEnglish,
+        href: `/watched#show-${entry.malId}`,
       })
     }
 

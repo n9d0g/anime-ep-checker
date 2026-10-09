@@ -69,6 +69,60 @@ export interface PlanToWatchSnapshot {
   entries: PlanToWatchSnapshotEntry[]
 }
 
+export interface WatchedEntry {
+  malId: number
+  title: string
+  titleEnglish?: string
+  coverUrl: string | null
+  /** MAL media type, e.g. tv, movie, ova. */
+  mediaType: string | null
+  numEpisodes: number | null
+  episodeDurationSec: number | null
+  season: { year: number; season: string } | null
+  meanScore: number | null
+  genres: string[]
+  studios: string[]
+  /** Your score (1–10), null when unscored. */
+  score: number | null
+  startedAt: string | null
+  finishedAt: string | null
+  updatedAt: string | null
+  timesRewatched: number
+}
+
+export interface PtwDetails {
+  malId: number
+  synopsis: string | null
+  coverUrl: string | null
+  meanScore: number | null
+  rank: number | null
+  popularity: number | null
+  numListUsers: number | null
+  mediaType: string | null
+  numEpisodes: number | null
+  episodeDurationSec: number | null
+  season: { year: number; season: string } | null
+  startDate: string | null
+  endDate: string | null
+  broadcast: { dayOfWeek: string | null; startTime: string | null } | null
+  source: string | null
+  rating: string | null
+  genres: string[]
+  studios: string[]
+  /** Last update to the list entry, usually when it was added to plan to watch. */
+  addedAt: string | null
+}
+
+export interface PtwDetailsList {
+  fetchedAt: string
+  details: PtwDetails[]
+}
+
+export interface WatchedList {
+  fetchedAt: string
+  entries: WatchedEntry[]
+}
+
 export interface OnHoldSnapshotEntry {
   show: Show
   heldAt: string

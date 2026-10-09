@@ -1,3 +1,5 @@
+import type { PtwDetails, WatchedEntry } from './types'
+
 interface MalTokenResponse {
   access_token: string
   refresh_token?: string
@@ -50,6 +52,50 @@ interface MalAnimelistEntry {
   node: MalAnimelistNode
 }
 
+interface MalCompletedNode {
+  id: number
+  title: string
+  alternative_titles?: { en?: string }
+  main_picture?: MalMainPicture
+  media_type?: string
+  num_episodes?: number
+  average_episode_duration?: number
+  start_season?: { year?: number; season?: string }
+  mean?: number
+  genres?: Array<{ name?: string }>
+  studios?: Array<{ name?: string }>
+}
+
+interface MalCompletedListStatus {
+  score?: number
+  start_date?: string
+  finish_date?: string
+  updated_at?: string
+  num_times_rewatched?: number
+}
+
+interface MalCompletedResponse {
+  data?: Array<{ node: MalCompletedNode; list_status?: MalCompletedListStatus }>
+  paging?: { next?: string }
+}
+
+interface MalPtwDetailsNode extends MalCompletedNode {
+  synopsis?: string
+  rank?: number
+  popularity?: number
+  num_list_users?: number
+  start_date?: string
+  end_date?: string
+  broadcast?: { day_of_the_week?: string; start_time?: string }
+  source?: string
+  rating?: string
+}
+
+interface MalPtwDetailsResponse {
+  data?: Array<{ node: MalPtwDetailsNode; list_status?: { updated_at?: string } }>
+  paging?: { next?: string }
+}
+
 interface MalAnimelistResponse {
   data?: MalAnimelistEntry[]
   paging?: {
@@ -73,6 +119,40 @@ interface MalSearchResponse {
 
 const MAL_ANIME_FIELDS =
   'title,num_episodes,my_list_status,mean,main_picture'
+
+const MAL_COMPLETED_FIELDS = [
+  'list_status{score,start_date,finish_date,updated_at,num_times_rewatched}',
+  'alternative_titles',
+  'main_picture',
+  'media_type',
+  'num_episodes',
+  'average_episode_duration',
+  'start_season',
+  'mean',
+  'genres',
+  'studios',
+].join(',')
+
+const MAL_PTW_DETAILS_FIELDS = [
+  'list_status{updated_at}',
+  'synopsis',
+  'main_picture',
+  'mean',
+  'rank',
+  'popularity',
+  'num_list_users',
+  'media_type',
+  'num_episodes',
+  'average_episode_duration',
+  'start_season',
+  'start_date',
+  'end_date',
+  'broadcast',
+  'source',
+  'rating',
+  'genres',
+  'studios',
+].join(',')
 
 const MAL_ANIMELIST_FIELDS =
   'list_status,num_episodes,start_date,broadcast,main_picture,status,alternative_titles'
@@ -500,4 +580,141 @@ export async function fetchMalAnimeTitles(
 export async function fetchMalAnimeTitle(malId: number): Promise<string | null> {
   const { title } = await fetchMalAnimeTitles(malId)
   return title
+}
+
+function getNames(items?: Array<{ name?: string }>): string[] {
+  return (items ?? [])
+    .map((item) => item.name?.trim())
+    .filter((name): name is string => Boolean(name))
+}
+
+function positiveNumber(value: number | undefined): number | null {
+  return typeof value === 'number' && value > 0 ? value : null
+}
+
+function parseCompletedEntry(
+  node: MalCompletedNode,
+  listStatus: MalCompletedListStatus = {}
+): WatchedEntry {
+  return {
+    malId: node.id,
+    title: node.title,
+    titleEnglish: node.alternative_titles?.en?.trim() || undefined,
+    coverUrl: node.main_picture?.large ?? node.main_picture?.medium ?? null,
+    mediaType: node.media_type || null,
+    numEpisodes:
+      typeof node.num_episodes === 'number' && node.num_episodes > 0
+        ? node.num_episodes
+        : null,
+    episodeDurationSec:
+      typeof node.average_episode_duration === 'number' &&
+      node.average_episode_duration > 0
+        ? node.average_episode_duration
+        : null,
+    season:
+      node.start_season?.year && node.start_season.season
+        ? { year: node.start_season.year, season: node.start_season.season }
+        : null,
+    meanScore: typeof node.mean === 'number' ? node.mean : null,
+    genres: getNames(node.genres),
+    studios: getNames(node.studios),
+    score: listStatus.score && listStatus.score > 0 ? listStatus.score : null,
+    startedAt: listStatus.start_date || null,
+    finishedAt: listStatus.finish_date || null,
+    updatedAt: listStatus.updated_at || null,
+    timesRewatched: listStatus.num_times_rewatched ?? 0,
+  }
+}
+
+/** Your completed list on MAL, fetched live (all pages). */
+export async function fetchCompletedAnime(): Promise<WatchedEntry[]> {
+  const accessToken = await getMalAccessToken()
+  const entries: WatchedEntry[] = []
+  let nextUrl: string | undefined =
+    `https://api.myanimelist.net/v2/users/@me/animelist?status=completed&limit=1000&nsfw=true&fields=${encodeURIComponent(MAL_COMPLETED_FIELDS)}`
+
+  while (nextUrl) {
+    const response = await fetch(nextUrl, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    })
+
+    if (!response.ok) {
+      const body = await response.text()
+      throw new Error(`MAL completed list lookup failed (${response.status}): ${body}`)
+    }
+
+    const page = (await response.json()) as MalCompletedResponse
+    for (const item of page.data ?? []) {
+      if (item.node?.id) {
+        entries.push(parseCompletedEntry(item.node, item.list_status))
+      }
+    }
+    nextUrl = page.paging?.next
+  }
+
+  return entries
+}
+
+function parsePtwDetails(
+  node: MalPtwDetailsNode,
+  listStatus: { updated_at?: string } = {}
+): PtwDetails {
+  return {
+    malId: node.id,
+    synopsis: node.synopsis?.trim() || null,
+    coverUrl: node.main_picture?.large ?? node.main_picture?.medium ?? null,
+    meanScore: positiveNumber(node.mean),
+    rank: positiveNumber(node.rank),
+    popularity: positiveNumber(node.popularity),
+    numListUsers: positiveNumber(node.num_list_users),
+    mediaType: node.media_type || null,
+    numEpisodes: positiveNumber(node.num_episodes),
+    episodeDurationSec: positiveNumber(node.average_episode_duration),
+    season:
+      node.start_season?.year && node.start_season.season
+        ? { year: node.start_season.year, season: node.start_season.season }
+        : null,
+    startDate: node.start_date || null,
+    endDate: node.end_date || null,
+    broadcast: node.broadcast?.day_of_the_week
+      ? {
+          dayOfWeek: node.broadcast.day_of_the_week,
+          startTime: node.broadcast.start_time ?? null,
+        }
+      : null,
+    source: node.source || null,
+    rating: node.rating || null,
+    genres: getNames(node.genres),
+    studios: getNames(node.studios),
+    addedAt: listStatus.updated_at || null,
+  }
+}
+
+/** Extra info for the plan-to-watch page, fetched live (not stored in state). */
+export async function fetchPlanToWatchDetails(): Promise<PtwDetails[]> {
+  const accessToken = await getMalAccessToken()
+  const details: PtwDetails[] = []
+  let nextUrl: string | undefined =
+    `https://api.myanimelist.net/v2/users/@me/animelist?status=plan_to_watch&limit=1000&nsfw=true&fields=${encodeURIComponent(MAL_PTW_DETAILS_FIELDS)}`
+
+  while (nextUrl) {
+    const response = await fetch(nextUrl, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    })
+
+    if (!response.ok) {
+      const body = await response.text()
+      throw new Error(`MAL plan-to-watch details lookup failed (${response.status}): ${body}`)
+    }
+
+    const page = (await response.json()) as MalPtwDetailsResponse
+    for (const item of page.data ?? []) {
+      if (item.node?.id) {
+        details.push(parsePtwDetails(item.node, item.list_status))
+      }
+    }
+    nextUrl = page.paging?.next
+  }
+
+  return details
 }

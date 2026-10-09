@@ -23,10 +23,15 @@ function highlightFromHash() {
   }, 2000)
 }
 
-export function useHashScrollHighlight() {
+/** Pass `ready` when rows render after an async load so the hash target exists. */
+export function useHashScrollHighlight(ready = true) {
   const pathname = usePathname()
 
   useEffect(() => {
+    if (!ready) {
+      return
+    }
+
     const run = () => {
       window.requestAnimationFrame(() => {
         highlightFromHash()
@@ -38,5 +43,5 @@ export function useHashScrollHighlight() {
     return () => {
       window.removeEventListener('hashchange', run)
     }
-  }, [pathname])
+  }, [pathname, ready])
 }

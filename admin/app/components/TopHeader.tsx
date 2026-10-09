@@ -87,6 +87,27 @@ function OnHoldIcon() {
   )
 }
 
+function WatchedIcon() {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle
+        cx="8"
+        cy="8"
+        r="5.75"
+        stroke="currentColor"
+        strokeWidth="1.25"
+      />
+      <path
+        d="M5.5 8.25L7.25 10L10.5 6.5"
+        stroke="currentColor"
+        strokeWidth="1.25"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
 function SearchIcon() {
   return (
     <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -278,6 +299,19 @@ export function TopHeader() {
                   <PlanToWatchIcon />
                 </MenuIcon>
                 Plan to watch
+              </Link>
+              <Link
+                className={`profile-menu-item profile-menu-link${
+                  pathname === '/watched' ? ' active' : ''
+                }`}
+                href="/watched"
+                role="menuitem"
+                onClick={() => setProfileMenuOpen(false)}
+              >
+                <MenuIcon>
+                  <WatchedIcon />
+                </MenuIcon>
+                Watched
               </Link>
               <div className="profile-menu-divider" role="separator" />
               <button

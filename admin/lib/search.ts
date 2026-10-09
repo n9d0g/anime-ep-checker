@@ -1,4 +1,4 @@
-export type SearchCategory = 'watching' | 'ptw' | 'on_hold'
+export type SearchCategory = 'watching' | 'ptw' | 'on_hold' | 'watched'
 
 export interface SearchIndexItem {
   category: SearchCategory

@@ -14,9 +14,10 @@ const CATEGORY_LABELS: Record<SearchCategory, string> = {
   watching: 'Watching',
   ptw: 'Plan to watch',
   on_hold: 'On hold',
+  watched: 'Watched',
 }
 
-const CATEGORY_ORDER: SearchCategory[] = ['watching', 'ptw', 'on_hold']
+const CATEGORY_ORDER: SearchCategory[] = ['watching', 'ptw', 'on_hold', 'watched']
 
 interface SearchOverlayProps {
   open: boolean
