@@ -141,10 +141,7 @@ export interface StateFile {
     watchingDashboardMessageId?: string | null
     watchingDashboardMessageIds?: Record<string, string>
     planToWatchCheckedAt?: string | null
-    planToWatchAlerts?: Record<
-      string,
-      { alertedAt: string; reason: string }
-    >
+    planToWatchAlerts?: Record<string, { alertedAt: string; reason: string }>
     planToWatch?: PlanToWatchSnapshot
     onHold?: OnHoldSnapshot
     [key: string]: unknown

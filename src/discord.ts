@@ -103,7 +103,11 @@ function buildEpisodeWebhookEmbed({
 }: Omit<EpisodeAlertInput, 'discord'>) {
   const episodeTitle = latestSnapshot.episode.title ?? 'New episode'
   const showTitle = show.title || latestSnapshot.seriesTitle
-  const timingLabel = formatTimingLabel(timingStatus, expectedDropAt, actualDropAt)
+  const timingLabel = formatTimingLabel(
+    timingStatus,
+    expectedDropAt,
+    actualDropAt
+  )
   const countdown = actualDropAt
     ? discordRelativeTimestamp(actualDropAt, 'Aired')
     : discordRelativeTimestamp(expectedDropAt, '—')
@@ -408,7 +412,9 @@ export async function sendPlanToWatchAlert({
   )
 }
 
-export async function sendEpisodeAlert(input: EpisodeAlertInput): Promise<void> {
+export async function sendEpisodeAlert(
+  input: EpisodeAlertInput
+): Promise<void> {
   if (hasBotConfig(input.discord)) {
     const showTitle = input.show.title || input.latestSnapshot.seriesTitle
     const embed = buildEpisodeWebhookEmbed(input)
@@ -440,9 +446,7 @@ export async function sendEpisodeAlert(input: EpisodeAlertInput): Promise<void> 
       links.push(`[r/anime](${input.discussionUrl})`)
     }
     if (input.show.malId) {
-      links.push(
-        `[MAL](https://myanimelist.net/anime/${input.show.malId})`
-      )
+      links.push(`[MAL](https://myanimelist.net/anime/${input.show.malId})`)
     }
 
     if (links.length > 0) {

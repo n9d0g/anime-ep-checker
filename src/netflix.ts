@@ -296,7 +296,9 @@ export async function getLatestAvailableEpisodeForTitle(
     )
   }
 
-  function toSeasonAvailability(rows: SeasonEpisodeRow[]): SeasonEpisodeAvailability[] {
+  function toSeasonAvailability(
+    rows: SeasonEpisodeRow[]
+  ): SeasonEpisodeAvailability[] {
     return rows.map((row) => ({
       episode: row.episodeNumber,
       available: row.playable,

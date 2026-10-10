@@ -380,7 +380,9 @@ export default function PlanToWatchPage() {
       }
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : 'Failed to load plan-to-watch list'
+        error instanceof Error
+          ? error.message
+          : 'Failed to load plan-to-watch list'
       )
     } finally {
       setLoading(false)
@@ -504,15 +506,15 @@ export default function PlanToWatchPage() {
           'Added to watching. MAL status could not be updated — mark it watching there if needed.'
         )
       } else if (data.workflowTriggered) {
-        toast.success(
-          'Moved to watching. The dashboard will refresh shortly.'
-        )
+        toast.success('Moved to watching. The dashboard will refresh shortly.')
       } else {
         toast.success('Moved to watching.')
       }
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : 'Failed to move show to watching'
+        error instanceof Error
+          ? error.message
+          : 'Failed to move show to watching'
       )
     } finally {
       setMoving(false)

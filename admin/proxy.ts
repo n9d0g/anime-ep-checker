@@ -36,9 +36,7 @@ export function proxy(request: NextRequest) {
         NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
       )
     }
-    return withRobotsTag(
-      NextResponse.redirect(new URL('/login', request.url))
-    )
+    return withRobotsTag(NextResponse.redirect(new URL('/login', request.url)))
   }
 
   return withRobotsTag(NextResponse.next())

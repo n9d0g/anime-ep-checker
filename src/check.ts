@@ -9,10 +9,7 @@ import {
   getShowState,
   getTimingStatus,
 } from './compare.js'
-import {
-  resolveEpisodeOffset,
-  toRelativeSnapshot,
-} from './episode-offset.js'
+import { resolveEpisodeOffset, toRelativeSnapshot } from './episode-offset.js'
 import {
   getLatestAvailableEpisodeForSeries,
   parseSeriesIdFromUrl,
@@ -102,7 +99,8 @@ function resolveProviderId(show: Show): string {
 
   if (normalized.provider === 'netflix') {
     if (normalized.netflixId) return normalized.netflixId
-    if (normalized.netflixUrl) return parseNetflixIdFromUrl(normalized.netflixUrl)
+    if (normalized.netflixUrl)
+      return parseNetflixIdFromUrl(normalized.netflixUrl)
     throw new Error(`Netflix ID missing for show ${show.id}`)
   }
 
@@ -207,9 +205,7 @@ async function tryDisneyAnilistFallback(
     return null
   }
 
-  console.log(
-    `  AniList fallback: latest aired episode ${aired.episodeNumber}`
-  )
+  console.log(`  AniList fallback: latest aired episode ${aired.episodeNumber}`)
 
   return {
     provider: 'disney',
@@ -315,7 +311,7 @@ export interface CheckOptions {
 function hasDiscordConfig(discord: DiscordConfig): boolean {
   return Boolean(
     (discord.botToken?.trim() && discord.channelId?.trim()) ||
-      discord.webhookUrl?.trim()
+    discord.webhookUrl?.trim()
   )
 }
 
@@ -389,7 +385,9 @@ async function announceEpisode({
         state
       )
       if (calendarCleared) {
-        noteStateChange(`Google Calendar event cleared for ${show.title || showId} ep ${episodeNumber}`)
+        noteStateChange(
+          `Google Calendar event cleared for ${show.title || showId} ep ${episodeNumber}`
+        )
         console.log('  Google Calendar event cleared')
       }
     } else {
@@ -425,7 +423,10 @@ function isShowInCheckWindow(
   const lastEpisodeNumber = previousState
     ? parseEpisodeNumber(previousState.lastEpisodeNumber)
     : null
-  const nextExpectedEp = getNextExpectedEpisode(show.schedule, lastEpisodeNumber)
+  const nextExpectedEp = getNextExpectedEpisode(
+    show.schedule,
+    lastEpisodeNumber
+  )
 
   if (nextExpectedEp === null) return false
 
@@ -497,14 +498,19 @@ export async function checkShows({
     const lastEpisodeNumber = previousState
       ? parseEpisodeNumber(previousState.lastEpisodeNumber)
       : null
-    const nextExpectedEp = getNextExpectedEpisode(show.schedule, lastEpisodeNumber)
+    const nextExpectedEp = getNextExpectedEpisode(
+      show.schedule,
+      lastEpisodeNumber
+    )
 
     console.log(
       `Checking ${show.title || showId} (${providerLabel(show.provider)} ${providerId})...`
     )
 
     if (show.provider === 'netflix' && skipNetflixShows) {
-      console.log('  Skipping Netflix show (cookie auth failed earlier this run)')
+      console.log(
+        '  Skipping Netflix show (cookie auth failed earlier this run)'
+      )
       continue
     }
 
@@ -521,7 +527,9 @@ export async function checkShows({
 
     const expectedAt = getExpectedDropAt(show.schedule, nextExpectedEp)
     if (!expectedAt) {
-      console.log(`  Could not compute expected drop for episode ${nextExpectedEp}`)
+      console.log(
+        `  Could not compute expected drop for episode ${nextExpectedEp}`
+      )
       continue
     }
 
@@ -614,7 +622,9 @@ export async function checkShows({
         ...state.meta,
         netflixCookieAlertSentAt: null,
       }
-      noteStateChange(`cleared Netflix auth alert flag for ${show.title || showId}`)
+      noteStateChange(
+        `cleared Netflix auth alert flag for ${show.title || showId}`
+      )
     }
 
     if (
@@ -626,7 +636,9 @@ export async function checkShows({
         ...state.meta,
         disneyCookieAlertSentAt: null,
       }
-      noteStateChange(`cleared Disney auth alert flag for ${show.title || showId}`)
+      noteStateChange(
+        `cleared Disney auth alert flag for ${show.title || showId}`
+      )
     }
 
     if (!latestSnapshot) {
@@ -680,10 +692,14 @@ export async function checkShows({
           noteStateChange,
         })
 
-        state.shows[showId] = createUpdatedState(latestSnapshot, latestEpisodeNumber, {
-          episodeOffset: episodeOffsetToSave,
-          previousState,
-        })
+        state.shows[showId] = createUpdatedState(
+          latestSnapshot,
+          latestEpisodeNumber,
+          {
+            episodeOffset: episodeOffsetToSave,
+            previousState,
+          }
+        )
         noteStateChange(
           `catch-up episode alert ${show.title || showId} ep ${latestEpisodeNumber}`
         )

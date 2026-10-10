@@ -25,10 +25,7 @@ function WatchingIcon() {
         stroke="currentColor"
         strokeWidth="1.25"
       />
-      <path
-        d="M6.25 6.25L10.25 8.25L6.25 10.25V6.25Z"
-        fill="currentColor"
-      />
+      <path d="M6.25 6.25L10.25 8.25L6.25 10.25V6.25Z" fill="currentColor" />
       <path
         d="M4.5 13.5H11.5"
         stroke="currentColor"
@@ -90,13 +87,7 @@ function OnHoldIcon() {
 function WatchedIcon() {
   return (
     <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle
-        cx="8"
-        cy="8"
-        r="5.75"
-        stroke="currentColor"
-        strokeWidth="1.25"
-      />
+      <circle cx="8" cy="8" r="5.75" stroke="currentColor" strokeWidth="1.25" />
       <path
         d="M5.5 8.25L7.25 10L10.5 6.5"
         stroke="currentColor"
@@ -111,13 +102,7 @@ function WatchedIcon() {
 function SearchIcon() {
   return (
     <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle
-        cx="7"
-        cy="7"
-        r="4.25"
-        stroke="currentColor"
-        strokeWidth="1.25"
-      />
+      <circle cx="7" cy="7" r="4.25" stroke="currentColor" strokeWidth="1.25" />
       <path
         d="M10.25 10.25L13.5 13.5"
         stroke="currentColor"
@@ -249,87 +234,87 @@ export function TopHeader() {
             <SearchIcon />
           </button>
           <div className="profile-menu" ref={profileMenuRef}>
-          <button
-            className="profile-menu-btn"
-            type="button"
-            aria-label="Account menu"
-            aria-expanded={profileMenuOpen}
-            aria-haspopup="menu"
-            onClick={() => setProfileMenuOpen((open) => !open)}
-          >
-            <img src="/icons/icon-192.png" alt="" />
-          </button>
-          {profileMenuOpen ? (
-            <div className="profile-menu-dropdown" role="menu">
-              <Link
-                className={`profile-menu-item profile-menu-link${
-                  pathname === '/' ? ' active' : ''
-                }`}
-                href="/"
-                role="menuitem"
-                onClick={() => setProfileMenuOpen(false)}
-              >
-                <MenuIcon>
-                  <WatchingIcon />
-                </MenuIcon>
-                Watching
-              </Link>
-              <Link
-                className={`profile-menu-item profile-menu-link${
-                  pathname === '/on-hold' ? ' active' : ''
-                }`}
-                href="/on-hold"
-                role="menuitem"
-                onClick={() => setProfileMenuOpen(false)}
-              >
-                <MenuIcon>
-                  <OnHoldIcon />
-                </MenuIcon>
-                On hold
-              </Link>
-              <Link
-                className={`profile-menu-item profile-menu-link${
-                  pathname === '/ptw' ? ' active' : ''
-                }`}
-                href="/ptw"
-                role="menuitem"
-                onClick={() => setProfileMenuOpen(false)}
-              >
-                <MenuIcon>
-                  <PlanToWatchIcon />
-                </MenuIcon>
-                Plan to watch
-              </Link>
-              <Link
-                className={`profile-menu-item profile-menu-link${
-                  pathname === '/watched' ? ' active' : ''
-                }`}
-                href="/watched"
-                role="menuitem"
-                onClick={() => setProfileMenuOpen(false)}
-              >
-                <MenuIcon>
-                  <WatchedIcon />
-                </MenuIcon>
-                Watched
-              </Link>
-              <div className="profile-menu-divider" role="separator" />
-              <button
-                className="profile-menu-item profile-menu-danger"
-                type="button"
-                role="menuitem"
-                onClick={() => {
-                  setProfileMenuOpen(false)
-                  void logout()
-                }}
-              >
-                <MenuIcon>
-                  <LogOutIcon />
-                </MenuIcon>
-                Log out
-              </button>
-            </div>
-          ) : null}
+            <button
+              className="profile-menu-btn"
+              type="button"
+              aria-label="Account menu"
+              aria-expanded={profileMenuOpen}
+              aria-haspopup="menu"
+              onClick={() => setProfileMenuOpen((open) => !open)}
+            >
+              <img src="/icons/icon-192.png" alt="" />
+            </button>
+            {profileMenuOpen ? (
+              <div className="profile-menu-dropdown" role="menu">
+                <Link
+                  className={`profile-menu-item profile-menu-link${
+                    pathname === '/' ? ' active' : ''
+                  }`}
+                  href="/"
+                  role="menuitem"
+                  onClick={() => setProfileMenuOpen(false)}
+                >
+                  <MenuIcon>
+                    <WatchingIcon />
+                  </MenuIcon>
+                  Watching
+                </Link>
+                <Link
+                  className={`profile-menu-item profile-menu-link${
+                    pathname === '/on-hold' ? ' active' : ''
+                  }`}
+                  href="/on-hold"
+                  role="menuitem"
+                  onClick={() => setProfileMenuOpen(false)}
+                >
+                  <MenuIcon>
+                    <OnHoldIcon />
+                  </MenuIcon>
+                  On hold
+                </Link>
+                <Link
+                  className={`profile-menu-item profile-menu-link${
+                    pathname === '/ptw' ? ' active' : ''
+                  }`}
+                  href="/ptw"
+                  role="menuitem"
+                  onClick={() => setProfileMenuOpen(false)}
+                >
+                  <MenuIcon>
+                    <PlanToWatchIcon />
+                  </MenuIcon>
+                  Plan to watch
+                </Link>
+                <Link
+                  className={`profile-menu-item profile-menu-link${
+                    pathname === '/watched' ? ' active' : ''
+                  }`}
+                  href="/watched"
+                  role="menuitem"
+                  onClick={() => setProfileMenuOpen(false)}
+                >
+                  <MenuIcon>
+                    <WatchedIcon />
+                  </MenuIcon>
+                  Watched
+                </Link>
+                <div className="profile-menu-divider" role="separator" />
+                <button
+                  className="profile-menu-item profile-menu-danger"
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setProfileMenuOpen(false)
+                    void logout()
+                  }}
+                >
+                  <MenuIcon>
+                    <LogOutIcon />
+                  </MenuIcon>
+                  Log out
+                </button>
+              </div>
+            ) : null}
           </div>
         </div>
       </div>

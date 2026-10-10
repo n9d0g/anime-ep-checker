@@ -16,8 +16,8 @@ export async function GET() {
         return []
       }),
     ])
-    const shows = ((files['shows.json']?.content as { shows?: Show[] })?.shows ??
-      []) as Show[]
+    const shows = ((files['shows.json']?.content as { shows?: Show[] })
+      ?.shows ?? []) as Show[]
     const state = (files['state.json']?.content ?? { shows: {} }) as StateFile
 
     const items: SearchIndexItem[] = []

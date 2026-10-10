@@ -29,7 +29,9 @@ export async function POST(request: Request) {
     if (Number.isNaN(start.getTime())) {
       throw new Error('Invalid schedule startAt')
     }
-    show.schedule.startAt = new Date(start.getTime() + MS_PER_WEEK).toISOString()
+    show.schedule.startAt = new Date(
+      start.getTime() + MS_PER_WEEK
+    ).toISOString()
 
     const { content: stateContent, sha: stateSha } = await getStateFile()
     const state = stateContent as StateFile
@@ -64,7 +66,9 @@ export async function POST(request: Request) {
     })
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to delay show' },
+      {
+        error: error instanceof Error ? error.message : 'Failed to delay show',
+      },
       { status: 400 }
     )
   }

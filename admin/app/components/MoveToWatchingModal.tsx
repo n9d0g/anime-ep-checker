@@ -92,7 +92,9 @@ export function MoveToWatchingModal({
   onCancel: () => void
   onSubmit: (values: ShowFormValues) => void
 }) {
-  const [form, setForm] = useState<ShowFormValues>(() => watchFormDefaults(entry))
+  const [form, setForm] = useState<ShowFormValues>(() =>
+    watchFormDefaults(entry)
+  )
 
   useEffect(() => {
     setForm(watchFormDefaults(entry))
@@ -209,7 +211,9 @@ export function MoveToWatchingModal({
               id="ptw-watch-start"
               type="datetime-local"
               value={form.schedule.startAt}
-              onChange={(event) => updateSchedule('startAt', event.target.value)}
+              onChange={(event) =>
+                updateSchedule('startAt', event.target.value)
+              }
               required
             />
             {startKnown ? null : (
@@ -248,7 +252,9 @@ export function MoveToWatchingModal({
                   required
                 />
                 {episodeCountKnown ? null : (
-                  <p className="hint">MAL does not list an episode count yet.</p>
+                  <p className="hint">
+                    MAL does not list an episode count yet.
+                  </p>
                 )}
               </div>
             ) : null}

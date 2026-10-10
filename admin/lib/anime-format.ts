@@ -67,7 +67,9 @@ export function formatMalDate(
     if (!month) {
       return year
     }
-    const date = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day ?? 1)))
+    const date = new Date(
+      Date.UTC(Number(year), Number(month) - 1, Number(day ?? 1))
+    )
     return date.toLocaleDateString(undefined, {
       timeZone: 'UTC',
       year: 'numeric',
@@ -138,9 +140,7 @@ export function formatBroadcast(
   }
   const day =
     broadcast.dayOfWeek.charAt(0).toUpperCase() + broadcast.dayOfWeek.slice(1)
-  return broadcast.startTime
-    ? `${day}s ${broadcast.startTime} JST`
-    : `${day}s`
+  return broadcast.startTime ? `${day}s ${broadcast.startTime} JST` : `${day}s`
 }
 
 export function formatAirDates(

@@ -88,8 +88,7 @@ interface MalAnimelistResponse {
   }
 }
 
-const MAL_ANIME_FIELDS =
-  'num_episodes,my_list_status,mean,main_picture'
+const MAL_ANIME_FIELDS = 'num_episodes,my_list_status,mean,main_picture'
 
 const MAL_ANIMELIST_FIELDS =
   'list_status,num_episodes,start_date,broadcast,main_picture,status,alternative_titles'
@@ -160,11 +159,10 @@ function parseMalAnimeDetails(data: MalAnimeResponse): MalAnimeDetails {
       ? data.num_episodes
       : null
   const meanScore =
-    typeof data.mean === 'number' && Number.isFinite(data.mean) ? data.mean : null
-  const coverUrl =
-    data.main_picture?.large ??
-    data.main_picture?.medium ??
-    null
+    typeof data.mean === 'number' && Number.isFinite(data.mean)
+      ? data.mean
+      : null
+  const coverUrl = data.main_picture?.large ?? data.main_picture?.medium ?? null
 
   return { watched, total, meanScore, coverUrl }
 }
@@ -267,8 +265,7 @@ function parsePlanToWatchEntry(node: MalAnimelistNode): MalPlanToWatchEntry {
     status: node.status ?? '',
     startDate: node.start_date ?? null,
     broadcast,
-    coverUrl:
-      node.main_picture?.large ?? node.main_picture?.medium ?? null,
+    coverUrl: node.main_picture?.large ?? node.main_picture?.medium ?? null,
     numEpisodes:
       typeof node.num_episodes === 'number' && node.num_episodes > 0
         ? node.num_episodes

@@ -6,8 +6,7 @@ import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
 
 const siteTitle = 'Anime Episode Checker'
-const siteDescription =
-  'Manage tracked Crunchyroll, Netflix, and Disney+ shows'
+const siteDescription = 'Manage tracked Crunchyroll, Netflix, and Disney+ shows'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -24,7 +23,9 @@ export const metadata: Metadata = {
     title: siteTitle,
     description: siteDescription,
     url: '/',
-    images: [{ url: '/icons/icon-512.png', width: 512, height: 512, alt: siteTitle }],
+    images: [
+      { url: '/icons/icon-512.png', width: 512, height: 512, alt: siteTitle },
+    ],
   },
   twitter: {
     card: 'summary',
@@ -42,7 +43,9 @@ export const metadata: Metadata = {
       { url: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
       { url: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
     ],
-    apple: [{ url: '/icons/icon-180.png', sizes: '180x180', type: 'image/png' }],
+    apple: [
+      { url: '/icons/icon-180.png', sizes: '180x180', type: 'image/png' },
+    ],
   },
   appleWebApp: {
     capable: true,

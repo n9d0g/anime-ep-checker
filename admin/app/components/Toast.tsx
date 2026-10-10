@@ -48,10 +48,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     [push]
   )
 
-  const error = useCallback(
-    (message: string) => push('error', message),
-    [push]
-  )
+  const error = useCallback((message: string) => push('error', message), [push])
 
   return (
     <ToastContext.Provider value={{ success, error }}>

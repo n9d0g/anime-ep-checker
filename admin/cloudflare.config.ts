@@ -1,14 +1,14 @@
-import { bindings, defineConfig, defineWorker } from "cf/config";
+import { bindings, defineConfig, defineWorker } from 'cf/config'
 
 export default defineConfig({
   worker: defineWorker({
-    name: "anime-ep-checker-admin",
-    entrypoint: "vinext/server/fetch-handler",
-    compatibilityDate: "2026-10-05",
-    compatibilityFlags: ["nodejs_compat"],
-    domains: ["anime-ep-checker.dev"],
+    name: 'anime-ep-checker-admin',
+    entrypoint: 'vinext/server/fetch-handler',
+    compatibilityDate: '2026-10-05',
+    compatibilityFlags: ['nodejs_compat'],
+    domains: ['anime-ep-checker.dev'],
     workersDev: false,
-    assets: { notFoundHandling: "none" },
+    assets: { notFoundHandling: 'none' },
     env: {
       ASSETS: bindings.assets(),
       IMAGES: bindings.images(),
@@ -22,4 +22,4 @@ export default defineConfig({
       MAL_REFRESH_TOKEN: bindings.secret(),
     },
   }),
-});
+})

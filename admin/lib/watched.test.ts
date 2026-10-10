@@ -7,7 +7,12 @@ import {
   groupWatched,
   sortWatched,
 } from './watched'
-import { cleanSynopsis, formatAirDates, formatBroadcast, formatMalDate } from './anime-format'
+import {
+  cleanSynopsis,
+  formatAirDates,
+  formatBroadcast,
+  formatMalDate,
+} from './anime-format'
 
 function entry(overrides: Partial<WatchedEntry>): WatchedEntry {
   return {
@@ -30,8 +35,18 @@ function entry(overrides: Partial<WatchedEntry>): WatchedEntry {
   }
 }
 
-const a = entry({ malId: 1, title: 'Alpha', score: 7, finishedAt: '2024-03-02' })
-const b = entry({ malId: 2, title: 'Bravo', score: 9, finishedAt: '2025-11-20' })
+const a = entry({
+  malId: 1,
+  title: 'Alpha',
+  score: 7,
+  finishedAt: '2024-03-02',
+})
+const b = entry({
+  malId: 2,
+  title: 'Bravo',
+  score: 9,
+  finishedAt: '2025-11-20',
+})
 const c = entry({
   malId: 3,
   title: 'Charlie',

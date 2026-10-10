@@ -4,8 +4,10 @@ import { writeDisneyRefreshToken } from './disney-refresh-token.js'
 const USER_AGENT =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
 
-const DISNEY_CONTENT_EDGE_BASE = 'https://disney.content.edge.bamgrid.com/svc/content'
-const DISNEY_EXPLORE_URL = 'https://disney.api.edge.bamgrid.com/explore/v1.18/page'
+const DISNEY_CONTENT_EDGE_BASE =
+  'https://disney.content.edge.bamgrid.com/svc/content'
+const DISNEY_EXPLORE_URL =
+  'https://disney.api.edge.bamgrid.com/explore/v1.18/page'
 const DISNEY_TOKEN_URL = 'https://disney.api.edge.bamgrid.com/token'
 const DISNEY_API_KEY =
   'ZGlzbmV5JmJyb3dzZXImMS4wLjA.Cu56AgSfBTDag5NiRA81oLHkDZfu5L3CKadnefEAY84'
@@ -39,7 +41,9 @@ export function parseDisneyIdFromUrl(url: string): string {
     return entityMatch[1]
   }
 
-  const seriesMatch = String(url).match(/\/series\/[a-z0-9-]+\/([a-zA-Z0-9-]+)/i)
+  const seriesMatch = String(url).match(
+    /\/series\/[a-z0-9-]+\/([a-zA-Z0-9-]+)/i
+  )
   if (seriesMatch) {
     return seriesMatch[1]
   }
@@ -100,7 +104,9 @@ async function exchangeRefreshToken(
   const data = (await response.json()) as DisneyTokenResponse
 
   if (!response.ok) {
-    const detail = String(data.error_description ?? data.error ?? response.statusText)
+    const detail = String(
+      data.error_description ?? data.error ?? response.statusText
+    )
     if (response.status === 401 || response.status === 403) {
       throw new DisneyAuthError(
         `Disney+ refresh token exchange ${response.status}: ${detail}`
@@ -135,9 +141,7 @@ async function exchangeRefreshToken(
     process.env.NODE_ENV !== 'test'
   ) {
     writeDisneyRefreshToken(data.refresh_token)
-    console.log(
-      'Disney+ rotated refresh token saved for GitHub secret update.'
-    )
+    console.log('Disney+ rotated refresh token saved for GitHub secret update.')
   }
 
   return data
@@ -238,7 +242,9 @@ function toEpisodeSnapshot(
   }
 }
 
-async function fetchContentEdgeJson(path: string): Promise<Record<string, unknown> | null> {
+async function fetchContentEdgeJson(
+  path: string
+): Promise<Record<string, unknown> | null> {
   const region = getDisneyRegion()
   const url = `${DISNEY_CONTENT_EDGE_BASE}/${path}/region/${region}/audience/k-false,l-true/maturity/1850/language/en`
 
@@ -265,9 +271,7 @@ function getNestedTitle(value: unknown): string | undefined {
   if (!isRecord(value)) return undefined
 
   const direct =
-    getString(value.title) ??
-    getString(value.name) ??
-    getString(value.full)
+    getString(value.title) ?? getString(value.name) ?? getString(value.full)
   if (direct) return direct
 
   const text = value.text
@@ -313,9 +317,7 @@ function parseContentEdgeEpisode(
     `${context.seasonId}-${episodeNumber}`
 
   const title =
-    getNestedTitle(node.text) ??
-    getNestedTitle(node) ??
-    getString(node.title)
+    getNestedTitle(node.text) ?? getNestedTitle(node) ?? getString(node.title)
 
   const availableAt = getReleaseDate(node.releases)
   const isAvailable = availableAt !== null || node.releases === undefined
@@ -372,7 +374,10 @@ async function fetchEpisodesForSeasonAnonymous(
 
 async function fetchSeriesBundleAnonymous(
   disneyId: string
-): Promise<{ seriesTitle: string; candidates: DisneyEpisodeCandidate[] } | null> {
+): Promise<{
+  seriesTitle: string
+  candidates: DisneyEpisodeCandidate[]
+} | null> {
   if (isEntityUuid(disneyId)) {
     return null
   }
@@ -385,9 +390,7 @@ async function fetchSeriesBundleAnonymous(
 
   const bundle = isRecord(data.DmcSeriesBundle) ? data.DmcSeriesBundle : data
   const seriesTitle =
-    getNestedTitle(bundle.series) ??
-    getNestedTitle(bundle) ??
-    'Unknown series'
+    getNestedTitle(bundle.series) ?? getNestedTitle(bundle) ?? 'Unknown series'
 
   const seasonsRoot = isRecord(bundle.seasons) ? bundle.seasons : null
   const seasons = Array.isArray(seasonsRoot?.seasons)
@@ -506,7 +509,8 @@ function parseExploreEpisodes(
         const episodeNumber = getNumber(visuals?.episodeNumber)
         if (episodeNumber === undefined) continue
 
-        const title = getString(visuals?.episodeTitle) ?? getString(visuals?.title)
+        const title =
+          getString(visuals?.episodeTitle) ?? getString(visuals?.title)
         const isUnavailable = visuals?.isUnavailable === true
         const availableAt = getReleaseDate(item.releases)
         const id = getString(item.id) ?? `${seasonId}-${episodeNumber}`

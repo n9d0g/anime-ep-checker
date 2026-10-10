@@ -57,9 +57,7 @@ let cachedAccessToken: string | null = null
 let tokenExpiresAt = 0
 
 function hasCalendarConfig(config: GoogleCalendarConfig): boolean {
-  return Boolean(
-    config.serviceAccountJson?.trim() && config.calendarId?.trim()
-  )
+  return Boolean(config.serviceAccountJson?.trim() && config.calendarId?.trim())
 }
 
 function base64UrlEncode(value: string | Buffer): string {
@@ -73,7 +71,9 @@ function base64UrlEncode(value: string | Buffer): string {
 function parseServiceAccount(json: string): ServiceAccountCredentials {
   const parsed = JSON.parse(json) as ServiceAccountCredentials
   if (!parsed.client_email || !parsed.private_key) {
-    throw new Error('GOOGLE_SERVICE_ACCOUNT_JSON must include client_email and private_key')
+    throw new Error(
+      'GOOGLE_SERVICE_ACCOUNT_JSON must include client_email and private_key'
+    )
   }
   return parsed
 }
@@ -123,7 +123,9 @@ async function getAccessToken(
 
   if (!response.ok) {
     const body = await response.text()
-    throw new Error(`Google token exchange failed (${response.status}): ${body}`)
+    throw new Error(
+      `Google token exchange failed (${response.status}): ${body}`
+    )
   }
 
   const data = (await response.json()) as {
@@ -166,7 +168,9 @@ async function createCalendarEvent(
 
   if (!response.ok) {
     const text = await response.text()
-    throw new Error(`Google Calendar create failed (${response.status}): ${text}`)
+    throw new Error(
+      `Google Calendar create failed (${response.status}): ${text}`
+    )
   }
 
   const data = (await response.json()) as { id: string }
@@ -189,7 +193,9 @@ async function updateCalendarEvent(
 
   if (!response.ok) {
     const text = await response.text()
-    throw new Error(`Google Calendar update failed (${response.status}): ${text}`)
+    throw new Error(
+      `Google Calendar update failed (${response.status}): ${text}`
+    )
   }
 }
 
@@ -205,7 +211,9 @@ async function deleteCalendarEvent(
 
   if (!response.ok && response.status !== 404) {
     const text = await response.text()
-    throw new Error(`Google Calendar delete failed (${response.status}): ${text}`)
+    throw new Error(
+      `Google Calendar delete failed (${response.status}): ${text}`
+    )
   }
 }
 
@@ -248,7 +256,9 @@ function buildEventBody(
 ): Record<string, unknown> {
   const watchUrl = getShowWatchUrl(show)
   const startIso = expectedAt.toISOString()
-  const endIso = new Date(expectedAt.getTime() + EVENT_DURATION_MS).toISOString()
+  const endIso = new Date(
+    expectedAt.getTime() + EVENT_DURATION_MS
+  ).toISOString()
   const eastern = formatEasternTime(expectedAt.toISOString())
 
   const descriptionParts = [
@@ -305,8 +315,7 @@ async function lookupCrunchyrollEpisodeTitle(
     }
 
     const episodes = await getSeasonEpisodes(season.id)
-    const providerEpisode =
-      episodeNumber + (showState.episodeOffset ?? 0)
+    const providerEpisode = episodeNumber + (showState.episodeOffset ?? 0)
     const match = episodes.find(
       (episode) => Number(episode.episode) === providerEpisode
     )
@@ -408,7 +417,8 @@ export async function clearGoogleCalendarEventForEpisode(
   const listed = await listCalendarEventsForShow(config, showId)
   const match = listed.find(
     (event) =>
-      event.extendedProperties?.private?.[EPISODE_PROP] === String(episodeNumber)
+      event.extendedProperties?.private?.[EPISODE_PROP] ===
+      String(episodeNumber)
   )
   if (!match) {
     return false
@@ -451,7 +461,9 @@ export async function clearGoogleCalendarEventsForShow(
   let changed = false
   for (const eventId of deleteIds) {
     if (dryRun) {
-      console.log(`  Would delete Google Calendar event ${eventId} for ${showId}`)
+      console.log(
+        `  Would delete Google Calendar event ${eventId} for ${showId}`
+      )
       changed = true
       continue
     }
@@ -496,7 +508,9 @@ async function syncPreBaselineCalendarEvents({
 
   for (const eventId of deleteIds) {
     if (dryRun) {
-      console.log(`  Would delete Google Calendar event ${eventId} for ${showTitle}`)
+      console.log(
+        `  Would delete Google Calendar event ${eventId} for ${showTitle}`
+      )
       continue
     }
     await deleteCalendarEvent(config, eventId)
@@ -510,11 +524,7 @@ async function syncPreBaselineCalendarEvents({
     const existingId = listed?.id ?? null
     const listedStartAt = listed?.startAt ?? null
 
-    if (
-      existingId &&
-      listedStartAt &&
-      listedStartAt === entry.startAtIso
-    ) {
+    if (existingId && listedStartAt && listedStartAt === entry.startAtIso) {
       continue
     }
 
@@ -533,10 +543,14 @@ async function syncPreBaselineCalendarEvents({
 
     if (existingId) {
       await updateCalendarEvent(config, existingId, body)
-      console.log(`  Google Calendar event updated for ${showTitle} ep ${entry.episode}`)
+      console.log(
+        `  Google Calendar event updated for ${showTitle} ep ${entry.episode}`
+      )
     } else {
       await createCalendarEvent(config, body)
-      console.log(`  Google Calendar event created for ${showTitle} ep ${entry.episode}`)
+      console.log(
+        `  Google Calendar event created for ${showTitle} ep ${entry.episode}`
+      )
     }
   }
 
@@ -576,7 +590,9 @@ async function syncCalendarEventsForShow({
   const desiredKeys = new Set(desired.map((entry) => String(entry.episode)))
   let changed = false
 
-  const listedEvents = dryRun ? [] : await listCalendarEventsForShow(config, show.id)
+  const listedEvents = dryRun
+    ? []
+    : await listCalendarEventsForShow(config, show.id)
   const listedByEpisode = indexListedEventsByEpisode(listedEvents)
 
   const storedMap = showState.googleCalendarEvents ?? {}
@@ -596,7 +612,9 @@ async function syncCalendarEventsForShow({
 
   for (const eventId of deleteIds) {
     if (dryRun) {
-      console.log(`  Would delete Google Calendar event ${eventId} for ${showTitle}`)
+      console.log(
+        `  Would delete Google Calendar event ${eventId} for ${showTitle}`
+      )
       changed = true
       continue
     }
@@ -613,7 +631,12 @@ async function syncCalendarEventsForShow({
       showState,
       entry.episode
     )
-    const body = buildEventBody(show, entry.episode, entry.expectedAt, episodeTitle)
+    const body = buildEventBody(
+      show,
+      entry.episode,
+      entry.expectedAt,
+      episodeTitle
+    )
     const stored = storedMap[key]
     const listed = listedByEpisode.get(key)
     const existingId = stored?.eventId ?? listed?.id ?? null
@@ -641,11 +664,15 @@ async function syncCalendarEventsForShow({
     if (existingId) {
       await updateCalendarEvent(config, existingId, body)
       nextMap[key] = { eventId: existingId, startAt: entry.startAtIso }
-      console.log(`  Google Calendar event updated for ${showTitle} ep ${entry.episode}`)
+      console.log(
+        `  Google Calendar event updated for ${showTitle} ep ${entry.episode}`
+      )
     } else {
       const eventId = await createCalendarEvent(config, body)
       nextMap[key] = { eventId, startAt: entry.startAtIso }
-      console.log(`  Google Calendar event created for ${showTitle} ep ${entry.episode}`)
+      console.log(
+        `  Google Calendar event created for ${showTitle} ep ${entry.episode}`
+      )
     }
     changed = true
   }

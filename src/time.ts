@@ -1,6 +1,8 @@
 const EASTERN_TZ = 'America/New_York'
 
-export function formatEasternTime(isoOrDate: string | Date | null | undefined): string {
+export function formatEasternTime(
+  isoOrDate: string | Date | null | undefined
+): string {
   if (!isoOrDate) return 'Unknown time'
 
   const date = typeof isoOrDate === 'string' ? new Date(isoOrDate) : isoOrDate

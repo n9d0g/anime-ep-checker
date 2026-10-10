@@ -7,7 +7,11 @@ async function saveStateWithRetry(state: StateFile): Promise<void> {
   let { sha } = await getStateFile()
 
   try {
-    await saveStateFile(state, sha, 'chore: 🧹 refresh plan-to-watch snapshot from admin')
+    await saveStateFile(
+      state,
+      sha,
+      'chore: 🧹 refresh plan-to-watch snapshot from admin'
+    )
     return
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)

@@ -9,7 +9,9 @@ export async function GET(request: Request) {
   const error = url.searchParams.get('error')
 
   if (error) {
-    return new NextResponse(`MAL authorization failed: ${error}`, { status: 400 })
+    return new NextResponse(`MAL authorization failed: ${error}`, {
+      status: 400,
+    })
   }
 
   if (!code || !state) {
@@ -21,7 +23,9 @@ export async function GET(request: Request) {
   const codeVerifier = cookieStore.get('mal_code_verifier')?.value
 
   if (!expectedState || state !== expectedState || !codeVerifier) {
-    return new NextResponse('Invalid or expired MAL OAuth state.', { status: 400 })
+    return new NextResponse('Invalid or expired MAL OAuth state.', {
+      status: 400,
+    })
   }
 
   cookieStore.delete('mal_oauth_state')

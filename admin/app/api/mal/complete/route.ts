@@ -1,5 +1,9 @@
 import { NextResponse } from 'next/server'
-import { dispatchCheckWorkflow, getShowsFile, saveShowsFile } from '@/lib/github'
+import {
+  dispatchCheckWorkflow,
+  getShowsFile,
+  saveShowsFile,
+} from '@/lib/github'
 import { completeMalAnime } from '@/lib/mal'
 import type { Show } from '@/lib/types'
 

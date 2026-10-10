@@ -17,7 +17,6 @@ const SEASON_ORDER: Record<string, number> = {
   fall: 3,
 }
 
-
 function compareTitles(a: WatchedEntry, b: WatchedEntry): number {
   return a.title.localeCompare(b.title, undefined, { sensitivity: 'base' })
 }

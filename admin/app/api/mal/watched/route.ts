@@ -28,10 +28,7 @@ export async function GET() {
       })
     )
 
-    return NextResponse.json(
-      { watchedByShowId },
-      { headers: NO_STORE_HEADERS }
-    )
+    return NextResponse.json({ watchedByShowId }, { headers: NO_STORE_HEADERS })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json(

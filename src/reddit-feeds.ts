@@ -74,7 +74,9 @@ export function getRedditFeedWindowStart(
 ): Date | null {
   const today = getEasternParts(now.getTime())
   for (let daysBack = 0; daysBack < REDDIT_FEED_WINDOW_DAYS; daysBack++) {
-    const day = new Date(Date.UTC(today.year, today.month - 1, today.day - daysBack))
+    const day = new Date(
+      Date.UTC(today.year, today.month - 1, today.day - daysBack)
+    )
     if (feed.postDays.includes(day.getUTCDay())) {
       return getEasternMidnight(
         day.getUTCFullYear(),
@@ -122,7 +124,7 @@ export interface RedditUserPost {
 function hasDiscordConfig(discord: DiscordConfig): boolean {
   return Boolean(
     (discord.botToken?.trim() && discord.channelId?.trim()) ||
-      discord.webhookUrl?.trim()
+    discord.webhookUrl?.trim()
   )
 }
 
@@ -239,9 +241,7 @@ export function shouldSendFeedErrorAlert(
     return true
   }
 
-  return (
-    new Date(feedState.errorAlertSentAt).getTime() < lastSuccessMs
-  )
+  return new Date(feedState.errorAlertSentAt).getTime() < lastSuccessMs
 }
 
 export async function fetchUserSubmissions(
@@ -425,7 +425,9 @@ export async function syncRedditUserFeeds({
       seenPostIds: mergedSeen,
       checkedAt: checkedAt,
     }
-    const notifiedPosts = newPosts.filter((post) => notifiedIds.includes(post.id))
+    const notifiedPosts = newPosts.filter((post) =>
+      notifiedIds.includes(post.id)
+    )
     const lastPostPublishedAt = latestIso(
       getNewestPublished(notifiedPosts, checkedAt),
       feedState.lastPostPublishedAt

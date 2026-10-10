@@ -111,9 +111,7 @@ export default function OnHoldPage() {
           'Added to watching. MAL status could not be updated — mark it watching there if needed.'
         )
       } else if (data.workflowTriggered) {
-        toast.success(
-          'Moved to watching. The dashboard will refresh shortly.'
-        )
+        toast.success('Moved to watching. The dashboard will refresh shortly.')
       } else {
         toast.success('Moved to watching.')
       }

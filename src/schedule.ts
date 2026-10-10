@@ -19,7 +19,10 @@ export function getLastScheduledEpisode(schedule: ShowSchedule): number | null {
   return schedule.startEpisode + schedule.episodeCount - 1
 }
 
-export function isEpisodeInSchedule(schedule: ShowSchedule, episodeNumber: number): boolean {
+export function isEpisodeInSchedule(
+  schedule: ShowSchedule,
+  episodeNumber: number
+): boolean {
   if (episodeNumber < schedule.startEpisode) {
     return false
   }
@@ -82,10 +85,7 @@ function isInDenseCheckWindow(
   )
 }
 
-function isInLateCheckSlot(
-  expectedAt: Date,
-  now: Date = new Date()
-): boolean {
+function isInLateCheckSlot(expectedAt: Date, now: Date = new Date()): boolean {
   const elapsed = now.getTime() - (expectedAt.getTime() + WINDOW_AFTER_DENSE_MS)
   if (elapsed < 0) {
     return false
@@ -97,8 +97,13 @@ function isInLateCheckSlot(
   )
 }
 
-export function isInCheckWindow(expectedAt: Date, now: Date = new Date()): boolean {
-  return isInDenseCheckWindow(expectedAt, now) || isInLateCheckSlot(expectedAt, now)
+export function isInCheckWindow(
+  expectedAt: Date,
+  now: Date = new Date()
+): boolean {
+  return (
+    isInDenseCheckWindow(expectedAt, now) || isInLateCheckSlot(expectedAt, now)
+  )
 }
 
 export function getCheckWindowMode(

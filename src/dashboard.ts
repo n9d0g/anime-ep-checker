@@ -66,14 +66,14 @@ function resolveDashboardStatus(
   nextEpisode: number,
   waitingNotifiedForEpisode: number | null | undefined
 ): DashboardStatus {
-  if (
-    providerLatestEpisode !== null &&
-    providerLatestEpisode >= nextEpisode
-  ) {
+  if (providerLatestEpisode !== null && providerLatestEpisode >= nextEpisode) {
     return 'out'
   }
 
-  if (isPastWaitingGrace(expectedAt, now) || waitingNotifiedForEpisode === nextEpisode) {
+  if (
+    isPastWaitingGrace(expectedAt, now) ||
+    waitingNotifiedForEpisode === nextEpisode
+  ) {
     return 'waiting'
   }
 
@@ -206,7 +206,11 @@ function buildDashboardEmbed(row: ShowDashboardRow) {
     color: getDashboardStatusColor(row.status),
     thumbnail: row.coverUrl ? { url: row.coverUrl } : undefined,
     fields: [
-      { name: 'Status', value: getDashboardStatusLabel(row.status), inline: true },
+      {
+        name: 'Status',
+        value: getDashboardStatusLabel(row.status),
+        inline: true,
+      },
       { name: 'Provider', value: provider, inline: true },
       { name: 'MAL', value: row.malProgress, inline: true },
       { name: 'MAL score', value: row.malScore, inline: true },

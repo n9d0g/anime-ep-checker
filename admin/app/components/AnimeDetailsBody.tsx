@@ -28,7 +28,12 @@ export function AnimeDetailsBody({
   return (
     <div className="show-row-body anime-details-body">
       {coverUrl ? (
-        <img className="anime-details-cover" src={coverUrl} alt="" loading="lazy" />
+        <img
+          className="anime-details-cover"
+          src={coverUrl}
+          alt=""
+          loading="lazy"
+        />
       ) : null}
       <div className="anime-details">
         <dl className="anime-details-facts">

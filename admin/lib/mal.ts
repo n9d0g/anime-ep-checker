@@ -92,7 +92,10 @@ interface MalPtwDetailsNode extends MalCompletedNode {
 }
 
 interface MalPtwDetailsResponse {
-  data?: Array<{ node: MalPtwDetailsNode; list_status?: { updated_at?: string } }>
+  data?: Array<{
+    node: MalPtwDetailsNode
+    list_status?: { updated_at?: string }
+  }>
   paging?: { next?: string }
 }
 
@@ -117,8 +120,7 @@ interface MalSearchResponse {
   data?: Array<{ node: MalSearchNode }>
 }
 
-const MAL_ANIME_FIELDS =
-  'title,num_episodes,my_list_status,mean,main_picture'
+const MAL_ANIME_FIELDS = 'title,num_episodes,my_list_status,mean,main_picture'
 
 const MAL_COMPLETED_FIELDS = [
   'list_status{score,start_date,finish_date,updated_at,num_times_rewatched}',
@@ -188,7 +190,9 @@ function getMalClientConfig() {
   const clientSecret = process.env.MAL_CLIENT_SECRET?.trim()
 
   if (!clientId || !clientSecret) {
-    throw new Error('MAL_CLIENT_ID and MAL_CLIENT_SECRET must be set on Cloudflare.')
+    throw new Error(
+      'MAL_CLIENT_ID and MAL_CLIENT_SECRET must be set on Cloudflare.'
+    )
   }
 
   return { clientId, clientSecret }
@@ -365,7 +369,9 @@ export async function setMalWatchedEpisode(
 
   if (!updateResponse.ok) {
     const body = await updateResponse.text()
-    throw new Error(`MAL list update failed (${updateResponse.status}): ${body}`)
+    throw new Error(
+      `MAL list update failed (${updateResponse.status}): ${body}`
+    )
   }
 
   return { updated: true, watched: episodeNumber, total }
@@ -392,7 +398,9 @@ export async function setMalAnimeListStatus(
 
   if (!updateResponse.ok) {
     const body = await updateResponse.text()
-    throw new Error(`MAL list update failed (${updateResponse.status}): ${body}`)
+    throw new Error(
+      `MAL list update failed (${updateResponse.status}): ${body}`
+    )
   }
 }
 
@@ -436,7 +444,9 @@ export async function completeMalAnime(
 
   if (!updateResponse.ok) {
     const body = await updateResponse.text()
-    throw new Error(`MAL list update failed (${updateResponse.status}): ${body}`)
+    throw new Error(
+      `MAL list update failed (${updateResponse.status}): ${body}`
+    )
   }
 
   return { watched: episodesWatched, total }
@@ -459,8 +469,7 @@ function parsePlanToWatchEntry(node: MalAnimelistNode): MalPlanToWatchEntry {
     status: node.status ?? '',
     startDate: node.start_date ?? null,
     broadcast,
-    coverUrl:
-      node.main_picture?.large ?? node.main_picture?.medium ?? null,
+    coverUrl: node.main_picture?.large ?? node.main_picture?.medium ?? null,
     numEpisodes:
       typeof node.num_episodes === 'number' && node.num_episodes > 0
         ? node.num_episodes
@@ -482,7 +491,9 @@ async function fetchPlanToWatchPage(
 
   if (!response.ok) {
     const body = await response.text()
-    throw new Error(`MAL plan-to-watch lookup failed (${response.status}): ${body}`)
+    throw new Error(
+      `MAL plan-to-watch lookup failed (${response.status}): ${body}`
+    )
   }
 
   return (await response.json()) as MalAnimelistResponse
@@ -554,9 +565,7 @@ export async function searchMalAnime(query: string) {
   }))
 }
 
-export async function fetchMalAnimeTitles(
-  malId: number
-): Promise<{
+export async function fetchMalAnimeTitles(malId: number): Promise<{
   title: string | null
   titleEnglish: string | null
   numEpisodes: number | null
@@ -582,7 +591,9 @@ export async function fetchMalAnimeTitles(
   }
 }
 
-export async function fetchMalAnimeTitle(malId: number): Promise<string | null> {
+export async function fetchMalAnimeTitle(
+  malId: number
+): Promise<string | null> {
   const { title } = await fetchMalAnimeTitles(malId)
   return title
 }
@@ -645,7 +656,9 @@ export async function fetchCompletedAnime(): Promise<WatchedEntry[]> {
 
     if (!response.ok) {
       const body = await response.text()
-      throw new Error(`MAL completed list lookup failed (${response.status}): ${body}`)
+      throw new Error(
+        `MAL completed list lookup failed (${response.status}): ${body}`
+      )
     }
 
     const page = (await response.json()) as MalCompletedResponse
@@ -709,7 +722,9 @@ export async function fetchPlanToWatchDetails(): Promise<PtwDetails[]> {
 
     if (!response.ok) {
       const body = await response.text()
-      throw new Error(`MAL plan-to-watch details lookup failed (${response.status}): ${body}`)
+      throw new Error(
+        `MAL plan-to-watch details lookup failed (${response.status}): ${body}`
+      )
     }
 
     const page = (await response.json()) as MalPtwDetailsResponse

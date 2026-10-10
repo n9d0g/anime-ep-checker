@@ -31,7 +31,10 @@ function buildWatchUrl(episode: CrunchyrollEpisode): string {
   return `https://www.crunchyroll.com/watch/${episode.id}/${slug}`
 }
 
-async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
+async function apiFetch<T>(
+  path: string,
+  options: RequestInit = {}
+): Promise<T> {
   const token = await getAccessToken()
   const response = await fetch(`${API_BASE}${path}`, {
     ...options,
@@ -127,7 +130,9 @@ function pickLatestAvailableEpisode(
   episodes: CrunchyrollEpisode[],
   now: Date = new Date()
 ): CrunchyrollEpisode | null {
-  const available = episodes.filter((episode) => isEpisodeAvailable(episode, now))
+  const available = episodes.filter((episode) =>
+    isEpisodeAvailable(episode, now)
+  )
   if (available.length === 0) return null
 
   return available.reduce((latest, episode) => {
@@ -155,9 +160,9 @@ function buildSeasonEpisodeAvailability(
 
       const available = isEpisodeAvailable(episode, now)
       const availableAt = available
-        ? episode.premium_available_date ??
+        ? (episode.premium_available_date ??
           episode.free_available_date ??
-          null
+          null)
         : null
 
       return {
@@ -184,7 +189,9 @@ async function getSeriesInfo(seriesId: string): Promise<SeriesResponse> {
   )
 }
 
-export async function getSeasons(seriesId: string): Promise<CrunchyrollSeason[]> {
+export async function getSeasons(
+  seriesId: string
+): Promise<CrunchyrollSeason[]> {
   const response = await apiFetch<ListResponse<CrunchyrollSeason>>(
     `/content/v2/cms/series/${seriesId}/seasons?locale=en-US`
   )

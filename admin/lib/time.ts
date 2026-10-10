@@ -27,7 +27,9 @@ function getJstParts(date: Date) {
   }
 }
 
-export function toDatetimeLocalValue(isoValue: string | null | undefined): string {
+export function toDatetimeLocalValue(
+  isoValue: string | null | undefined
+): string {
   if (!isoValue) return ''
 
   if (DATETIME_LOCAL_PATTERN.test(isoValue)) {

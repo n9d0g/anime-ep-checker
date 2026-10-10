@@ -27,7 +27,9 @@ const SORTS = Object.keys(WATCHED_SORT_LABELS) as WatchedSort[]
 
 function formatStats(entries: WatchedEntry[]): string {
   const stats = getWatchedStats(entries)
-  const parts = [`${stats.count.toLocaleString()} ${stats.count === 1 ? 'show' : 'shows'}`]
+  const parts = [
+    `${stats.count.toLocaleString()} ${stats.count === 1 ? 'show' : 'shows'}`,
+  ]
   if (stats.meanScore !== null) {
     parts.push(`avg score ${stats.meanScore.toFixed(2)}`)
   }

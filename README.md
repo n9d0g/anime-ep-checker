@@ -32,16 +32,16 @@ flowchart LR
 
 Each show uses a weekly schedule:
 
-| Field | Meaning |
-|-------|---------|
-| `provider` | `crunchyroll`, `netflix`, or `disney` |
-| `mode` | `finite` (season with end) or `ongoing` (no end) |
-| `startAt` | When the anchor episode(s) should drop (**stored UTC**, entered as **JST** in CMS) |
-| `startEpisode` | Episode number that `startAt` refers to |
-| `episodeCount` | Total episodes (finite only) |
-| `premiereBatchSize` | Episodes that drop on day 1 (default `1`) |
-| `malId` | Optional MyAnimeList anime ID for the Discord MAL button |
-| `redditSearchTitle` | Optional slug override for r/anime discussion search |
+| Field               | Meaning                                                                            |
+| ------------------- | ---------------------------------------------------------------------------------- |
+| `provider`          | `crunchyroll`, `netflix`, or `disney`                                              |
+| `mode`              | `finite` (season with end) or `ongoing` (no end)                                   |
+| `startAt`           | When the anchor episode(s) should drop (**stored UTC**, entered as **JST** in CMS) |
+| `startEpisode`      | Episode number that `startAt` refers to                                            |
+| `episodeCount`      | Total episodes (finite only)                                                       |
+| `premiereBatchSize` | Episodes that drop on day 1 (default `1`)                                          |
+| `malId`             | Optional MyAnimeList anime ID for the Discord MAL button                           |
+| `redditSearchTitle` | Optional slug override for r/anime discussion search                               |
 
 After the premiere batch, each following episode is expected **7 days** later.
 
@@ -49,12 +49,12 @@ Discord alerts still display times in **Eastern Time (EST/EDT)** even though sch
 
 ### Drop-window polling
 
-| Phase | When | Cadence |
-|-------|------|---------|
-| **Idle** | Before T-5m | Cheap gate only (no provider calls) |
-| **Dense** | T-5m → T+90m | Full check about every **5 minutes** (external cron dispatch) |
-| **Late** | After T+90m, episode still missing | Full check about every **30 minutes** until found |
-| **Done** | Episode found | State advances; show leaves the window until next ep |
+| Phase     | When                               | Cadence                                                       |
+| --------- | ---------------------------------- | ------------------------------------------------------------- |
+| **Idle**  | Before T-5m                        | Cheap gate only (no provider calls)                           |
+| **Dense** | T-5m → T+90m                       | Full check about every **5 minutes** (external cron dispatch) |
+| **Late**  | After T+90m, episode still missing | Full check about every **30 minutes** until found             |
+| **Done**  | Episode found                      | State advances; show leaves the window until next ep          |
 
 GitHub’s built-in `schedule` on `check-episodes.yml` is kept as a backup but is often throttled to ~hourly on free/public repos. Use [Reliable polling](#reliable-polling) for actual 5-minute cadence during drop windows.
 
@@ -78,6 +78,7 @@ Content-Type: application/json
 4. Each dispatch runs the **gate** job first (shell only, no marketplace actions). Outside drop windows it exits in seconds and skips the full check. Inside a window, or when the plan-to-watch cadence is due, the **check** job runs `pnpm check`.
 
 If **Check anime episodes** is slow or fails at **Getting action download info** / **Service Unavailable**, that is a GitHub Actions marketplace outage—not the checker. Skip ticks on the gate job do not use marketplace actions and should still finish in seconds; full checks may retry on the next cron tick.
+
 5. To force a full check outside any window, use **Actions → Check anime episodes → Run workflow** and enable **force**.
 
 ## Setup
@@ -99,24 +100,24 @@ Discord is **outbound only** (checker posts alerts and updates `#watching`). You
 
 ### 2. GitHub Actions secrets
 
-| Secret | Value |
-|--------|-------|
-| `DISCORD_BOT_TOKEN` | Discord bot token |
-| `DISCORD_CHANNEL_ID` | Channel ID for episode alerts |
-| `DISCORD_WATCHING_CHANNEL_ID` | Channel ID for the watching dashboard |
-| `DISCORD_WEBHOOK_URL` | Optional webhook fallback |
-| `MAL_CLIENT_ID` | MAL API client ID (dashboard progress) |
-| `MAL_CLIENT_SECRET` | MAL API client secret |
-| `MAL_REFRESH_TOKEN` | MAL OAuth refresh token |
-| `NETFLIX_COOKIE` | Logged-in `netflix.com` cookie string (for Netflix shows only) |
-| `DISNEY_REFRESH_TOKEN` | Disney+ refresh token (see §6; auto-rotated by the checker) |
-| `DISNEY_REGION` | Optional Disney+ region (default `US`) |
-| `GH_SECRETS_TOKEN` | Fine-grained PAT with **Secrets: Read and write** on this repo (auto-updates `DISNEY_REFRESH_TOKEN` when Disney rotates it) |
-| `GOOGLE_SERVICE_ACCOUNT_JSON` | Full JSON key for a Google service account with Calendar access (see [Google Calendar sync](#google-calendar-sync)) |
-| `GOOGLE_CALENDAR_ID` | Calendar ID for your Anime Drops calendar |
-| `DISCORD_DEPLOY_WEBHOOK_URL` | Webhook for a separate **deploy** Discord channel |
-| `REDDIT_CLIENT_ID` | Reddit “script” app client ID (user post alerts; see [Reddit user post alerts](#reddit-user-post-alerts)) |
-| `REDDIT_CLIENT_SECRET` | Reddit app secret |
+| Secret                        | Value                                                                                                                       |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `DISCORD_BOT_TOKEN`           | Discord bot token                                                                                                           |
+| `DISCORD_CHANNEL_ID`          | Channel ID for episode alerts                                                                                               |
+| `DISCORD_WATCHING_CHANNEL_ID` | Channel ID for the watching dashboard                                                                                       |
+| `DISCORD_WEBHOOK_URL`         | Optional webhook fallback                                                                                                   |
+| `MAL_CLIENT_ID`               | MAL API client ID (dashboard progress)                                                                                      |
+| `MAL_CLIENT_SECRET`           | MAL API client secret                                                                                                       |
+| `MAL_REFRESH_TOKEN`           | MAL OAuth refresh token                                                                                                     |
+| `NETFLIX_COOKIE`              | Logged-in `netflix.com` cookie string (for Netflix shows only)                                                              |
+| `DISNEY_REFRESH_TOKEN`        | Disney+ refresh token (see §6; auto-rotated by the checker)                                                                 |
+| `DISNEY_REGION`               | Optional Disney+ region (default `US`)                                                                                      |
+| `GH_SECRETS_TOKEN`            | Fine-grained PAT with **Secrets: Read and write** on this repo (auto-updates `DISNEY_REFRESH_TOKEN` when Disney rotates it) |
+| `GOOGLE_SERVICE_ACCOUNT_JSON` | Full JSON key for a Google service account with Calendar access (see [Google Calendar sync](#google-calendar-sync))         |
+| `GOOGLE_CALENDAR_ID`          | Calendar ID for your Anime Drops calendar                                                                                   |
+| `DISCORD_DEPLOY_WEBHOOK_URL`  | Webhook for a separate **deploy** Discord channel                                                                           |
+| `REDDIT_CLIENT_ID`            | Reddit “script” app client ID (user post alerts; see [Reddit user post alerts](#reddit-user-post-alerts))                   |
+| `REDDIT_CLIENT_SECRET`        | Reddit app secret                                                                                                           |
 
 The workflow uses the default `GITHUB_TOKEN` to commit `state.json` updates.
 
@@ -148,16 +149,16 @@ npx wrangler secret put GITHUB_TOKEN --name anime-ep-checker-admin
 # …repeat for every key in .env.example
 ```
 
-| Variable | Description |
-|----------|-------------|
-| `ADMIN_PASSWORD` | Password for the admin UI |
-| `GITHUB_TOKEN` | PAT with `contents: write` on this repo |
-| `GITHUB_REPO` | `your-username/anime-ep-checker` |
-| `GITHUB_BRANCH` | `main` (optional) |
-| `MAL_CLIENT_ID` | MAL API client ID |
-| `MAL_CLIENT_SECRET` | MAL API client secret |
-| `MAL_REDIRECT_URI` | `https://anime-ep-checker.dev/api/mal/callback` |
-| `MAL_REFRESH_TOKEN` | From one-time OAuth at `/mal` |
+| Variable            | Description                                     |
+| ------------------- | ----------------------------------------------- |
+| `ADMIN_PASSWORD`    | Password for the admin UI                       |
+| `GITHUB_TOKEN`      | PAT with `contents: write` on this repo         |
+| `GITHUB_REPO`       | `your-username/anime-ep-checker`                |
+| `GITHUB_BRANCH`     | `main` (optional)                               |
+| `MAL_CLIENT_ID`     | MAL API client ID                               |
+| `MAL_CLIENT_SECRET` | MAL API client secret                           |
+| `MAL_REDIRECT_URI`  | `https://anime-ep-checker.dev/api/mal/callback` |
+| `MAL_REFRESH_TOKEN` | From one-time OAuth at `/mal`                   |
 
 **After the first deploy:**
 
@@ -249,10 +250,10 @@ The checker polls selected Reddit accounts via the **OAuth API** (`oauth.reddit.
 2. Copy the string under the app name → `REDDIT_CLIENT_ID`; copy **secret** → `REDDIT_CLIENT_SECRET`.
 3. Add both as GitHub Actions secrets (gate + check jobs).
 
-| Account | Filter |
-| --- | --- |
-| [u/animecorner](https://www.reddit.com/user/animecorner/) | Titles matching `Top 10 …` (weekly rankings and anticipated lists) |
-| [u/Abysswatcherbel](https://www.reddit.com/user/Abysswatcherbel/) | All posts (weekly r/anime karma ranking threads) |
+| Account                                                           | Filter                                                             |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------ |
+| [u/animecorner](https://www.reddit.com/user/animecorner/)         | Titles matching `Top 10 …` (weekly rankings and anticipated lists) |
+| [u/Abysswatcherbel](https://www.reddit.com/user/Abysswatcherbel/) | All posts (weekly r/anime karma ranking threads)                   |
 
 To avoid Reddit rate limits, the Actions gate (`src/should-run.mjs`) only polls a feed during its posting window — the account's usual posting day plus the following day as a grace period (Eastern time: Fridays for u/animecorner, Sundays for u/Abysswatcherbel) — every 15 minutes, and stops for the rest of the window once a post published in it has been seen (`lastPostPublishedAt`). Posts made outside the window are picked up at the next window. The full check only fetches Reddit when the gate asked for it (`REDDIT_FEED_CHECK`) or on `--force`. A full check runs when a feed has no baseline in `state.json`, when a new matching post appears, or when fetches keep failing and the last successful check is stale. The first successful check **baselines** current posts without alerting; only newer posts notify afterward. If a feed cannot be fetched for 6+ hours after the last success (or after its window opened, whichever is later), the checker posts a one-time **Reddit user feed check failing** warning. Seen post IDs are stored under `state.meta.redditUserFeeds`.
 
@@ -312,30 +313,30 @@ Shows your MAL plan-to-watch list from `state.meta.planToWatch`, grouped into **
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| [`shows.json`](shows.json) | Tracked series + weekly schedules |
-| [`state.json`](state.json) | Last notified episode per show |
-| [`src/check.ts`](src/check.ts) | Main checker CLI |
-| [`src/schedule.ts`](src/schedule.ts) | Expected drop times + check windows |
-| [`src/crunchyroll.ts`](src/crunchyroll.ts) | Crunchyroll API client |
-| [`src/netflix.ts`](src/netflix.ts) | Netflix pathEvaluator client (cookie auth) |
-| [`src/disney.ts`](src/disney.ts) | Disney+ explore API client (refresh token auth) |
-| [`src/anilist.ts`](src/anilist.ts) | AniList airing schedule fallback for Disney+ shows |
-| [`src/reddit.ts`](src/reddit.ts) | r/anime discussion lookup (AutoLovepon RSS + search fallback) |
-| [`src/reddit-feeds.ts`](src/reddit-feeds.ts) | Reddit user submission feeds + Discord alerts |
-| [`src/discord.ts`](src/discord.ts) | Discord bot/webhook alerts + score alerts |
-| [`src/discord-format.ts`](src/discord-format.ts) | Embed formatting helpers |
-| [`src/discord-dashboard.ts`](src/discord-dashboard.ts) | #watching dashboard sync |
-| [`src/google-calendar.ts`](src/google-calendar.ts) | Google Calendar episode sync |
-| [`src/dashboard.ts`](src/dashboard.ts) | Dashboard status + embed builder |
-| [`src/mal.ts`](src/mal.ts) | MAL read-only progress (checker) |
-| [`src/mal-score.ts`](src/mal-score.ts) | MAL score spike/tank detection |
-| [`src/plan-to-watch.ts`](src/plan-to-watch.ts) | MAL plan-to-watch airing alerts |
-| [`src/should-run.mjs`](src/should-run.mjs) | Cheap gate for Actions (no marketplace actions on skip path) |
-| [`admin/`](admin/) | Cloudflare CMS (vinext) |
+| File                                                                           | Purpose                                                                       |
+| ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------- |
+| [`shows.json`](shows.json)                                                     | Tracked series + weekly schedules                                             |
+| [`state.json`](state.json)                                                     | Last notified episode per show                                                |
+| [`src/check.ts`](src/check.ts)                                                 | Main checker CLI                                                              |
+| [`src/schedule.ts`](src/schedule.ts)                                           | Expected drop times + check windows                                           |
+| [`src/crunchyroll.ts`](src/crunchyroll.ts)                                     | Crunchyroll API client                                                        |
+| [`src/netflix.ts`](src/netflix.ts)                                             | Netflix pathEvaluator client (cookie auth)                                    |
+| [`src/disney.ts`](src/disney.ts)                                               | Disney+ explore API client (refresh token auth)                               |
+| [`src/anilist.ts`](src/anilist.ts)                                             | AniList airing schedule fallback for Disney+ shows                            |
+| [`src/reddit.ts`](src/reddit.ts)                                               | r/anime discussion lookup (AutoLovepon RSS + search fallback)                 |
+| [`src/reddit-feeds.ts`](src/reddit-feeds.ts)                                   | Reddit user submission feeds + Discord alerts                                 |
+| [`src/discord.ts`](src/discord.ts)                                             | Discord bot/webhook alerts + score alerts                                     |
+| [`src/discord-format.ts`](src/discord-format.ts)                               | Embed formatting helpers                                                      |
+| [`src/discord-dashboard.ts`](src/discord-dashboard.ts)                         | #watching dashboard sync                                                      |
+| [`src/google-calendar.ts`](src/google-calendar.ts)                             | Google Calendar episode sync                                                  |
+| [`src/dashboard.ts`](src/dashboard.ts)                                         | Dashboard status + embed builder                                              |
+| [`src/mal.ts`](src/mal.ts)                                                     | MAL read-only progress (checker)                                              |
+| [`src/mal-score.ts`](src/mal-score.ts)                                         | MAL score spike/tank detection                                                |
+| [`src/plan-to-watch.ts`](src/plan-to-watch.ts)                                 | MAL plan-to-watch airing alerts                                               |
+| [`src/should-run.mjs`](src/should-run.mjs)                                     | Cheap gate for Actions (no marketplace actions on skip path)                  |
+| [`admin/`](admin/)                                                             | Cloudflare CMS (vinext)                                                       |
 | [`.github/workflows/check-episodes.yml`](.github/workflows/check-episodes.yml) | Gate + full episode check (`schedule`, `workflow_dispatch`, or external cron) |
-| [`.github/workflows/deploy-admin.yml`](.github/workflows/deploy-admin.yml) | Deploy admin Worker + Discord deploy notify |
+| [`.github/workflows/deploy-admin.yml`](.github/workflows/deploy-admin.yml)     | Deploy admin Worker + Discord deploy notify                                   |
 
 ## Notes
 

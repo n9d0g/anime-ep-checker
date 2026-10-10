@@ -101,7 +101,9 @@ export async function syncWatchingDashboard({
   const channelId = config.watchingChannelId!
   let changed = false
 
-  if (await migrateLegacyDashboardMessage(botToken, channelId, state, reasons)) {
+  if (
+    await migrateLegacyDashboardMessage(botToken, channelId, state, reasons)
+  ) {
     changed = true
     console.log('  Migrated legacy watching dashboard message')
   }

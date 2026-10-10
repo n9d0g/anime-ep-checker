@@ -7,20 +7,25 @@ function SkeletonBar({
   className?: string
   style?: CSSProperties
 }) {
-  return <span className={`skeleton ${className}`.trim()} style={style} aria-hidden="true" />
+  return (
+    <span
+      className={`skeleton ${className}`.trim()}
+      style={style}
+      aria-hidden="true"
+    />
+  )
 }
 
-function ShowListSkeletonRow({
-  titleWidth,
-}: {
-  titleWidth: string
-}) {
+function ShowListSkeletonRow({ titleWidth }: { titleWidth: string }) {
   return (
     <article className="show-row">
       <div className="show-row-header skeleton-row">
         <div className="show-row-leading">
           <SkeletonBar className="skeleton-dot" />
-          <SkeletonBar className="skeleton-title" style={{ width: titleWidth }} />
+          <SkeletonBar
+            className="skeleton-title"
+            style={{ width: titleWidth }}
+          />
         </div>
         <div className="show-row-trailing">
           <SkeletonBar className="skeleton-meta" />

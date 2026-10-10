@@ -94,7 +94,9 @@ function isInLateCheckSlot(expectedAt, now) {
 }
 
 function isInCheckWindow(expectedAt, now) {
-  return isInDenseCheckWindow(expectedAt, now) || isInLateCheckSlot(expectedAt, now)
+  return (
+    isInDenseCheckWindow(expectedAt, now) || isInLateCheckSlot(expectedAt, now)
+  )
 }
 
 function getCheckWindowMode(expectedAt, now) {
@@ -117,7 +119,10 @@ function showNeedsCheck(show, state, now) {
   const lastEpisodeNumber = previousState
     ? parseEpisodeNumber(previousState.lastEpisodeNumber)
     : null
-  const nextExpectedEp = getNextExpectedEpisode(show.schedule, lastEpisodeNumber)
+  const nextExpectedEp = getNextExpectedEpisode(
+    show.schedule,
+    lastEpisodeNumber
+  )
   if (nextExpectedEp === null) {
     return false
   }
@@ -136,7 +141,10 @@ function getActiveCheckModes(shows, state, now) {
     const lastEpisodeNumber = previousState
       ? parseEpisodeNumber(previousState.lastEpisodeNumber)
       : null
-    const nextExpectedEp = getNextExpectedEpisode(show.schedule, lastEpisodeNumber)
+    const nextExpectedEp = getNextExpectedEpisode(
+      show.schedule,
+      lastEpisodeNumber
+    )
     if (nextExpectedEp === null) {
       continue
     }
@@ -240,7 +248,9 @@ function getEasternMidnight(year, month, day) {
 function getRedditFeedWindowStart(feed, now) {
   const today = getEasternParts(now.getTime())
   for (let daysBack = 0; daysBack < REDDIT_FEED_WINDOW_DAYS; daysBack++) {
-    const day = new Date(Date.UTC(today.year, today.month - 1, today.day - daysBack))
+    const day = new Date(
+      Date.UTC(today.year, today.month - 1, today.day - daysBack)
+    )
     if (feed.postDays.includes(day.getUTCDay())) {
       return getEasternMidnight(
         day.getUTCFullYear(),
@@ -333,13 +343,16 @@ async function getRedditAccessToken() {
   }
 
   const now = Date.now()
-  if (cachedRedditOAuthToken && cachedRedditOAuthToken.expiresAt > now + 60_000) {
+  if (
+    cachedRedditOAuthToken &&
+    cachedRedditOAuthToken.expiresAt > now + 60_000
+  ) {
     return cachedRedditOAuthToken.token
   }
 
-  const basic = Buffer.from(
-    `${creds.clientId}:${creds.clientSecret}`
-  ).toString('base64')
+  const basic = Buffer.from(`${creds.clientId}:${creds.clientSecret}`).toString(
+    'base64'
+  )
 
   const response = await fetch('https://www.reddit.com/api/v1/access_token', {
     method: 'POST',
@@ -491,7 +504,8 @@ async function needsRedditFeedCheck(state, now) {
 
     const seen = new Set(feedState[feed.id].seenPostIds ?? [])
     const hasNew = result.entries.some(
-      (entry) => matchesRedditFeedTitle(feed, entry.title) && !seen.has(entry.id)
+      (entry) =>
+        matchesRedditFeedTitle(feed, entry.title) && !seen.has(entry.id)
     )
     if (hasNew) {
       return true
@@ -509,8 +523,7 @@ const needsCheck = shows.some((show) => showNeedsCheck(show, state, now))
 const needsPtwCheck = needsPlanToWatchCheck(state, now)
 const hasOrphans = hasOrphanedShows(shows, state)
 const needsRedditCheck = await needsRedditFeedCheck(state, now)
-const shouldRun =
-  needsCheck || needsPtwCheck || hasOrphans || needsRedditCheck
+const shouldRun = needsCheck || needsPtwCheck || hasOrphans || needsRedditCheck
 const activeModes = getActiveCheckModes(shows, state, now)
 
 const outputFile = process.env.GITHUB_OUTPUT

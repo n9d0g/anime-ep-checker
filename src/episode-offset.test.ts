@@ -19,9 +19,7 @@ function show(overrides: Partial<Show> = {}): Show {
   }
 }
 
-function snapshot(
-  overrides: Partial<EpisodeSnapshot> = {}
-): EpisodeSnapshot {
+function snapshot(overrides: Partial<EpisodeSnapshot> = {}): EpisodeSnapshot {
   return {
     provider: 'crunchyroll',
     seriesId: 'SERIES',
@@ -49,8 +47,16 @@ test('resolveEpisodeOffset returns null when only the previous season is out', (
         availableAt: '2026-01-01T00:00:00.000Z',
       },
       seasonEpisodes: [
-        { episode: 25, available: true, availableAt: '2026-01-01T00:00:00.000Z' },
-        { episode: 48, available: true, availableAt: '2026-06-01T00:00:00.000Z' },
+        {
+          episode: 25,
+          available: true,
+          availableAt: '2026-01-01T00:00:00.000Z',
+        },
+        {
+          episode: 48,
+          available: true,
+          availableAt: '2026-06-01T00:00:00.000Z',
+        },
       ],
     })
   )
@@ -63,7 +69,11 @@ test('resolveEpisodeOffset returns 48 when season 3 episode 49 is available afte
     show(),
     snapshot({
       seasonEpisodes: [
-        { episode: 49, available: true, availableAt: '2026-10-02T16:00:00.000Z' },
+        {
+          episode: 49,
+          available: true,
+          availableAt: '2026-10-02T16:00:00.000Z',
+        },
         { episode: 50, available: false, availableAt: null },
       ],
     })
@@ -83,7 +93,11 @@ test('resolveEpisodeOffset returns 0 for Netflix season 2 episode 1', () => {
         availableAt: '2026-10-04T08:30:00.000Z',
       },
       seasonEpisodes: [
-        { episode: 1, available: true, availableAt: '2026-10-04T08:30:00.000Z' },
+        {
+          episode: 1,
+          available: true,
+          availableAt: '2026-10-04T08:30:00.000Z',
+        },
       ],
     })
   )
@@ -96,8 +110,16 @@ test('resolveEpisodeOffset uses the first post-start candidate when new episodes
     show(),
     snapshot({
       seasonEpisodes: [
-        { episode: 49, available: true, availableAt: '2026-10-02T16:00:00.000Z' },
-        { episode: 50, available: true, availableAt: '2026-10-09T16:00:00.000Z' },
+        {
+          episode: 49,
+          available: true,
+          availableAt: '2026-10-02T16:00:00.000Z',
+        },
+        {
+          episode: 50,
+          available: true,
+          availableAt: '2026-10-09T16:00:00.000Z',
+        },
       ],
     })
   )
@@ -109,7 +131,11 @@ test('toRelativeSnapshot subtracts the offset from episode numbers', () => {
   const relative = toRelativeSnapshot(
     snapshot({
       seasonEpisodes: [
-        { episode: 49, available: true, availableAt: '2026-10-02T16:00:00.000Z' },
+        {
+          episode: 49,
+          available: true,
+          availableAt: '2026-10-02T16:00:00.000Z',
+        },
       ],
     }),
     48

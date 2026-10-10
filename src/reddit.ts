@@ -1,5 +1,4 @@
-export const REDDIT_USER_AGENT =
-  'node:anime-ep-checker:1.0 (by /u/n9d0g)'
+export const REDDIT_USER_AGENT = 'node:anime-ep-checker:1.0 (by /u/n9d0g)'
 const USER_AGENT = REDDIT_USER_AGENT
 
 export interface RedditUserSubmission {
@@ -43,9 +42,9 @@ export async function getRedditAccessToken(): Promise<string | null> {
     return cachedOAuthToken.token
   }
 
-  const basic = Buffer.from(
-    `${creds.clientId}:${creds.clientSecret}`
-  ).toString('base64')
+  const basic = Buffer.from(`${creds.clientId}:${creds.clientSecret}`).toString(
+    'base64'
+  )
 
   const response = await fetch('https://www.reddit.com/api/v1/access_token', {
     method: 'POST',
@@ -85,9 +84,9 @@ interface OAuthListingChild {
   }
 }
 
-export function mapOAuthListingToSubmissions(
-  json: { data?: { children?: OAuthListingChild[] } }
-): RedditUserSubmission[] {
+export function mapOAuthListingToSubmissions(json: {
+  data?: { children?: OAuthListingChild[] }
+}): RedditUserSubmission[] {
   const children = json.data?.children ?? []
   const posts: RedditUserSubmission[] = []
 
@@ -279,9 +278,9 @@ function extractPostId(rawId: string): string {
 }
 
 function parseSubredditFromEntry(block: string): string | null {
-  const categories = [
-    ...block.matchAll(/<category[^>]*term="([^"]+)"/g),
-  ].map((match) => match[1])
+  const categories = [...block.matchAll(/<category[^>]*term="([^"]+)"/g)].map(
+    (match) => match[1]
+  )
 
   for (const term of categories) {
     if (!term.startsWith('u_')) {
@@ -348,7 +347,11 @@ export function buildAnimeDiscussionSearchUrl(
   episodeNumber: number,
   redditSearchTitle?: string
 ): string {
-  const [primaryQuery] = buildSearchQueries(showTitle, episodeNumber, redditSearchTitle)
+  const [primaryQuery] = buildSearchQueries(
+    showTitle,
+    episodeNumber,
+    redditSearchTitle
+  )
   const params = new URLSearchParams({
     q: primaryQuery,
     restrict_sr: 'on',
@@ -377,7 +380,8 @@ async function fetchAutoLoveponDiscussionUrl(
   const response = await fetch(`${RSS_SEARCH_URL}?${params.toString()}`, {
     headers: {
       'User-Agent': USER_AGENT,
-      Accept: 'application/atom+xml,application/rss+xml,application/xml,text/xml,*/*',
+      Accept:
+        'application/atom+xml,application/rss+xml,application/xml,text/xml,*/*',
     },
   })
 
@@ -390,7 +394,9 @@ async function fetchAutoLoveponDiscussionUrl(
   }
 
   if (!response.ok) {
-    console.warn(`Reddit RSS search failed (${response.status}) for query: ${query}`)
+    console.warn(
+      `Reddit RSS search failed (${response.status}) for query: ${query}`
+    )
     return null
   }
 
@@ -415,7 +421,11 @@ export async function findAnimeDiscussionPermalink(
   episodeNumber: number,
   redditSearchTitle?: string
 ): Promise<string | null> {
-  const queries = buildSearchQueries(showTitle, episodeNumber, redditSearchTitle)
+  const queries = buildSearchQueries(
+    showTitle,
+    episodeNumber,
+    redditSearchTitle
+  )
   const slug = redditSearchTitle?.trim() || slugifyForReddit(showTitle)
 
   for (let i = 0; i < queries.length; i++) {
@@ -452,5 +462,9 @@ export async function findAnimeDiscussionUrl(
     return permalink
   }
 
-  return buildAnimeDiscussionSearchUrl(showTitle, episodeNumber, redditSearchTitle)
+  return buildAnimeDiscussionSearchUrl(
+    showTitle,
+    episodeNumber,
+    redditSearchTitle
+  )
 }

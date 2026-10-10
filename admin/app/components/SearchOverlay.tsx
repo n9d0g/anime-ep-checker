@@ -17,7 +17,12 @@ const CATEGORY_LABELS: Record<SearchCategory, string> = {
   watched: 'Watched',
 }
 
-const CATEGORY_ORDER: SearchCategory[] = ['watching', 'ptw', 'on_hold', 'watched']
+const CATEGORY_ORDER: SearchCategory[] = [
+  'watching',
+  'ptw',
+  'on_hold',
+  'watched',
+]
 
 interface SearchOverlayProps {
   open: boolean
@@ -33,10 +38,7 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
   const [activeIndex, setActiveIndex] = useState(0)
   const loadedRef = useRef(false)
 
-  const results = useMemo(
-    () => filterSearchIndex(items, query),
-    [items, query]
-  )
+  const results = useMemo(() => filterSearchIndex(items, query), [items, query])
 
   const grouped = useMemo(() => {
     const map = new Map<SearchCategory, SearchIndexItem[]>()

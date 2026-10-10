@@ -1,9 +1,6 @@
 import { sendPlanToWatchAlert } from './discord.js'
 import type { DiscordConfig } from './discord.js'
-import {
-  fetchPlanToWatchAnime,
-  type MalPlanToWatchEntry,
-} from './mal.js'
+import { fetchPlanToWatchAnime, type MalPlanToWatchEntry } from './mal.js'
 import type {
   PlanToWatchAlertReason,
   PlanToWatchSnapshotEntry,
@@ -54,7 +51,10 @@ function getPlanToWatchAlertReason(
     today.getTime() + UPCOMING_WINDOW_DAYS * MS_PER_DAY
   )
 
-  if (start.getTime() >= today.getTime() && start.getTime() <= windowEnd.getTime()) {
+  if (
+    start.getTime() >= today.getTime() &&
+    start.getTime() <= windowEnd.getTime()
+  ) {
     return 'upcoming'
   }
 
@@ -121,7 +121,9 @@ export async function syncPlanToWatchAlerts({
     return { changed: false, reasons }
   }
 
-  const currentMalIds = new Set(result.entries.map((entry) => String(entry.malId)))
+  const currentMalIds = new Set(
+    result.entries.map((entry) => String(entry.malId))
+  )
   const previousAlerts = state.meta?.planToWatchAlerts ?? {}
   const nextAlerts: NonNullable<StateFile['meta']>['planToWatchAlerts'] = {}
 

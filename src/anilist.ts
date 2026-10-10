@@ -75,7 +75,9 @@ export async function getLatestAiredEpisode(
   }
 
   if (!response.ok) {
-    console.warn(`AniList request failed (${response.status}) for malId ${malId}`)
+    console.warn(
+      `AniList request failed (${response.status}) for malId ${malId}`
+    )
     return null
   }
 

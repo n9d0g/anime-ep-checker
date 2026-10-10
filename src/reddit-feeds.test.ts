@@ -107,7 +107,11 @@ test('applyRedditFeedFetchFailure updates errorAlertSentAt when a new alert fire
   }
   const alertSentAt = '2026-10-06T08:00:00.000Z'
 
-  const update = applyRedditFeedFetchFailure(feedState, '2026-10-06T12:40:00.000Z', alertSentAt)
+  const update = applyRedditFeedFetchFailure(
+    feedState,
+    '2026-10-06T12:40:00.000Z',
+    alertSentAt
+  )
 
   assert.ok(update)
   assert.equal(update.state.errorAlertSentAt, alertSentAt)
@@ -126,7 +130,10 @@ test('shouldSendFeedErrorAlert allows another warning after a new successful che
 
 test('getRedditFeedWindowStart opens at Eastern midnight on the posting day', () => {
   // Fri Oct 9 2026, 00:30 EDT
-  const start = getRedditFeedWindowStart(FRIDAY, new Date('2026-10-09T04:30:00.000Z'))
+  const start = getRedditFeedWindowStart(
+    FRIDAY,
+    new Date('2026-10-09T04:30:00.000Z')
+  )
   assert.equal(start?.toISOString(), '2026-10-09T04:00:00.000Z')
 })
 
@@ -140,7 +147,10 @@ test('getRedditFeedWindowStart is closed just before Eastern midnight', () => {
 
 test('getRedditFeedWindowStart covers the following grace day', () => {
   // Sat Oct 10 2026, 22:00 EDT
-  const start = getRedditFeedWindowStart(FRIDAY, new Date('2026-10-11T02:00:00.000Z'))
+  const start = getRedditFeedWindowStart(
+    FRIDAY,
+    new Date('2026-10-11T02:00:00.000Z')
+  )
   assert.equal(start?.toISOString(), '2026-10-09T04:00:00.000Z')
   // Sun Oct 11 2026, 00:30 EDT
   assert.equal(
@@ -151,7 +161,10 @@ test('getRedditFeedWindowStart covers the following grace day', () => {
 
 test('getRedditFeedWindowStart uses EST after DST ends', () => {
   // Sun Nov 8 2026, 12:00 EST
-  const start = getRedditFeedWindowStart(SUNDAY, new Date('2026-11-08T17:00:00.000Z'))
+  const start = getRedditFeedWindowStart(
+    SUNDAY,
+    new Date('2026-11-08T17:00:00.000Z')
+  )
   assert.equal(start?.toISOString(), '2026-11-08T05:00:00.000Z')
 })
 
@@ -159,11 +172,19 @@ test('isRedditFeedDue stops once a post from this window is seen', () => {
   const now = new Date('2026-10-09T20:00:00.000Z')
   assert.equal(isRedditFeedDue(FRIDAY, {}, now), true)
   assert.equal(
-    isRedditFeedDue(FRIDAY, { lastPostPublishedAt: '2026-10-02T15:00:00.000Z' }, now),
+    isRedditFeedDue(
+      FRIDAY,
+      { lastPostPublishedAt: '2026-10-02T15:00:00.000Z' },
+      now
+    ),
     true
   )
   assert.equal(
-    isRedditFeedDue(FRIDAY, { lastPostPublishedAt: '2026-10-09T15:00:00.000Z' }, now),
+    isRedditFeedDue(
+      FRIDAY,
+      { lastPostPublishedAt: '2026-10-09T15:00:00.000Z' },
+      now
+    ),
     false
   )
   assert.equal(isRedditFeedDue(SUNDAY, {}, now), false)
@@ -182,11 +203,19 @@ test('shouldSendFeedErrorAlert measures staleness from the window start', () => 
   const feedState = { checkedAt: '2026-10-03T12:00:00.000Z' }
 
   assert.equal(
-    shouldSendFeedErrorAlert(feedState, new Date('2026-10-09T06:00:00.000Z'), windowStart),
+    shouldSendFeedErrorAlert(
+      feedState,
+      new Date('2026-10-09T06:00:00.000Z'),
+      windowStart
+    ),
     false
   )
   assert.equal(
-    shouldSendFeedErrorAlert(feedState, new Date('2026-10-09T11:00:00.000Z'), windowStart),
+    shouldSendFeedErrorAlert(
+      feedState,
+      new Date('2026-10-09T11:00:00.000Z'),
+      windowStart
+    ),
     true
   )
 })

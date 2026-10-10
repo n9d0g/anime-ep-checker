@@ -24,7 +24,9 @@ export function matchSearchQuery(
     return false
   }
 
-  const haystacks = [item.title, item.titleEnglish ?? ''].map(normalizeForSearch)
+  const haystacks = [item.title, item.titleEnglish ?? ''].map(
+    normalizeForSearch
+  )
   return haystacks.some((haystack) => haystack.includes(needle))
 }
 

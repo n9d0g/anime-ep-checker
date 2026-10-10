@@ -47,9 +47,7 @@ export function createUpdatedState(
 ): ShowState {
   const notifiedAt = options.notifiedAt ?? new Date().toISOString()
   const episodeOffset =
-    options.episodeOffset ??
-    options.previousState?.episodeOffset ??
-    undefined
+    options.episodeOffset ?? options.previousState?.episodeOffset ?? undefined
 
   return {
     lastEpisodeId: latestSnapshot.episode.id,

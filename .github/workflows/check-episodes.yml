@@ -2,7 +2,7 @@ name: Check anime episodes
 
 on:
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: '*/5 * * * *'
   workflow_dispatch:
     inputs:
       force:
@@ -75,8 +75,8 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v7
         with:
-          node-version: "24.19.0"
-          cache: "pnpm"
+          node-version: '24.19.0'
+          cache: 'pnpm'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile

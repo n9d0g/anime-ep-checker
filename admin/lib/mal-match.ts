@@ -64,9 +64,7 @@ function titlesAreClose(query: string, candidate: string): boolean {
 
   const queryTokens = normalizedQuery.split(' ')
   const candidateTokens = normalizedCandidate.split(' ')
-  const shared = queryTokens.filter((token) =>
-    candidateTokens.includes(token)
-  )
+  const shared = queryTokens.filter((token) => candidateTokens.includes(token))
 
   if (shared.length === 0) {
     return false

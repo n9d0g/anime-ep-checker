@@ -367,7 +367,11 @@ function CompleteRatingModal({
         <p className="modal-subtitle">
           Mark as completed on MyAnimeList and remove from tracked shows.
         </p>
-        <div className="rating-grid" role="group" aria-label="Score from 1 to 10">
+        <div
+          className="rating-grid"
+          role="group"
+          aria-label="Score from 1 to 10"
+        >
           {Array.from({ length: 10 }, (_, index) => {
             const value = index + 1
             return (
@@ -512,7 +516,9 @@ export default function AdminPage() {
 
       setShowStates((current) => {
         const next = { ...current }
-        for (const [showId, watched] of Object.entries(data.watchedByShowId ?? {})) {
+        for (const [showId, watched] of Object.entries(
+          data.watchedByShowId ?? {}
+        )) {
           if (!next[showId]) {
             continue
           }
@@ -920,7 +926,10 @@ export default function AdminPage() {
     }
   }
 
-  function openCompletePrompt(show: ShowFormValues, pendingEpisodeAtMax?: number) {
+  function openCompletePrompt(
+    show: ShowFormValues,
+    pendingEpisodeAtMax?: number
+  ) {
     if (!show.id || !usesMalProgress(show)) {
       return
     }
@@ -1441,7 +1450,10 @@ export default function AdminPage() {
                                 ariaLabel="Provider"
                                 value={show.provider}
                                 options={[
-                                  { value: 'crunchyroll', label: 'Crunchyroll' },
+                                  {
+                                    value: 'crunchyroll',
+                                    label: 'Crunchyroll',
+                                  },
                                   { value: 'netflix', label: 'Netflix' },
                                   { value: 'disney', label: 'Disney+' },
                                 ]}
@@ -1562,13 +1574,15 @@ export default function AdminPage() {
                                   <button
                                     className="btn btn-secondary"
                                     type="button"
-                                    onClick={() => void delayShowByOneWeek(show)}
+                                    onClick={() =>
+                                      void delayShowByOneWeek(show)
+                                    }
                                   >
                                     Delay +1 week
                                   </button>
                                   <p className="hint">
-                                    Shifts all future drops by 7 days and rebuilds
-                                    Discord and Google Calendar events.
+                                    Shifts all future drops by 7 days and
+                                    rebuilds Discord and Google Calendar events.
                                   </p>
                                 </div>
                               ) : null}

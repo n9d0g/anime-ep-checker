@@ -27,7 +27,8 @@
   --sticky-bar-h: 4rem;
   --top-header-h: 3.25rem;
 
-  font-family: var(--font-inter), 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-family:
+    var(--font-inter), 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
 
 * {
@@ -879,7 +880,8 @@ select:focus {
   background: rgba(17, 17, 17, 0.92);
   backdrop-filter: blur(10px);
   padding: 0.75rem max(1rem, env(safe-area-inset-right))
-    calc(0.75rem + env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+    calc(0.75rem + env(safe-area-inset-bottom))
+    max(1rem, env(safe-area-inset-left));
 }
 
 .sticky-bar-inner {

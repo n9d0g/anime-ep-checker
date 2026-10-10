@@ -102,7 +102,7 @@ test('applyMalUpdatesToShows makes ongoing shows finite once MAL has a count', (
   assert.deepEqual(result.updatedEpisodeCounts, ['frieren'])
 })
 
-test('applyMalUpdatesToShows ends the schedule at MAL\'s last episode', () => {
+test("applyMalUpdatesToShows ends the schedule at MAL's last episode", () => {
   const split = show({ id: 'split-cour', title: 'Split Cour', malId: 3 })
   split.schedule = { ...split.schedule, startEpisode: 13 }
 

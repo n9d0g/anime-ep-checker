@@ -1,7 +1,7 @@
-import { defineConfig } from "vite";
-import vinext from "vinext";
-import { cloudflare } from "@cloudflare/vite-plugin";
-import { imagesOptimizer } from "@vinext/cloudflare/images/images-optimizer";
+import { defineConfig } from 'vite'
+import vinext from 'vinext'
+import { cloudflare } from '@cloudflare/vite-plugin'
+import { imagesOptimizer } from '@vinext/cloudflare/images/images-optimizer'
 
 export default defineConfig({
   plugins: [
@@ -10,9 +10,9 @@ export default defineConfig({
     }),
     cloudflare({
       viteEnvironment: {
-        name: "rsc",
-        childEnvironments: ["ssr"],
+        name: 'rsc',
+        childEnvironments: ['ssr'],
       },
     }),
   ],
-});
+})

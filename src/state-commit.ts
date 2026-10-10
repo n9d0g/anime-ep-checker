@@ -25,7 +25,10 @@ function formatStateCommitMessage(reasons: string[]): {
   const subject = `${SUBJECT_PREFIX}${first}`
   const body =
     reasons.length > 1
-      ? reasons.slice(1).map((reason) => `- ${reason}`).join('\n')
+      ? reasons
+          .slice(1)
+          .map((reason) => `- ${reason}`)
+          .join('\n')
       : ''
 
   return { subject, body }
