@@ -548,6 +548,8 @@ export default function AdminPage() {
         changed?: boolean
         resolvedIds?: string[]
         updatedTitles?: string[]
+        updatedEpisodeCounts?: string[]
+        updatedStartTimes?: string[]
       }
 
       if (watchedResponse.ok && watchedData.watchedByShowId) {
@@ -582,6 +584,12 @@ export default function AdminPage() {
         }
         if (syncData.updatedTitles?.length) {
           parts.push('synced titles from MAL')
+        }
+        if (syncData.updatedEpisodeCounts?.length) {
+          parts.push('synced episode counts from MAL')
+        }
+        if (syncData.updatedStartTimes?.length) {
+          parts.push('synced release times from MAL')
         }
         if (parts.length > 0) {
           toast.success(`Auto-${parts.join(' and ')}.`)

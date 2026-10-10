@@ -17,6 +17,7 @@ export async function POST() {
         updatedTitles: result.updatedTitles,
         updatedEnglish: result.updatedEnglish,
         updatedEpisodeCounts: result.updatedEpisodeCounts,
+        updatedStartTimes: result.updatedStartTimes,
         onHoldEnglishUpdated: onHoldEnglish.updatedShowIds,
         shows: result.shows,
       },

@@ -138,3 +138,26 @@ test('applyMalUpdatesToShows keeps the guessed count when MAL has none', () => {
   assert.equal(result.shows[0]?.schedule.episodeCount, 12)
   assert.equal(result.updatedEpisodeCounts.length, 0)
 })
+
+test('applyMalUpdatesToShows syncs release time to MAL plus buffer', () => {
+  const current = [
+    show({ id: 'kusuriya', title: 'Kusuriya', malId: 61987 }),
+    show({ id: 'no-slot', title: 'No Slot', malId: 4 }),
+  ]
+  current[0]!.schedule.startAt = '2026-10-02T15:00:00.000Z'
+  current[1]!.schedule.startAt = '2026-10-02T15:00:00.000Z'
+
+  const result = applyMalUpdatesToShows(current, [
+    {
+      id: 'kusuriya',
+      title: 'Kusuriya',
+      malId: 61987,
+      broadcast: { dayOfWeek: 'saturday', startTime: '00:00' },
+    },
+    { id: 'no-slot', title: 'No Slot', malId: 4 },
+  ])
+
+  assert.equal(result.shows[0]?.schedule.startAt, '2026-10-02T16:00:00.000Z')
+  assert.equal(result.shows[1]?.schedule.startAt, '2026-10-02T15:00:00.000Z')
+  assert.deepEqual(result.updatedStartTimes, ['kusuriya'])
+})

@@ -5,6 +5,7 @@ import {
   saveShowsFile,
   saveStateFileRetrying,
 } from './github'
+import { alignStartAtToBroadcast, type MalBroadcast } from './broadcast'
 import type { OnHoldSnapshotEntry, StateFile } from './types'
 import { resolveMalIdFromSearch, type MalSearchResult } from './mal-match'
 import { fetchMalAnimeTitles, searchMalAnime } from './mal'
@@ -17,6 +18,8 @@ export interface MalShowUpdate {
   titleEnglish?: string
   /** MAL's episode total; only present when MAL reports one. */
   episodeCount?: number
+  /** MAL's weekly JST broadcast slot; only present when MAL reports one. */
+  broadcast?: MalBroadcast
 }
 
 export interface SyncMalResult {
@@ -25,6 +28,7 @@ export interface SyncMalResult {
   updatedTitles: string[]
   updatedEnglish: string[]
   updatedEpisodeCounts: string[]
+  updatedStartTimes: string[]
   shows: Show[]
 }
 
@@ -57,6 +61,7 @@ export function applyMalUpdatesToShows(
   updatedTitles: string[]
   updatedEnglish: string[]
   updatedEpisodeCounts: string[]
+  updatedStartTimes: string[]
 } {
   const updatesById = new Map(
     updates.filter((update) => update.id).map((update) => [update.id, update])
@@ -65,6 +70,7 @@ export function applyMalUpdatesToShows(
   const updatedTitles: string[] = []
   const updatedEnglish: string[] = []
   const updatedEpisodeCounts: string[] = []
+  const updatedStartTimes: string[] = []
 
   const shows = currentShows.map((show) => {
     const update = updatesById.get(show.id)
@@ -107,6 +113,18 @@ export function applyMalUpdatesToShows(
       }
     }
 
+    const startAt = alignStartAtToBroadcast(
+      next.schedule.startAt,
+      update.broadcast
+    )
+    if (
+      startAt &&
+      new Date(startAt).getTime() !== new Date(next.schedule.startAt).getTime()
+    ) {
+      next.schedule = { ...next.schedule, startAt }
+      updatedStartTimes.push(show.id || show.title)
+    }
+
     return next
   })
 
@@ -116,6 +134,7 @@ export function applyMalUpdatesToShows(
     updatedTitles,
     updatedEnglish,
     updatedEpisodeCounts,
+    updatedStartTimes,
   }
 }
 
@@ -124,12 +143,14 @@ function hasMalChanges(merge: {
   updatedTitles: string[]
   updatedEnglish: string[]
   updatedEpisodeCounts: string[]
+  updatedStartTimes: string[]
 }): boolean {
   return (
     merge.resolvedIds.length > 0 ||
     merge.updatedTitles.length > 0 ||
     merge.updatedEnglish.length > 0 ||
-    merge.updatedEpisodeCounts.length > 0
+    merge.updatedEpisodeCounts.length > 0 ||
+    merge.updatedStartTimes.length > 0
   )
 }
 
@@ -236,6 +257,9 @@ async function collectMalUpdates(shows: Show[]): Promise<MalShowUpdate[]> {
           if (malTitles.numEpisodes) {
             next.episodeCount = malTitles.numEpisodes
           }
+          if (malTitles.broadcast) {
+            next.broadcast = malTitles.broadcast
+          }
         } catch {
           // Skip title sync when MAL lookup fails for a single show.
         }
@@ -268,6 +292,7 @@ export async function syncShowsWithMal(): Promise<SyncMalResult> {
       updatedTitles: [],
       updatedEnglish: [],
       updatedEpisodeCounts: [],
+      updatedStartTimes: [],
       shows: initialShows,
     }
   }
@@ -287,6 +312,7 @@ export async function syncShowsWithMal(): Promise<SyncMalResult> {
         updatedTitles: [],
         updatedEnglish: [],
         updatedEpisodeCounts: [],
+        updatedStartTimes: [],
         shows: latestShows,
       }
     }
@@ -295,7 +321,7 @@ export async function syncShowsWithMal(): Promise<SyncMalResult> {
       await saveShowsFile(
         merged.shows,
         latest.sha,
-        'chore: 🧹 sync MAL IDs, titles, and episode counts from admin'
+        'chore: 🧹 sync MAL IDs, titles, episode counts, and release times from admin'
       )
       return {
         changed: true,
@@ -303,6 +329,7 @@ export async function syncShowsWithMal(): Promise<SyncMalResult> {
         updatedTitles: merged.updatedTitles,
         updatedEnglish: merged.updatedEnglish,
         updatedEpisodeCounts: merged.updatedEpisodeCounts,
+        updatedStartTimes: merged.updatedStartTimes,
         shows: merged.shows,
       }
     } catch (error) {

@@ -1,3 +1,4 @@
+import type { MalBroadcast } from './broadcast'
 import type { PtwDetails, WatchedEntry } from './types'
 
 interface MalTokenResponse {
@@ -25,6 +26,7 @@ interface MalAnimeResponse {
     synonyms?: string[]
   }
   num_episodes?: number
+  broadcast?: { day_of_the_week?: string; start_time?: string }
   mean?: number
   main_picture?: MalMainPicture
   my_list_status?: MalListStatus
@@ -569,10 +571,11 @@ export async function fetchMalAnimeTitles(malId: number): Promise<{
   title: string | null
   titleEnglish: string | null
   numEpisodes: number | null
+  broadcast: MalBroadcast | null
 }> {
   const accessToken = await getMalAccessToken()
   const response = await fetch(
-    `https://api.myanimelist.net/v2/anime/${malId}?fields=title,alternative_titles,num_episodes`,
+    `https://api.myanimelist.net/v2/anime/${malId}?fields=title,alternative_titles,num_episodes,broadcast`,
     {
       headers: { Authorization: `Bearer ${accessToken}` },
     }
@@ -588,6 +591,12 @@ export async function fetchMalAnimeTitles(malId: number): Promise<{
     title: data.title?.trim() || null,
     titleEnglish: data.alternative_titles?.en?.trim() || null,
     numEpisodes: positiveNumber(data.num_episodes),
+    broadcast: data.broadcast?.day_of_the_week
+      ? {
+          dayOfWeek: data.broadcast.day_of_the_week,
+          startTime: data.broadcast.start_time ?? null,
+        }
+      : null,
   }
 }
 

@@ -23,7 +23,7 @@ function entry(
   }
 }
 
-test('suggestStartAt uses a full MAL date plus broadcast time', () => {
+test('suggestStartAt uses a full MAL date plus broadcast time and buffer', () => {
   const suggested = suggestStartAt(
     entry({
       malId: 61323,
@@ -33,7 +33,7 @@ test('suggestStartAt uses a full MAL date plus broadcast time', () => {
     })
   )
 
-  assert.equal(suggested, '2026-10-04T16:30')
+  assert.equal(suggested, '2026-10-04T17:30')
   assert.equal(
     hasKnownStartAt(
       entry({
@@ -131,7 +131,7 @@ test('watchFormDefaults prefills known episode count and start time', () => {
 
   assert.equal(form.title, 'Beck')
   assert.equal(form.malId, '57')
-  assert.equal(form.schedule.startAt, '2004-10-07T01:30')
+  assert.equal(form.schedule.startAt, '2004-10-07T02:30')
   assert.equal(form.schedule.episodeCount, '26')
   assert.equal(form.schedule.startEpisode, '1')
 })

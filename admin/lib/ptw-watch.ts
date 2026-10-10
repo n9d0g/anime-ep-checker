@@ -1,4 +1,6 @@
+import { normalizeBroadcastTime, RELEASE_BUFFER_MS } from './broadcast'
 import { slugify } from './slugify'
+import { fromDatetimeLocalValue, toDatetimeLocalValue } from './time'
 import {
   emptyShowForm,
   type PlanToWatchSnapshotEntry,
@@ -8,21 +10,6 @@ import {
 export type UnknownWatchField = 'provider' | 'startAt' | 'episodeCount'
 
 const FULL_DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/
-
-function normalizeBroadcastTime(time: string): string | null {
-  const match = /^(\d{1,2}):(\d{2})$/.exec(time.trim())
-  if (!match) {
-    return null
-  }
-
-  const hour = Number(match[1])
-  const minute = Number(match[2])
-  if (hour > 23 || minute > 59) {
-    return null
-  }
-
-  return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
-}
 
 export function suggestStartAt(entry: PlanToWatchSnapshotEntry): string {
   const startDate = entry.startDate?.trim() ?? ''
@@ -37,7 +24,14 @@ export function suggestStartAt(entry: PlanToWatchSnapshotEntry): string {
     return ''
   }
 
-  return `${startDate}T${time}`
+  const broadcastAt = fromDatetimeLocalValue(`${startDate}T${time}`)
+  if (!broadcastAt) {
+    return ''
+  }
+
+  return toDatetimeLocalValue(
+    new Date(new Date(broadcastAt).getTime() + RELEASE_BUFFER_MS).toISOString()
+  )
 }
 
 export function hasKnownStartAt(entry: PlanToWatchSnapshotEntry): boolean {
