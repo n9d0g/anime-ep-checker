@@ -77,3 +77,64 @@ test('applyMalUpdatesToShows records English-only title changes', () => {
   assert.equal(result.updatedTitles.length, 0)
   assert.equal(result.resolvedIds.length, 0)
 })
+
+test('applyMalUpdatesToShows corrects a guessed finite episode count', () => {
+  const finite = show({ id: 'kusuriya', title: 'Kusuriya', malId: 61987 })
+  finite.schedule = { ...finite.schedule, mode: 'finite', episodeCount: 24 }
+
+  const result = applyMalUpdatesToShows(
+    [finite],
+    [{ id: 'kusuriya', title: 'Kusuriya', malId: 61987, episodeCount: 12 }]
+  )
+
+  assert.equal(result.shows[0]?.schedule.episodeCount, 12)
+  assert.deepEqual(result.updatedEpisodeCounts, ['kusuriya'])
+})
+
+test('applyMalUpdatesToShows makes ongoing shows finite once MAL has a count', () => {
+  const result = applyMalUpdatesToShows(
+    [show({ id: 'frieren', title: 'Frieren', malId: 2 })],
+    [{ id: 'frieren', title: 'Frieren', malId: 2, episodeCount: 10 }]
+  )
+
+  assert.equal(result.shows[0]?.schedule.mode, 'finite')
+  assert.equal(result.shows[0]?.schedule.episodeCount, 10)
+  assert.deepEqual(result.updatedEpisodeCounts, ['frieren'])
+})
+
+test('applyMalUpdatesToShows ends the schedule at MAL\'s last episode', () => {
+  const split = show({ id: 'split-cour', title: 'Split Cour', malId: 3 })
+  split.schedule = { ...split.schedule, startEpisode: 13 }
+
+  const result = applyMalUpdatesToShows(
+    [split],
+    [{ id: 'split-cour', title: 'Split Cour', malId: 3, episodeCount: 24 }]
+  )
+
+  assert.equal(result.shows[0]?.schedule.mode, 'finite')
+  assert.equal(result.shows[0]?.schedule.episodeCount, 12)
+})
+
+test('applyMalUpdatesToShows leaves ongoing shows alone without a MAL count', () => {
+  const current = [show({ id: 'one-piece', title: 'One Piece', malId: 21 })]
+
+  const result = applyMalUpdatesToShows(current, [
+    { id: 'one-piece', title: 'One Piece', malId: 21 },
+  ])
+
+  assert.equal(result.shows[0]?.schedule.mode, 'ongoing')
+  assert.equal(result.updatedEpisodeCounts.length, 0)
+})
+
+test('applyMalUpdatesToShows keeps the guessed count when MAL has none', () => {
+  const finite = show({ id: 'ao-no-hako', title: 'Ao no Hako', malId: 1 })
+  finite.schedule = { ...finite.schedule, mode: 'finite', episodeCount: 12 }
+
+  const result = applyMalUpdatesToShows(
+    [finite],
+    [{ id: 'ao-no-hako', title: 'Ao no Hako', malId: 1 }]
+  )
+
+  assert.equal(result.shows[0]?.schedule.episodeCount, 12)
+  assert.equal(result.updatedEpisodeCounts.length, 0)
+})

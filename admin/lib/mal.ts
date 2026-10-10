@@ -556,10 +556,14 @@ export async function searchMalAnime(query: string) {
 
 export async function fetchMalAnimeTitles(
   malId: number
-): Promise<{ title: string | null; titleEnglish: string | null }> {
+): Promise<{
+  title: string | null
+  titleEnglish: string | null
+  numEpisodes: number | null
+}> {
   const accessToken = await getMalAccessToken()
   const response = await fetch(
-    `https://api.myanimelist.net/v2/anime/${malId}?fields=title,alternative_titles`,
+    `https://api.myanimelist.net/v2/anime/${malId}?fields=title,alternative_titles,num_episodes`,
     {
       headers: { Authorization: `Bearer ${accessToken}` },
     }
@@ -574,6 +578,7 @@ export async function fetchMalAnimeTitles(
   return {
     title: data.title?.trim() || null,
     titleEnglish: data.alternative_titles?.en?.trim() || null,
+    numEpisodes: positiveNumber(data.num_episodes),
   }
 }
 

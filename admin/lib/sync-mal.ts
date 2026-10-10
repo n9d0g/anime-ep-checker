@@ -15,6 +15,8 @@ export interface MalShowUpdate {
   malId?: number
   title: string
   titleEnglish?: string
+  /** MAL's episode total; only present when MAL reports one. */
+  episodeCount?: number
 }
 
 export interface SyncMalResult {
@@ -22,6 +24,7 @@ export interface SyncMalResult {
   resolvedIds: string[]
   updatedTitles: string[]
   updatedEnglish: string[]
+  updatedEpisodeCounts: string[]
   shows: Show[]
 }
 
@@ -53,6 +56,7 @@ export function applyMalUpdatesToShows(
   resolvedIds: string[]
   updatedTitles: string[]
   updatedEnglish: string[]
+  updatedEpisodeCounts: string[]
 } {
   const updatesById = new Map(
     updates.filter((update) => update.id).map((update) => [update.id, update])
@@ -60,6 +64,7 @@ export function applyMalUpdatesToShows(
   const resolvedIds: string[] = []
   const updatedTitles: string[] = []
   const updatedEnglish: string[] = []
+  const updatedEpisodeCounts: string[] = []
 
   const shows = currentShows.map((show) => {
     const update = updatesById.get(show.id)
@@ -87,10 +92,45 @@ export function applyMalUpdatesToShows(
       }
     }
 
+    // Counts are often guessed (or left ongoing) before MAL lists a total;
+    // once it does, MAL wins. The schedule ends at
+    // startEpisode + episodeCount - 1, so align that with MAL's last episode.
+    if (update.episodeCount) {
+      const episodeCount = update.episodeCount - show.schedule.startEpisode + 1
+      if (
+        episodeCount >= 1 &&
+        (show.schedule.mode !== 'finite' ||
+          episodeCount !== show.schedule.episodeCount)
+      ) {
+        next.schedule = { ...show.schedule, mode: 'finite', episodeCount }
+        updatedEpisodeCounts.push(show.id || show.title)
+      }
+    }
+
     return next
   })
 
-  return { shows, resolvedIds, updatedTitles, updatedEnglish }
+  return {
+    shows,
+    resolvedIds,
+    updatedTitles,
+    updatedEnglish,
+    updatedEpisodeCounts,
+  }
+}
+
+function hasMalChanges(merge: {
+  resolvedIds: string[]
+  updatedTitles: string[]
+  updatedEnglish: string[]
+  updatedEpisodeCounts: string[]
+}): boolean {
+  return (
+    merge.resolvedIds.length > 0 ||
+    merge.updatedTitles.length > 0 ||
+    merge.updatedEnglish.length > 0 ||
+    merge.updatedEpisodeCounts.length > 0
+  )
 }
 
 function englishTitleNeedsSync(show: Show): boolean {
@@ -193,6 +233,9 @@ async function collectMalUpdates(shows: Show[]): Promise<MalShowUpdate[]> {
           if (malTitles.titleEnglish) {
             next.titleEnglish = malTitles.titleEnglish
           }
+          if (malTitles.numEpisodes) {
+            next.episodeCount = malTitles.numEpisodes
+          }
         } catch {
           // Skip title sync when MAL lookup fails for a single show.
         }
@@ -218,16 +261,13 @@ export async function syncShowsWithMal(): Promise<SyncMalResult> {
   const updates = await collectMalUpdates(initialShows)
   const initialMerge = applyMalUpdatesToShows(initialShows, updates)
 
-  if (
-    initialMerge.resolvedIds.length === 0 &&
-    initialMerge.updatedTitles.length === 0 &&
-    initialMerge.updatedEnglish.length === 0
-  ) {
+  if (!hasMalChanges(initialMerge)) {
     return {
       changed: false,
       resolvedIds: [],
       updatedTitles: [],
       updatedEnglish: [],
+      updatedEpisodeCounts: [],
       shows: initialShows,
     }
   }
@@ -240,16 +280,13 @@ export async function syncShowsWithMal(): Promise<SyncMalResult> {
     )
     const merged = applyMalUpdatesToShows(latestShows, updates)
 
-    if (
-      merged.resolvedIds.length === 0 &&
-      merged.updatedTitles.length === 0 &&
-      merged.updatedEnglish.length === 0
-    ) {
+    if (!hasMalChanges(merged)) {
       return {
         changed: false,
         resolvedIds: [],
         updatedTitles: [],
         updatedEnglish: [],
+        updatedEpisodeCounts: [],
         shows: latestShows,
       }
     }
@@ -258,13 +295,14 @@ export async function syncShowsWithMal(): Promise<SyncMalResult> {
       await saveShowsFile(
         merged.shows,
         latest.sha,
-        'chore: 🧹 sync MAL IDs and titles from admin'
+        'chore: 🧹 sync MAL IDs, titles, and episode counts from admin'
       )
       return {
         changed: true,
         resolvedIds: merged.resolvedIds,
         updatedTitles: merged.updatedTitles,
         updatedEnglish: merged.updatedEnglish,
+        updatedEpisodeCounts: merged.updatedEpisodeCounts,
         shows: merged.shows,
       }
     } catch (error) {
