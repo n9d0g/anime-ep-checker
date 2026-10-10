@@ -12,11 +12,11 @@
       "googleCalendarEvents": {
         "9": {
           "eventId": "2upn0v0hsitcjhhkhtlgtnd26s",
-          "startAt": "2026-10-19T15:30:00.000Z"
+          "startAt": "2026-10-17T15:00:00.000Z"
         },
         "10": {
           "eventId": "a3tvnerll74dsc4maoe9h12ra0",
-          "startAt": "2026-10-26T15:30:00.000Z"
+          "startAt": "2026-10-24T15:00:00.000Z"
         }
       },
       "discussionUrl": "https://www.reddit.com/r/anime/comments/1wefsn2/bleach_thousandyear_blood_war_the_calamity_bleach/",
@@ -73,54 +73,6 @@
         "12": {
           "eventId": "5jrh2n999hl1q0hfvocpktubkk",
           "startAt": "2026-12-18T15:00:00.000Z"
-        },
-        "13": {
-          "eventId": "02ioq3qkju4gk14mgnkaign3fg",
-          "startAt": "2026-12-25T15:00:00.000Z"
-        },
-        "14": {
-          "eventId": "cfsue313til8rngngligskme6s",
-          "startAt": "2027-01-01T15:00:00.000Z"
-        },
-        "15": {
-          "eventId": "eg3nfbqn74mb3fmv6negr4st70",
-          "startAt": "2027-01-08T15:00:00.000Z"
-        },
-        "16": {
-          "eventId": "n21q02jif8ttqk8vrrd31205rs",
-          "startAt": "2027-01-15T15:00:00.000Z"
-        },
-        "17": {
-          "eventId": "cr4vh74iqi9dk55l628gk85djc",
-          "startAt": "2027-01-22T15:00:00.000Z"
-        },
-        "18": {
-          "eventId": "v9k260agl912plqt1rq670s0a4",
-          "startAt": "2027-01-29T15:00:00.000Z"
-        },
-        "19": {
-          "eventId": "upfbtr705mh999bl1d2ec70i7g",
-          "startAt": "2027-02-05T15:00:00.000Z"
-        },
-        "20": {
-          "eventId": "eah5lme1a6vad36ivosfhpk8p0",
-          "startAt": "2027-02-12T15:00:00.000Z"
-        },
-        "21": {
-          "eventId": "mahavfe54gdq4qsjnuovb6tgr8",
-          "startAt": "2027-02-19T15:00:00.000Z"
-        },
-        "22": {
-          "eventId": "nna8an1ds4tu7k0info4728ebg",
-          "startAt": "2027-02-26T15:00:00.000Z"
-        },
-        "23": {
-          "eventId": "28g388543c8si520qp2sm066uk",
-          "startAt": "2027-03-05T15:00:00.000Z"
-        },
-        "24": {
-          "eventId": "f1004321ig8iv29h7ebq16lsno",
-          "startAt": "2027-03-12T15:00:00.000Z"
         }
       }
     },
@@ -769,8 +721,8 @@
       ]
     },
     "watchingDashboardHashes": {
-      "bleach": "716f350fae093bc4df390b1588a4da75f9ccc096",
-      "kusuriya-no-hitorigoto-3rd-season": "84ce864152705e267167bb47c21d933e39626792",
+      "bleach": "d194a10894fc269d873b83ceecc03e64abc90225",
+      "kusuriya-no-hitorigoto-3rd-season": "b7d4114bf044746c417de4c718a651e8a5b2ec8f",
       "ao-no-hako-season-2": "8108ba226eac458eb0c2f31dfa05d040fe038b29"
     },
     "onHold": {
@@ -828,7 +780,8 @@
           "t3_1shmi9o",
           "t3_1s7xema"
         ],
-        "checkedAt": "2026-10-09T12:35:40.704Z"
+        "checkedAt": "2026-10-10T20:30:38.353Z",
+        "lastPostPublishedAt": "2026-10-09T12:31:30.000Z"
       },
       "abysswatcherbel": {
         "seenPostIds": [
