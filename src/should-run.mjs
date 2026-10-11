@@ -175,6 +175,41 @@ function needsPlanToWatchCheck(state, now) {
   return now.getTime() - checkedMs >= PTW_CHECK_INTERVAL_MS
 }
 
+// Keep in sync with needsRelatedAnimeCheck in src/schedule.ts
+function getEasternDateKey(date) {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    weekday: 'short',
+  }).formatToParts(date)
+  const get = (type) => parts.find((part) => part.type === type)?.value ?? ''
+  return {
+    key: `${get('year')}-${get('month')}-${get('day')}`,
+    weekday: get('weekday'),
+  }
+}
+
+function needsRelatedAnimeCheck(state, now) {
+  const today = getEasternDateKey(now)
+  if (today.weekday !== 'Sun') {
+    return false
+  }
+
+  const checkedAt = state.meta?.relatedAnimeCheckedAt
+  if (!checkedAt) {
+    return true
+  }
+
+  const checked = new Date(checkedAt)
+  if (Number.isNaN(checked.getTime())) {
+    return true
+  }
+
+  return getEasternDateKey(checked).key !== today.key
+}
+
 function hasOrphanedShows(shows, state) {
   const activeIds = new Set(shows.map((show) => show.id))
 
@@ -521,9 +556,15 @@ const now = new Date()
 const shows = showsFile.shows ?? []
 const needsCheck = shows.some((show) => showNeedsCheck(show, state, now))
 const needsPtwCheck = needsPlanToWatchCheck(state, now)
+const needsRelatedCheck = needsRelatedAnimeCheck(state, now)
 const hasOrphans = hasOrphanedShows(shows, state)
 const needsRedditCheck = await needsRedditFeedCheck(state, now)
-const shouldRun = needsCheck || needsPtwCheck || hasOrphans || needsRedditCheck
+const shouldRun =
+  needsCheck ||
+  needsPtwCheck ||
+  needsRelatedCheck ||
+  hasOrphans ||
+  needsRedditCheck
 const activeModes = getActiveCheckModes(shows, state, now)
 
 const outputFile = process.env.GITHUB_OUTPUT
@@ -540,6 +581,9 @@ if (shouldRun) {
   if (needsPtwCheck) {
     console.log('Plan-to-watch check is due (24h cadence).')
   }
+  if (needsRelatedCheck) {
+    console.log('Related anime check is due (weekly, Sundays).')
+  }
   if (hasOrphans) {
     console.log('Removed show still present in state; running cleanup.')
   }
@@ -548,6 +592,6 @@ if (shouldRun) {
   }
 } else {
   console.log(
-    'No shows in active check window, plan-to-watch check not due, and no new Reddit posts; skipping full check.'
+    'No shows in active check window, plan-to-watch/related checks not due, and no new Reddit posts; skipping full check.'
   )
 }

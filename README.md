@@ -273,6 +273,10 @@ On each checker run, the bot compares each show’s MAL **mean score** to the la
 
 Once per day (or whenever a tracked show is in its drop window), the checker fetches your MAL **plan to watch** list and sends a **one-shot** Discord alert for each title that is either **currently airing** or **starts within the next 7 days**. Alerted MAL IDs are stored in `state.json` so you only get pinged once per title; removing a show from plan-to-watch and re-adding it later can alert again. The full PTW list is also saved to `state.meta.planToWatch` for the admin **/ptw** page. Requires the same MAL OAuth secrets as the watching dashboard.
 
+### Related anime alerts
+
+MAL is supposed to notify you when new related entries (sequels, spin-offs, etc.) are added to anime on your list, but it doesn't reliably. Once a week on **Sunday (Eastern)**, the checker fetches your MAL **completed** list (the admin **Watched** page), looks up each title's `related_anime` (about 1 request per second to respect MAL's undocumented rate limits), and posts a Discord alert for any related entry that wasn't there the previous week. Related titles already on your MAL list, and `character` / `other` relations, are skipped. The first check for each title baselines it without alerting. Seen IDs are stored in `state.meta.relatedAnimeSeen`. If MAL responds with **429** or **403** (rate limited), the run stops immediately, posts a Discord notice, and leaves unchecked titles for next Sunday. This pass ignores forced runs, so editing shows in the admin doesn't trigger extra MAL calls.
+
 ### Google Calendar sync
 
 The checker mirrors upcoming drops to a Google Calendar (your **Anime Drops** calendar):
@@ -333,6 +337,7 @@ Shows your MAL plan-to-watch list from `state.meta.planToWatch`, grouped into **
 | [`src/mal.ts`](src/mal.ts)                                                     | MAL read-only progress (checker)                                              |
 | [`src/mal-score.ts`](src/mal-score.ts)                                         | MAL score spike/tank detection                                                |
 | [`src/plan-to-watch.ts`](src/plan-to-watch.ts)                                 | MAL plan-to-watch airing alerts                                               |
+| [`src/related-anime.ts`](src/related-anime.ts)                                 | Weekly MAL related anime (sequel etc.) alerts                                 |
 | [`src/should-run.mjs`](src/should-run.mjs)                                     | Cheap gate for Actions (no marketplace actions on skip path)                  |
 | [`admin/`](admin/)                                                             | Cloudflare CMS (vinext)                                                       |
 | [`.github/workflows/check-episodes.yml`](.github/workflows/check-episodes.yml) | Gate + full episode check (`schedule`, `workflow_dispatch`, or external cron) |

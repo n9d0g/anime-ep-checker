@@ -100,6 +100,9 @@ export interface StateFile {
       { alertedAt: string; reason: PlanToWatchAlertReason }
     >
     planToWatch?: PlanToWatchSnapshot
+    relatedAnimeCheckedAt?: string | null
+    /** Completed MAL ID -> related MAL IDs already seen (baseline + alerted). */
+    relatedAnimeSeen?: Record<string, number[]>
     onHold?: OnHoldSnapshot
     redditUserFeeds?: Record<
       string,

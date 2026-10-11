@@ -325,3 +325,183 @@ export async function fetchPlanToWatchAnime(): Promise<MalPlanToWatchResult> {
 
   return { status: 'ok', entries }
 }
+
+export interface MalListEntry {
+  malId: number
+  title: string
+}
+
+export interface MalRelatedAnime {
+  malId: number
+  title: string
+  relationType: string
+  relationTypeFormatted: string
+  coverUrl: string | null
+}
+
+export interface MalAnimeSummary {
+  mediaType: string | null
+  status: string | null
+  startDate: string | null
+  numEpisodes: number | null
+  coverUrl: string | null
+}
+
+export type MalListResult =
+  | { status: 'ok'; entries: MalListEntry[] }
+  | { status: 'not_configured' }
+  | { status: 'unavailable' }
+  | { status: 'rate_limited'; httpStatus: number }
+
+export type MalRelatedAnimeResult =
+  | { status: 'ok'; related: MalRelatedAnime[] }
+  | { status: 'not_configured' }
+  | { status: 'unavailable' }
+  | { status: 'rate_limited'; httpStatus: number }
+
+interface MalRelatedAnimeResponse {
+  related_anime?: Array<{
+    node: { id: number; title: string; main_picture?: MalMainPicture }
+    relation_type?: string
+    relation_type_formatted?: string
+  }>
+}
+
+interface MalAnimeSummaryResponse {
+  media_type?: string
+  status?: string
+  start_date?: string
+  num_episodes?: number
+  main_picture?: MalMainPicture
+}
+
+// MAL answers throttling with 429, and sometimes a bare 403.
+function isMalRateLimitStatus(status: number): boolean {
+  return status === 429 || status === 403
+}
+
+/**
+ * Fetches the full user list (optionally one status) with no partial results:
+ * callers diff against it, so a truncated list would cause false positives.
+ */
+export async function fetchUserAnimeList(
+  status?: string
+): Promise<MalListResult> {
+  if (!isMalConfigured()) {
+    return { status: 'not_configured' }
+  }
+
+  const accessToken = await getCachedMalAccessToken()
+  if (!accessToken) {
+    return { status: 'unavailable' }
+  }
+
+  const params = new URLSearchParams({ limit: '1000', nsfw: 'true' })
+  if (status) {
+    params.set('status', status)
+  }
+
+  const entries: MalListEntry[] = []
+  let nextUrl: string | undefined =
+    `https://api.myanimelist.net/v2/users/@me/animelist?${params}`
+
+  while (nextUrl) {
+    const response = await fetch(nextUrl, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    })
+
+    if (!response.ok) {
+      console.warn(
+        `MAL ${status ?? 'full'} list lookup failed (${response.status})`
+      )
+      return isMalRateLimitStatus(response.status)
+        ? { status: 'rate_limited', httpStatus: response.status }
+        : { status: 'unavailable' }
+    }
+
+    const page = (await response.json()) as MalAnimelistResponse
+    for (const item of page.data ?? []) {
+      if (item.node?.id) {
+        entries.push({ malId: item.node.id, title: item.node.title })
+      }
+    }
+
+    nextUrl = page.paging?.next
+  }
+
+  return { status: 'ok', entries }
+}
+
+export async function fetchRelatedAnime(
+  malId: number
+): Promise<MalRelatedAnimeResult> {
+  if (!isMalConfigured()) {
+    return { status: 'not_configured' }
+  }
+
+  const accessToken = await getCachedMalAccessToken()
+  if (!accessToken) {
+    return { status: 'unavailable' }
+  }
+
+  const response = await fetch(
+    `https://api.myanimelist.net/v2/anime/${malId}?fields=related_anime`,
+    { headers: { Authorization: `Bearer ${accessToken}` } }
+  )
+
+  if (!response.ok) {
+    console.warn(
+      `MAL related anime lookup failed (${response.status}) for id ${malId}`
+    )
+    return isMalRateLimitStatus(response.status)
+      ? { status: 'rate_limited', httpStatus: response.status }
+      : { status: 'unavailable' }
+  }
+
+  const data = (await response.json()) as MalRelatedAnimeResponse
+  const related = (data.related_anime ?? [])
+    .filter((item) => item.node?.id)
+    .map((item) => ({
+      malId: item.node.id,
+      title: item.node.title,
+      relationType: item.relation_type ?? 'other',
+      relationTypeFormatted: item.relation_type_formatted ?? 'Related',
+      coverUrl:
+        item.node.main_picture?.large ?? item.node.main_picture?.medium ?? null,
+    }))
+
+  return { status: 'ok', related }
+}
+
+export async function fetchMalAnimeSummary(
+  malId: number
+): Promise<MalAnimeSummary | null> {
+  const accessToken = isMalConfigured() ? await getCachedMalAccessToken() : null
+  if (!accessToken) {
+    return null
+  }
+
+  const response = await fetch(
+    `https://api.myanimelist.net/v2/anime/${malId}?fields=media_type,status,start_date,num_episodes,main_picture`,
+    { headers: { Authorization: `Bearer ${accessToken}` } }
+  )
+
+  if (!response.ok) {
+    console.warn(
+      `MAL anime summary failed (${response.status}) for id ${malId}`
+    )
+    return null
+  }
+
+  const data = (await response.json()) as MalAnimeSummaryResponse
+  return {
+    mediaType: data.media_type ?? null,
+    status: data.status ?? null,
+    startDate: data.start_date ?? null,
+    numEpisodes:
+      typeof data.num_episodes === 'number' && data.num_episodes > 0
+        ? data.num_episodes
+        : null,
+    coverUrl: data.main_picture?.large ?? data.main_picture?.medium ?? null,
+  }
+}

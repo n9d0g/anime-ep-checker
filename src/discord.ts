@@ -4,7 +4,12 @@ import {
   discordRelativeTimestamp,
   formatMalScoreLabel,
 } from './discord-format.js'
-import type { MalAnimeDetails, MalPlanToWatchEntry } from './mal.js'
+import type {
+  MalAnimeDetails,
+  MalAnimeSummary,
+  MalPlanToWatchEntry,
+  MalRelatedAnime,
+} from './mal.js'
 import { formatEasternTime } from './time.js'
 import {
   getShowWatchUrl,
@@ -54,6 +59,13 @@ interface PlanToWatchAlertInput {
   discord: DiscordConfig
   entry: MalPlanToWatchEntry
   reason: PlanToWatchAlertReason
+}
+
+interface RelatedAnimeAlertInput {
+  discord: DiscordConfig
+  source: { malId: number; title: string }
+  related: MalRelatedAnime
+  summary?: MalAnimeSummary | null
 }
 
 export interface RedditPostAlertPost {
@@ -398,6 +410,136 @@ export async function sendPlanToWatchAlert({
 
   if (hasBotConfig(discord)) {
     payload.components = components
+    await postBotMessage(discord.botToken!, discord.channelId!, payload)
+    return
+  }
+
+  if (discord.webhookUrl) {
+    await postWebhook(discord.webhookUrl, payload)
+    return
+  }
+
+  throw new Error(
+    'Discord not configured. Set DISCORD_BOT_TOKEN + DISCORD_CHANNEL_ID (preferred) or DISCORD_WEBHOOK_URL.'
+  )
+}
+
+function formatMalEnum(value: string): string {
+  if (value.length <= 3) return value.toUpperCase()
+  return value
+    .split('_')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
+}
+
+export async function sendRelatedAnimeAlert({
+  discord,
+  source,
+  related,
+  summary,
+}: RelatedAnimeAlertInput): Promise<void> {
+  const malUrl = `https://myanimelist.net/anime/${related.malId}`
+  const relation = related.relationTypeFormatted
+  const fields: Array<{ name: string; value: string; inline?: boolean }> = [
+    { name: 'Relation', value: relation, inline: true },
+  ]
+
+  if (summary?.mediaType) {
+    fields.push({
+      name: 'Type',
+      value: formatMalEnum(summary.mediaType),
+      inline: true,
+    })
+  }
+
+  if (summary?.status) {
+    fields.push({
+      name: 'Status',
+      value: formatMalEnum(summary.status),
+      inline: true,
+    })
+  }
+
+  if (summary?.startDate) {
+    fields.push({ name: 'Starts', value: summary.startDate, inline: true })
+  }
+
+  if (summary?.numEpisodes) {
+    fields.push({
+      name: 'Episodes',
+      value: String(summary.numEpisodes),
+      inline: true,
+    })
+  }
+
+  const coverUrl = summary?.coverUrl ?? related.coverUrl
+  const embed = {
+    title: related.title,
+    url: malUrl,
+    description: `New ${relation.toLowerCase()} of [${source.title}](https://myanimelist.net/anime/${source.malId}) added on MAL.`,
+    color: 0xe67e22,
+    thumbnail: coverUrl ? { url: coverUrl } : undefined,
+    fields,
+    timestamp: new Date().toISOString(),
+    footer: { text: 'Anime Episode Checker' },
+  }
+
+  const components = [
+    {
+      type: 1,
+      components: [{ type: 2, style: 5, label: 'MAL', url: malUrl }],
+    },
+  ]
+
+  const payload: Record<string, unknown> = {
+    content: `**${related.title}** — new ${relation.toLowerCase()} of ${source.title}`,
+    embeds: [embed],
+  }
+
+  if (hasBotConfig(discord)) {
+    payload.components = components
+    await postBotMessage(discord.botToken!, discord.channelId!, payload)
+    return
+  }
+
+  if (discord.webhookUrl) {
+    await postWebhook(discord.webhookUrl, payload)
+    return
+  }
+
+  throw new Error(
+    'Discord not configured. Set DISCORD_BOT_TOKEN + DISCORD_CHANNEL_ID (preferred) or DISCORD_WEBHOOK_URL.'
+  )
+}
+
+export async function sendMalRateLimitAlert({
+  discord,
+  httpStatus,
+  checked,
+  total,
+}: {
+  discord: DiscordConfig
+  httpStatus: number
+  checked: number
+  total: number
+}): Promise<void> {
+  const payload = {
+    content: `MAL rate limited the related anime check (HTTP ${httpStatus})`,
+    embeds: [
+      {
+        title: 'MAL rate limit hit',
+        description:
+          total > 0
+            ? `Stopped after checking ${checked} of ${total} completed titles. The rest will be checked next Sunday.`
+            : 'Stopped before the completed list could be fetched. The check will run again next Sunday.',
+        color: 0xe74c3c,
+        timestamp: new Date().toISOString(),
+        footer: { text: 'Anime Episode Checker' },
+      },
+    ],
+  }
+
+  if (hasBotConfig(discord)) {
     await postBotMessage(discord.botToken!, discord.channelId!, payload)
     return
   }

@@ -32,6 +32,7 @@ import { fetchMalAnimeDetails } from './mal.js'
 import { syncMalScoreAlerts } from './mal-score.js'
 import { syncPlanToWatchAlerts } from './plan-to-watch.js'
 import { syncRedditUserFeeds } from './reddit-feeds.js'
+import { syncRelatedAnimeAlerts } from './related-anime.js'
 import { writeStateCommitMessage } from './state-commit.js'
 import {
   DisneyAuthError,
@@ -52,6 +53,7 @@ import {
   isInCheckWindow,
   isPastWaitingGrace,
   needsPlanToWatchCheck,
+  needsRelatedAnimeCheck,
   parseEpisodeNumber,
 } from './schedule.js'
 import {
@@ -796,6 +798,29 @@ export async function checkShows({
     } catch (error) {
       console.warn(
         `Plan-to-watch sync failed: ${
+          error instanceof Error ? error.message : error
+        }`
+      )
+    }
+  }
+
+  // Weekly only, even on forced runs: the admin forces a check on every show
+  // edit, and this makes one MAL request per completed title.
+  if (needsRelatedAnimeCheck(state, now)) {
+    try {
+      const relatedResult = await syncRelatedAnimeAlerts({
+        state,
+        discord,
+        now,
+        dryRun,
+      })
+      if (relatedResult.changed) {
+        stateChangeReasons.push(...relatedResult.reasons)
+        stateChanged = true
+      }
+    } catch (error) {
+      console.warn(
+        `Related anime sync failed: ${
           error instanceof Error ? error.message : error
         }`
       )

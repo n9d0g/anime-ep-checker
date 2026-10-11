@@ -7,6 +7,7 @@ const LATE_POLL_INTERVAL_MS = 30 * 60 * 1000
 const CRON_INTERVAL_MS = 5 * 60 * 1000
 const WAITING_GRACE_MS = 15 * 60 * 1000
 const PTW_CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000
+const EASTERN_TZ = 'America/New_York'
 
 function getPremiereBatchSize(schedule: ShowSchedule): number {
   return schedule.premiereBatchSize > 0 ? schedule.premiereBatchSize : 1
@@ -165,4 +166,43 @@ export function hasOrphanedShows(shows: Show[], state: StateFile): boolean {
   }
 
   return false
+}
+
+function getEasternDateKey(date: Date): { key: string; weekday: string } {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: EASTERN_TZ,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    weekday: 'short',
+  }).formatToParts(date)
+  const get = (type: string) =>
+    parts.find((part) => part.type === type)?.value ?? ''
+  return {
+    key: `${get('year')}-${get('month')}-${get('day')}`,
+    weekday: get('weekday'),
+  }
+}
+
+/** Weekly on Sundays (Eastern), once per Sunday, to stay light on MAL. */
+export function needsRelatedAnimeCheck(
+  state: StateFile,
+  now: Date = new Date()
+): boolean {
+  const today = getEasternDateKey(now)
+  if (today.weekday !== 'Sun') {
+    return false
+  }
+
+  const checkedAt = state.meta?.relatedAnimeCheckedAt
+  if (!checkedAt) {
+    return true
+  }
+
+  const checked = new Date(checkedAt)
+  if (Number.isNaN(checked.getTime())) {
+    return true
+  }
+
+  return getEasternDateKey(checked).key !== today.key
 }
