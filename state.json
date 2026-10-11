@@ -148,9 +148,9 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-10-10T19:00:42.755Z",
+    "planToWatchCheckedAt": "2026-10-11T19:05:32.957Z",
     "planToWatch": {
-      "updatedAt": "2026-10-05T18:40:02.858Z",
+      "updatedAt": "2026-10-11T19:05:32.957Z",
       "entries": [
         {
           "malId": 36649,
@@ -175,7 +175,7 @@
             "dayOfWeek": "thursday",
             "startTime": "01:30"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/11/11636l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/11/11636l.webp",
           "numEpisodes": 26
         },
         {
@@ -257,7 +257,16 @@
           "status": "not_yet_aired",
           "startDate": "2027",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1671/154516l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1671/154516l.webp",
+          "numEpisodes": null
+        },
+        {
+          "malId": 65161,
+          "title": "Dr. Stone: Terraforming",
+          "status": "not_yet_aired",
+          "startDate": null,
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1080/160492l.jpg",
           "numEpisodes": null
         },
         {
@@ -310,7 +319,7 @@
           "status": "finished_airing",
           "startDate": "2025-12-31",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1112/150697l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1112/150697l.webp",
           "numEpisodes": 1
         },
         {
@@ -346,7 +355,7 @@
             "dayOfWeek": "wednesday",
             "startTime": "21:00"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1784/106428l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1784/106428l.jpg",
           "numEpisodes": 12
         },
         {
@@ -369,7 +378,7 @@
             "dayOfWeek": "sunday",
             "startTime": "22:30"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1093/145470l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1093/145470l.webp",
           "numEpisodes": 12
         },
         {
@@ -392,7 +401,7 @@
           "status": "finished_airing",
           "startDate": "2025-04-25",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1482/146928l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1482/146928l.webp",
           "numEpisodes": 2
         },
         {
@@ -412,7 +421,7 @@
           "status": "finished_airing",
           "startDate": "2022-03-10",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1862/121020l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1862/121020l.jpg",
           "numEpisodes": 10
         },
         {
@@ -422,7 +431,7 @@
           "status": "not_yet_aired",
           "startDate": "2027-04",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1667/152812l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1667/152812l.jpg",
           "numEpisodes": 12
         },
         {
@@ -462,7 +471,7 @@
           "status": "not_yet_aired",
           "startDate": "2027-01",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1085/154496l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1085/154496l.jpg",
           "numEpisodes": null
         },
         {
@@ -472,7 +481,7 @@
           "status": "not_yet_aired",
           "startDate": "2027",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1216/160273l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1216/160273l.jpg",
           "numEpisodes": null
         },
         {
@@ -482,7 +491,7 @@
           "status": "not_yet_aired",
           "startDate": null,
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1396/159706l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1396/159706l.webp",
           "numEpisodes": 1
         },
         {
@@ -581,7 +590,7 @@
             "dayOfWeek": "saturday",
             "startTime": "22:00"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1121/133132l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1121/133132l.webp",
           "numEpisodes": 13
         },
         {
@@ -624,7 +633,7 @@
           "status": "not_yet_aired",
           "startDate": "2027-04",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1261/160258l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1261/160258l.webp",
           "numEpisodes": null
         },
         {
@@ -667,7 +676,7 @@
           "status": "finished_airing",
           "startDate": "2020-09-18",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1825/110716l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1825/110716l.jpg",
           "numEpisodes": 1
         },
         {
@@ -718,7 +727,7 @@
     "watchingDashboardHashes": {
       "bleach": "d194a10894fc269d873b83ceecc03e64abc90225",
       "kusuriya-no-hitorigoto-3rd-season": "e5813ad30a1f7d48caee8f5bf331d9a0f0bdb3a0",
-      "ao-no-hako-season-2": "2985eb7a34d0f6aa4dccb02e10586b52aa6cddb7"
+      "ao-no-hako-season-2": "961d1abe1ff6d2a7f551f50e6893f9a13fcf1cf4"
     },
     "onHold": {
       "updatedAt": "2026-09-28T21:46:38.715Z",
