@@ -77,19 +77,16 @@
       }
     },
     "ao-no-hako-season-2": {
-      "lastEpisodeId": "82716331",
-      "lastEpisodeNumber": "1",
-      "lastEpisodeTitle": "Déjà Vu",
-      "lastNotifiedAt": "2026-10-04T08:25:33.277Z",
+      "lastEpisodeId": "82716332",
+      "lastEpisodeNumber": "2",
+      "lastEpisodeTitle": "Admiration",
+      "lastNotifiedAt": "2026-10-11T08:25:36.509Z",
       "seasonId": "82715728",
       "seasonTitle": "Season 2",
       "waitingNotifiedForEpisode": null,
       "episodeOffset": 25,
+      "malMeanScore": 8.18,
       "googleCalendarEvents": {
-        "2": {
-          "eventId": "h8v6q205bqf1ksjmd5r9d1qdnc",
-          "startAt": "2026-10-11T08:30:00.000Z"
-        },
         "3": {
           "eventId": "nr660m5cff931mj1639taelbu0",
           "startAt": "2026-10-18T08:30:00.000Z"
@@ -130,9 +127,7 @@
           "eventId": "s1so7ebf6f4g8r9ql7ni003scc",
           "startAt": "2026-12-20T08:30:00.000Z"
         }
-      },
-      "malMeanScore": 8.19,
-      "malScoreAlertedAt": "2026-10-05T12:40:33.728Z"
+      }
     }
   },
   "meta": {
@@ -722,8 +717,8 @@
     },
     "watchingDashboardHashes": {
       "bleach": "d194a10894fc269d873b83ceecc03e64abc90225",
-      "kusuriya-no-hitorigoto-3rd-season": "b7d4114bf044746c417de4c718a651e8a5b2ec8f",
-      "ao-no-hako-season-2": "8108ba226eac458eb0c2f31dfa05d040fe038b29"
+      "kusuriya-no-hitorigoto-3rd-season": "e5813ad30a1f7d48caee8f5bf331d9a0f0bdb3a0",
+      "ao-no-hako-season-2": "e4bb5401431e2700f46157da1929ca38386b8df2"
     },
     "onHold": {
       "updatedAt": "2026-09-28T21:46:38.715Z",
