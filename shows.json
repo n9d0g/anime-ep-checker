@@ -47,6 +47,22 @@
       "netflixId": "81663323",
       "malId": 61323,
       "titleEnglish": "Blue Box Season 2"
+    },
+    {
+      "id": "cyberpunk-edgerunners-2",
+      "title": "Cyberpunk: Edgerunners 2",
+      "provider": "netflix",
+      "schedule": {
+        "mode": "finite",
+        "startAt": "2026-10-20T09:00:00.000Z",
+        "startEpisode": 1,
+        "episodeCount": 10,
+        "premiereBatchSize": 1
+      },
+      "netflixUrl": "https://www.netflix.com/title/81054853",
+      "netflixId": "81054853",
+      "malId": 61990,
+      "titleEnglish": "Cyberpunk: Edgerunners 2"
     }
   ]
 }
