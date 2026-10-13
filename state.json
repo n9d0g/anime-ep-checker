@@ -143,12 +143,16 @@
         "alertedAt": "2026-08-10T15:45:42.943Z",
         "reason": "airing"
       },
+      "61990": {
+        "alertedAt": "2026-10-13T19:15:53.318Z",
+        "reason": "upcoming"
+      },
       "62811": {
         "alertedAt": "2026-07-30T17:20:31.143Z",
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-10-12T19:10:35.259Z",
+    "planToWatchCheckedAt": "2026-10-13T19:15:53.318Z",
     "planToWatch": {
       "updatedAt": "2026-10-11T19:05:32.957Z",
       "entries": [
