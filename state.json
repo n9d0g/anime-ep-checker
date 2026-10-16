@@ -24,15 +24,15 @@
       "malScoreAlertedAt": "2026-10-01T03:55:32.164Z"
     },
     "kusuriya-no-hitorigoto-3rd-season": {
-      "lastEpisodeId": "GE00384328JAJP",
-      "lastEpisodeNumber": "2",
-      "lastEpisodeTitle": "The Fire-Rat Cloak",
-      "lastNotifiedAt": "2026-10-09T15:05:39.078Z",
+      "lastEpisodeId": "GE00384329JAJP",
+      "lastEpisodeNumber": "3",
+      "lastEpisodeTitle": "Let Them Eat Cake",
+      "lastNotifiedAt": "2026-10-16T15:10:42.123Z",
       "seasonId": "GS00384044JAJP",
       "seasonTitle": "Season 3",
       "waitingNotifiedForEpisode": null,
       "episodeOffset": 48,
-      "malMeanScore": 8.64,
+      "malMeanScore": 8.66,
       "googleCalendarEvents": {
         "4": {
           "eventId": "o0rpi15mrm5t2hj4tam7hf5ho4",
@@ -727,7 +727,7 @@
     },
     "watchingDashboardHashes": {
       "bleach": "149f43665d729f79e93d696c2d6f43a930d6ebf2",
-      "kusuriya-no-hitorigoto-3rd-season": "4fe59e0a21e4b0a00766ef6508607648d2413b45",
+      "kusuriya-no-hitorigoto-3rd-season": "e8017d481cd1417974c8df39176e4deca69284f9",
       "ao-no-hako-season-2": "961d1abe1ff6d2a7f551f50e6893f9a13fcf1cf4",
       "cyberpunk-edgerunners-2": "505d11af3d5d310a994d60d7797046109642a155"
     },
