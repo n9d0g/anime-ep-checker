@@ -730,7 +730,7 @@
       ]
     },
     "watchingDashboardHashes": {
-      "bleach": "d194a10894fc269d873b83ceecc03e64abc90225",
+      "bleach": "149f43665d729f79e93d696c2d6f43a930d6ebf2",
       "kusuriya-no-hitorigoto-3rd-season": "b7d4114bf044746c417de4c718a651e8a5b2ec8f",
       "ao-no-hako-season-2": "961d1abe1ff6d2a7f551f50e6893f9a13fcf1cf4",
       "cyberpunk-edgerunners-2": "505d11af3d5d310a994d60d7797046109642a155"
@@ -763,6 +763,7 @@
     "redditUserFeeds": {
       "animecorner": {
         "seenPostIds": [
+          "t3_1x7exgq",
           "t3_1x1k4ps",
           "t3_1wpx3u6",
           "t3_1wjoys6",
@@ -790,8 +791,8 @@
           "t3_1shmi9o",
           "t3_1s7xema"
         ],
-        "checkedAt": "2026-10-10T20:30:38.353Z",
-        "lastPostPublishedAt": "2026-10-09T12:31:30.000Z"
+        "checkedAt": "2026-10-16T12:30:40.113Z",
+        "lastPostPublishedAt": "2026-10-16T12:30:04.000Z"
       },
       "abysswatcherbel": {
         "seenPostIds": [
