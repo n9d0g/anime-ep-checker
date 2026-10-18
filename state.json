@@ -69,20 +69,16 @@
       }
     },
     "ao-no-hako-season-2": {
-      "lastEpisodeId": "82716332",
-      "lastEpisodeNumber": "2",
-      "lastEpisodeTitle": "Admiration",
-      "lastNotifiedAt": "2026-10-11T08:25:36.509Z",
+      "lastEpisodeId": "82716333",
+      "lastEpisodeNumber": "3",
+      "lastEpisodeTitle": "They're One and the Same",
+      "lastNotifiedAt": "2026-10-18T08:25:42.727Z",
       "seasonId": "82715728",
       "seasonTitle": "Season 2",
       "waitingNotifiedForEpisode": null,
       "episodeOffset": 25,
-      "malMeanScore": 8.18,
+      "malMeanScore": 8.17,
       "googleCalendarEvents": {
-        "3": {
-          "eventId": "nr660m5cff931mj1639taelbu0",
-          "startAt": "2026-10-18T08:30:00.000Z"
-        },
         "4": {
           "eventId": "4855n94epl05lqm1tdsk7rb0mo",
           "startAt": "2026-10-25T08:30:00.000Z"
@@ -724,7 +720,7 @@
     "watchingDashboardHashes": {
       "bleach": "149f43665d729f79e93d696c2d6f43a930d6ebf2",
       "kusuriya-no-hitorigoto-3rd-season": "e8017d481cd1417974c8df39176e4deca69284f9",
-      "ao-no-hako-season-2": "961d1abe1ff6d2a7f551f50e6893f9a13fcf1cf4",
+      "ao-no-hako-season-2": "af73b5250cc80cc24f97c8e228ecf60a29ada0c2",
       "cyberpunk-edgerunners-2": "505d11af3d5d310a994d60d7797046109642a155"
     },
     "onHold": {
