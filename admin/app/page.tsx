@@ -504,44 +504,71 @@ export default function AdminPage() {
     )
   }
 
-  async function mergeWatchedFromApi() {
+  // Bootstrap/state responses never include MAL watched counts, so carry the
+  // last known values forward instead of resetting badges to grey.
+  function withKnownWatched(
+    incoming: Record<string, ShowStateSummary>,
+    current: Record<string, ShowStateSummary>
+  ): Record<string, ShowStateSummary> {
+    const next: Record<string, ShowStateSummary> = {}
+    for (const [showId, state] of Object.entries(incoming)) {
+      next[showId] = {
+        ...state,
+        watchedEpisode:
+          state.watchedEpisode ?? current[showId]?.watchedEpisode ?? null,
+      }
+    }
+    return next
+  }
+
+  async function fetchWatched(): Promise<Record<string, number | null> | null> {
     try {
       const response = await noStoreFetch('/api/mal/watched')
       const data = (await response.json()) as {
         watchedByShowId?: Record<string, number | null>
       }
-      if (!response.ok || !data.watchedByShowId) {
-        return
-      }
-
-      setShowStates((current) => {
-        const next = { ...current }
-        for (const [showId, watched] of Object.entries(
-          data.watchedByShowId ?? {}
-        )) {
-          if (!next[showId]) {
-            continue
-          }
-          next[showId] = { ...next[showId], watchedEpisode: watched }
-        }
-        return next
-      })
+      return response.ok && data.watchedByShowId ? data.watchedByShowId : null
     } catch {
       // Watched counts are optional for the first paint.
+      return null
+    }
+  }
+
+  function applyWatched(watchedByShowId: Record<string, number | null> | null) {
+    if (!watchedByShowId) {
+      return
+    }
+
+    setShowStates((current) => {
+      const next = { ...current }
+      for (const [showId, watched] of Object.entries(watchedByShowId)) {
+        if (!next[showId]) {
+          continue
+        }
+        next[showId] = { ...next[showId], watchedEpisode: watched }
+      }
+      return next
+    })
+
+    const cached = readJsonCache<{
+      shows: Show[]
+      showStates: Record<string, ShowStateSummary>
+    }>(cacheKeys.bootstrap)
+    if (cached?.showStates) {
+      for (const [showId, watched] of Object.entries(watchedByShowId)) {
+        if (cached.showStates[showId]) {
+          cached.showStates[showId].watchedEpisode = watched
+        }
+      }
+      writeJsonCache(cacheKeys.bootstrap, cached)
     }
   }
 
   async function applyMalBackground() {
     try {
-      const [watchedResponse, syncResponse] = await Promise.all([
-        noStoreFetch('/api/mal/watched'),
-        noStoreFetch('/api/shows/sync-mal', { method: 'POST' }),
-      ])
-
-      const watchedData = (await watchedResponse.json()) as {
-        error?: string
-        watchedByShowId?: Record<string, number | null>
-      }
+      const syncResponse = await noStoreFetch('/api/shows/sync-mal', {
+        method: 'POST',
+      })
       const syncData = (await syncResponse.json()) as {
         error?: string
         shows?: Show[]
@@ -550,24 +577,6 @@ export default function AdminPage() {
         updatedTitles?: string[]
         updatedEpisodeCounts?: string[]
         updatedStartTimes?: string[]
-      }
-
-      if (watchedResponse.ok && watchedData.watchedByShowId) {
-        setShowStates((current) => {
-          const next = { ...current }
-          for (const [showId, watched] of Object.entries(
-            watchedData.watchedByShowId ?? {}
-          )) {
-            if (!next[showId]) {
-              continue
-            }
-            next[showId] = {
-              ...next[showId],
-              watchedEpisode: watched,
-            }
-          }
-          return next
-        })
       }
 
       if (syncResponse.ok && syncData.changed && syncData.shows) {
@@ -635,6 +644,8 @@ export default function AdminPage() {
         ? serializeShows(showsRef.current)
         : null
 
+      // Start the slow MAL watched lookup alongside bootstrap, not after it.
+      const watchedPromise = fetchWatched()
       const bootstrapResponse = await noStoreFetch('/api/bootstrap')
       const bootstrapData = (await bootstrapResponse.json()) as {
         error?: string
@@ -649,20 +660,32 @@ export default function AdminPage() {
       const loadedShows = (bootstrapData.shows ?? []).map(showToForm)
 
       if (silent && (savingRef.current || hasUnsavedLocalEdits())) {
-        setShowStates(bootstrapData.showStates ?? {})
+        setShowStates((current) =>
+          withKnownWatched(bootstrapData.showStates ?? {}, current)
+        )
         lastFetchAtRef.current = Date.now()
+        void watchedPromise.then(applyWatched)
         return
       }
 
       const nextSerialized = serializeShows(loadedShows)
       setShows(loadedShows)
       setBaseline(nextSerialized)
-      setShowStates(bootstrapData.showStates ?? {})
+      setShowStates((current) =>
+        withKnownWatched(bootstrapData.showStates ?? {}, current)
+      )
       lastFetchAtRef.current = Date.now()
 
+      const cachedStates =
+        readJsonCache<{ showStates: Record<string, ShowStateSummary> }>(
+          cacheKeys.bootstrap
+        )?.showStates ?? {}
       writeJsonCache(cacheKeys.bootstrap, {
         shows: bootstrapData.shows ?? [],
-        showStates: bootstrapData.showStates ?? {},
+        showStates: withKnownWatched(
+          bootstrapData.showStates ?? {},
+          cachedStates
+        ),
       })
 
       if (
@@ -673,10 +696,9 @@ export default function AdminPage() {
         toast.success('Shows updated.')
       }
 
+      void watchedPromise.then(applyWatched)
       if (syncMal) {
         void applyMalBackground()
-      } else {
-        void mergeWatchedFromApi()
       }
     } catch (error) {
       if (silent) {
@@ -1245,7 +1267,9 @@ export default function AdminPage() {
         setBaseline(serializeShows(loadedShows))
       }
       if (stateResponse.ok) {
-        setShowStates(stateData.shows ?? {})
+        setShowStates((current) =>
+          withKnownWatched(stateData.shows ?? {}, current)
+        )
       }
 
       toast.success(
