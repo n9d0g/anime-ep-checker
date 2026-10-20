@@ -126,9 +126,9 @@
       "seasonTitle": "Cyberpunk: Edgerunners 2",
       "waitingNotifiedForEpisode": null,
       "episodeOffset": 0,
-      "malMeanScore": 7.9,
+      "malMeanScore": 8.09,
       "googleCalendarEvents": null,
-      "malScoreAlertedAt": "2026-10-20T11:30:40.702Z"
+      "malScoreAlertedAt": "2026-10-20T12:00:43.924Z"
     }
   },
   "meta": {
@@ -734,7 +734,7 @@
       "bleach": "149f43665d729f79e93d696c2d6f43a930d6ebf2",
       "kusuriya-no-hitorigoto-3rd-season": "935b7f9e1df78c8f033024f1d901b169dd3f632d",
       "ao-no-hako-season-2": "3c558c21a1ab28d9fc1cdd8f9650cc33096bf057",
-      "cyberpunk-edgerunners-2": "1c2fcef82e54999b3f9195edc796469c48edf9f7"
+      "cyberpunk-edgerunners-2": "46f847985f124f0b8a77d35936b918dad7c2198e"
     },
     "onHold": {
       "updatedAt": "2026-09-28T21:46:38.715Z",
