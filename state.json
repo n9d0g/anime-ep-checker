@@ -145,18 +145,14 @@
         "alertedAt": "2026-08-10T15:45:42.943Z",
         "reason": "airing"
       },
-      "61990": {
-        "alertedAt": "2026-10-14T19:20:36.848Z",
-        "reason": "upcoming"
-      },
       "62811": {
         "alertedAt": "2026-07-30T17:20:31.143Z",
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-10-19T19:45:40.157Z",
+    "planToWatchCheckedAt": "2026-10-20T19:50:38.266Z",
     "planToWatch": {
-      "updatedAt": "2026-10-19T19:45:40.157Z",
+      "updatedAt": "2026-10-20T19:50:38.266Z",
       "entries": [
         {
           "malId": 36649,
@@ -181,7 +177,7 @@
             "dayOfWeek": "thursday",
             "startTime": "01:30"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/11/11636l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/11/11636l.jpg",
           "numEpisodes": 26
         },
         {
@@ -190,7 +186,7 @@
           "status": "not_yet_aired",
           "startDate": null,
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1326/158413l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1326/158413l.jpg",
           "numEpisodes": null
         },
         {
@@ -213,7 +209,7 @@
             "dayOfWeek": "friday",
             "startTime": "00:55"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/10/77957l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/10/77957l.jpg",
           "numEpisodes": 12
         },
         {
@@ -233,7 +229,7 @@
           "status": "finished_airing",
           "startDate": "2007-03-03",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1410/112994l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1410/112994l.jpg",
           "numEpisodes": 3
         },
         {
@@ -245,16 +241,6 @@
           "broadcast": null,
           "coverUrl": "https://cdn.myanimelist.net/images/anime/1432/154522l.jpg",
           "numEpisodes": null
-        },
-        {
-          "malId": 61990,
-          "title": "Cyberpunk: Edgerunners 2",
-          "titleEnglish": "Cyberpunk: Edgerunners 2",
-          "status": "currently_airing",
-          "startDate": "2026-10-20",
-          "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1431/160542l.jpg",
-          "numEpisodes": 10
         },
         {
           "malId": 62516,
@@ -282,7 +268,7 @@
           "status": "not_yet_aired",
           "startDate": "2027-10",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1830/158890l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1830/158890l.webp",
           "numEpisodes": null
         },
         {
@@ -295,7 +281,7 @@
             "dayOfWeek": "sunday",
             "startTime": "01:00"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1902/129579l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1902/129579l.jpg",
           "numEpisodes": 12
         },
         {
@@ -338,7 +324,7 @@
             "dayOfWeek": "saturday",
             "startTime": "00:00"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1160/122627l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1160/122627l.webp",
           "numEpisodes": 13
         },
         {
@@ -348,7 +334,7 @@
           "status": "not_yet_aired",
           "startDate": null,
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1792/154493l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1792/154493l.jpg",
           "numEpisodes": null
         },
         {
@@ -384,7 +370,7 @@
             "dayOfWeek": "sunday",
             "startTime": "22:30"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1093/145470l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1093/145470l.webp",
           "numEpisodes": 12
         },
         {
@@ -407,7 +393,7 @@
           "status": "finished_airing",
           "startDate": "2025-04-25",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1482/146928l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1482/146928l.jpg",
           "numEpisodes": 2
         },
         {
@@ -417,7 +403,7 @@
           "status": "not_yet_aired",
           "startDate": "2027",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1353/159201l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1353/159201l.webp",
           "numEpisodes": null
         },
         {
@@ -447,7 +433,7 @@
           "status": "not_yet_aired",
           "startDate": "2026-12-11",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1656/158840l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1656/158840l.webp",
           "numEpisodes": 1
         },
         {
@@ -457,7 +443,7 @@
           "status": "finished_airing",
           "startDate": "2020-01-17",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1803/117183l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1803/117183l.jpg",
           "numEpisodes": 1
         },
         {
@@ -517,7 +503,7 @@
           "status": "not_yet_aired",
           "startDate": "2027",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1944/159799l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1944/159799l.webp",
           "numEpisodes": null
         },
         {
@@ -619,7 +605,7 @@
           "status": "not_yet_aired",
           "startDate": "2027-07",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1803/154473l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1803/154473l.webp",
           "numEpisodes": null
         },
         {
@@ -695,7 +681,7 @@
             "dayOfWeek": "friday",
             "startTime": "00:55"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1864/93518l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1864/93518l.webp",
           "numEpisodes": 11
         },
         {
@@ -705,7 +691,7 @@
           "status": "finished_airing",
           "startDate": "2019-02-08",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1249/117182l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1249/117182l.webp",
           "numEpisodes": 1
         },
         {
@@ -715,7 +701,7 @@
           "status": "not_yet_aired",
           "startDate": null,
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1825/158690l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1901/160618l.jpg",
           "numEpisodes": null
         },
         {
@@ -725,7 +711,7 @@
           "status": "not_yet_aired",
           "startDate": null,
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1052/159561l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1052/159561l.webp",
           "numEpisodes": null
         }
       ]
@@ -734,7 +720,7 @@
       "bleach": "93a682cb8936589c4692e9568abfae594a910de9",
       "kusuriya-no-hitorigoto-3rd-season": "935b7f9e1df78c8f033024f1d901b169dd3f632d",
       "ao-no-hako-season-2": "3c558c21a1ab28d9fc1cdd8f9650cc33096bf057",
-      "cyberpunk-edgerunners-2": "cfe4ff5c8a7c2e25f71c6b5d69daa1d0514b05ad"
+      "cyberpunk-edgerunners-2": "cc3be41aa79c62a72607b190ad4c4aeee7813bad"
     },
     "onHold": {
       "updatedAt": "2026-09-28T21:46:38.715Z",
