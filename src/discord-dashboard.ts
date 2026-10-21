@@ -11,12 +11,31 @@ import {
   pinBotMessage,
   shouldRecreateWatchingMessageOnEditFailure,
 } from './discord-api.js'
+import type { ShowDashboardRow } from './dashboard.js'
 import type { EpisodeSnapshot, Show, StateFile } from './types.js'
 import { parseEpisodeNumber } from './schedule.js'
 import { getShowState } from './compare.js'
 
-function hashDashboardPayload(payload: Record<string, unknown>): string {
+// MAL mean scores drift by ±0.01 between runs; only re-render for bigger moves.
+const MAL_SCORE_REFRESH_DELTA = 0.1
+
+function hashDashboardRow(row: ShowDashboardRow): string {
+  // Score is tracked separately so small drifts don't count as a change.
+  const payload = buildShowDashboardPayload({ ...row, malScore: '' })
   return createHash('sha1').update(JSON.stringify(payload)).digest('hex')
+}
+
+function hasMeaningfulScoreChange(
+  previous: string | undefined,
+  next: string
+): boolean {
+  if (previous === undefined || previous === next) return false
+
+  const previousScore = Number.parseFloat(previous)
+  const nextScore = Number.parseFloat(next)
+  if (Number.isNaN(previousScore) || Number.isNaN(nextScore)) return true
+
+  return Math.abs(nextScore - previousScore) >= MAL_SCORE_REFRESH_DELTA - 1e-9
 }
 
 export interface DiscordDashboardConfig {
@@ -114,6 +133,9 @@ export async function syncWatchingDashboard({
   const payloadHashes = {
     ...(state.meta?.watchingDashboardHashes ?? {}),
   }
+  const shownScores = {
+    ...(state.meta?.watchingDashboardScores ?? {}),
+  }
   const activeShowIds = new Set(shows.map((show) => show.id))
 
   for (const [showId, messageId] of Object.entries(messageIds)) {
@@ -121,6 +143,7 @@ export async function syncWatchingDashboard({
       await deleteBotMessage(botToken, channelId, messageId)
       delete messageIds[showId]
       delete payloadHashes[showId]
+      delete shownScores[showId]
       changed = true
       reasons.push(`removed watching dashboard message for ${showId}`)
       console.log(`  Removed watching dashboard message for ${showId}`)
@@ -142,12 +165,15 @@ export async function syncWatchingDashboard({
     )
 
     const payload = buildShowDashboardPayload(row)
-    const payloadHash = hashDashboardPayload(payload)
+    const payloadHash = hashDashboardRow(row)
     const existingMessageId = messageIds[show.id]
     let shouldCreate = !existingMessageId
 
     if (existingMessageId) {
-      if (payloadHashes[show.id] === payloadHash) {
+      if (
+        payloadHashes[show.id] === payloadHash &&
+        !hasMeaningfulScoreChange(shownScores[show.id], row.malScore)
+      ) {
         console.log(
           `  Watching dashboard unchanged for ${show.title || show.id}; skipping edit`
         )
@@ -157,6 +183,7 @@ export async function syncWatchingDashboard({
       try {
         await editBotMessage(botToken, channelId, existingMessageId, payload)
         payloadHashes[show.id] = payloadHash
+        shownScores[show.id] = row.malScore
         changed = true
         reasons.push(`watching dashboard updated for ${show.title || show.id}`)
         console.log(`  Watching dashboard updated for ${show.title || show.id}`)
@@ -195,6 +222,7 @@ export async function syncWatchingDashboard({
     const created = await createBotMessage(botToken, channelId, payload)
     messageIds[show.id] = created.id
     payloadHashes[show.id] = payloadHash
+    shownScores[show.id] = row.malScore
     await pinBotMessage(botToken, channelId, created.id)
     changed = true
     reasons.push(`watching pin recreated for ${show.title || show.id}`)
@@ -205,6 +233,7 @@ export async function syncWatchingDashboard({
     ...state.meta,
     watchingDashboardMessageIds: messageIds,
     watchingDashboardHashes: payloadHashes,
+    watchingDashboardScores: shownScores,
   }
 
   return { changed, reasons }

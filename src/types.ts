@@ -94,6 +94,7 @@ export interface StateFile {
     watchingDashboardMessageId?: string | null
     watchingDashboardMessageIds?: Record<string, string>
     watchingDashboardHashes?: Record<string, string>
+    watchingDashboardScores?: Record<string, string>
     planToWatchCheckedAt?: string | null
     planToWatchAlerts?: Record<
       string,

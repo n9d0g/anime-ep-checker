@@ -13,6 +13,10 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: read
     defaults:
       run:
         working-directory: admin
@@ -35,87 +39,107 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Resolve deploy target
+        id: target
+        env:
+          ADMIN_LIVE_URL: ${{ secrets.ADMIN_LIVE_URL }}
+        run: |
+          case "${GITHUB_REF#refs/heads/}" in
+            main) DEPLOY_URL="${ADMIN_LIVE_URL:-https://anime-ep-checker.dev}" ;;
+            *) DEPLOY_URL="" ;;
+          esac
+          DEPLOY_URL="${DEPLOY_URL%/}"
+          SITE_NAME="${DEPLOY_URL#https://}"
+          echo "site_name=${SITE_NAME:-anime-ep-checker admin}" >> "$GITHUB_OUTPUT"
+          echo "deploy_url=${DEPLOY_URL}" >> "$GITHUB_OUTPUT"
+
       - name: Deploy to Cloudflare Workers
-        id: cloudflare
+        id: deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: pnpm exec vinext-cloudflare deploy
 
-      - name: Post deploy notification to Discord
+      - name: Notify Discord
         if: always()
         env:
-          DISCORD_DEPLOY_WEBHOOK_URL: ${{ secrets.DISCORD_DEPLOY_WEBHOOK_URL }}
-          DEPLOY_OUTCOME: ${{ steps.cloudflare.outcome }}
-          BRANCH: ${{ github.ref_name }}
-          SHORT_SHA: ${{ github.sha }}
-          COMMIT_MSG: ${{ github.event.head_commit.message }}
-          ADMIN_LIVE_URL: ${{ secrets.ADMIN_LIVE_URL }}
+          DEPLOY_OUTCOME: ${{ steps.deploy.outcome }}
+          SITE_NAME: ${{ steps.target.outputs.site_name }}
+          DEPLOY_URL: ${{ steps.target.outputs.deploy_url }}
+          COMMITS_JSON: ${{ toJSON(github.event.commits) }}
+          COMPARE_URL: ${{ github.event.compare }}
+          GH_TOKEN: ${{ github.token }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_DEPLOY_WEBHOOK_URL }}
         run: |
-          if [ -z "$DISCORD_DEPLOY_WEBHOOK_URL" ]; then
-            echo "DISCORD_DEPLOY_WEBHOOK_URL is not set; skipping."
+          if [ -z "$DISCORD_WEBHOOK_URL" ]; then
+            echo "DISCORD_DEPLOY_WEBHOOK_URL is not set, skipping notification."
             exit 0
           fi
 
-          DEFAULT_ADMIN_LIVE_URL="https://anime-ep-checker.dev/"
-          if [ -n "$ADMIN_LIVE_URL" ]; then
-            export LIVE_URL="${ADMIN_LIVE_URL%/}/"
-          else
-            export LIVE_URL="$DEFAULT_ADMIN_LIVE_URL"
+          BRANCH="${GITHUB_REF#refs/heads/}"
+          FINAL_URL="$DEPLOY_URL"
+
+          REPO_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}"
+          RUN_URL="${REPO_URL}/actions/runs/${GITHUB_RUN_ID}"
+          COMMIT_URL="${REPO_URL}/commit/${GITHUB_SHA}"
+          SHORT_SHA="${GITHUB_SHA::7}"
+          TIMESTAMP=$(date -u '+%Y-%m-%dT%H:%M:%SZ')
+
+          case "$DEPLOY_OUTCOME" in
+            success) TITLE="🚀 ${SITE_NAME} deployed successfully"; COLOR=5763719; TITLE_URL="$FINAL_URL" ;;
+            failure) TITLE="❌ ${SITE_NAME} deployment failed"; COLOR=15548997; TITLE_URL="$RUN_URL" ;;
+            *) TITLE="⚠️ ${SITE_NAME} deployment ${DEPLOY_OUTCOME}"; COLOR=16705372; TITLE_URL="$RUN_URL" ;;
+          esac
+
+          COMMITS=$(jq -r '
+            if type == "array" and length > 0 then
+              length as $n
+              | (.[-10:] | reverse
+                 | map("[`\(.id[0:7])`](\(.url)) \(.message | split("\n")[0] | .[0:72]) — \(.author.username // .author.name)")
+                 | join("\n"))
+                + (if $n > 10 then "\n…and \($n - 10) more" else "" end)
+            else empty end' <<< "$COMMITS_JSON" 2>/dev/null || true)
+          if [ -z "$COMMITS" ]; then
+            COMMITS="[\`${SHORT_SHA}\`](${COMMIT_URL}) $(git log -1 --pretty=%s | cut -c1-72)"
           fi
-          export WORKER_HOST="${LIVE_URL#https://}"
-          export WORKER_HOST="${WORKER_HOST%/}"
 
-          payload_json=$(python3 -c '
-          import json, os
-          from datetime import datetime
-          from zoneinfo import ZoneInfo
+          DURATION=""
+          STARTED_AT=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" --jq .run_started_at 2>/dev/null || true)
+          if [ -n "$STARTED_AT" ]; then
+            ELAPSED=$(( $(date +%s) - $(date -d "$STARTED_AT" +%s) ))
+            DURATION="$((ELAPSED / 60))m $((ELAPSED % 60))s"
+          fi
 
-          outcome = os.environ.get("DEPLOY_OUTCOME", "failure")
-          host = os.environ.get("WORKER_HOST", "anime-ep-checker.dev")
-          live_url = os.environ.get("LIVE_URL", "https://anime-ep-checker.dev/")
-          branch = os.environ.get("BRANCH") or "unknown"
-          short_sha = (os.environ.get("SHORT_SHA") or "")[:7] or "unknown"
-          details = os.environ.get("COMMIT_MSG") or "Unknown commit"
+          PAYLOAD=$(jq -n \
+            --arg title "$TITLE" --arg title_url "$TITLE_URL" --argjson color "$COLOR" \
+            --arg commits "$COMMITS" --arg branch "$BRANCH" --arg sha "$SHORT_SHA" \
+            --arg commit_url "$COMMIT_URL" --arg actor "$GITHUB_ACTOR" --arg duration "$DURATION" \
+            --arg run_number "$GITHUB_RUN_NUMBER" --arg timestamp "$TIMESTAMP" \
+            --arg outcome "$DEPLOY_OUTCOME" --arg site_url "$FINAL_URL" --arg run_url "$RUN_URL" \
+            --arg compare_url "$COMPARE_URL" \
+            '{
+              embeds: [{
+                title: $title, url: $title_url, color: $color, description: $commits,
+                fields: (
+                  [
+                    {name: "Branch", value: ("`" + $branch + "`"), inline: true},
+                    {name: "Commit", value: ("[`" + $sha + "`](" + $commit_url + ")"), inline: true},
+                    {name: "Triggered by", value: $actor, inline: true}
+                  ]
+                  + (if $duration != "" then [{name: "Duration", value: $duration, inline: true}] else [] end)
+                ),
+                footer: {text: ("Run #" + $run_number)},
+                timestamp: $timestamp
+              }],
+              components: [{
+                type: 1,
+                components: (
+                  (if $outcome == "success" and $site_url != "" then [{type: 2, style: 5, label: "🌐 Visit site", url: $site_url}] else [] end)
+                  + [{type: 2, style: 5, label: "📋 Workflow run", url: $run_url}]
+                  + (if $compare_url != "" then [{type: 2, style: 5, label: "🔍 View changes", url: $compare_url}] else [] end)
+                )
+              }]
+            }')
 
-          now = datetime.now(ZoneInfo("America/New_York"))
-          time_str = now.strftime("%Y-%m-%d %H:%M:%S %Z")
-
-          code_block = (
-              f"Branch: {branch}\n"
-              f"Commit: {short_sha}\n"
-              f"Details: {details}\n"
-              f"Time: {time_str}"
-          )
-
-          if outcome == "success":
-              header = f"🚀 **{host}** deployed successfully!"
-              footer = f"🔗 **Live URL:** {live_url}"
-          else:
-              code_block += "\nError: Cloudflare Workers deploy failed"
-              header = f"❌ **{host}** deployment failed!"
-              footer = "🔗 **Check logs:** GitHub Actions → Deploy admin to Cloudflare Workers"
-
-          content = f"{header}\n\n```\n{code_block}\n```\n\n{footer}"
-
-          if len(content) > 2000:
-              overflow = len(content) - 2000
-              max_details = max(0, len(details) - overflow - 3)
-              details = details[:max_details] + "..."
-              code_block = (
-                  f"Branch: {branch}\n"
-                  f"Commit: {short_sha}\n"
-                  f"Details: {details}\n"
-                  f"Time: {time_str}"
-              )
-              if outcome != "success":
-                  code_block += "\nError: Cloudflare Workers deploy failed"
-              content = f"{header}\n\n```\n{code_block}\n```\n\n{footer}"
-
-          print(json.dumps({"content": content}))
-          ')
-
-          curl -fsS -X POST "$DISCORD_DEPLOY_WEBHOOK_URL" \
-            -H "Content-Type: application/json" \
-            -H "User-Agent: anime-ep-checker-deploy/1.0" \
-            -d "$payload_json"
+          curl -fsS -H "Content-Type: application/json" -X POST -d "$PAYLOAD" \
+            "${DISCORD_WEBHOOK_URL}?with_components=true"
