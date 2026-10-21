@@ -30,6 +30,7 @@ import {
 } from './google-calendar.js'
 import { fetchMalAnimeDetails } from './mal.js'
 import { syncMalScoreAlerts } from './mal-score.js'
+import { syncMalStatusAlerts } from './mal-status.js'
 import { syncPlanToWatchAlerts } from './plan-to-watch.js'
 import { syncRedditUserFeeds } from './reddit-feeds.js'
 import { syncRelatedAnimeAlerts } from './related-anime.js'
@@ -780,6 +781,25 @@ export async function checkShows({
 
     console.log(
       `  Still waiting for episode ${nextExpectedEp} (latest on ${providerLabel(show.provider)}: ${latestEpisodeNumber})`
+    )
+  }
+
+  try {
+    const malStatusResult = await syncMalStatusAlerts({
+      state,
+      discord,
+      now,
+      dryRun,
+    })
+    if (malStatusResult.changed) {
+      stateChangeReasons.push(...malStatusResult.reasons)
+      stateChanged = true
+    }
+  } catch (error) {
+    console.warn(
+      `MAL status check failed: ${
+        error instanceof Error ? error.message : error
+      }`
     )
   }
 

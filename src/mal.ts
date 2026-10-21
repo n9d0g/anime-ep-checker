@@ -473,6 +473,48 @@ export async function fetchRelatedAnime(
   return { status: 'ok', related }
 }
 
+export type MalHealth = 'up' | 'down' | 'not_configured'
+
+const MAL_PROBE_URL = 'https://api.myanimelist.net/v2/anime/1?fields=id'
+const MAL_PROBE_ATTEMPTS = 2
+const MAL_PROBE_RETRY_DELAY_MS = 3000
+const MAL_PROBE_TIMEOUT_MS = 10000
+
+/**
+ * Checks whether the MAL API is reachable. Uses the client ID header rather
+ * than OAuth so an expired refresh token isn't reported as an outage. Only
+ * network errors, timeouts, and 5xx count as down; 4xx means MAL answered.
+ */
+export async function probeMalHealth(): Promise<MalHealth> {
+  const clientId = process.env.MAL_CLIENT_ID?.trim()
+  if (!clientId) {
+    return 'not_configured'
+  }
+
+  for (let attempt = 1; attempt <= MAL_PROBE_ATTEMPTS; attempt++) {
+    try {
+      const response = await fetch(MAL_PROBE_URL, {
+        headers: { 'X-MAL-CLIENT-ID': clientId },
+        signal: AbortSignal.timeout(MAL_PROBE_TIMEOUT_MS),
+      })
+      if (response.status < 500) {
+        return 'up'
+      }
+      console.warn(`MAL health probe got HTTP ${response.status}`)
+    } catch (error) {
+      console.warn(
+        `MAL health probe failed: ${error instanceof Error ? error.message : error}`
+      )
+    }
+
+    if (attempt < MAL_PROBE_ATTEMPTS) {
+      await new Promise((r) => setTimeout(r, MAL_PROBE_RETRY_DELAY_MS))
+    }
+  }
+
+  return 'down'
+}
+
 export async function fetchMalAnimeSummary(
   malId: number
 ): Promise<MalAnimeSummary | null> {

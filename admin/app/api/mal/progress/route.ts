@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { setMalWatchedEpisode } from '@/lib/mal'
+import { isMalOutageError, setMalWatchedEpisode } from '@/lib/mal'
 
 interface MalProgressPatchBody {
   malId?: number
@@ -29,6 +29,13 @@ export async function PATCH(request: Request) {
       updated: result.updated,
     })
   } catch (error) {
+    if (isMalOutageError(error)) {
+      return NextResponse.json(
+        { error: 'MAL servers are down. Try again later.', malDown: true },
+        { status: 503 }
+      )
+    }
+
     const message = error instanceof Error ? error.message : 'Unknown error'
     const status = message.includes('MAL_') ? 400 : 500
     return NextResponse.json({ error: message }, { status })

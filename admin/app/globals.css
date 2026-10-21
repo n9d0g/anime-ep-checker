@@ -1440,3 +1440,19 @@ select:focus {
 .search-highlight {
   animation: search-highlight-pulse 0.6s ease-in-out 2;
 }
+
+.ep-count-mal-down {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.mal-down-banner {
+  margin-bottom: 1rem;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--danger);
+  border-radius: var(--radius-sm);
+  background: var(--danger-hover);
+  color: var(--text);
+  font-size: 0.88rem;
+  line-height: 1.4;
+}

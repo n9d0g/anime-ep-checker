@@ -2,6 +2,7 @@ import { formatTimingLabel } from './compare.js'
 import { createBotMessage } from './discord-api.js'
 import {
   discordRelativeTimestamp,
+  discordTimestamp,
   formatMalScoreLabel,
 } from './discord-format.js'
 import type {
@@ -538,6 +539,70 @@ export async function sendMalRateLimitAlert({
       },
     ],
   }
+
+  if (hasBotConfig(discord)) {
+    await postBotMessage(discord.botToken!, discord.channelId!, payload)
+    return
+  }
+
+  if (discord.webhookUrl) {
+    await postWebhook(discord.webhookUrl, payload)
+    return
+  }
+
+  throw new Error(
+    'Discord not configured. Set DISCORD_BOT_TOKEN + DISCORD_CHANNEL_ID (preferred) or DISCORD_WEBHOOK_URL.'
+  )
+}
+
+function formatOutageDuration(ms: number): string {
+  const minutes = Math.max(1, Math.round(ms / 60000))
+  if (minutes < 60) return `${minutes} min`
+  const hours = Math.floor(minutes / 60)
+  const rest = minutes % 60
+  return rest ? `${hours}h ${rest}m` : `${hours}h`
+}
+
+export async function sendMalStatusAlert({
+  discord,
+  status,
+  downSince,
+  now = new Date(),
+}: {
+  discord: DiscordConfig
+  status: 'down' | 'up'
+  downSince: string
+  now?: Date
+}): Promise<void> {
+  const payload =
+    status === 'down'
+      ? {
+          content: '🔴 MyAnimeList is down',
+          embeds: [
+            {
+              title: 'MAL is down',
+              description:
+                'The MAL API is not responding. Dashboard progress, scores, and plan-to-watch checks will show as unavailable until it recovers. You will get another message when it is back.',
+              color: 0xe74c3c,
+              timestamp: downSince,
+              footer: { text: 'Anime Episode Checker' },
+            },
+          ],
+        }
+      : {
+          content: '🟢 MyAnimeList is back up',
+          embeds: [
+            {
+              title: 'MAL is back',
+              description: `The MAL API is responding again. Down since ${discordTimestamp(downSince)} (about ${formatOutageDuration(
+                now.getTime() - new Date(downSince).getTime()
+              )}).`,
+              color: 0x2ecc71,
+              timestamp: now.toISOString(),
+              footer: { text: 'Anime Episode Checker' },
+            },
+          ],
+        }
 
   if (hasBotConfig(discord)) {
     await postBotMessage(discord.botToken!, discord.channelId!, payload)

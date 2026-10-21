@@ -91,6 +91,8 @@ export interface StateFile {
   meta?: {
     netflixCookieAlertSentAt?: string | null
     disneyCookieAlertSentAt?: string | null
+    /** When the current MAL outage was first detected; null once it's back. */
+    malDownSince?: string | null
     watchingDashboardMessageId?: string | null
     watchingDashboardMessageIds?: Record<string, string>
     watchingDashboardHashes?: Record<string, string>

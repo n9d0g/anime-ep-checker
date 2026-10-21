@@ -247,6 +247,21 @@ export async function exchangeMalCode(
   return response.json() as Promise<MalTokenResponse>
 }
 
+/**
+ * True when an error from this module means MAL itself is down: the request
+ * never got a response, MAL answered 5xx, or it served a non-JSON (maintenance)
+ * page. 4xx errors mean MAL is up and rejected the request.
+ */
+export function isMalOutageError(error: unknown): boolean {
+  if (error instanceof TypeError || error instanceof SyntaxError) {
+    return true
+  }
+  if (error instanceof DOMException && error.name === 'TimeoutError') {
+    return true
+  }
+  return error instanceof Error && /\(5\d\d\)/.test(error.message)
+}
+
 let cachedMalAccessToken: string | null = null
 let malAccessTokenExpiresAt = 0
 

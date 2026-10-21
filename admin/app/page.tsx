@@ -170,10 +170,14 @@ function noStoreFetch(input: RequestInfo | URL, init?: RequestInit) {
   return fetch(input, { ...NO_STORE, ...init, cache: 'no-store' })
 }
 
+const MAL_DOWN_MESSAGE =
+  'MAL servers are down. Progress can’t be loaded or changed.'
+
 function episodeBadge(
   show: ShowFormValues,
-  liveState?: ShowStateSummary
-): { label: string; behind: boolean } {
+  liveState: ShowStateSummary | undefined,
+  malDown: boolean
+): { label: string; behind: boolean; malDown?: boolean } {
   const schedule = formScheduleToSchedule(show)
   const lastScheduled = getLastScheduledEpisode(schedule)
   const latestOut = liveState?.lastEpisodeNumber
@@ -185,6 +189,12 @@ function episodeBadge(
     Number.isFinite(liveState.watchedEpisode)
       ? liveState.watchedEpisode
       : null
+
+  // Without this, the badge falls back to the latest aired episode and looks
+  // like real watch progress while MAL is unreachable.
+  if (watched === null && malDown && usesMalProgress(show)) {
+    return { label: 'MAL down', behind: false, malDown: true }
+  }
 
   if (watched !== null) {
     const label =
@@ -466,6 +476,7 @@ export default function AdminPage() {
   )
   const [completingShow, setCompletingShow] = useState(false)
   const [holdingShowId, setHoldingShowId] = useState<string | null>(null)
+  const [malDown, setMalDown] = useState(false)
   const showsRef = useRef(shows)
   const baselineRef = useRef(baseline)
   const savingRef = useRef(saving)
@@ -521,23 +532,40 @@ export default function AdminPage() {
     return next
   }
 
-  async function fetchWatched(): Promise<Record<string, number | null> | null> {
+  async function fetchWatched(): Promise<{
+    watchedByShowId: Record<string, number | null>
+    malDown: boolean
+  } | null> {
     try {
       const response = await noStoreFetch('/api/mal/watched')
       const data = (await response.json()) as {
         watchedByShowId?: Record<string, number | null>
+        malDown?: boolean
       }
-      return response.ok && data.watchedByShowId ? data.watchedByShowId : null
+      return response.ok && data.watchedByShowId
+        ? {
+            watchedByShowId: data.watchedByShowId,
+            malDown: Boolean(data.malDown),
+          }
+        : null
     } catch {
       // Watched counts are optional for the first paint.
       return null
     }
   }
 
-  function applyWatched(watchedByShowId: Record<string, number | null> | null) {
-    if (!watchedByShowId) {
+  function applyWatched(
+    result: {
+      watchedByShowId: Record<string, number | null>
+      malDown: boolean
+    } | null
+  ) {
+    if (!result) {
       return
     }
+
+    const { watchedByShowId } = result
+    setMalDown(result.malDown)
 
     setShowStates((current) => {
       const next = { ...current }
@@ -852,6 +880,11 @@ export default function AdminPage() {
       const data = (await response.json()) as {
         error?: string
         watched?: number
+        malDown?: boolean
+      }
+
+      if (data.malDown) {
+        setMalDown(true)
       }
 
       if (!response.ok) {
@@ -1297,6 +1330,13 @@ export default function AdminPage() {
           </p>
         </div>
 
+        {malDown ? (
+          <div className="mal-down-banner" role="status">
+            <strong>MyAnimeList is down.</strong> Watch progress can’t be loaded
+            or changed until it’s back.
+          </div>
+        ) : null}
+
         <section className="stack">
           {loading ? (
             <ShowListSkeleton />
@@ -1329,8 +1369,9 @@ export default function AdminPage() {
                   ? (episodeSaveStatus[show.id] ?? '')
                   : ''
                 const episodeSaving = episodeStatus === 'saving'
+                const malBlocked = malDown && usesMalProgress(show)
 
-                const episodeBadgeInfo = episodeBadge(show, liveState)
+                const episodeBadgeInfo = episodeBadge(show, liveState, malDown)
                 const startHint = scheduleStartHint(show, liveState)
                 const nextEpisodeLine = nextEpisodeScheduleLine(show, liveState)
 
@@ -1367,7 +1408,12 @@ export default function AdminPage() {
                         <span
                           className={`ep-count${
                             episodeBadgeInfo.behind ? ' ep-count-behind' : ''
-                          }`}
+                          }${episodeBadgeInfo.malDown ? ' ep-count-mal-down' : ''}`}
+                          title={
+                            episodeBadgeInfo.malDown
+                              ? MAL_DOWN_MESSAGE
+                              : undefined
+                          }
                         >
                           {episodeBadgeInfo.label}
                         </span>
@@ -1424,12 +1470,16 @@ export default function AdminPage() {
                                 className="episode-stepper"
                                 role="group"
                                 aria-label="Current episode"
+                                title={
+                                  malBlocked ? MAL_DOWN_MESSAGE : undefined
+                                }
                               >
                                 <button
                                   className="episode-stepper-btn"
                                   type="button"
                                   aria-label="Decrease episode"
                                   disabled={
+                                    malBlocked ||
                                     episodeSaving ||
                                     currentEpisode === null ||
                                     currentEpisode <= min
@@ -1446,6 +1496,7 @@ export default function AdminPage() {
                                   type="button"
                                   aria-label="Increase episode"
                                   disabled={
+                                    malBlocked ||
                                     episodeSaving ||
                                     currentEpisode === null ||
                                     (max !== null && currentEpisode >= max)
@@ -1456,6 +1507,9 @@ export default function AdminPage() {
                                 </button>
                               </div>
                             </div>
+                            {malBlocked ? (
+                              <p className="hint">{MAL_DOWN_MESSAGE}</p>
+                            ) : null}
                           </div>
                         ) : null}
 
@@ -1776,7 +1830,10 @@ export default function AdminPage() {
                                   <button
                                     className="btn btn-secondary"
                                     type="button"
-                                    disabled={completingShow}
+                                    disabled={completingShow || malBlocked}
+                                    title={
+                                      malBlocked ? MAL_DOWN_MESSAGE : undefined
+                                    }
                                     onClick={() => openCompletePrompt(show)}
                                   >
                                     Mark as completed
@@ -1786,7 +1843,11 @@ export default function AdminPage() {
                                     type="button"
                                     disabled={
                                       completingShow ||
+                                      malBlocked ||
                                       holdingShowId === show.id
+                                    }
+                                    title={
+                                      malBlocked ? MAL_DOWN_MESSAGE : undefined
                                     }
                                     onClick={() => void putShowOnHold(show)}
                                   >

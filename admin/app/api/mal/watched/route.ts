@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getShowsFile, NO_STORE_HEADERS } from '@/lib/github'
-import { fetchMalAnimeDetails } from '@/lib/mal'
+import { fetchMalAnimeDetails, isMalOutageError } from '@/lib/mal'
 import type { Show } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
@@ -11,6 +11,7 @@ export async function GET() {
     const shows = (content.shows ?? []) as Show[]
 
     const watchedByShowId: Record<string, number | null> = {}
+    let malDown = false
 
     await Promise.all(
       shows.map(async (show) => {
@@ -22,13 +23,19 @@ export async function GET() {
         try {
           const details = await fetchMalAnimeDetails(show.malId)
           watchedByShowId[show.id] = details.watched
-        } catch {
+        } catch (error) {
           watchedByShowId[show.id] = null
+          if (isMalOutageError(error)) {
+            malDown = true
+          }
         }
       })
     )
 
-    return NextResponse.json({ watchedByShowId }, { headers: NO_STORE_HEADERS })
+    return NextResponse.json(
+      { watchedByShowId, malDown },
+      { headers: NO_STORE_HEADERS }
+    )
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json(
