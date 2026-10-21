@@ -717,9 +717,9 @@
       ]
     },
     "watchingDashboardHashes": {
-      "bleach": "93a682cb8936589c4692e9568abfae594a910de9",
-      "kusuriya-no-hitorigoto-3rd-season": "935b7f9e1df78c8f033024f1d901b169dd3f632d",
-      "ao-no-hako-season-2": "3c558c21a1ab28d9fc1cdd8f9650cc33096bf057",
+      "bleach": "5bd8b87126624a601a2df359decce8d7625097d7",
+      "kusuriya-no-hitorigoto-3rd-season": "263e97e6f38be143f177d69ba20942d5193ac15f",
+      "ao-no-hako-season-2": "8eecc1257dfb77512b5ebd6aa841a8e90ed46c32",
       "cyberpunk-edgerunners-2": "1ce806817f6a3f55fa1b16cadadb9cd1ee0b6548"
     },
     "onHold": {
@@ -2068,6 +2068,11 @@
         61322,
         65161
       ]
+    },
+    "watchingDashboardScores": {
+      "bleach": "9.00",
+      "kusuriya-no-hitorigoto-3rd-season": "8.66",
+      "ao-no-hako-season-2": "8.16"
     }
   }
 }
