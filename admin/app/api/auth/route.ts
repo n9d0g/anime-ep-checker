@@ -7,9 +7,10 @@ interface AuthBody {
 
 export async function POST(request: Request) {
   const password = process.env.ADMIN_PASSWORD
-  if (!password) {
+  const secret = process.env.ADMIN_SESSION_SECRET
+  if (!password || !secret) {
     return NextResponse.json(
-      { error: 'ADMIN_PASSWORD is not configured' },
+      { error: 'ADMIN_PASSWORD and ADMIN_SESSION_SECRET must be configured' },
       { status: 500 }
     )
   }
@@ -20,7 +21,7 @@ export async function POST(request: Request) {
   }
 
   const response = NextResponse.json({ ok: true })
-  response.cookies.set(COOKIE_NAME, getSessionCookieValue(password), {
+  response.cookies.set(COOKIE_NAME, getSessionCookieValue(secret), {
     httpOnly: true,
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',

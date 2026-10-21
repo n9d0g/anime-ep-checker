@@ -152,6 +152,7 @@ npx wrangler secret put GITHUB_TOKEN --name anime-ep-checker-admin
 | Variable            | Description                                     |
 | ------------------- | ----------------------------------------------- |
 | `ADMIN_PASSWORD`    | Password for the admin UI                       |
+| `ADMIN_SESSION_SECRET` | Random secret that signs the admin session cookie (use a value distinct from `ADMIN_PASSWORD`) |
 | `GITHUB_TOKEN`      | PAT with `contents: write` on this repo         |
 | `GITHUB_REPO`       | `your-username/anime-ep-checker`                |
 | `GITHUB_BRANCH`     | `main` (optional)                               |
