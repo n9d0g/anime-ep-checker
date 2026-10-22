@@ -79,6 +79,7 @@ export function formScheduleToSchedule(show: ShowFormValues): ShowSchedule {
         ? null
         : Number(show.schedule.episodeCount) || null,
     premiereBatchSize: Number(show.schedule.premiereBatchSize) || 1,
+    ...(show.schedule.breaks?.length ? { breaks: show.schedule.breaks } : {}),
   }
 }
 
@@ -261,7 +262,11 @@ function nextScheduledDrop(
   }
 
   // An empty saved episode means no episode yet, as does no live state.
-  const nextDrop = getNextDrop(schedule, liveState?.lastEpisodeNumber || null)
+  const nextDrop = getNextDrop(
+    schedule,
+    liveState?.lastEpisodeNumber || null,
+    liveState?.airingSchedule
+  )
 
   return {
     episode: nextDrop?.episode ?? null,

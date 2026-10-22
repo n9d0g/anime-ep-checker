@@ -1190,11 +1190,28 @@ select:focus {
   text-decoration: none;
 }
 
-.delay-actions {
+.break-actions {
   margin-top: 0.5rem;
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
+}
+
+.break-list {
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+}
+
+.break-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
 }
 
 .setup-link {

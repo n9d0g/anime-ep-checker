@@ -1,4 +1,4 @@
-import type { Show, ShowSchedule, StateFile } from './types.ts'
+import type { AiringSchedule, Show, ShowSchedule, StateFile } from './types.ts'
 import { EASTERN_TZ } from './time-zone.ts'
 
 const MS_PER_WEEK = 7 * 24 * 60 * 60 * 1000
@@ -36,28 +36,99 @@ export function isEpisodeInSchedule(
   return true
 }
 
-export function getExpectedDropAt(
+/** Weeks of breaks that come before `episodeNumber`. */
+function getBreakWeeksBefore(
   schedule: ShowSchedule,
   episodeNumber: number
+): number {
+  let weeks = 0
+  for (const entry of schedule.breaks ?? []) {
+    if (episodeNumber > entry.afterEpisode) {
+      weeks += entry.weeks
+    }
+  }
+  return weeks
+}
+
+/** startAt for the premiere batch, then one week per episode, plus breaks. */
+function getWeeklyDropMs(
+  schedule: ShowSchedule,
+  startMs: number,
+  episodeNumber: number
+): number {
+  const batchEnd = schedule.startEpisode + getPremiereBatchSize(schedule) - 1
+  const weeks =
+    Math.max(0, episodeNumber - batchEnd) +
+    getBreakWeeksBefore(schedule, episodeNumber)
+  return startMs + weeks * MS_PER_WEEK
+}
+
+function getAiringMs(
+  airingSchedule: AiringSchedule | null | undefined,
+  episodeNumber: number
+): number | null {
+  const value = airingSchedule?.episodes[String(episodeNumber)]
+  if (!value) {
+    return null
+  }
+  const ms = Date.parse(value)
+  return Number.isNaN(ms) ? null : ms
+}
+
+/**
+ * When an episode should drop, or null outside the schedule or with an
+ * invalid start time. Manual breaks win: with any, the weekly formula shifted
+ * by them is used. Otherwise AniList's broadcast time (from the show's saved
+ * airing schedule) plus the provider's offset from broadcast: the formula's
+ * time minus AniList's for the premiere batch's last episode, kept within a
+ * week (see toTimeOfDayOffset). When
+ * AniList lacks either episode, the weekly formula.
+ */
+export function getExpectedDropAt(
+  schedule: ShowSchedule,
+  episodeNumber: number,
+  airingSchedule?: AiringSchedule | null
 ): Date | null {
   if (!isEpisodeInSchedule(schedule, episodeNumber)) {
     return null
   }
 
-  const start = new Date(schedule.startAt)
-  if (Number.isNaN(start.getTime())) {
+  const startMs = new Date(schedule.startAt).getTime()
+  if (Number.isNaN(startMs)) {
     return null
   }
 
-  const batchSize = getPremiereBatchSize(schedule)
-  const batchEnd = schedule.startEpisode + batchSize - 1
-
-  if (episodeNumber <= batchEnd) {
-    return start
+  const batchEnd = schedule.startEpisode + getPremiereBatchSize(schedule) - 1
+  if (episodeNumber <= batchEnd || (schedule.breaks?.length ?? 0) > 0) {
+    return new Date(getWeeklyDropMs(schedule, startMs, episodeNumber))
   }
 
-  const weeksAfterBatch = episodeNumber - batchEnd
-  return new Date(start.getTime() + weeksAfterBatch * MS_PER_WEEK)
+  const airingMs = getAiringMs(airingSchedule, episodeNumber)
+  const anchorAiringMs = getAiringMs(airingSchedule, batchEnd)
+  if (airingMs === null || anchorAiringMs === null) {
+    return new Date(getWeeklyDropMs(schedule, startMs, episodeNumber))
+  }
+
+  const providerOffsetMs = toTimeOfDayOffset(
+    getWeeklyDropMs(schedule, startMs, batchEnd) - anchorAiringMs
+  )
+  return new Date(airingMs + providerOffsetMs)
+}
+
+const OFFSET_WEEK_MS = 7 * 24 * 60 * 60 * 1000
+const OFFSET_EARLIEST_MS = -24 * 60 * 60 * 1000
+
+/**
+ * The configured start can sit whole weeks away from the broadcast premiere
+ * (e.g. a provider that started late but now streams an hour after Japan), so
+ * only the offset within a week is kept: from a day before broadcast to six
+ * days after.
+ */
+function toTimeOfDayOffset(offsetMs: number): number {
+  const withinWeek =
+    (((offsetMs - OFFSET_EARLIEST_MS) % OFFSET_WEEK_MS) + OFFSET_WEEK_MS) %
+    OFFSET_WEEK_MS
+  return withinWeek + OFFSET_EARLIEST_MS
 }
 
 function getNextExpectedEpisode(
@@ -84,11 +155,13 @@ export interface NextDrop {
 /**
  * The next drop after the last recorded episode (a stored or parsed episode
  * number; null or undefined before the first episode), or null once the
- * schedule has no more episodes.
+ * schedule has no more episodes. `airingSchedule` is the show's saved AniList
+ * schedule, when it has one (see `getExpectedDropAt`).
  */
 export function getNextDrop(
   schedule: ShowSchedule,
-  lastEpisodeNumber: string | number | null | undefined
+  lastEpisodeNumber: string | number | null | undefined,
+  airingSchedule?: AiringSchedule | null
 ): NextDrop | null {
   const last =
     lastEpisodeNumber === null || lastEpisodeNumber === undefined
@@ -98,7 +171,10 @@ export function getNextDrop(
   if (episode === null) {
     return null
   }
-  return { episode, expectedAt: getExpectedDropAt(schedule, episode) }
+  return {
+    episode,
+    expectedAt: getExpectedDropAt(schedule, episode, airingSchedule),
+  }
 }
 
 /** From 5 minutes before the expected drop to 90 minutes after. */

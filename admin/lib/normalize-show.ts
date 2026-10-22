@@ -71,6 +71,20 @@ export function normalizeShow(show: ShowFormValues): Show {
     }
   }
 
+  const breaks = (show.schedule.breaks ?? []).map((entry) => {
+    const afterEpisode = Number(entry.afterEpisode)
+    const weeks = Number(entry.weeks)
+    if (
+      !Number.isInteger(afterEpisode) ||
+      afterEpisode < 0 ||
+      !Number.isInteger(weeks) ||
+      weeks < 1
+    ) {
+      throw new Error(`Invalid schedule break for ${title}`)
+    }
+    return { afterEpisode, weeks }
+  })
+
   const malIdRaw = show.malId.trim()
   let malId: number | undefined
   if (malIdRaw) {
@@ -94,6 +108,7 @@ export function normalizeShow(show: ShowFormValues): Show {
       startEpisode,
       episodeCount,
       premiereBatchSize,
+      ...(breaks.length > 0 ? { breaks } : {}),
     },
   }
 

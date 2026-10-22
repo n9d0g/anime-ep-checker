@@ -179,6 +179,44 @@ test('gate schedules the episode after a premiere batch one week later', async (
   assert.equal(result.shouldCheck, true)
 })
 
+test('gate follows a break in the schedule and in AniList times', async () => {
+  // Episode 4's weekly time is 2026-10-22T15:00Z; a week's break moves it.
+  const weekly = '2026-10-22T15:00:00.000Z'
+  const shifted = '2026-10-29T15:00:00.000Z'
+  const withBreak = makeShow({ breaks: [{ afterEpisode: 3, weeks: 1 }] })
+  const state = (now: string, airing?: Record<string, string>) =>
+    makeState(now, {
+      show: {
+        ...lastEpisode(3),
+        ...(airing
+          ? { airingSchedule: { fetchedAt: now, episodes: airing } }
+          : {}),
+      },
+    })
+
+  assert.equal(
+    (await decide(weekly, [withBreak], state(weekly))).shouldCheck,
+    false
+  )
+  assert.equal(
+    (await decide(shifted, [withBreak], state(shifted))).shouldCheck,
+    true
+  )
+
+  const airing = {
+    '1': '2026-10-01T14:00:00.000Z',
+    '4': '2026-10-29T14:00:00.000Z',
+  }
+  assert.equal(
+    (await decide(weekly, [makeShow()], state(weekly, airing))).shouldCheck,
+    false
+  )
+  assert.equal(
+    (await decide(shifted, [makeShow()], state(shifted, airing))).shouldCheck,
+    true
+  )
+})
+
 test('gate runs when the plan-to-watch check is due', async () => {
   const now = '2026-10-22T12:00:00.000Z'
   const result = await decide(now, [], {

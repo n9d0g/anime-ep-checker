@@ -360,3 +360,59 @@ test('replaceShowInRows swaps in one show and keeps every other row as edited', 
   assert.equal(next[0].values, delayed)
   assert.equal(next[1], rows[1])
 })
+
+test('the next drop follows breaks and the AniList airing schedule', () => {
+  const show = form({
+    id: 'frieren',
+    crunchyrollUrl: 'https://www.crunchyroll.com/series/abc',
+    schedule: { startAt: START, episodeCount: '12' },
+  })
+  const live = state({ lastEpisodeNumber: '2' })
+
+  const withBreak = buildShowViewModel(
+    form({
+      ...show,
+      schedule: { ...show.schedule, breaks: [{ afterEpisode: 2, weeks: 1 }] },
+    }),
+    live,
+    false
+  )
+  assert.equal(withBreak.nextDropTime, Date.parse('2026-10-21T15:00:00Z'))
+
+  const withAiring = buildShowViewModel(
+    show,
+    state({
+      lastEpisodeNumber: '2',
+      airingSchedule: {
+        fetchedAt: '2026-10-10T00:00:00.000Z',
+        episodes: {
+          '1': '2026-09-30T14:00:00.000Z',
+          '3': '2026-10-28T14:00:00.000Z',
+        },
+      },
+    }),
+    false
+  )
+  assert.equal(withAiring.nextDropTime, Date.parse('2026-10-28T15:00:00Z'))
+
+  const rows = [
+    row('a', form({ ...show, id: 'a' })),
+    row('b', form({ ...show, id: 'b' })),
+  ]
+  assert.deepEqual(
+    orderRowsBySavedNextDrop(rows, rows, {
+      a: state({
+        lastEpisodeNumber: '2',
+        airingSchedule: {
+          fetchedAt: '2026-10-10T00:00:00.000Z',
+          episodes: {
+            '1': '2026-09-30T14:00:00.000Z',
+            '3': '2026-10-28T14:00:00.000Z',
+          },
+        },
+      }),
+      b: live,
+    }).map((entry) => entry.row.key),
+    ['b', 'a']
+  )
+})

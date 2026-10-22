@@ -1,5 +1,10 @@
 /** Admin-only types. Show and state types live in shared/types.ts. */
-import type { ScheduleMode, ShowProvider } from '@shared/types'
+import type {
+  AiringSchedule,
+  ScheduleBreak,
+  ScheduleMode,
+  ShowProvider,
+} from '@shared/types'
 
 export interface WatchedEntry {
   malId: number
@@ -60,6 +65,8 @@ export interface ShowStateSummary {
   lastEpisodeTitle: string
   lastNotifiedAt: string
   watchedEpisode?: number | null
+  /** The checker's AniList airing schedule; next-drop times follow it. */
+  airingSchedule?: AiringSchedule | null
 }
 
 export interface ShowFormValues {
@@ -81,5 +88,7 @@ export interface ShowFormValues {
     startEpisode: string
     episodeCount: string
     premiereBatchSize: string
+    /** Saved breaks; the form can only remove them (Add break adds one). */
+    breaks?: ScheduleBreak[]
   }
 }

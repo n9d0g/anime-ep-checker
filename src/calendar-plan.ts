@@ -6,7 +6,7 @@ import {
   getNextDrop,
   isEpisodeInSchedule,
 } from '../shared/schedule.ts'
-import type { ShowSchedule } from '../shared/types.ts'
+import type { AiringSchedule, ShowSchedule } from '../shared/types.ts'
 
 /** An event the calendar should hold: one upcoming drop. */
 export interface DesiredCalendarEvent {
@@ -44,14 +44,16 @@ export interface CalendarPlan {
 /**
  * The upcoming drops a show's calendar should hold: the next drop for an
  * ongoing show, or every remaining scheduled episode for a finite one,
- * skipping any whose expected drop is not after `now`.
+ * skipping any whose expected drop is not after `now`. Times follow the
+ * show's AniList airing schedule when given (see `getExpectedDropAt`).
  */
 export function getDesiredCalendarEvents(
   schedule: ShowSchedule,
   lastEpisodeNumber: number | null,
-  now: Date
+  now: Date,
+  airingSchedule?: AiringSchedule | null
 ): DesiredCalendarEvent[] {
-  const nextDrop = getNextDrop(schedule, lastEpisodeNumber)
+  const nextDrop = getNextDrop(schedule, lastEpisodeNumber, airingSchedule)
   if (nextDrop === null) {
     return []
   }
@@ -73,7 +75,7 @@ export function getDesiredCalendarEvents(
 
   const desired: DesiredCalendarEvent[] = []
   for (const episode of episodeNumbers) {
-    const expectedDropAt = getExpectedDropAt(schedule, episode)
+    const expectedDropAt = getExpectedDropAt(schedule, episode, airingSchedule)
     if (!expectedDropAt || expectedDropAt.getTime() <= now.getTime()) {
       continue
     }

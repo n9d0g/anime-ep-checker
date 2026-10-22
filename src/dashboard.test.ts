@@ -62,3 +62,31 @@ test('shows "out now" for a Disney+ show from its snapshot', () => {
   )
   assert.equal(status, 'out')
 })
+
+test('a break before the next drop keeps it upcoming instead of waiting', () => {
+  const show = makeShow('crunchyroll')
+  const withBreak = {
+    ...show,
+    schedule: { ...show.schedule, breaks: [{ afterEpisode: 2, weeks: 1 }] },
+  }
+  assert.equal(
+    resolveShowDashboardStatus(withBreak, stateAt(2), now),
+    'upcoming'
+  )
+
+  const airing = {
+    fetchedAt: '2026-09-15T00:00:00.000Z',
+    episodes: {
+      '1': '2026-09-01T14:00:00.000Z',
+      '3': '2026-09-22T14:00:00.000Z',
+    },
+  }
+  assert.equal(
+    resolveShowDashboardStatus(
+      show,
+      { ...stateAt(2), airingSchedule: airing },
+      now
+    ),
+    'upcoming'
+  )
+})

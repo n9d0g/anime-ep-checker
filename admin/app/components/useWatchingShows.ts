@@ -12,12 +12,14 @@ import {
   writeJsonCache,
   type BootstrapCache,
 } from '@/lib/client-cache'
+import { getBreakAfterEpisode } from '@/lib/schedule-break'
 import { searchIndex } from '@/lib/search-index-store'
 import { showToForm } from '@/lib/show-form'
 import type { Show } from '@shared/types'
 import type { ShowFormValues, ShowStateSummary } from '@/lib/types'
 import {
   buildShowViewModel,
+  formScheduleToSchedule,
   newShowRow,
   orderRowsBySavedNextDrop,
   replaceShowInRows,
@@ -411,6 +413,18 @@ export function useWatchingShows(options: {
     }))
   }
 
+  // Removing a break is an unsaved edit like any other; Save writes it.
+  function removeBreak(key: string, index: number) {
+    updateRow(key, (values) => {
+      const { breaks: current = [], ...rest } = values.schedule
+      const breaks = current.filter((_, entryIndex) => entryIndex !== index)
+      return {
+        ...values,
+        schedule: breaks.length > 0 ? { ...rest, breaks } : rest,
+      }
+    })
+  }
+
   function addShow() {
     setRows((current) => [...current, newShowRow()])
   }
@@ -493,15 +507,19 @@ export function useWatchingShows(options: {
     }
   }
 
-  async function delayShowByOneWeek(show: ShowFormValues) {
+  async function addBreak(show: ShowFormValues, weeks = 1) {
     if (!show.id) {
       return
     }
 
     const label = show.title || show.id
+    const afterEpisode = getBreakAfterEpisode(
+      formScheduleToSchedule(show),
+      showStates[show.id]?.lastEpisodeNumber
+    )
     if (
       !window.confirm(
-        `Delay "${label}" by one week? Future drops shift and Discord/Calendar events rebuild.`
+        `Add a ${weeks}-week break after episode ${afterEpisode} of "${label}"? Later drops shift and Discord/Calendar events rebuild.`
       )
     ) {
       return
@@ -513,23 +531,23 @@ export function useWatchingShows(options: {
         show?: Show
         showsVersion?: string | null
         showsVersionBefore?: string | null
-      }>('/api/shows/delay', {
+      }>('/api/shows/break', {
         method: 'POST',
-        json: { showId: show.id },
-        errorMessage: 'Failed to delay show',
+        json: { showId: show.id, weeks },
+        errorMessage: 'Failed to add break',
       })
 
       // Apply the server's copy of just this show: no refetch, and unsaved
       // edits on other shows stay on screen.
       if (data.show) {
-        const delayed = showToForm(data.show)
-        setRows((current) => replaceShowInRows(current, delayed))
+        const updated = showToForm(data.show)
+        setRows((current) => replaceShowInRows(current, updated))
         setSavedRows((current) =>
-          current ? replaceShowInRows(current, delayed) : current
+          current ? replaceShowInRows(current, updated) : current
         )
-        const delayedShow = data.show
+        const updatedShow = data.show
         updateJsonCache<BootstrapCache>(cacheKeys.bootstrap, (cached) =>
-          replaceBootstrapShow(cached, delayedShow)
+          replaceBootstrapShow(cached, updatedShow)
         )
       }
       // Same rule as removeShowFromLocal: only adopt the new version if
@@ -540,11 +558,11 @@ export function useWatchingShows(options: {
 
       toast.success(
         data.workflowTriggered
-          ? 'Delayed one week. Forced check started to rebuild events.'
-          : 'Delayed one week. Run Actions → Check with force to rebuild events.'
+          ? 'Break added. Forced check started to rebuild events.'
+          : 'Break added. Run Actions → Check with force to rebuild events.'
       )
     } catch (error) {
-      toast.error(apiErrorMessage(error, 'Failed to delay show'))
+      toast.error(apiErrorMessage(error, 'Failed to add break'))
     }
   }
 
@@ -564,6 +582,7 @@ export function useWatchingShows(options: {
     removeShow,
     removeShowFromLocal,
     saveShows,
-    delayShowByOneWeek,
+    addBreak,
+    removeBreak,
   }
 }

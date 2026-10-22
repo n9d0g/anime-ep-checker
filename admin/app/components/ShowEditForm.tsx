@@ -3,7 +3,12 @@
 import { SegmentedControl } from '@/app/components/SegmentedControl'
 import type { ShowFormValues } from '@/lib/types'
 import type { ShowProvider } from '@shared/types'
+import { describeBreak } from '@/lib/schedule-break'
 import { MAL_DOWN_MESSAGE } from '@/lib/watching'
+
+function capitalize(text: string): string {
+  return text.charAt(0).toUpperCase() + text.slice(1)
+}
 
 // The "More options" fields of a Watching row. `rowKey` keeps input IDs
 // unique per row.
@@ -19,7 +24,8 @@ export function ShowEditForm({
   onToggleMalEdit,
   onUpdate,
   onUpdateSchedule,
-  onDelay,
+  onAddBreak,
+  onRemoveBreak,
   onComplete,
   onHold,
   onRemove,
@@ -41,7 +47,8 @@ export function ShowEditForm({
     field: keyof ShowFormValues['schedule'],
     value: string
   ) => void
-  onDelay: () => void
+  onAddBreak: () => void
+  onRemoveBreak: (index: number) => void
   onComplete: () => void
   onHold: () => void
   onRemove: () => void
@@ -143,19 +150,36 @@ export function ShowEditForm({
             <p className="hint schedule-start-hint">{startHint}</p>
           ) : null}
           {show.id ? (
-            <div className="delay-actions">
+            <div className="break-actions">
               <button
                 className="btn btn-secondary"
                 type="button"
-                onClick={onDelay}
+                onClick={onAddBreak}
               >
-                Delay +1 week
+                Add break
               </button>
               <p className="hint">
-                Shifts all future drops by 7 days and rebuilds Discord and
-                Google Calendar events.
+                Adds a 1-week break after the last aired episode: later drops
+                shift by 7 days, earlier ones stay, and Discord and Google
+                Calendar events rebuild.
               </p>
             </div>
+          ) : null}
+          {show.schedule.breaks?.length ? (
+            <ul className="break-list" aria-label="Breaks">
+              {show.schedule.breaks.map((entry, index) => (
+                <li key={`${entry.afterEpisode}-${index}`}>
+                  <span>{capitalize(describeBreak(entry))}</span>
+                  <button
+                    className="text-btn"
+                    type="button"
+                    onClick={() => onRemoveBreak(index)}
+                  >
+                    Remove
+                  </button>
+                </li>
+              ))}
+            </ul>
           ) : null}
         </div>
 

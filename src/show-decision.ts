@@ -16,7 +16,7 @@ import {
   type DropWindowMode,
 } from '../shared/schedule.ts'
 import type { EpisodeSnapshot } from './types.ts'
-import type { Show, ShowState } from '../shared/types.ts'
+import type { AiringSchedule, Show, ShowState } from '../shared/types.ts'
 
 /** A next drop with a known expected time. */
 export interface PlannedDrop {
@@ -41,13 +41,20 @@ export function planShowLookup({
   previousState,
   now,
   force,
+  airingSchedule = previousState?.airingSchedule,
 }: {
   show: Show
   previousState: ShowState | null
   now: Date
   force: boolean
+  /** The show's AniList airing schedule; defaults to the saved one. */
+  airingSchedule?: AiringSchedule | null
 }): LookupPlan {
-  const next = getNextDrop(show.schedule, previousState?.lastEpisodeNumber)
+  const next = getNextDrop(
+    show.schedule,
+    previousState?.lastEpisodeNumber,
+    airingSchedule
+  )
   if (!next) {
     return { kind: 'schedule_ended' }
   }
@@ -144,6 +151,7 @@ export function decideShow({
   snapshot: providerSnapshot,
   nextDrop,
   now,
+  airingSchedule = previousState?.airingSchedule,
 }: {
   show: Show
   previousState: ShowState | null
@@ -152,6 +160,8 @@ export function decideShow({
   /** From `planShowLookup` for the same show and state. */
   nextDrop: PlannedDrop
   now: Date
+  /** The show's AniList airing schedule; defaults to the saved one. */
+  airingSchedule?: AiringSchedule | null
 }): ShowDecision {
   const notifiedAt = now.toISOString()
   const relative = toRelativeEpisodeResult(
@@ -177,7 +187,8 @@ export function decideShow({
   if (!previousState) {
     if (snapshotEpisode >= nextDrop.episode) {
       const expectedAt =
-        getExpectedDropAt(show.schedule, snapshotEpisode) ?? nextDrop.expectedAt
+        getExpectedDropAt(show.schedule, snapshotEpisode, airingSchedule) ??
+        nextDrop.expectedAt
       return {
         kind: 'episode_alert',
         catchUp: true,

@@ -46,6 +46,37 @@ test('a finished schedule wants no events', () => {
   assert.deepEqual(getDesiredCalendarEvents(finite, 6, NOW), [])
 })
 
+test('desired events follow a break and the AniList airing schedule', () => {
+  const later = '2026-11-12T15:00:00.000Z'
+  assert.deepEqual(
+    getDesiredCalendarEvents(
+      { ...finite, breaks: [{ afterEpisode: 5, weeks: 1 }] },
+      3,
+      NOW
+    ),
+    [
+      { episode: 4, startAt: EP4 },
+      { episode: 5, startAt: EP5 },
+      { episode: 6, startAt: later },
+    ]
+  )
+
+  const airing = {
+    fetchedAt: '2026-10-22T00:00:00.000Z',
+    episodes: {
+      '1': '2026-10-01T14:00:00.000Z',
+      '4': '2026-10-29T14:00:00.000Z',
+      '5': '2026-11-05T14:00:00.000Z',
+      '6': '2026-11-12T14:00:00.000Z',
+    },
+  }
+  assert.deepEqual(getDesiredCalendarEvents(finite, 3, NOW, airing), [
+    { episode: 4, startAt: EP5 },
+    { episode: 5, startAt: EP6 },
+    { episode: 6, startAt: later },
+  ])
+})
+
 test('missing events are created in episode order', () => {
   assert.deepEqual(
     planCalendarSync(

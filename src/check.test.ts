@@ -471,6 +471,73 @@ test('inside the drop window a show is looked up and alerted', async () => {
   assert.equal((await savedState()).shows.frieren.lastEpisodeNumber, '3')
 })
 
+test('an AniList break moves the drop window and is saved once', async () => {
+  const hour = 3600
+  const firstAiring = Date.parse('2026-09-01T14:00:00.000Z') / 1000
+  // Japan airs an hour before the configured drop and breaks a week after
+  // episode 2.
+  anilistNodes = [1, 2, 3, 4].map((episode) => ({
+    episode,
+    airingAt: firstAiring + (episode - 1 + (episode > 2 ? 1 : 0)) * 168 * hour,
+  }))
+  const frieren = { ...makeShow('frieren'), malId: 52991 }
+  const { run, savedState } = await setup([frieren], {
+    shows: { frieren: showState(2) },
+  })
+  const counter = fetchCounter(async () => snapshot(frieren, 3))
+
+  // The weekly formula's time for episode 3 is now outside the window.
+  freezeNow(EP3_EXPECTED_AT)
+  const first = await run({ force: false, fetchEpisode: counter.fetchEpisode })
+  assert.deepEqual(counter.fetched, [])
+  assert.equal(first.stateChanged, true)
+  assert.deepEqual((await savedState()).shows.frieren.airingSchedule, {
+    fetchedAt: EP3_EXPECTED_AT,
+    episodes: {
+      '1': '2026-09-01T14:00:00.000Z',
+      '2': '2026-09-08T14:00:00.000Z',
+      '3': '2026-09-22T14:00:00.000Z',
+      '4': '2026-09-29T14:00:00.000Z',
+    },
+  })
+
+  // Same times on the next refresh: nothing to commit.
+  mock.timers.setTime(Date.parse('2026-09-16T15:00:00.000Z'))
+  const second = await run({ force: false, fetchEpisode: counter.fetchEpisode })
+  assert.equal(second.stateChanged, false)
+
+  // A week later, the shifted drop is looked up and alerted.
+  mock.timers.setTime(Date.parse('2026-09-22T15:00:00.000Z'))
+  await run({ force: false, fetchEpisode: counter.fetchEpisode })
+  assert.deepEqual(counter.fetched, ['frieren'])
+  assert.deepEqual(alerts, ['✅ frieren — Episode 3 is out!'])
+})
+
+test('an AniList failure keeps the saved airing schedule', async () => {
+  const saved = {
+    fetchedAt: '2026-09-01T00:00:00.000Z',
+    episodes: { '1': '2026-09-01T14:00:00.000Z' },
+  }
+  const frieren = { ...makeShow('frieren'), malId: 52991 }
+  const { run, savedState } = await setup([frieren], {
+    shows: { frieren: { ...showState(2), airingSchedule: saved } },
+  })
+  const fetchStub = globalThis.fetch
+  globalThis.fetch = (async (
+    input: string | URL | Request,
+    init?: RequestInit
+  ) =>
+    String(input) === ANILIST_URL
+      ? new Response('busy', { status: 500 })
+      : fetchStub(input, init)) as typeof fetch
+
+  const result = await run({ fetchEpisode: async () => snapshot(frieren, 3) })
+
+  assert.deepEqual(result.failedShows, [])
+  assert.deepEqual(alerts, ['✅ frieren — Episode 3 is out!'])
+  assert.deepEqual((await savedState()).shows.frieren.airingSchedule, saved)
+})
+
 function makeNetflixShow(id: string): Show {
   return {
     ...makeShow(id),

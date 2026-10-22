@@ -43,9 +43,11 @@ function getShowDropWindowMode(
   state: StateFile,
   now: Date
 ): DropWindowMode | null {
+  const showState = state.shows[show.id]
   const nextDrop = getNextDrop(
     show.schedule,
-    state.shows[show.id]?.lastEpisodeNumber
+    showState?.lastEpisodeNumber,
+    showState?.airingSchedule
   )
   if (!nextDrop?.expectedAt) {
     return null

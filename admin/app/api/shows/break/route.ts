@@ -5,24 +5,31 @@ import {
   withErrorResponse,
 } from '@/lib/api-route'
 import { updateRepoFiles } from '@/lib/github'
+import { addScheduleBreak, getBreakAfterEpisode } from '@/lib/schedule-break'
 import type { Show } from '@shared/types'
 
-const MS_PER_WEEK = 7 * 24 * 60 * 60 * 1000
-
+// Adds a break after the show's last aired episode: later drops shift by
+// `weeks`, earlier ones stay put. Calendar events are cleared and a forced
+// check rebuilds Discord and Calendar.
 export async function POST(request: Request) {
   return withErrorResponse(
     {
       status: 400,
-      message: (error) => errorMessage(error, 'Failed to delay show'),
+      message: (error) => errorMessage(error, 'Failed to add break'),
     },
     async () => {
-      const body = (await request.json()) as { showId?: string }
+      const body = (await request.json()) as {
+        showId?: string
+        weeks?: number
+      }
       const showId = body.showId?.trim()
       if (!showId) {
         throw new Error('showId is required')
       }
+      const weeks = body.weeks ?? 1
 
       let show: Show | undefined
+      let afterEpisode = 0
       let versionBefore: string | null = null
       const { versions } = await updateRepoFiles(
         ['shows.json', 'state.json'],
@@ -33,22 +40,24 @@ export async function POST(request: Request) {
             throw new Error(`Show not found: ${showId}`)
           }
 
-          const start = new Date(show.schedule.startAt)
-          if (Number.isNaN(start.getTime())) {
-            throw new Error('Invalid schedule startAt')
-          }
-          show.schedule.startAt = new Date(
-            start.getTime() + MS_PER_WEEK
-          ).toISOString()
-
           const showState = state.shows[showId]
+          afterEpisode = getBreakAfterEpisode(
+            show.schedule,
+            showState?.lastEpisodeNumber
+          )
+          show.schedule.breaks = addScheduleBreak(
+            show.schedule.breaks,
+            afterEpisode,
+            weeks
+          )
+
           if (showState) {
             showState.googleCalendarEvents = null
           }
 
           return { 'shows.json': showsFile, 'state.json': state }
         },
-        `chore: 🧹 delay ${showId} schedule by one week`
+        `chore: 🧹 add a ${weeks}-week break to ${showId} after episode ${afterEpisode}`
       )
 
       const workflowTriggered = await tryDispatchCheckWorkflow(true)

@@ -40,10 +40,14 @@ Each show uses a weekly schedule:
 | `startEpisode`      | Episode number that `startAt` refers to                                            |
 | `episodeCount`      | Total episodes (finite only)                                                       |
 | `premiereBatchSize` | Episodes that drop on day 1 (default `1`)                                          |
+| `breaks`            | Optional `[{ afterEpisode, weeks }]`: later episodes drop `weeks` weeks later      |
 | `malId`             | Optional MyAnimeList anime ID for the Discord MAL button                           |
 | `redditSearchTitle` | Optional slug override for r/anime discussion search                               |
 
-After the premiere batch, each following episode is expected **7 days** later.
+After the premiere batch, each following episode is expected **7 days** later, with two adjustments for breaks:
+
+- **AniList airing schedule:** for shows with a `malId`, the checker saves AniList's per-episode broadcast times in `state.json` (`airingSchedule`, refreshed about once a day and during drop windows/late slots; the first 200 episodes). When AniList has a time for the episode and for the premiere batch's last episode, the drop is AniList's time plus the show's offset from broadcast (the weekly time minus AniList's time for that last premiere episode), so a gap in the broadcast shifts later drops. Otherwise the weekly formula applies.
+- **Manual breaks:** `schedule.breaks` (added with **Add break** in the admin) override AniList: every episode after `afterEpisode` drops `weeks` weeks later than the weekly formula, earlier episodes are unchanged, and several breaks add up.
 
 Discord alerts still display times in **Eastern Time (EST/EDT)** even though schedules are entered in **Japan Time (JST)**.
 
@@ -297,7 +301,7 @@ The checker mirrors upcoming drops to a Google Calendar (your **Anime Drops** ca
 5. Calendar settings → **Integrate calendar** → copy **Calendar ID**
 6. Add GitHub secrets `GOOGLE_SERVICE_ACCOUNT_JSON` (full JSON) and `GOOGLE_CALENDAR_ID`
 
-When an episode drops, its calendar event is removed. Use **Delay +1 week** in the admin (below) to shift a delayed show and rebuild Discord + Calendar events.
+When an episode drops, its calendar event is removed. Use **Add break** in the admin (below) when a show pauses: later drops shift and Discord + Calendar events rebuild.
 
 ## CMS usage
 
@@ -308,10 +312,10 @@ When an episode drops, its calendar event is removed. Use **Delay +1 week** in t
 5. Tracked show **titles** sync from MAL when a `malId` is known (on page load via `POST /api/shows/sync-mal`)
 6. Choose **Finite season** or **Ongoing**
 7. Set start date/time (**Japan Time / JST**), start episode number, and premiere batch size
-8. **Delay +1 week** (saved shows only) shifts `startAt` by 7 days and clears Discord/Calendar event state so the checker rebuilds events on the next forced run
+8. **Add break** (saved shows only) adds a 1-week break after the last aired episode (`schedule.breaks`), so later drops shift by 7 days and earlier ones stay; it clears Calendar event state so the checker rebuilds Discord/Calendar events on the next forced run. Existing breaks are listed under the start date with **Remove** (saved with **Save changes**)
 9. **Save changes** — commits to `shows.json` on GitHub
 
-For **Delay +1 week**, the admin `GITHUB_TOKEN` PAT should include **Actions: Write** so a forced check workflow starts automatically. Otherwise run **Actions → Check anime episodes → Run workflow** with **force** after delaying.
+For **Add break**, the admin `GITHUB_TOKEN` PAT should include **Actions: Write** so a forced check workflow starts automatically. Otherwise run **Actions → Check anime episodes → Run workflow** with **force** after adding a break.
 
 ### Plan to watch page (`/ptw`)
 
@@ -329,7 +333,8 @@ Shows your MAL plan-to-watch list from `state.meta.planToWatch`, grouped into **
 | [`src/crunchyroll.ts`](src/crunchyroll.ts)                                     | Crunchyroll API client                                                                                        |
 | [`src/netflix.ts`](src/netflix.ts)                                             | Netflix pathEvaluator client (cookie auth)                                                                    |
 | [`src/disney.ts`](src/disney.ts)                                               | Disney+ explore API client (refresh token auth)                                                               |
-| [`src/anilist.ts`](src/anilist.ts)                                             | AniList airing schedule fallback for Disney+ shows                                                            |
+| [`src/anilist.ts`](src/anilist.ts)                                             | AniList airing schedules: Disney+ fallback + per-episode broadcast times for breaks                           |
+| [`src/airing-schedule.ts`](src/airing-schedule.ts)                             | Refreshes each show's saved AniList airing schedule                                                           |
 | [`src/reddit.ts`](src/reddit.ts)                                               | r/anime discussion lookup (AutoLovepon RSS + search fallback)                                                 |
 | [`src/reddit-feeds.ts`](src/reddit-feeds.ts)                                   | Reddit user submission feeds + Discord alerts                                                                 |
 | [`src/discord.ts`](src/discord.ts)                                             | Discord bot/webhook alerts + score alerts                                                                     |

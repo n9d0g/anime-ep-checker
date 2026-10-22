@@ -93,7 +93,11 @@ export function resolveShowDashboardStatus(
   showState: ShowState | null,
   now: Date
 ): DashboardStatus {
-  const nextDrop = getNextDrop(show.schedule, showState?.lastEpisodeNumber)
+  const nextDrop = getNextDrop(
+    show.schedule,
+    showState?.lastEpisodeNumber,
+    showState?.airingSchedule
+  )
   if (!nextDrop?.expectedAt) return 'upcoming'
 
   return resolveDashboardStatus(
@@ -113,7 +117,11 @@ export async function buildShowDashboardRow(
   const lastEpisodeNumber = showState
     ? parseEpisodeNumber(showState.lastEpisodeNumber)
     : null
-  const nextDrop = getNextDrop(show.schedule, showState?.lastEpisodeNumber)
+  const nextDrop = getNextDrop(
+    show.schedule,
+    showState?.lastEpisodeNumber,
+    showState?.airingSchedule
+  )
   const nextDropEpisode = nextDrop?.episode ?? null
   const expectedAt = nextDrop?.expectedAt ?? null
   const status = resolveShowDashboardStatus(show, showState, now)

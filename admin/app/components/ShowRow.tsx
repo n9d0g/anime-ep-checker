@@ -12,7 +12,8 @@ type EditFormHandlers = Pick<
   ComponentProps<typeof ShowEditForm>,
   | 'onUpdate'
   | 'onUpdateSchedule'
-  | 'onDelay'
+  | 'onAddBreak'
+  | 'onRemoveBreak'
   | 'onComplete'
   | 'onHold'
   | 'onRemove'

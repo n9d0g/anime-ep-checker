@@ -320,7 +320,8 @@ async function syncCalendarEventsForShow({
   const desired = getDesiredCalendarEvents(
     show.schedule,
     lastEpisodeNumber,
-    now
+    now,
+    showState?.airingSchedule
   )
 
   const listed = dryRun ? [] : await listCalendarEventsForShow(config, show.id)

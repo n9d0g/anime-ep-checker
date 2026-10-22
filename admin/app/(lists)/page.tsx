@@ -68,7 +68,8 @@ export default function AdminPage() {
                     onUpdateSchedule={(field, value) =>
                       shows.updateSchedule(key, field, value)
                     }
-                    onDelay={() => void shows.delayShowByOneWeek(values)}
+                    onAddBreak={() => void shows.addBreak(values)}
+                    onRemoveBreak={(index) => shows.removeBreak(key, index)}
                     onComplete={() => progress.openCompletePrompt(values)}
                     onHold={() => void progress.putShowOnHold(values)}
                     onRemove={() => shows.removeShow(key)}

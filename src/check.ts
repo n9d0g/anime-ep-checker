@@ -1,6 +1,7 @@
 import { readFile, writeFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { refreshAiringSchedule } from './airing-schedule.ts'
 import { getShowState, getTimingStatus } from './compare.ts'
 import {
   hasDiscordConfig,
@@ -370,7 +371,27 @@ export async function checkShows({
         `Checking ${show.title || showId} (${providerLabel(show.provider)} ${providerId})...`
       )
 
-      const plan = planShowLookup({ show, previousState, now, force })
+      // Before planning: the AniList schedule moves the drop window. Saved now
+      // on tracked shows; an untracked show gets it with its baseline below.
+      const { airingSchedule, episodesChanged } = await refreshAiringSchedule({
+        show,
+        showState: previousState,
+        now,
+      })
+      if (previousState && airingSchedule) {
+        previousState.airingSchedule = airingSchedule
+        if (episodesChanged) {
+          noteStateChange(`AniList airing schedule ${show.title || showId}`)
+        }
+      }
+
+      const plan = planShowLookup({
+        show,
+        previousState,
+        now,
+        force,
+        airingSchedule,
+      })
       if (plan.kind !== 'look_up') {
         logSkippedLookup(plan)
         continue
@@ -396,6 +417,7 @@ export async function checkShows({
         snapshot: providerSnapshot,
         nextDrop: plan.nextDrop,
         now,
+        airingSchedule,
       })
       if ('snapshotEpisode' in decision && decision.snapshotEpisode > 0) {
         snapshotEpisodes.set(showId, decision.snapshotEpisode)
@@ -409,6 +431,10 @@ export async function checkShows({
         state,
         noteStateChange,
       })
+      const savedState = state.shows[showId]
+      if (savedState && airingSchedule && !savedState.airingSchedule) {
+        savedState.airingSchedule = airingSchedule
+      }
     } catch (error) {
       failedShows.push(show.id)
       console.error(

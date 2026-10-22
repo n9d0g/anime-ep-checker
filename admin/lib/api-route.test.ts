@@ -18,8 +18,5 @@ test('rejects missing, non-numeric, and non-positive MAL IDs', () => {
 test('error messages fall back for non-Error throws', () => {
   assert.equal(errorMessage(new Error('boom')), 'boom')
   assert.equal(errorMessage('boom'), 'Unknown error')
-  assert.equal(
-    errorMessage(null, 'Failed to delay show'),
-    'Failed to delay show'
-  )
+  assert.equal(errorMessage(null, 'Failed to add break'), 'Failed to add break')
 })

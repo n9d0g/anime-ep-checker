@@ -25,6 +25,10 @@ _Avoid_: Late poll
 **Premiere batch**:
 The episodes that drop together on a show's first day; every episode after it drops one week apart.
 
+**Break**:
+A pause between two episodes that shifts every later drop by its length in weeks; earlier drops stay put. Entered by hand in the schedule, or seen as a gap in AniList's airing schedule.
+_Avoid_: Delay, hiatus
+
 ### Checking
 
 **Episode snapshot**:

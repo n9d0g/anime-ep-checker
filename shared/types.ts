@@ -10,6 +10,20 @@ export interface ShowSchedule {
   startEpisode: number
   episodeCount: number | null
   premiereBatchSize: number
+  /** Pauses in the schedule; manual breaks override AniList's airing times. */
+  breaks?: ScheduleBreak[]
+}
+
+/** Every episode after `afterEpisode` drops `weeks` weeks later. */
+export interface ScheduleBreak {
+  afterEpisode: number
+  weeks: number
+}
+
+/** AniList's broadcast time (ISO) per episode number, saved by the checker. */
+export interface AiringSchedule {
+  fetchedAt: string
+  episodes: Record<string, string>
 }
 
 export interface Show {
@@ -47,6 +61,7 @@ export interface ShowState {
   malScoreAlertedAt?: string | null
   discussionUrl?: string | null
   discussionUrlEpisode?: number | null
+  airingSchedule?: AiringSchedule
   googleCalendarEvents?: Record<
     string,
     { eventId: string; startAt: string }

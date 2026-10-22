@@ -50,6 +50,9 @@ export function showToForm(show: Show): ShowFormValues {
           ? ''
           : String(show.schedule.episodeCount),
       premiereBatchSize: String(show.schedule.premiereBatchSize ?? 1),
+      ...(show.schedule.breaks?.length
+        ? { breaks: show.schedule.breaks.map((entry) => ({ ...entry })) }
+        : {}),
     },
   }
 }
