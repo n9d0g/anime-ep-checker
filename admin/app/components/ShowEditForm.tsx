@@ -159,7 +159,7 @@ export function ShowEditForm({
                 Add break
               </button>
               <p className="hint">
-                Adds a 1-week break after the last aired episode: later drops
+                Adds a 1-week break after the last dropped episode: later drops
                 shift by 7 days, earlier ones stay, and Discord and Google
                 Calendar events rebuild.
               </p>

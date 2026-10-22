@@ -132,12 +132,22 @@ test('a regular AniList schedule matches the weekly formula', () => {
   }
 })
 
-test('AniList missing the episode or the anchor falls back to the formula', () => {
+test('an episode AniList has no time for continues weekly from the last one it has', () => {
+  // AniList lists episodes 1-8 with a 1-week gap after 4, so episode 8 drops
+  // at week 8; episodes 9 and 10 (TBA) keep that gap instead of jumping back.
   const airing = anilist('2026-09-01T14:00:00.000Z', 8, {
     afterEpisode: 4,
     weeks: 1,
   })
-  assert.deepEqual(getExpectedDropAt(WEEKLY, 10, airing), at(START, 9))
+  assert.deepEqual(getExpectedDropAt(WEEKLY, 8, airing), at(START, 8))
+  assert.deepEqual(getExpectedDropAt(WEEKLY, 10, airing), at(START, 10))
+})
+
+test('without an AniList time for the anchor episode, the weekly formula is used', () => {
+  const airing = anilist('2026-09-01T14:00:00.000Z', 8, {
+    afterEpisode: 4,
+    weeks: 1,
+  })
 
   const noAnchor: AiringSchedule = {
     fetchedAt: airing.fetchedAt,
@@ -147,14 +157,17 @@ test('AniList missing the episode or the anchor falls back to the formula', () =
   assert.deepEqual(getExpectedDropAt(WEEKLY, 6, noAnchor), at(START, 5))
 })
 
-test('manual breaks override AniList times', () => {
+test('manual breaks shift AniList times instead of replacing them', () => {
+  // AniList already has a 3-week gap after episode 4; a manual 1-week break
+  // after episode 8 adds to it for later episodes only.
   const airing = anilist('2026-09-01T14:00:00.000Z', 12, {
     afterEpisode: 4,
     weeks: 3,
   })
   const schedule = { ...WEEKLY, breaks: [{ afterEpisode: 8, weeks: 1 }] }
-  assert.deepEqual(getExpectedDropAt(schedule, 6, airing), at(START, 5))
-  assert.deepEqual(getExpectedDropAt(schedule, 9, airing), at(START, 9))
+  assert.deepEqual(getExpectedDropAt(schedule, 6, airing), at(START, 8))
+  assert.deepEqual(getExpectedDropAt(schedule, 8, airing), at(START, 10))
+  assert.deepEqual(getExpectedDropAt(schedule, 9, airing), at(START, 12))
 })
 
 test('premiere batch episodes drop together; AniList anchors on the batch end', () => {
@@ -179,7 +192,7 @@ test('premiere batch episodes drop together; AniList anchors on the batch end', 
 
 test('the provider offset keeps only the configured time of day, not whole weeks', () => {
   // Bleach: the configured start is four weeks (and an hour) after Japan's
-  // premiere, but Disney+ releases each episode an hour after broadcast.
+  // premiere, but Disney+ drops each episode an hour after broadcast.
   // AniList: weekly Saturdays from 2026-07-25 14:00 UTC, then a break, with
   // episode 9 on Monday 2026-10-19 15:00 UTC.
   const bleach: ShowSchedule = {

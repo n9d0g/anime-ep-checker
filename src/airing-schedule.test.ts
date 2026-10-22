@@ -3,6 +3,7 @@ import { afterEach, test } from 'node:test'
 import {
   needsAiringScheduleRefresh,
   refreshAiringSchedule,
+  shouldSaveAiringSchedule,
 } from './airing-schedule.ts'
 import { fetchAnilistAiring } from './anilist.ts'
 import type { Show, ShowState } from '../shared/types.ts'
@@ -170,4 +171,18 @@ test('a failed refresh keeps the saved schedule', async () => {
     },
   })
   assert.deepEqual(throwing, { airingSchedule: null, episodesChanged: false })
+})
+
+test('a refreshed schedule is saved when its times change or the saved one is a day old', () => {
+  const now = new Date('2026-10-22T12:00:00.000Z')
+  const episodes = { '9': '2026-10-19T15:00:00.000Z' }
+  const refreshed = { fetchedAt: now.toISOString(), episodes }
+  const recent = { fetchedAt: '2026-10-22T06:00:00.000Z', episodes }
+  const dayOld = { fetchedAt: '2026-10-21T12:00:00.000Z', episodes }
+
+  assert.equal(shouldSaveAiringSchedule(recent, refreshed, true, now), true)
+  assert.equal(shouldSaveAiringSchedule(recent, refreshed, false, now), false)
+  assert.equal(shouldSaveAiringSchedule(dayOld, refreshed, false, now), true)
+  assert.equal(shouldSaveAiringSchedule(undefined, refreshed, false, now), true)
+  assert.equal(shouldSaveAiringSchedule(dayOld, dayOld, false, now), false)
 })

@@ -4,7 +4,7 @@ import type { ScheduleBreak, ShowSchedule } from '@shared/types'
 export const MAX_BREAK_WEEKS = 12
 
 /**
- * The episode a new break goes after: the last aired one (the checker's
+ * The episode a new break goes after: the last dropped one (the checker's
  * saved episode), or the episode before the start when none has aired.
  */
 export function getBreakAfterEpisode(
@@ -36,7 +36,7 @@ export function addScheduleBreak(
   return next.sort((a, b) => a.afterEpisode - b.afterEpisode)
 }
 
-/** "a 1-week break after episode 8". */
+/** "1-week break after episode 8". */
 export function describeBreak(entry: ScheduleBreak): string {
   return `${entry.weeks}-week break after episode ${entry.afterEpisode}`
 }

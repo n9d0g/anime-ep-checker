@@ -46,8 +46,8 @@ Each show uses a weekly schedule:
 
 After the premiere batch, each following episode is expected **7 days** later, with two adjustments for breaks:
 
-- **AniList airing schedule:** for shows with a `malId`, the checker saves AniList's per-episode broadcast times in `state.json` (`airingSchedule`, refreshed about once a day and during drop windows/late slots; the first 200 episodes). When AniList has a time for the episode and for the premiere batch's last episode, the drop is AniList's time plus the show's offset from broadcast (the weekly time minus AniList's time for that last premiere episode), so a gap in the broadcast shifts later drops. Otherwise the weekly formula applies.
-- **Manual breaks:** `schedule.breaks` (added with **Add break** in the admin) override AniList: every episode after `afterEpisode` drops `weeks` weeks later than the weekly formula, earlier episodes are unchanged, and several breaks add up.
+- **AniList airing schedule:** for shows with a `malId`, the checker saves AniList's per-episode broadcast times in `state.json` (`airingSchedule`, refreshed about once a day and during drop windows/late slots; the first 200 episodes). When AniList has a time for the premiere batch's last episode, the drop is AniList's time for the episode plus the show's offset from broadcast, so a gap in the broadcast shifts later drops; an episode AniList hasn't listed yet continues weekly from the last one it has. The offset is the weekly time minus AniList's time for that last premiere episode, kept within a week (from a day before broadcast to six days after), so a configured start that sits whole weeks after the broadcast premiere still lines up. If a provider really is a week or more behind broadcast, add a break after episode `startEpisode − 1` for the extra weeks. Without AniList data the weekly formula applies.
+- **Manual breaks:** `schedule.breaks` (added with **Add break** in the admin) shift drops on top of AniList or the weekly formula: every episode after `afterEpisode` drops `weeks` weeks later, earlier episodes are unchanged, and several breaks add up.
 
 Discord alerts still display times in **Eastern Time (EST/EDT)** even though schedules are entered in **Japan Time (JST)**.
 
@@ -312,7 +312,7 @@ When an episode drops, its calendar event is removed. Use **Add break** in the a
 5. Tracked show **titles** sync from MAL when a `malId` is known (on page load via `POST /api/shows/sync-mal`)
 6. Choose **Finite season** or **Ongoing**
 7. Set start date/time (**Japan Time / JST**), start episode number, and premiere batch size
-8. **Add break** (saved shows only) adds a 1-week break after the last aired episode (`schedule.breaks`), so later drops shift by 7 days and earlier ones stay; it clears Calendar event state so the checker rebuilds Discord/Calendar events on the next forced run. Existing breaks are listed under the start date with **Remove** (saved with **Save changes**)
+8. **Add break** (saved shows only) adds a 1-week break after the last dropped episode (`schedule.breaks`), so later drops shift by 7 days and earlier ones stay; it clears Calendar event state so the checker rebuilds Discord/Calendar events on the next forced run. Existing breaks are listed under the start date with **Remove** (saved with **Save changes**)
 9. **Save changes** — commits to `shows.json` on GitHub
 
 For **Add break**, the admin `GITHUB_TOKEN` PAT should include **Actions: Write** so a forced check workflow starts automatically. Otherwise run **Actions → Check anime episodes → Run workflow** with **force** after adding a break.

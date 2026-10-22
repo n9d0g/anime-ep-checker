@@ -17,8 +17,25 @@ type FetchAiring = (malId: number) => Promise<{ nodes: AnilistAiring[] } | null>
 /**
  * Whether to fetch the show's airing schedule this run: it has a MAL ID and
  * no saved schedule, a day-old one, or its next drop is in its drop window
- * or a late slot (when a last-minute delay matters most).
+ * or a late slot (when a last-minute schedule change matters most).
  */
+/**
+ * Whether a refreshed schedule should be written to state: when its episode
+ * times changed, or when the saved copy is a day old (so quiet runs don't
+ * re-fetch AniList every time). At most one save a day per show otherwise.
+ */
+export function shouldSaveAiringSchedule(
+  saved: AiringSchedule | null | undefined,
+  refreshed: AiringSchedule,
+  episodesChanged: boolean,
+  now: Date
+): boolean {
+  if (episodesChanged) return true
+  if (refreshed.fetchedAt === saved?.fetchedAt) return false
+  const savedMs = saved ? Date.parse(saved.fetchedAt) : Number.NaN
+  return Number.isNaN(savedMs) || now.getTime() - savedMs >= REFRESH_INTERVAL_MS
+}
+
 export function needsAiringScheduleRefresh(
   show: Show,
   showState: ShowState | null,

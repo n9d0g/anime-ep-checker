@@ -1,7 +1,10 @@
 import { readFile, writeFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { refreshAiringSchedule } from './airing-schedule.ts'
+import {
+  refreshAiringSchedule,
+  shouldSaveAiringSchedule,
+} from './airing-schedule.ts'
 import { getShowState, getTimingStatus } from './compare.ts'
 import {
   hasDiscordConfig,
@@ -379,9 +382,19 @@ export async function checkShows({
         now,
       })
       if (previousState && airingSchedule) {
+        const saveSchedule = shouldSaveAiringSchedule(
+          previousState.airingSchedule,
+          airingSchedule,
+          episodesChanged,
+          now
+        )
         previousState.airingSchedule = airingSchedule
-        if (episodesChanged) {
-          noteStateChange(`AniList airing schedule ${show.title || showId}`)
+        if (saveSchedule) {
+          noteStateChange(
+            episodesChanged
+              ? `AniList airing schedule ${show.title || showId}`
+              : `AniList airing schedule checked ${show.title || showId}`
+          )
         }
       }
 

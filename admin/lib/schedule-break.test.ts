@@ -15,7 +15,7 @@ const SCHEDULE: ShowSchedule = {
   premiereBatchSize: 1,
 }
 
-test('a break goes after the last aired episode', () => {
+test('a break goes after the last dropped episode', () => {
   assert.equal(getBreakAfterEpisode(SCHEDULE, '8'), 8)
 })
 

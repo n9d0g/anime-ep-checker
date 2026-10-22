@@ -501,8 +501,9 @@ test('an AniList break moves the drop window and is saved once', async () => {
     },
   })
 
-  // Same times on the next refresh: nothing to commit.
-  mock.timers.setTime(Date.parse('2026-09-16T15:00:00.000Z'))
+  // Same times within the day: nothing to commit (a day-old schedule is
+  // re-saved once, see shouldSaveAiringSchedule).
+  mock.timers.setTime(Date.parse('2026-09-16T03:00:00.000Z'))
   const second = await run({ force: false, fetchEpisode: counter.fetchEpisode })
   assert.equal(second.stateChanged, false)
 

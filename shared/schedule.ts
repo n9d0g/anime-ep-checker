@@ -50,17 +50,13 @@ function getBreakWeeksBefore(
   return weeks
 }
 
-/** startAt for the premiere batch, then one week per episode, plus breaks. */
+/** startAt for the premiere batch, then one week per episode (no breaks). */
 function getWeeklyDropMs(
-  schedule: ShowSchedule,
   startMs: number,
+  batchEnd: number,
   episodeNumber: number
 ): number {
-  const batchEnd = schedule.startEpisode + getPremiereBatchSize(schedule) - 1
-  const weeks =
-    Math.max(0, episodeNumber - batchEnd) +
-    getBreakWeeksBefore(schedule, episodeNumber)
-  return startMs + weeks * MS_PER_WEEK
+  return startMs + Math.max(0, episodeNumber - batchEnd) * MS_PER_WEEK
 }
 
 function getAiringMs(
@@ -76,13 +72,41 @@ function getAiringMs(
 }
 
 /**
+ * The drop time before manual breaks: AniList's broadcast time plus the
+ * provider's offset from broadcast, continuing weekly from the last episode
+ * AniList has a time for; the weekly formula when AniList has no time for
+ * the premiere batch's last episode (the offset's anchor).
+ */
+function getBaseDropMs(
+  schedule: ShowSchedule,
+  startMs: number,
+  batchEnd: number,
+  episodeNumber: number,
+  airingSchedule: AiringSchedule | null | undefined
+): number {
+  const weeklyMs = getWeeklyDropMs(startMs, batchEnd, episodeNumber)
+  const anchorAiringMs = getAiringMs(airingSchedule, batchEnd)
+  if (episodeNumber <= batchEnd || anchorAiringMs === null) {
+    return weeklyMs
+  }
+
+  const providerOffsetMs = toTimeOfDayOffset(
+    getWeeklyDropMs(startMs, batchEnd, batchEnd) - anchorAiringMs
+  )
+  for (let known = episodeNumber; known >= batchEnd; known--) {
+    const airingMs = getAiringMs(airingSchedule, known)
+    if (airingMs !== null) {
+      return airingMs + providerOffsetMs + (episodeNumber - known) * MS_PER_WEEK
+    }
+  }
+  return weeklyMs
+}
+
+/**
  * When an episode should drop, or null outside the schedule or with an
- * invalid start time. Manual breaks win: with any, the weekly formula shifted
- * by them is used. Otherwise AniList's broadcast time (from the show's saved
- * airing schedule) plus the provider's offset from broadcast: the formula's
- * time minus AniList's for the premiere batch's last episode, kept within a
- * week (see toTimeOfDayOffset). When
- * AniList lacks either episode, the weekly formula.
+ * invalid start time: the base time (AniList-derived when the show has an
+ * airing schedule, otherwise the weekly formula) shifted by the weeks of
+ * every manual break before the episode.
  */
 export function getExpectedDropAt(
   schedule: ShowSchedule,
@@ -99,35 +123,31 @@ export function getExpectedDropAt(
   }
 
   const batchEnd = schedule.startEpisode + getPremiereBatchSize(schedule) - 1
-  if (episodeNumber <= batchEnd || (schedule.breaks?.length ?? 0) > 0) {
-    return new Date(getWeeklyDropMs(schedule, startMs, episodeNumber))
-  }
-
-  const airingMs = getAiringMs(airingSchedule, episodeNumber)
-  const anchorAiringMs = getAiringMs(airingSchedule, batchEnd)
-  if (airingMs === null || anchorAiringMs === null) {
-    return new Date(getWeeklyDropMs(schedule, startMs, episodeNumber))
-  }
-
-  const providerOffsetMs = toTimeOfDayOffset(
-    getWeeklyDropMs(schedule, startMs, batchEnd) - anchorAiringMs
+  const baseMs = getBaseDropMs(
+    schedule,
+    startMs,
+    batchEnd,
+    episodeNumber,
+    airingSchedule
   )
-  return new Date(airingMs + providerOffsetMs)
+  return new Date(
+    baseMs + getBreakWeeksBefore(schedule, episodeNumber) * MS_PER_WEEK
+  )
 }
 
-const OFFSET_WEEK_MS = 7 * 24 * 60 * 60 * 1000
 const OFFSET_EARLIEST_MS = -24 * 60 * 60 * 1000
 
 /**
  * The configured start can sit whole weeks away from the broadcast premiere
  * (e.g. a provider that started late but now streams an hour after Japan), so
  * only the offset within a week is kept: from a day before broadcast to six
- * days after.
+ * days after. A provider that is really a week or more behind broadcast is
+ * modelled with a manual break.
  */
 function toTimeOfDayOffset(offsetMs: number): number {
   const withinWeek =
-    (((offsetMs - OFFSET_EARLIEST_MS) % OFFSET_WEEK_MS) + OFFSET_WEEK_MS) %
-    OFFSET_WEEK_MS
+    (((offsetMs - OFFSET_EARLIEST_MS) % MS_PER_WEEK) + MS_PER_WEEK) %
+    MS_PER_WEEK
   return withinWeek + OFFSET_EARLIEST_MS
 }
 

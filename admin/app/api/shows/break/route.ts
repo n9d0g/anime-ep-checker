@@ -8,7 +8,7 @@ import { updateRepoFiles } from '@/lib/github'
 import { addScheduleBreak, getBreakAfterEpisode } from '@/lib/schedule-break'
 import type { Show } from '@shared/types'
 
-// Adds a break after the show's last aired episode: later drops shift by
+// Adds a break after the show's last dropped episode: later drops shift by
 // `weeks`, earlier ones stay put. Calendar events are cleared and a forced
 // check rebuilds Discord and Calendar.
 export async function POST(request: Request) {
@@ -57,7 +57,8 @@ export async function POST(request: Request) {
 
           return { 'shows.json': showsFile, 'state.json': state }
         },
-        `chore: 🧹 add a ${weeks}-week break to ${showId} after episode ${afterEpisode}`
+        () =>
+          `chore: 🧹 add a ${weeks}-week break to ${showId} after episode ${afterEpisode}`
       )
 
       const workflowTriggered = await tryDispatchCheckWorkflow(true)

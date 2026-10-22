@@ -187,7 +187,7 @@ interface RepoUpdateResult<P extends RepoPath> {
 async function tryUpdateRepoFiles<P extends RepoPath>(
   paths: P[],
   apply: ApplyRepoUpdate<P>,
-  message: string
+  message: string | (() => string)
 ): Promise<RepoUpdateResult<P> | 'conflict'> {
   const { repo, branch } = getConfig()
 
@@ -231,7 +231,11 @@ async function tryUpdateRepoFiles<P extends RepoPath>(
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message, tree: tree!.sha, parents: [head.sha] }),
+      body: JSON.stringify({
+        message: typeof message === 'function' ? message() : message,
+        tree: tree!.sha,
+        parents: [head.sha],
+      }),
     }
   )
 
@@ -263,7 +267,7 @@ async function tryUpdateRepoFiles<P extends RepoPath>(
 export async function updateRepoFiles<P extends RepoPath>(
   paths: P[],
   apply: ApplyRepoUpdate<P>,
-  message: string
+  message: string | (() => string)
 ): Promise<RepoUpdateResult<P>> {
   for (let attempt = 0; attempt < UPDATE_ATTEMPTS; attempt += 1) {
     const result = await tryUpdateRepoFiles(paths, apply, message)
