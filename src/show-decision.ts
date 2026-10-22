@@ -114,7 +114,12 @@ export type ShowDecision =
 
 type RelativeEpisodeResult =
   | { kind: 'previous_season' }
-  | { kind: 'snapshot'; snapshot: EpisodeSnapshot; episodeOffset: number }
+  | {
+      kind: 'snapshot'
+      snapshot: EpisodeSnapshot
+      /** Offset to remember for this show; undefined when none was learned. */
+      episodeOffset: number | undefined
+    }
 
 /** Renumbers the provider's snapshot to the show's season numbering. */
 function toRelativeEpisodeResult(
@@ -122,6 +127,12 @@ function toRelativeEpisodeResult(
   previousState: ShowState | null,
   raw: EpisodeSnapshot
 ): RelativeEpisodeResult {
+  // AniList's numbers already match the schedule; learning an offset from
+  // them would also mis-number later provider snapshots.
+  if (raw.seasonNumbered) {
+    return { kind: 'snapshot', snapshot: raw, episodeOffset: undefined }
+  }
+
   const knownOffset = previousState?.episodeOffset
   if (knownOffset != null) {
     return {

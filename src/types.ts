@@ -38,6 +38,11 @@ export interface EpisodeSnapshot {
   episode: ProviderEpisode
   watchUrl: string
   seasonEpisodes?: SeasonEpisodeAvailability[]
+  /**
+   * Already numbered like the show's own season (e.g. AniList's entry for the
+   * show's MAL ID), so no provider episode offset applies.
+   */
+  seasonNumbered?: boolean
 }
 
 export type TimingStatus = 'unknown' | 'on-time' | 'early' | 'late'

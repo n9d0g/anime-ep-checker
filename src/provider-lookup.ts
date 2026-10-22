@@ -119,6 +119,7 @@ async function tryDisneyAnilistFallback(
       availableAt: null,
     },
     watchUrl: getShowWatchUrl(show),
+    seasonNumbered: true,
   }
 }
 

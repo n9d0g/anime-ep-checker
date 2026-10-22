@@ -261,3 +261,26 @@ test('within the grace period the next drop is just not out yet', () => {
     { kind: 'not_out_yet', episodeNumber: 3, snapshotEpisode: 2 }
   )
 })
+
+test('an AniList fallback snapshot is already in season numbering and alerts as-is', () => {
+  // Bleach: no saved offset, last recorded episode 2, AniList says episode 3
+  // aired. Offset resolution would read episode 3 as this season's first and
+  // renumber it to 1, so the show would wait forever.
+  const decision = decideShow({
+    show: { ...SHOW, provider: 'disney' },
+    previousState: state(2, { episodeOffset: null }),
+    snapshot: snapshot(3, {
+      provider: 'disney',
+      episode: { id: 'anilist-60636-3', episode: 3, availableAt: null },
+      seasonNumbered: true,
+    }),
+    nextDrop: EP3,
+    now: NOW,
+  })
+
+  assert.equal(decision.kind, 'episode_alert')
+  if (decision.kind !== 'episode_alert') return
+  assert.equal(decision.episodeNumber, 3)
+  // No offset is learned from AniList's numbering.
+  assert.equal(decision.state.episodeOffset, null)
+})
