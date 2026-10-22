@@ -1,23 +1,23 @@
 import { createSign } from 'node:crypto'
-import { formatEasternTime } from './time.js'
+import { formatEasternTime } from './time.ts'
 import {
   getShowWatchUrl,
   type Show,
   type ShowState,
   type StateFile,
-} from './types.js'
+} from './types.ts'
 import {
   getExpectedDropAt,
   getLastScheduledEpisode,
   getNextExpectedEpisode,
   isEpisodeInSchedule,
   parseEpisodeNumber,
-} from './schedule.js'
+} from './schedule.ts'
 import {
   getSeasonEpisodes,
   getSeasons,
   parseSeriesIdFromUrl,
-} from './crunchyroll.js'
+} from './crunchyroll.ts'
 
 const EVENT_DURATION_MS = 30 * 60 * 1000
 const CALENDAR_SCOPE = 'https://www.googleapis.com/auth/calendar'

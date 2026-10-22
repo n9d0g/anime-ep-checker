@@ -1,52 +1,52 @@
 import { readFile, writeFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { getLatestAiredEpisode } from './anilist.js'
+import { getLatestAiredEpisode } from './anilist.ts'
 import {
   createBaselineState,
   createPreviousSeasonBaseline,
   createUpdatedState,
   getShowState,
   getTimingStatus,
-} from './compare.js'
-import { resolveEpisodeOffset, toRelativeSnapshot } from './episode-offset.js'
+} from './compare.ts'
+import { resolveEpisodeOffset, toRelativeSnapshot } from './episode-offset.ts'
 import {
   getLatestAvailableEpisodeForSeries,
   parseSeriesIdFromUrl,
-} from './crunchyroll.js'
+} from './crunchyroll.ts'
 import {
   sendEpisodeAlert,
   sendDisneyAuthAlert,
   sendNetflixCookieAlert,
   sendWaitingAlert,
   type DiscordConfig,
-} from './discord.js'
-import { syncWatchingDashboard } from './discord-dashboard.js'
+} from './discord.ts'
+import { syncWatchingDashboard } from './discord-dashboard.ts'
 import {
   clearGoogleCalendarEventForEpisode,
   clearGoogleCalendarEventsForShow,
   getGoogleCalendarConfigFromEnv,
   syncGoogleCalendarEvents,
   type GoogleCalendarConfig,
-} from './google-calendar.js'
-import { fetchMalAnimeDetails } from './mal.js'
-import { syncMalScoreAlerts } from './mal-score.js'
-import { syncMalStatusAlerts } from './mal-status.js'
-import { syncPlanToWatchAlerts } from './plan-to-watch.js'
-import { syncRedditUserFeeds } from './reddit-feeds.js'
-import { syncRelatedAnimeAlerts } from './related-anime.js'
-import { writeStateCommitMessage } from './state-commit.js'
+} from './google-calendar.ts'
+import { fetchMalAnimeDetails } from './mal.ts'
+import { syncMalScoreAlerts } from './mal-score.ts'
+import { syncMalStatusAlerts } from './mal-status.ts'
+import { syncPlanToWatchAlerts } from './plan-to-watch.ts'
+import { syncRedditUserFeeds } from './reddit-feeds.ts'
+import { syncRelatedAnimeAlerts } from './related-anime.ts'
+import { writeStateCommitMessage } from './state-commit.ts'
 import {
   DisneyAuthError,
   getLatestAvailableEpisodeForTitle as getLatestDisneyEpisode,
   parseDisneyIdFromUrl,
-} from './disney.js'
+} from './disney.ts'
 import {
   getLatestAvailableEpisodeForTitle,
   NetflixAuthError,
   parseNetflixIdFromUrl,
-} from './netflix.js'
-import { findAnimeDiscussionUrl } from './reddit.js'
+} from './netflix.ts'
+import { findAnimeDiscussionUrl } from './reddit.ts'
 import {
   getExpectedDropAt,
   getNextExpectedEpisode,
@@ -57,7 +57,7 @@ import {
   needsPlanToWatchCheck,
   needsRelatedAnimeCheck,
   parseEpisodeNumber,
-} from './schedule.js'
+} from './schedule.ts'
 import {
   normalizeShowProvider,
   providerLabel,
@@ -67,7 +67,7 @@ import {
   type ShowState,
   type ShowsFile,
   type StateFile,
-} from './types.js'
+} from './types.ts'
 
 type RelativeEpisodeResult =
   | { kind: 'previous_season' }

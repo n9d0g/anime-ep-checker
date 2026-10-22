@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { resolveShowDashboardStatus } from './dashboard.js'
-import type { Show, ShowState } from './types.js'
+import { resolveShowDashboardStatus } from './dashboard.ts'
+import type { Show, ShowState } from './types.ts'
 
 // Episode 3 drops 2026-09-15 15:00 UTC; "now" is a day later, well outside
 // its drop window and past the still-waiting grace.

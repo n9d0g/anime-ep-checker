@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { mergeState } from './state-merge.js'
-import type { ShowState, StateFile } from './types.js'
+import { mergeState } from './state-merge.ts'
+import type { ShowState, StateFile } from './types.ts'
 
 const show: ShowState = {
   lastEpisodeId: 'ep-3',

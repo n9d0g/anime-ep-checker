@@ -1,5 +1,5 @@
-import type { EpisodeSnapshot } from './types.js'
-import { writeDisneyRefreshToken } from './disney-refresh-token.js'
+import type { EpisodeSnapshot } from './types.ts'
+import { writeDisneyRefreshToken } from './disney-refresh-token.ts'
 
 const USER_AGENT =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'

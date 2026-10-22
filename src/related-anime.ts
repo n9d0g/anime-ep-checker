@@ -1,12 +1,12 @@
-import { sendMalRateLimitAlert, sendRelatedAnimeAlert } from './discord.js'
-import type { DiscordConfig } from './discord.js'
+import { sendMalRateLimitAlert, sendRelatedAnimeAlert } from './discord.ts'
+import type { DiscordConfig } from './discord.ts'
 import {
   fetchMalAnimeSummary,
   fetchRelatedAnime,
   fetchUserAnimeList,
   type MalRelatedAnime,
-} from './mal.js'
-import type { StateFile } from './types.js'
+} from './mal.ts'
+import type { StateFile } from './types.ts'
 
 // MAL's rate limits are undocumented; ~1 req/s has been safe in practice.
 const MAL_REQUEST_DELAY_MS = 1000

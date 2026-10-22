@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { syncMalStatusAlerts } from './mal-status.js'
-import type { MalHealth } from './mal.js'
-import type { StateFile } from './types.js'
+import { syncMalStatusAlerts } from './mal-status.ts'
+import type { MalHealth } from './mal.ts'
+import type { StateFile } from './types.ts'
 
 const now = new Date('2026-10-21T12:00:00Z')
 

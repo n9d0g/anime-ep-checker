@@ -1,4 +1,4 @@
-import type { EpisodeSnapshot, Show } from './types.js'
+import type { EpisodeSnapshot, Show } from './types.ts'
 
 const OFFSET_BUFFER_MS = 24 * 60 * 60 * 1000
 

@@ -1,4 +1,4 @@
-import type { Show, ShowSchedule, StateFile } from './types.js'
+import type { Show, ShowSchedule, StateFile } from './types.ts'
 
 const MS_PER_WEEK = 7 * 24 * 60 * 60 * 1000
 const WINDOW_BEFORE_MS = 5 * 60 * 1000

@@ -3,7 +3,7 @@ import { afterEach, beforeEach, test } from 'node:test'
 import {
   getLatestAvailableEpisodeForTitle,
   resetDisneyAuthForRun,
-} from './disney.js'
+} from './disney.ts'
 
 const SHOW_A = '11111111-1111-1111-1111-111111111111'
 const SHOW_B = '22222222-2222-2222-2222-222222222222'

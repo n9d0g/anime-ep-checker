@@ -3,8 +3,8 @@ import { mkdtemp, readFile, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, test } from 'node:test'
-import { checkShows, type CheckOptions } from './check.js'
-import type { EpisodeSnapshot, Show, ShowState, StateFile } from './types.js'
+import { checkShows, type CheckOptions } from './check.ts'
+import type { EpisodeSnapshot, Show, ShowState, StateFile } from './types.ts'
 
 const WEBHOOK_URL = 'https://discord.test/webhook'
 

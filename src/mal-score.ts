@@ -1,8 +1,8 @@
-import { getShowState } from './compare.js'
-import { sendMalScoreAlert } from './discord.js'
-import type { DiscordConfig } from './discord.js'
-import { fetchMalAnimeDetails } from './mal.js'
-import type { Show, StateFile } from './types.js'
+import { getShowState } from './compare.ts'
+import { sendMalScoreAlert } from './discord.ts'
+import type { DiscordConfig } from './discord.ts'
+import { fetchMalAnimeDetails } from './mal.ts'
+import type { Show, StateFile } from './types.ts'
 
 const MAL_SCORE_ALERT_DELTA = 0.05
 

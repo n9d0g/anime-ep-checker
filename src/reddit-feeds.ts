@@ -2,9 +2,9 @@ import {
   sendRedditFeedErrorAlert,
   sendRedditPostAlert,
   type DiscordConfig,
-} from './discord.js'
-import { fetchRedditUserSubmissions } from './reddit.js'
-import type { StateFile } from './types.js'
+} from './discord.ts'
+import { fetchRedditUserSubmissions } from './reddit.ts'
+import type { StateFile } from './types.ts'
 
 const SEEN_POST_IDS_LIMIT = 50
 const ERROR_ALERT_AFTER_MS = 6 * 60 * 60 * 1000

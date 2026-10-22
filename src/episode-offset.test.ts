@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { resolveEpisodeOffset, toRelativeSnapshot } from './episode-offset.js'
-import type { EpisodeSnapshot, Show } from './types.js'
+import { resolveEpisodeOffset, toRelativeSnapshot } from './episode-offset.ts'
+import type { EpisodeSnapshot, Show } from './types.ts'
 
 function show(overrides: Partial<Show> = {}): Show {
   return {

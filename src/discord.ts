@@ -1,17 +1,17 @@
-import { formatTimingLabel } from './compare.js'
-import { createBotMessage } from './discord-api.js'
+import { formatTimingLabel } from './compare.ts'
+import { createBotMessage } from './discord-api.ts'
 import {
   discordRelativeTimestamp,
   discordTimestamp,
   formatMalScoreLabel,
-} from './discord-format.js'
+} from './discord-format.ts'
 import type {
   MalAnimeDetails,
   MalAnimeSummary,
   MalPlanToWatchEntry,
   MalRelatedAnime,
-} from './mal.js'
-import { formatEasternTime } from './time.js'
+} from './mal.ts'
+import { formatEasternTime } from './time.ts'
 import {
   getShowWatchUrl,
   providerLabel,
@@ -19,7 +19,7 @@ import {
   type PlanToWatchAlertReason,
   type Show,
   type TimingStatus,
-} from './types.js'
+} from './types.ts'
 
 export interface DiscordConfig {
   botToken?: string

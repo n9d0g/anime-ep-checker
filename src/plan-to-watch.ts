@@ -1,11 +1,11 @@
-import { sendPlanToWatchAlert } from './discord.js'
-import type { DiscordConfig } from './discord.js'
-import { fetchPlanToWatchAnime, type MalPlanToWatchEntry } from './mal.js'
+import { sendPlanToWatchAlert } from './discord.ts'
+import type { DiscordConfig } from './discord.ts'
+import { fetchPlanToWatchAnime, type MalPlanToWatchEntry } from './mal.ts'
 import type {
   PlanToWatchAlertReason,
   PlanToWatchSnapshotEntry,
   StateFile,
-} from './types.js'
+} from './types.ts'
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000
 const UPCOMING_WINDOW_DAYS = 7

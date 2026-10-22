@@ -4,8 +4,8 @@ import type {
   ShowState,
   StateFile,
   TimingStatus,
-} from './types.js'
-import { formatEasternTime } from './time.js'
+} from './types.ts'
+import { formatEasternTime } from './time.ts'
 
 export function getShowState(
   state: StateFile,

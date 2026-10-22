@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import type { MalRelatedAnime } from './mal.js'
-import { diffRelatedAnime, syncRelatedAnimeAlerts } from './related-anime.js'
-import { needsRelatedAnimeCheck } from './schedule.js'
-import type { StateFile } from './types.js'
+import type { MalRelatedAnime } from './mal.ts'
+import { diffRelatedAnime, syncRelatedAnimeAlerts } from './related-anime.ts'
+import { needsRelatedAnimeCheck } from './schedule.ts'
+import type { StateFile } from './types.ts'
 
 function related(malId: number, relationType = 'sequel'): MalRelatedAnime {
   return {

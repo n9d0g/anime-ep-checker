@@ -3,7 +3,7 @@ import type {
   CrunchyrollSeason,
   EpisodeSnapshot,
   SeasonEpisodeAvailability,
-} from './types.js'
+} from './types.ts'
 
 const API_BASE = 'https://beta-api.crunchyroll.com'
 const AUTH_BASIC = 'Basic bm9haWhkZXZtXzZpeWcwYThsMHE6'

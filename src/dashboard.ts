@@ -2,26 +2,26 @@ import {
   discordRelativeTimestamp,
   discordTimestamp,
   formatMalScoreLabel,
-} from './discord-format.js'
-import { formatEasternTime } from './time.js'
+} from './discord-format.ts'
+import { formatEasternTime } from './time.ts'
 import {
   getShowWatchUrl,
   providerLabel,
   type Show,
   type ShowState,
-} from './types.js'
+} from './types.ts'
 import {
   getExpectedDropAt,
   getNextExpectedEpisode,
   isInCheckWindow,
   isPastWaitingGrace,
   parseEpisodeNumber,
-} from './schedule.js'
-import { fetchMalAnimeDetails, formatMalProgressLabel } from './mal.js'
+} from './schedule.ts'
+import { fetchMalAnimeDetails, formatMalProgressLabel } from './mal.ts'
 import {
   buildAnimeDiscussionSearchUrl,
   findAnimeDiscussionPermalink,
-} from './reddit.js'
+} from './reddit.ts'
 
 export type DashboardStatus = 'upcoming' | 'in_window' | 'waiting' | 'out'
 

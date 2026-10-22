@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto'
 import {
   buildShowDashboardPayload,
   buildShowDashboardRow,
-} from './dashboard.js'
+} from './dashboard.ts'
 import {
   createBotMessage,
   deleteBotMessage,
@@ -10,10 +10,10 @@ import {
   editBotMessage,
   pinBotMessage,
   shouldRecreateWatchingMessageOnEditFailure,
-} from './discord-api.js'
-import type { ShowDashboardRow } from './dashboard.js'
-import type { Show, StateFile } from './types.js'
-import { getShowState } from './compare.js'
+} from './discord-api.ts'
+import type { ShowDashboardRow } from './dashboard.ts'
+import type { Show, StateFile } from './types.ts'
+import { getShowState } from './compare.ts'
 
 // MAL mean scores drift by ±0.01 between runs; only re-render for bigger moves.
 const MAL_SCORE_REFRESH_DELTA = 0.1
