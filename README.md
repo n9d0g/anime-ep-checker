@@ -230,7 +230,7 @@ Optional: set `DISNEY_REGION` (default `US`) if your account is in another regio
 ```bash
 # Root checker (Node 24.19.0)
 pnpm install
-node src/should-run.mjs   # gate only (local; Actions gate fetches JSON via API)
+node src/should-run.ts    # gate only (Actions runs it from a sparse checkout, no install)
 pnpm check -- --dry-run
 pnpm check -- --force        # bypass drop windows (debug)
 
@@ -257,7 +257,7 @@ The checker polls selected Reddit accounts via the **OAuth API** (`oauth.reddit.
 | [u/animecorner](https://www.reddit.com/user/animecorner/)         | Titles matching `Top 10 …` (weekly rankings and anticipated lists) |
 | [u/Abysswatcherbel](https://www.reddit.com/user/Abysswatcherbel/) | All posts (weekly r/anime karma ranking threads)                   |
 
-To avoid Reddit rate limits, the Actions gate (`src/should-run.mjs`) only polls a feed during its posting window — the account's usual posting day plus the following day as a grace period (Eastern time: Fridays for u/animecorner, Sundays for u/Abysswatcherbel) — every 15 minutes, and stops for the rest of the window once a post published in it has been seen (`lastPostPublishedAt`). Posts made outside the window are picked up at the next window. The full check only fetches Reddit when the gate asked for it (`REDDIT_FEED_CHECK`) or on `--force`. A full check runs when a feed has no baseline in `state.json`, when a new matching post appears, or when fetches keep failing and the last successful check is stale. The first successful check **baselines** current posts without alerting; only newer posts notify afterward. If a feed cannot be fetched for 6+ hours after the last success (or after its window opened, whichever is later), the checker posts a one-time **Reddit user feed check failing** warning. Seen post IDs are stored under `state.meta.redditUserFeeds`.
+To avoid Reddit rate limits, the Actions gate (`src/should-run.ts`) only polls a feed during its posting window — the account's usual posting day plus the following day as a grace period (Eastern time: Fridays for u/animecorner, Sundays for u/Abysswatcherbel) — every 15 minutes, and stops for the rest of the window once a post published in it has been seen (`lastPostPublishedAt`). Posts made outside the window are picked up at the next window. The full check only fetches Reddit when the gate asked for it (`REDDIT_FEED_CHECK`) or on `--force`. A full check runs when a feed has no baseline in `state.json`, when a new matching post appears, or when fetches keep failing and the last successful check is stale (6+ hours, the same limit as the warning below). The first successful check **baselines** current posts without alerting; only newer posts notify afterward. If a feed cannot be fetched for 6+ hours after the last success (or after its window opened, whichever is later), the checker posts a one-time **Reddit user feed check failing** warning. Seen post IDs are stored under `state.meta.redditUserFeeds`.
 
 ### Discord episode alerts (`#anime-alerts`)
 
@@ -341,7 +341,7 @@ Shows your MAL plan-to-watch list from `state.meta.planToWatch`, grouped into **
 | [`src/mal-score.ts`](src/mal-score.ts)                                         | MAL score spike/tank detection                                                                                |
 | [`src/plan-to-watch.ts`](src/plan-to-watch.ts)                                 | MAL plan-to-watch airing alerts                                                                               |
 | [`src/related-anime.ts`](src/related-anime.ts)                                 | Weekly MAL related anime (sequel etc.) alerts                                                                 |
-| [`src/should-run.mjs`](src/should-run.mjs)                                     | Cheap gate for Actions (no marketplace actions on skip path)                                                  |
+| [`src/should-run.ts`](src/should-run.ts)                                       | Cheap gate for Actions (sparse checkout, no package install)                                                  |
 | [`admin/`](admin/)                                                             | Cloudflare CMS (vinext)                                                                                       |
 | [`.github/workflows/check-episodes.yml`](.github/workflows/check-episodes.yml) | Gate + full episode check (`schedule`, `workflow_dispatch`, or external cron)                                 |
 | [`.github/workflows/deploy-admin.yml`](.github/workflows/deploy-admin.yml)     | Deploy admin Worker + Discord deploy notify                                                                   |

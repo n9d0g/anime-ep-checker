@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { mapOAuthListingToSubmissions } from './reddit.ts'
+import { applyRedditFeedFetchFailure } from './reddit-feeds.ts'
 import {
-  applyRedditFeedFetchFailure,
   getRedditFeedWindowStart,
   isRedditFeedDue,
   isRedditFeedPollSlot,
   shouldSendFeedErrorAlert,
-} from './reddit-feeds.ts'
+} from '../shared/reddit-feeds.ts'
 
 const FRIDAY = { postDays: [5] }
 const SUNDAY = { postDays: [0] }

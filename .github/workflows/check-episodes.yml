@@ -25,39 +25,33 @@ jobs:
       should_check: ${{ steps.gate.outputs.should_check }}
       reddit_check: ${{ steps.gate.outputs.reddit_check }}
     steps:
+      # Only the gate's inputs and the plain-Node modules it imports; no
+      # package install (ADR 0002).
+      - name: Checkout gate files
+        uses: actions/checkout@v7
+        with:
+          # Branch tip, like the check job: state.json from the last cron push.
+          ref: ${{ github.ref_name }}
+          sparse-checkout: |
+            shows.json
+            state.json
+            src
+            shared
+          sparse-checkout-cone-mode: false
+
+      # The gate runs TypeScript via Node's type stripping; pin the same Node
+      # as the checker rather than relying on the runner image's default.
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24.19.0'
+
       - name: Decide if full check is needed
         id: gate
         env:
-          GITHUB_TOKEN: ${{ github.token }}
           REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
           REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
-        run: |
-          mkdir -p gate-tmp
-          REF="${GITHUB_REF_NAME}"
-          API="https://api.github.com/repos/${GITHUB_REPOSITORY}/contents"
-          CURL_OPTS=(--fail-with-body --connect-timeout 10 --max-time 30 --retry 2 --retry-delay 3 -sSL)
-
-          fetch() {
-            local path="$1"
-            local dest="$2"
-            if ! curl "${CURL_OPTS[@]}" \
-              -H "Authorization: Bearer ${GITHUB_TOKEN}" \
-              -H "Accept: application/vnd.github.raw" \
-              "${API}/${path}?ref=${REF}" \
-              -o "$dest"; then
-              echo "Failed to fetch ${path} (ref=${REF})" >&2
-              cat "$dest" >&2
-              exit 1
-            fi
-          }
-
-          fetch "shows.json" gate-tmp/shows.json
-          fetch "state.json" gate-tmp/state.json
-          fetch "src/should-run.mjs" gate-tmp/should-run.mjs
-
-          SHOWS_PATH=gate-tmp/shows.json \
-          STATE_PATH=gate-tmp/state.json \
-          node gate-tmp/should-run.mjs
+        run: node src/should-run.ts
 
   check:
     needs: gate
