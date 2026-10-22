@@ -2,7 +2,7 @@ import {
   parseDisneyIdFromUrl,
   parseNetflixIdFromUrl,
   parseSeriesIdFromUrl,
-} from './github'
+} from './provider-urls'
 import { slugify } from './slugify'
 import { fromDatetimeLocalValue } from './time'
 import type { Show, ShowFormValues, ShowProvider } from './types'

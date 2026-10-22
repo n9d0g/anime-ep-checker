@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { withErrorResponse } from '@/lib/api-route'
 import {
   getShowsFile,
   getStateFile,
@@ -61,73 +62,70 @@ async function attachMalWatched(
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
-  try {
-    const [{ content: stateContent }, { content: showsContent }] =
-      await Promise.all([getStateFile(), getShowsFile()])
+  return withErrorResponse(
+    { status: 500, headers: NO_STORE_HEADERS },
+    async () => {
+      const [{ content: stateContent }, { content: showsContent }] =
+        await Promise.all([getStateFile(), getShowsFile()])
 
-    const summaries = toSummaryMap(stateContent as StateFile)
-    const shows = (showsContent.shows ?? []) as Show[]
-    const enriched = await attachMalWatched(summaries, shows)
+      const summaries = toSummaryMap(stateContent as StateFile)
+      const shows = (showsContent.shows ?? []) as Show[]
+      const enriched = await attachMalWatched(summaries, shows)
 
-    return NextResponse.json({ shows: enriched }, { headers: NO_STORE_HEADERS })
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error'
-    return NextResponse.json(
-      { error: message },
-      { status: 500, headers: NO_STORE_HEADERS }
-    )
-  }
+      return NextResponse.json(
+        { shows: enriched },
+        { headers: NO_STORE_HEADERS }
+      )
+    }
+  )
 }
 
 export async function PATCH(request: Request) {
-  try {
-    const body = (await request.json()) as StatePatchBody
-    const showId = body.showId?.trim()
-    const episodeNumber = body.episodeNumber
+  return withErrorResponse(
+    { status: 400, headers: NO_STORE_HEADERS },
+    async () => {
+      const body = (await request.json()) as StatePatchBody
+      const showId = body.showId?.trim()
+      const episodeNumber = body.episodeNumber
 
-    if (!showId) {
-      throw new Error('showId is required')
-    }
+      if (!showId) {
+        throw new Error('showId is required')
+      }
 
-    if (!Number.isFinite(episodeNumber) || episodeNumber! < 1) {
-      throw new Error('episodeNumber must be a positive number')
-    }
+      if (!Number.isFinite(episodeNumber) || episodeNumber! < 1) {
+        throw new Error('episodeNumber must be a positive number')
+      }
 
-    let existing: ShowState | undefined
-    await updateRepoFiles(
-      ['state.json'],
-      ({ 'state.json': state }) => {
-        existing = state.shows?.[showId]
-        if (!existing) {
-          throw new Error(`No state found for show: ${showId}`)
-        }
+      let existing: ShowState | undefined
+      await updateRepoFiles(
+        ['state.json'],
+        ({ 'state.json': state }) => {
+          existing = state.shows?.[showId]
+          if (!existing) {
+            throw new Error(`No state found for show: ${showId}`)
+          }
 
-        state.shows[showId] = {
-          ...existing,
-          lastEpisodeNumber: String(episodeNumber),
-          waitingNotifiedForEpisode: null,
-        }
-        return { 'state.json': state }
-      },
-      'chore: 🧹 update episode progress from admin CMS'
-    )
-
-    return NextResponse.json(
-      {
-        ok: true,
-        show: {
-          lastEpisodeNumber: String(episodeNumber),
-          lastEpisodeTitle: existing!.lastEpisodeTitle,
-          lastNotifiedAt: existing!.lastNotifiedAt,
+          state.shows[showId] = {
+            ...existing,
+            lastEpisodeNumber: String(episodeNumber),
+            waitingNotifiedForEpisode: null,
+          }
+          return { 'state.json': state }
         },
-      },
-      { headers: NO_STORE_HEADERS }
-    )
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error'
-    return NextResponse.json(
-      { error: message },
-      { status: 400, headers: NO_STORE_HEADERS }
-    )
-  }
+        'chore: 🧹 update episode progress from admin CMS'
+      )
+
+      return NextResponse.json(
+        {
+          ok: true,
+          show: {
+            lastEpisodeNumber: String(episodeNumber),
+            lastEpisodeTitle: existing!.lastEpisodeTitle,
+            lastNotifiedAt: existing!.lastNotifiedAt,
+          },
+        },
+        { headers: NO_STORE_HEADERS }
+      )
+    }
+  )
 }

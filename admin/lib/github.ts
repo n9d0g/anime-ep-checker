@@ -29,10 +29,20 @@ export const NO_STORE_HEADERS = {
   'Cache-Control': 'no-store, max-age=0',
 }
 
+/** GitHub answered a request with a non-2xx status. */
+class GitHubApiError extends Error {
+  constructor(
+    readonly status: number,
+    body: string
+  ) {
+    super(`GitHub API ${status}: ${body}`)
+  }
+}
+
 function isGithubConflictError(error: unknown): boolean {
-  const message = error instanceof Error ? error.message : String(error)
   return (
-    message.includes('GitHub API 409') || message.includes('GitHub API 422')
+    error instanceof GitHubApiError &&
+    (error.status === 409 || error.status === 422)
   )
 }
 
@@ -55,8 +65,7 @@ async function githubFetch<T>(
   })
 
   if (!response.ok) {
-    const body = await response.text()
-    throw new Error(`GitHub API ${response.status}: ${body}`)
+    throw new GitHubApiError(response.status, await response.text())
   }
 
   if (response.status === 204) return null
@@ -71,7 +80,7 @@ async function getRepoFileAtRef(path: string, ref: string) {
       `/repos/${repo}/contents/${path}?ref=${encodeURIComponent(ref)}`
     )
   } catch (error) {
-    if (error instanceof Error && error.message.startsWith('GitHub API 404')) {
+    if (error instanceof GitHubApiError && error.status === 404) {
       return null
     }
     throw error
@@ -131,12 +140,12 @@ export async function getStateFile() {
   return data
 }
 
-export interface RepoFiles {
+interface RepoFiles {
   'shows.json': ShowsFile
   'state.json': StateFile
 }
 
-export type RepoPath = keyof RepoFiles
+type RepoPath = keyof RepoFiles
 
 const MISSING_FILE_DEFAULTS: Partial<RepoFiles> = {
   'state.json': { shows: {} },
@@ -160,7 +169,7 @@ async function readRepoFileAtRef<P extends RepoPath>(
 }
 
 /** Blob SHA of each file: changes whenever the file's content changes. */
-export type RepoFileVersions<P extends RepoPath> = Record<P, string | null>
+type RepoFileVersions<P extends RepoPath> = Record<P, string | null>
 
 const UPDATE_ATTEMPTS = 3
 
@@ -169,7 +178,7 @@ type ApplyRepoUpdate<P extends RepoPath> = (
   versions: RepoFileVersions<P>
 ) => Partial<Pick<RepoFiles, P>> | null
 
-export interface RepoUpdateResult<P extends RepoPath> {
+interface RepoUpdateResult<P extends RepoPath> {
   committed: boolean
   /** File versions after the update (unchanged files keep their version). */
   versions: RepoFileVersions<P>
@@ -279,30 +288,4 @@ export async function dispatchCheckWorkflow(force = true): Promise<void> {
       }),
     }
   )
-}
-
-export { slugify } from './slugify'
-
-export function parseSeriesIdFromUrl(url: string): string | null {
-  const match = String(url).match(/\/series\/([A-Z0-9]+)/i)
-  return match ? match[1].toUpperCase() : null
-}
-
-export function parseNetflixIdFromUrl(url: string): string | null {
-  const match = String(url).match(/\/title\/(\d+)/i)
-  return match ? match[1] : null
-}
-
-export function parseDisneyIdFromUrl(url: string): string | null {
-  const entityMatch = String(url).match(
-    /\/browse\/entity-([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i
-  )
-  if (entityMatch) {
-    return entityMatch[1]
-  }
-
-  const seriesMatch = String(url).match(
-    /\/series\/[a-z0-9-]+\/([a-zA-Z0-9-]+)/i
-  )
-  return seriesMatch ? seriesMatch[1] : null
 }

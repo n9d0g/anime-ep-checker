@@ -25,7 +25,7 @@ function compareTitles(a: WatchedEntry, b: WatchedEntry): number {
  * Best guess at when you finished: MAL finish date, else the last time the
  * list entry was updated (usually when it was marked completed).
  */
-export function getWatchedDate(entry: WatchedEntry): string | null {
+function getWatchedDate(entry: WatchedEntry): string | null {
   return entry.finishedAt ?? entry.updatedAt
 }
 
@@ -83,7 +83,7 @@ export function filterWatched(
   )
 }
 
-export interface WatchedGroup {
+interface WatchedGroup {
   key: string
   title: string | null
   entries: WatchedEntry[]
@@ -122,7 +122,7 @@ export function groupWatched(
   return groups
 }
 
-export interface WatchedStats {
+interface WatchedStats {
   count: number
   scoredCount: number
   meanScore: number | null

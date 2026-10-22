@@ -1,13 +1,10 @@
 import { normalizeBroadcastTime, RELEASE_BUFFER_MS } from './broadcast'
 import { slugify } from './slugify'
 import { fromDatetimeLocalValue, toDatetimeLocalValue } from './time'
-import {
-  emptyShowForm,
-  type PlanToWatchSnapshotEntry,
-  type ShowFormValues,
-} from './types'
+import { emptyShowForm } from './show-form'
+import type { PlanToWatchSnapshotEntry, ShowFormValues } from './types'
 
-export type UnknownWatchField = 'provider' | 'startAt' | 'episodeCount'
+type UnknownWatchField = 'provider' | 'startAt' | 'episodeCount'
 
 const FULL_DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/
 
@@ -42,7 +39,7 @@ export function hasKnownEpisodeCount(entry: PlanToWatchSnapshotEntry): boolean {
   return typeof entry.numEpisodes === 'number' && entry.numEpisodes > 0
 }
 
-export function unknownWatchFields(
+function unknownWatchFields(
   entry: PlanToWatchSnapshotEntry
 ): UnknownWatchField[] {
   const fields: UnknownWatchField[] = ['provider']

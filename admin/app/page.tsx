@@ -16,16 +16,18 @@ import {
   isEpisodeInSchedule,
   parseEpisodeNumber,
 } from '@/lib/schedule'
-import { formatEasternShortMilitary, formatEasternTime } from '@/lib/time'
+import { emptyShowForm, showToForm } from '@/lib/show-form'
 import {
-  emptyShowForm,
+  formatEasternShortMilitary,
+  formatEasternTime,
   fromDatetimeLocalValue,
-  showToForm,
-  type Show,
-  type ShowFormValues,
-  type ShowProvider,
-  type ShowSchedule,
-  type ShowStateSummary,
+} from '@/lib/time'
+import type {
+  Show,
+  ShowFormValues,
+  ShowProvider,
+  ShowSchedule,
+  ShowStateSummary,
 } from '@/lib/types'
 
 function providerDotClass(provider: ShowProvider): string {

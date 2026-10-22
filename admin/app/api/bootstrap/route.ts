@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { withErrorResponse } from '@/lib/api-route'
 import { getRepoFiles, NO_STORE_HEADERS } from '@/lib/github'
 import type { Show, ShowStateSummary, StateFile } from '@/lib/types'
 
@@ -20,37 +21,34 @@ function toSummaryMap(state: StateFile): Record<string, ShowStateSummary> {
 }
 
 export async function GET() {
-  try {
-    const { files } = await getRepoFiles(['shows.json', 'state.json'])
-    const showsFile = files['shows.json']
-    const stateFile = files['state.json']
+  return withErrorResponse(
+    { status: 500, headers: NO_STORE_HEADERS },
+    async () => {
+      const { files } = await getRepoFiles(['shows.json', 'state.json'])
+      const showsFile = files['shows.json']
+      const stateFile = files['state.json']
 
-    if (!showsFile?.content) {
-      throw new Error('shows.json not found in repository')
+      if (!showsFile?.content) {
+        throw new Error('shows.json not found in repository')
+      }
+
+      const shows = ((showsFile.content as { shows?: Show[] }).shows ?? []).map(
+        (show) => ({
+          ...show,
+          provider: show.provider ?? 'crunchyroll',
+        })
+      )
+
+      const state = (stateFile?.content ?? { shows: {} }) as StateFile
+
+      return NextResponse.json(
+        {
+          shows,
+          showsVersion: showsFile.sha,
+          showStates: toSummaryMap(state),
+        },
+        { headers: NO_STORE_HEADERS }
+      )
     }
-
-    const shows = ((showsFile.content as { shows?: Show[] }).shows ?? []).map(
-      (show) => ({
-        ...show,
-        provider: show.provider ?? 'crunchyroll',
-      })
-    )
-
-    const state = (stateFile?.content ?? { shows: {} }) as StateFile
-
-    return NextResponse.json(
-      {
-        shows,
-        showsVersion: showsFile.sha,
-        showStates: toSummaryMap(state),
-      },
-      { headers: NO_STORE_HEADERS }
-    )
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error'
-    return NextResponse.json(
-      { error: message },
-      { status: 500, headers: NO_STORE_HEADERS }
-    )
-  }
+  )
 }

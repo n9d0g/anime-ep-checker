@@ -1,25 +1,23 @@
 import { NextResponse } from 'next/server'
 import {
-  dispatchCheckWorkflow,
-  getStateFile,
-  updateRepoFiles,
-} from '@/lib/github'
+  attempt,
+  tryDispatchCheckWorkflow,
+  withErrorResponse,
+} from '@/lib/api-route'
+import { getStateFile, updateRepoFiles } from '@/lib/github'
 import { setMalWatchingStatus } from '@/lib/mal'
 import type { Show, StateFile } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
-  try {
+  return withErrorResponse({ status: 500 }, async () => {
     const { content } = await getStateFile()
     const state = content as StateFile
     return NextResponse.json({
       onHold: state.meta?.onHold ?? null,
     })
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error'
-    return NextResponse.json({ error: message }, { status: 500 })
-  }
+  })
 }
 
 interface RestoreBody {
@@ -27,7 +25,7 @@ interface RestoreBody {
 }
 
 export async function POST(request: Request) {
-  try {
+  return withErrorResponse({ status: 400 }, async () => {
     const body = (await request.json()) as RestoreBody
     const showId = body.showId?.trim()
     if (!showId) {
@@ -71,21 +69,12 @@ export async function POST(request: Request) {
       `chore: restore ${showId} from on hold to watching`
     )
 
-    let malUpdated = false
-    try {
-      await setMalWatchingStatus(show!.malId!)
-      malUpdated = true
-    } catch (error) {
-      console.warn('Failed to mark MAL status watching:', error)
-    }
+    const malUpdated = await attempt(
+      () => setMalWatchingStatus(show!.malId!),
+      'Failed to mark MAL status watching:'
+    )
 
-    let workflowTriggered = false
-    try {
-      await dispatchCheckWorkflow(true)
-      workflowTriggered = true
-    } catch (error) {
-      console.warn('Failed to dispatch check workflow:', error)
-    }
+    const workflowTriggered = await tryDispatchCheckWorkflow(true)
 
     return NextResponse.json({
       ok: true,
@@ -93,8 +82,5 @@ export async function POST(request: Request) {
       malUpdated,
       workflowTriggered,
     })
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error'
-    return NextResponse.json({ error: message }, { status: 400 })
-  }
+  })
 }

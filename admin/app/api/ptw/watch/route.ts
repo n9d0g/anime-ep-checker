@@ -1,5 +1,11 @@
 import { NextResponse } from 'next/server'
-import { dispatchCheckWorkflow, updateRepoFiles } from '@/lib/github'
+import {
+  attempt,
+  parseMalId,
+  tryDispatchCheckWorkflow,
+  withErrorResponse,
+} from '@/lib/api-route'
+import { updateRepoFiles } from '@/lib/github'
 import { setMalWatchingStatus } from '@/lib/mal'
 import { normalizeShow } from '@/lib/normalize-show'
 import { uniqueShowId } from '@/lib/ptw-watch'
@@ -19,14 +25,10 @@ interface PtwWatchBody {
 }
 
 export async function POST(request: Request) {
-  try {
+  return withErrorResponse({ status: 400 }, async () => {
     const body = (await request.json()) as PtwWatchBody
-    const malId = Number(body.malId)
+    const malId = parseMalId(Number(body.malId))
     const title = body.title?.trim() ?? ''
-
-    if (!Number.isFinite(malId) || malId < 1) {
-      throw new Error('malId must be a positive number')
-    }
 
     if (!title) {
       throw new Error('title is required')
@@ -83,21 +85,12 @@ export async function POST(request: Request) {
       `chore: move ${title} from plan-to-watch to watching`
     )
 
-    let malUpdated = false
-    try {
-      await setMalWatchingStatus(malId)
-      malUpdated = true
-    } catch (error) {
-      console.warn('Failed to mark MAL status watching:', error)
-    }
+    const malUpdated = await attempt(
+      () => setMalWatchingStatus(malId),
+      'Failed to mark MAL status watching:'
+    )
 
-    let workflowTriggered = false
-    try {
-      await dispatchCheckWorkflow(true)
-      workflowTriggered = true
-    } catch (error) {
-      console.warn('Failed to dispatch check workflow:', error)
-    }
+    const workflowTriggered = await tryDispatchCheckWorkflow(true)
 
     return NextResponse.json({
       ok: true,
@@ -105,8 +98,5 @@ export async function POST(request: Request) {
       malUpdated,
       workflowTriggered,
     })
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error'
-    return NextResponse.json({ error: message }, { status: 400 })
-  }
+  })
 }

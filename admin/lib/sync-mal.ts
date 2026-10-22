@@ -5,7 +5,7 @@ import { resolveMalIdFromSearch, type MalSearchResult } from './mal-match'
 import { fetchMalAnimeTitles, searchMalAnime } from './mal'
 import type { Show } from './types'
 
-export interface MalShowUpdate {
+interface MalShowUpdate {
   id: string
   malId?: number
   title: string
@@ -16,7 +16,7 @@ export interface MalShowUpdate {
   broadcast?: MalBroadcast
 }
 
-export interface SyncMalResult {
+interface SyncMalResult {
   changed: boolean
   resolvedIds: string[]
   updatedTitles: string[]
@@ -28,7 +28,7 @@ export interface SyncMalResult {
   showsVersion: string | null
 }
 
-export interface SyncOnHoldEnglishResult {
+interface SyncOnHoldEnglishResult {
   changed: boolean
   updatedShowIds: string[]
 }

@@ -76,9 +76,9 @@ interface MalCompletedListStatus {
   num_times_rewatched?: number
 }
 
-interface MalCompletedResponse {
-  data?: Array<{ node: MalCompletedNode; list_status?: MalCompletedListStatus }>
-  paging?: { next?: string }
+interface MalCompletedItem {
+  node: MalCompletedNode
+  list_status?: MalCompletedListStatus
 }
 
 interface MalPtwDetailsNode extends MalCompletedNode {
@@ -93,19 +93,15 @@ interface MalPtwDetailsNode extends MalCompletedNode {
   rating?: string
 }
 
-interface MalPtwDetailsResponse {
-  data?: Array<{
-    node: MalPtwDetailsNode
-    list_status?: { updated_at?: string }
-  }>
-  paging?: { next?: string }
+interface MalPtwDetailsItem {
+  node: MalPtwDetailsNode
+  list_status?: { updated_at?: string }
 }
 
-interface MalAnimelistResponse {
-  data?: MalAnimelistEntry[]
-  paging?: {
-    next?: string
-  }
+/** One page of a paged MAL list response. */
+interface MalPage<T> {
+  data?: T[]
+  paging?: { next?: string }
 }
 
 interface MalSearchNode {
@@ -161,7 +157,7 @@ const MAL_PTW_DETAILS_FIELDS = [
 const MAL_ANIMELIST_FIELDS =
   'list_status,num_episodes,start_date,broadcast,main_picture,status,alternative_titles'
 
-export interface MalPlanToWatchEntry {
+interface MalPlanToWatchEntry {
   malId: number
   title: string
   titleEnglish?: string
@@ -175,16 +171,44 @@ export interface MalPlanToWatchEntry {
   numEpisodes: number | null
 }
 
-export type MalPlanToWatchResult =
+type MalPlanToWatchResult =
   | { status: 'ok'; entries: MalPlanToWatchEntry[] }
   | { status: 'not_configured' }
   | { status: 'unavailable' }
 
-export interface MalAnimeDetails {
+interface MalAnimeDetails {
   watched: number
   total: number | null
   meanScore: number | null
   coverUrl: string | null
+}
+
+/** MAL credentials are missing from the environment. */
+export class MalConfigError extends Error {}
+
+/** MAL answered a request with a non-2xx status. */
+export class MalHttpError extends Error {
+  constructor(
+    lookup: string,
+    readonly status: number,
+    body: string
+  ) {
+    super(`${lookup} failed (${status}): ${body}`)
+  }
+}
+
+/** Parses a MAL response, throwing a MalHttpError named after `lookup` when it failed. */
+async function readMalJson<T>(response: Response, lookup: string): Promise<T> {
+  if (!response.ok) {
+    throw new MalHttpError(lookup, response.status, await response.text())
+  }
+  return (await response.json()) as T
+}
+
+function malGet<T>(accessToken: string, url: string, lookup: string) {
+  return fetch(url, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  }).then((response) => readMalJson<T>(response, lookup))
 }
 
 function getMalClientConfig() {
@@ -192,7 +216,7 @@ function getMalClientConfig() {
   const clientSecret = process.env.MAL_CLIENT_SECRET?.trim()
 
   if (!clientId || !clientSecret) {
-    throw new Error(
+    throw new MalConfigError(
       'MAL_CLIENT_ID and MAL_CLIENT_SECRET must be set on Cloudflare.'
     )
   }
@@ -205,7 +229,7 @@ function getMalRefreshConfig() {
   const refreshToken = process.env.MAL_REFRESH_TOKEN?.trim()
 
   if (!refreshToken) {
-    throw new Error(
+    throw new MalConfigError(
       'MAL_REFRESH_TOKEN is not set. Connect MAL from /mal and paste the refresh token into Cloudflare Worker secrets.'
     )
   }
@@ -239,12 +263,7 @@ export async function exchangeMalCode(
     }),
   })
 
-  if (!response.ok) {
-    const body = await response.text()
-    throw new Error(`MAL token exchange failed (${response.status}): ${body}`)
-  }
-
-  return response.json() as Promise<MalTokenResponse>
+  return readMalJson<MalTokenResponse>(response, 'MAL token exchange')
 }
 
 /**
@@ -259,7 +278,9 @@ export function isMalOutageError(error: unknown): boolean {
   if (error instanceof DOMException && error.name === 'TimeoutError') {
     return true
   }
-  return error instanceof Error && /\(5\d\d\)/.test(error.message)
+  return (
+    error instanceof MalHttpError && error.status >= 500 && error.status < 600
+  )
 }
 
 let cachedMalAccessToken: string | null = null
@@ -284,60 +305,24 @@ async function getMalAccessToken(): Promise<string> {
     }),
   })
 
-  if (!response.ok) {
-    const body = await response.text()
-    throw new Error(`MAL token refresh failed (${response.status}): ${body}`)
-  }
-
-  const data = (await response.json()) as MalTokenResponse
+  const data = await readMalJson<MalTokenResponse>(
+    response,
+    'MAL token refresh'
+  )
   cachedMalAccessToken = data.access_token
   malAccessTokenExpiresAt = now + (data.expires_in ?? 3600) * 1000
   return cachedMalAccessToken
 }
 
-async function fetchMalAnimeStatus(
+async function fetchMalAnime(
   accessToken: string,
   malId: number
-): Promise<{ watched: number; total: number | null }> {
-  const response = await fetch(
-    `https://api.myanimelist.net/v2/anime/${malId}?fields=${MAL_ANIME_FIELDS}`,
-    {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    }
-  )
-
-  if (!response.ok) {
-    const body = await response.text()
-    throw new Error(`MAL anime lookup failed (${response.status}): ${body}`)
-  }
-
-  const current = (await response.json()) as MalAnimeResponse
-  const watched = current.my_list_status?.num_episodes_watched ?? 0
-  const total =
-    typeof current.num_episodes === 'number' && current.num_episodes > 0
-      ? current.num_episodes
-      : null
-
-  return { watched, total }
-}
-
-export async function fetchMalAnimeDetails(
-  malId: number
 ): Promise<MalAnimeDetails> {
-  const accessToken = await getMalAccessToken()
-  const response = await fetch(
+  const current = await malGet<MalAnimeResponse>(
+    accessToken,
     `https://api.myanimelist.net/v2/anime/${malId}?fields=${MAL_ANIME_FIELDS}`,
-    {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    }
+    'MAL anime lookup'
   )
-
-  if (!response.ok) {
-    const body = await response.text()
-    throw new Error(`MAL anime lookup failed (${response.status}): ${body}`)
-  }
-
-  const current = (await response.json()) as MalAnimeResponse
   const watched = current.my_list_status?.num_episodes_watched ?? 0
   const total =
     typeof current.num_episodes === 'number' && current.num_episodes > 0
@@ -353,12 +338,44 @@ export async function fetchMalAnimeDetails(
   return { watched, total, meanScore, coverUrl }
 }
 
+export async function fetchMalAnimeDetails(
+  malId: number
+): Promise<MalAnimeDetails> {
+  return fetchMalAnime(await getMalAccessToken(), malId)
+}
+
+async function patchMalListStatus(
+  accessToken: string,
+  malId: number,
+  params: URLSearchParams
+): Promise<void> {
+  const response = await fetch(
+    `https://api.myanimelist.net/v2/anime/${malId}/my_list_status`,
+    {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: params,
+    }
+  )
+
+  if (!response.ok) {
+    throw new MalHttpError(
+      'MAL list update',
+      response.status,
+      await response.text()
+    )
+  }
+}
+
 export async function setMalWatchedEpisode(
   malId: number,
   episodeNumber: number
 ): Promise<{ updated: boolean; watched: number; total: number | null }> {
   const accessToken = await getMalAccessToken()
-  const { watched, total } = await fetchMalAnimeStatus(accessToken, malId)
+  const { watched, total } = await fetchMalAnime(accessToken, malId)
 
   if (watched === episodeNumber) {
     return { updated: false, watched, total }
@@ -372,53 +389,21 @@ export async function setMalWatchedEpisode(
     params.set('status', 'watching')
   }
 
-  const updateResponse = await fetch(
-    `https://api.myanimelist.net/v2/anime/${malId}/my_list_status`,
-    {
-      method: 'PATCH',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: params,
-    }
-  )
-
-  if (!updateResponse.ok) {
-    const body = await updateResponse.text()
-    throw new Error(
-      `MAL list update failed (${updateResponse.status}): ${body}`
-    )
-  }
-
+  await patchMalListStatus(accessToken, malId, params)
   return { updated: true, watched: episodeNumber, total }
 }
 
-export type MalUserListStatus = 'watching' | 'on_hold'
+type MalUserListStatus = 'watching' | 'on_hold'
 
 export async function setMalAnimeListStatus(
   malId: number,
   status: MalUserListStatus
 ): Promise<void> {
-  const accessToken = await getMalAccessToken()
-  const updateResponse = await fetch(
-    `https://api.myanimelist.net/v2/anime/${malId}/my_list_status`,
-    {
-      method: 'PATCH',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams({ status }),
-    }
+  await patchMalListStatus(
+    await getMalAccessToken(),
+    malId,
+    new URLSearchParams({ status })
   )
-
-  if (!updateResponse.ok) {
-    const body = await updateResponse.text()
-    throw new Error(
-      `MAL list update failed (${updateResponse.status}): ${body}`
-    )
-  }
 }
 
 export async function setMalWatchingStatus(malId: number): Promise<void> {
@@ -434,7 +419,7 @@ export async function completeMalAnime(
   }
 
   const accessToken = await getMalAccessToken()
-  const { watched, total } = await fetchMalAnimeStatus(accessToken, malId)
+  const { watched, total } = await fetchMalAnime(accessToken, malId)
 
   const params = new URLSearchParams({
     status: 'completed',
@@ -447,26 +432,30 @@ export async function completeMalAnime(
     params.set('num_watched_episodes', String(episodesWatched))
   }
 
-  const updateResponse = await fetch(
-    `https://api.myanimelist.net/v2/anime/${malId}/my_list_status`,
-    {
-      method: 'PATCH',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: params,
-    }
-  )
+  await patchMalListStatus(accessToken, malId, params)
+  return { watched: episodesWatched, total }
+}
 
-  if (!updateResponse.ok) {
-    const body = await updateResponse.text()
-    throw new Error(
-      `MAL list update failed (${updateResponse.status}): ${body}`
+/** Follows `paging.next` from `firstUrl` and returns every page's items. */
+export async function fetchMalPages<T>(
+  accessToken: string,
+  firstUrl: string,
+  lookup: string
+): Promise<T[]> {
+  const items: T[] = []
+  let nextUrl: string | undefined = firstUrl
+
+  while (nextUrl) {
+    const page: MalPage<T> = await malGet<MalPage<T>>(
+      accessToken,
+      nextUrl,
+      lookup
     )
+    items.push(...(page.data ?? []))
+    nextUrl = page.paging?.next
   }
 
-  return { watched: episodesWatched, total }
+  return items
 }
 
 function parsePlanToWatchEntry(node: MalAnimelistNode): MalPlanToWatchEntry {
@@ -494,54 +483,20 @@ function parsePlanToWatchEntry(node: MalAnimelistNode): MalPlanToWatchEntry {
   }
 }
 
-async function fetchPlanToWatchPage(
-  accessToken: string,
-  url?: string
-): Promise<MalAnimelistResponse> {
-  const requestUrl =
-    url ??
-    `https://api.myanimelist.net/v2/users/@me/animelist?status=plan_to_watch&limit=100&fields=${MAL_ANIMELIST_FIELDS}`
-
-  const response = await fetch(requestUrl, {
-    headers: { Authorization: `Bearer ${accessToken}` },
-  })
-
-  if (!response.ok) {
-    const body = await response.text()
-    throw new Error(
-      `MAL plan-to-watch lookup failed (${response.status}): ${body}`
-    )
-  }
-
-  return (await response.json()) as MalAnimelistResponse
-}
-
 export async function fetchPlanToWatchAnime(): Promise<MalPlanToWatchResult> {
   try {
-    const accessToken = await getMalAccessToken()
-    const entries: MalPlanToWatchEntry[] = []
-    let nextUrl: string | undefined
-
-    do {
-      const page = await fetchPlanToWatchPage(accessToken, nextUrl)
-
-      for (const item of page.data ?? []) {
-        if (item.node?.id) {
-          entries.push(parsePlanToWatchEntry(item.node))
-        }
-      }
-
-      nextUrl = page.paging?.next
-    } while (nextUrl)
+    const items = await fetchMalPages<MalAnimelistEntry>(
+      await getMalAccessToken(),
+      `https://api.myanimelist.net/v2/users/@me/animelist?status=plan_to_watch&limit=100&fields=${MAL_ANIMELIST_FIELDS}`,
+      'MAL plan-to-watch lookup'
+    )
+    const entries = items
+      .filter((item) => item.node?.id)
+      .map((item) => parsePlanToWatchEntry(item.node))
 
     return { status: 'ok', entries }
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error)
-
-    if (
-      message.includes('MAL_CLIENT_ID') ||
-      message.includes('MAL_REFRESH_TOKEN')
-    ) {
+    if (error instanceof MalConfigError) {
       return { status: 'not_configured' }
     }
 
@@ -557,19 +512,11 @@ export async function searchMalAnime(query: string) {
     fields: 'id,title,alternative_titles',
   })
 
-  const response = await fetch(
+  const data = await malGet<MalSearchResponse>(
+    accessToken,
     `https://api.myanimelist.net/v2/anime?${params.toString()}`,
-    {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    }
+    'MAL anime search'
   )
-
-  if (!response.ok) {
-    const body = await response.text()
-    throw new Error(`MAL anime search failed (${response.status}): ${body}`)
-  }
-
-  const data = (await response.json()) as MalSearchResponse
 
   return (data.data ?? []).map((item) => ({
     malId: item.node.id,
@@ -589,19 +536,11 @@ export async function fetchMalAnimeTitles(malId: number): Promise<{
   broadcast: MalBroadcast | null
 }> {
   const accessToken = await getMalAccessToken()
-  const response = await fetch(
+  const data = await malGet<MalAnimeResponse>(
+    accessToken,
     `https://api.myanimelist.net/v2/anime/${malId}?fields=title,alternative_titles,num_episodes,broadcast`,
-    {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    }
+    'MAL anime lookup'
   )
-
-  if (!response.ok) {
-    const body = await response.text()
-    throw new Error(`MAL anime lookup failed (${response.status}): ${body}`)
-  }
-
-  const data = (await response.json()) as MalAnimeResponse
   return {
     title: data.title?.trim() || null,
     titleEnglish: data.alternative_titles?.en?.trim() || null,
@@ -613,13 +552,6 @@ export async function fetchMalAnimeTitles(malId: number): Promise<{
         }
       : null,
   }
-}
-
-export async function fetchMalAnimeTitle(
-  malId: number
-): Promise<string | null> {
-  const { title } = await fetchMalAnimeTitles(malId)
-  return title
 }
 
 function getNames(items?: Array<{ name?: string }>): string[] {
@@ -668,33 +600,14 @@ function parseCompletedEntry(
 
 /** Your completed list on MAL, fetched live (all pages). */
 export async function fetchCompletedAnime(): Promise<WatchedEntry[]> {
-  const accessToken = await getMalAccessToken()
-  const entries: WatchedEntry[] = []
-  let nextUrl: string | undefined =
-    `https://api.myanimelist.net/v2/users/@me/animelist?status=completed&limit=1000&nsfw=true&fields=${encodeURIComponent(MAL_COMPLETED_FIELDS)}`
-
-  while (nextUrl) {
-    const response = await fetch(nextUrl, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    })
-
-    if (!response.ok) {
-      const body = await response.text()
-      throw new Error(
-        `MAL completed list lookup failed (${response.status}): ${body}`
-      )
-    }
-
-    const page = (await response.json()) as MalCompletedResponse
-    for (const item of page.data ?? []) {
-      if (item.node?.id) {
-        entries.push(parseCompletedEntry(item.node, item.list_status))
-      }
-    }
-    nextUrl = page.paging?.next
-  }
-
-  return entries
+  const items = await fetchMalPages<MalCompletedItem>(
+    await getMalAccessToken(),
+    `https://api.myanimelist.net/v2/users/@me/animelist?status=completed&limit=1000&nsfw=true&fields=${encodeURIComponent(MAL_COMPLETED_FIELDS)}`,
+    'MAL completed list lookup'
+  )
+  return items
+    .filter((item) => item.node?.id)
+    .map((item) => parseCompletedEntry(item.node, item.list_status))
 }
 
 function parsePtwDetails(
@@ -734,31 +647,12 @@ function parsePtwDetails(
 
 /** Extra info for the plan-to-watch page, fetched live (not stored in state). */
 export async function fetchPlanToWatchDetails(): Promise<PtwDetails[]> {
-  const accessToken = await getMalAccessToken()
-  const details: PtwDetails[] = []
-  let nextUrl: string | undefined =
-    `https://api.myanimelist.net/v2/users/@me/animelist?status=plan_to_watch&limit=1000&nsfw=true&fields=${encodeURIComponent(MAL_PTW_DETAILS_FIELDS)}`
-
-  while (nextUrl) {
-    const response = await fetch(nextUrl, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    })
-
-    if (!response.ok) {
-      const body = await response.text()
-      throw new Error(
-        `MAL plan-to-watch details lookup failed (${response.status}): ${body}`
-      )
-    }
-
-    const page = (await response.json()) as MalPtwDetailsResponse
-    for (const item of page.data ?? []) {
-      if (item.node?.id) {
-        details.push(parsePtwDetails(item.node, item.list_status))
-      }
-    }
-    nextUrl = page.paging?.next
-  }
-
-  return details
+  const items = await fetchMalPages<MalPtwDetailsItem>(
+    await getMalAccessToken(),
+    `https://api.myanimelist.net/v2/users/@me/animelist?status=plan_to_watch&limit=1000&nsfw=true&fields=${encodeURIComponent(MAL_PTW_DETAILS_FIELDS)}`,
+    'MAL plan-to-watch details lookup'
+  )
+  return items
+    .filter((item) => item.node?.id)
+    .map((item) => parsePtwDetails(item.node, item.list_status))
 }

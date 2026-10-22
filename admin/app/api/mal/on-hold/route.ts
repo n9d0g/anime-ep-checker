@@ -1,5 +1,10 @@
 import { NextResponse } from 'next/server'
-import { dispatchCheckWorkflow, updateRepoFiles } from '@/lib/github'
+import {
+  parseMalId,
+  tryDispatchCheckWorkflow,
+  withErrorResponse,
+} from '@/lib/api-route'
+import { updateRepoFiles } from '@/lib/github'
 import { setMalAnimeListStatus } from '@/lib/mal'
 import type { OnHoldSnapshot, Show } from '@/lib/types'
 
@@ -30,20 +35,16 @@ function upsertOnHoldEntry(
 }
 
 export async function POST(request: Request) {
-  try {
+  return withErrorResponse({ status: 400 }, async () => {
     const body = (await request.json()) as MalOnHoldBody
-    const malId = body.malId
+    const malId = parseMalId(body.malId)
     const showId = body.showId?.trim()
-
-    if (!Number.isFinite(malId) || malId! < 1) {
-      throw new Error('malId must be a positive number')
-    }
 
     if (!showId) {
       throw new Error('showId is required')
     }
 
-    await setMalAnimeListStatus(malId!, 'on_hold')
+    await setMalAnimeListStatus(malId, 'on_hold')
 
     const { versions } = await updateRepoFiles(
       ['shows.json', 'state.json'],
@@ -71,21 +72,12 @@ export async function POST(request: Request) {
       `chore: put ${showId} on hold`
     )
 
-    let cleanupTriggered = false
-    try {
-      await dispatchCheckWorkflow(false)
-      cleanupTriggered = true
-    } catch (error) {
-      console.warn('Failed to dispatch cleanup check workflow:', error)
-    }
+    const cleanupTriggered = await tryDispatchCheckWorkflow(false)
 
     return NextResponse.json({
       ok: true,
       cleanupTriggered,
       showsVersion: versions['shows.json'],
     })
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error'
-    return NextResponse.json({ error: message }, { status: 400 })
-  }
+  })
 }

@@ -12,7 +12,7 @@ const MEDIA_TYPE_LABELS: Record<string, string> = {
   pv: 'PV',
 }
 
-export function formatMediaType(mediaType: string | null): string | null {
+function formatMediaType(mediaType: string | null): string | null {
   if (!mediaType || mediaType === 'unknown') {
     return null
   }

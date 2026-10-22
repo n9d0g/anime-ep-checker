@@ -1,23 +1,21 @@
 import { NextResponse } from 'next/server'
+import { withErrorResponse } from '@/lib/api-route'
 import { getStateFile, updateRepoFiles } from '@/lib/github'
 import { fetchPlanToWatchAnime } from '@/lib/mal'
 import type { PlanToWatchSnapshot, StateFile } from '@/lib/types'
 
 export async function GET() {
-  try {
+  return withErrorResponse({ status: 500 }, async () => {
     const { content } = await getStateFile()
     const state = content as StateFile
     return NextResponse.json({
       planToWatch: state.meta?.planToWatch ?? null,
     })
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error'
-    return NextResponse.json({ error: message }, { status: 500 })
-  }
+  })
 }
 
 export async function POST() {
-  try {
+  return withErrorResponse({ status: 500 }, async () => {
     const result = await fetchPlanToWatchAnime()
 
     if (result.status === 'not_configured') {
@@ -54,8 +52,5 @@ export async function POST() {
     )
 
     return NextResponse.json({ planToWatch: snapshot })
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error'
-    return NextResponse.json({ error: message }, { status: 500 })
-  }
+  })
 }

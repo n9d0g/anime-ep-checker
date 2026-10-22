@@ -1,4 +1,9 @@
 import { NextResponse } from 'next/server'
+import {
+  errorResponse,
+  malConfigErrorStatus,
+  parseMalId,
+} from '@/lib/api-route'
 import { isMalOutageError, setMalWatchedEpisode } from '@/lib/mal'
 
 interface MalProgressPatchBody {
@@ -9,18 +14,14 @@ interface MalProgressPatchBody {
 export async function PATCH(request: Request) {
   try {
     const body = (await request.json()) as MalProgressPatchBody
-    const malId = body.malId
+    const malId = parseMalId(body.malId)
     const episodeNumber = body.episodeNumber
-
-    if (!Number.isFinite(malId) || malId! < 1) {
-      throw new Error('malId must be a positive number')
-    }
 
     if (!Number.isFinite(episodeNumber) || episodeNumber! < 0) {
       throw new Error('episodeNumber must be zero or greater')
     }
 
-    const result = await setMalWatchedEpisode(malId!, episodeNumber!)
+    const result = await setMalWatchedEpisode(malId, episodeNumber!)
 
     return NextResponse.json({
       ok: true,
@@ -36,8 +37,6 @@ export async function PATCH(request: Request) {
       )
     }
 
-    const message = error instanceof Error ? error.message : 'Unknown error'
-    const status = message.includes('MAL_') ? 400 : 500
-    return NextResponse.json({ error: message }, { status })
+    return errorResponse(error, { status: malConfigErrorStatus })
   }
 }
