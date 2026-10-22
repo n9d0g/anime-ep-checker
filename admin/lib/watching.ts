@@ -272,7 +272,7 @@ function getNextDropTime(
 export interface ShowViewModel {
   providerDotClass: string
   // "Next: Episode 3 - Wed Oct 14th, 11:00 EDT" under the title.
-  nextEpisodeLine: string | null
+  nextDropLine: string | null
   // Eastern conversion of the start time, shown under the start field.
   startHint: string | null
   nextDropTime: number | null
@@ -298,25 +298,25 @@ export function buildShowViewModel(
   const currentEpisode = getProgressEpisode(show, liveState)
   const malLinked = usesMalProgress(show)
 
-  let nextEpisodeLine: string | null = null
+  let nextDropLine: string | null = null
   let startHint: string | null = null
   if (drop) {
     const eastern = `Eastern: ${formatEasternTime(schedule.startAt)}`
     if (drop.episode === null) {
-      nextEpisodeLine = 'No further episodes on schedule'
+      nextDropLine = 'No further episodes on schedule'
       startHint = `${eastern} · No further episodes on schedule`
     } else if (!drop.at) {
-      nextEpisodeLine = `Next: Episode ${drop.episode}`
+      nextDropLine = `Next: Episode ${drop.episode}`
       startHint = eastern
     } else {
-      nextEpisodeLine = `Next: Episode ${drop.episode} - ${formatEasternShortMilitary(drop.at)}`
+      nextDropLine = `Next: Episode ${drop.episode} - ${formatEasternShortMilitary(drop.at)}`
       startHint = `${eastern} · Next ep ${drop.episode}: ${formatEasternTime(drop.at)}`
     }
   }
 
   return {
     providerDotClass: providerDotClass(show.provider),
-    nextEpisodeLine,
+    nextDropLine,
     startHint,
     nextDropTime: drop?.at?.getTime() ?? null,
     badge: episodeBadgeFor(show, schedule, liveState, malDown),

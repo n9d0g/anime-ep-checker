@@ -24,7 +24,7 @@ type DashboardStatus = 'upcoming' | 'in_window' | 'waiting' | 'out'
 
 export interface ShowDashboardRow {
   show: Show
-  nextEpisode: number | null
+  nextDropEpisode: number | null
   expectedDropAt: string | null
   status: DashboardStatus
   malProgress: string
@@ -60,16 +60,19 @@ function resolveDashboardStatus(
   expectedAt: Date,
   now: Date,
   providerLatestEpisode: number | null,
-  nextEpisode: number,
+  nextDropEpisode: number,
   waitingNotifiedForEpisode: number | null | undefined
 ): DashboardStatus {
-  if (providerLatestEpisode !== null && providerLatestEpisode >= nextEpisode) {
+  if (
+    providerLatestEpisode !== null &&
+    providerLatestEpisode >= nextDropEpisode
+  ) {
     return 'out'
   }
 
   if (
     isPastWaitingGrace(expectedAt, now) ||
-    waitingNotifiedForEpisode === nextEpisode
+    waitingNotifiedForEpisode === nextDropEpisode
   ) {
     return 'waiting'
   }
@@ -111,7 +114,7 @@ export async function buildShowDashboardRow(
     ? parseEpisodeNumber(showState.lastEpisodeNumber)
     : null
   const nextDrop = getNextDrop(show.schedule, showState?.lastEpisodeNumber)
-  const nextEpisode = nextDrop?.episode ?? null
+  const nextDropEpisode = nextDrop?.episode ?? null
   const expectedAt = nextDrop?.expectedAt ?? null
   const status = resolveShowDashboardStatus(show, showState, now)
 
@@ -140,8 +143,8 @@ export async function buildShowDashboardRow(
   const discussionEpisode =
     lastEpisodeNumber !== null && lastEpisodeNumber > 0
       ? lastEpisodeNumber
-      : nextEpisode !== null && nextEpisode > 0
-        ? nextEpisode
+      : nextDropEpisode !== null && nextDropEpisode > 0
+        ? nextDropEpisode
         : show.schedule.startEpisode
 
   if (discussionEpisode > 0) {
@@ -181,7 +184,7 @@ export async function buildShowDashboardRow(
 
   return {
     show,
-    nextEpisode,
+    nextDropEpisode,
     expectedDropAt: expectedAt?.toISOString() ?? null,
     status,
     malProgress,
@@ -196,8 +199,10 @@ function buildDashboardEmbed(row: ShowDashboardRow) {
   const title = row.show.title || row.show.id
   const provider = providerLabel(row.show.provider)
   const watchUrl = getShowWatchUrl(row.show)
-  const nextEpisode =
-    row.nextEpisode !== null ? `Episode ${row.nextEpisode}` : 'Season complete'
+  const nextDropLabel =
+    row.nextDropEpisode !== null
+      ? `Episode ${row.nextDropEpisode}`
+      : 'Season complete'
   const drop =
     row.expectedDropAt !== null
       ? formatEasternTime(row.expectedDropAt)
@@ -221,7 +226,7 @@ function buildDashboardEmbed(row: ShowDashboardRow) {
       { name: 'Provider', value: provider, inline: true },
       { name: 'MAL', value: row.malProgress, inline: true },
       { name: 'MAL score', value: row.malScore, inline: true },
-      { name: 'Next', value: nextEpisode, inline: true },
+      { name: 'Next', value: nextDropLabel, inline: true },
       { name: 'Countdown', value: countdown, inline: true },
       {
         name: 'Expected drop',
@@ -238,10 +243,12 @@ function buildDashboardEmbed(row: ShowDashboardRow) {
 
 function buildDashboardNotificationContent(row: ShowDashboardRow): string {
   const title = row.show.title || row.show.id
-  const nextEpisode =
-    row.nextEpisode !== null ? `Episode ${row.nextEpisode}` : 'Season complete'
+  const nextDropLabel =
+    row.nextDropEpisode !== null
+      ? `Episode ${row.nextDropEpisode}`
+      : 'Season complete'
   const status = getDashboardStatusLabel(row.status)
-  return `**${title}** — MAL ${row.malProgress} · Next ${nextEpisode} · ${status}`
+  return `**${title}** — MAL ${row.malProgress} · Next ${nextDropLabel} · ${status}`
 }
 
 function buildDashboardLinkComponents(

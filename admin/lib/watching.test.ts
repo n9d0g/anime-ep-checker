@@ -205,7 +205,7 @@ test('buildShowViewModel derives the schedule lines, links and badge once', () =
     false
   )
 
-  assert.equal(vm.nextEpisodeLine, 'Next: Episode 3 - Wed Oct 14th, 11:00 EDT')
+  assert.equal(vm.nextDropLine, 'Next: Episode 3 - Wed Oct 14th, 11:00 EDT')
   assert.equal(
     vm.startHint,
     'Eastern: Sep 30, 2026, 11:00 AM EDT · Next ep 3: Oct 14, 2026, 11:00 AM EDT'
@@ -229,7 +229,7 @@ test('buildShowViewModel handles shows without a start time or further episodes'
     undefined,
     true
   )
-  assert.equal(noStart.nextEpisodeLine, null)
+  assert.equal(noStart.nextDropLine, null)
   assert.equal(noStart.startHint, null)
   assert.equal(noStart.nextDropTime, null)
   assert.equal(noStart.discussionUrl, null)
@@ -246,7 +246,7 @@ test('buildShowViewModel handles shows without a start time or further episodes'
     state({ lastEpisodeNumber: '2' }),
     true
   )
-  assert.equal(finished.nextEpisodeLine, 'No further episodes on schedule')
+  assert.equal(finished.nextDropLine, 'No further episodes on schedule')
   assert.equal(
     finished.startHint,
     'Eastern: Sep 30, 2026, 11:00 AM EDT · No further episodes on schedule'

@@ -439,7 +439,7 @@ test('alerts refuse an empty Discord config', async () => {
 
 const dashboardRow: ShowDashboardRow = {
   show,
-  nextEpisode: 4,
+  nextDropEpisode: 4,
   expectedDropAt: '2026-10-24T15:00:00.000Z',
   status: 'in_window',
   malProgress: '3 / 12',
@@ -467,7 +467,7 @@ test('dashboard payloads', () => {
         buildShowDashboardPayload({
           ...dashboardRow,
           show: bareShow,
-          nextEpisode: null,
+          nextDropEpisode: null,
           expectedDropAt: null,
           status: 'out',
           malProgress: 'MAL not configured',

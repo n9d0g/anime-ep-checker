@@ -63,9 +63,9 @@ export function ShowRow({
             title={show.title || `Show ${index + 1}`}
             titleEnglish={show.titleEnglish}
             belowSubtitle={
-              view.nextEpisodeLine ? (
+              view.nextDropLine ? (
                 <span className="show-row-next-episode">
-                  {view.nextEpisodeLine}
+                  {view.nextDropLine}
                 </span>
               ) : null
             }
