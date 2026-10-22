@@ -1,3 +1,5 @@
+import type { ShowsFile, StateFile } from './types'
+
 const GITHUB_API = 'https://api.github.com'
 
 interface GitHubConfig {
@@ -9,12 +11,6 @@ interface GitHubConfig {
 interface GitHubContentResponse {
   content: string
   sha: string
-}
-
-interface GitHubRefResponse {
-  object: {
-    sha: string
-  }
 }
 
 function getConfig(): GitHubConfig {
@@ -33,7 +29,7 @@ export const NO_STORE_HEADERS = {
   'Cache-Control': 'no-store, max-age=0',
 }
 
-export function isGithubConflictError(error: unknown): boolean {
+function isGithubConflictError(error: unknown): boolean {
   const message = error instanceof Error ? error.message : String(error)
   return (
     message.includes('GitHub API 409') || message.includes('GitHub API 422')
@@ -67,24 +63,19 @@ async function githubFetch<T>(
   return response.json() as Promise<T>
 }
 
-async function getBranchHeadSha(): Promise<string> {
-  const { repo, branch } = getConfig()
-  const data = await githubFetch<GitHubRefResponse>(
-    `/repos/${repo}/git/ref/heads/${branch}`
-  )
-
-  if (!data?.object?.sha) {
-    throw new Error(`Could not resolve latest commit for ${branch}`)
-  }
-
-  return data.object.sha
-}
-
 async function getRepoFileAtRef(path: string, ref: string) {
   const { repo } = getConfig()
-  const data = await githubFetch<GitHubContentResponse>(
-    `/repos/${repo}/contents/${path}?ref=${encodeURIComponent(ref)}`
-  )
+  let data: GitHubContentResponse | null
+  try {
+    data = await githubFetch<GitHubContentResponse>(
+      `/repos/${repo}/contents/${path}?ref=${encodeURIComponent(ref)}`
+    )
+  } catch (error) {
+    if (error instanceof Error && error.message.startsWith('GitHub API 404')) {
+      return null
+    }
+    throw error
+  }
 
   if (!data) {
     return null
@@ -97,15 +88,13 @@ async function getRepoFileAtRef(path: string, ref: string) {
 }
 
 async function getRepoFile(path: string) {
-  const headSha = await getBranchHeadSha()
-  return getRepoFileAtRef(path, headSha)
+  return getRepoFileAtRef(path, getConfig().branch)
 }
 
 export async function getRepoFiles<T extends string>(paths: T[]) {
-  const headSha = await getBranchHeadSha()
   const entries = await Promise.all(
     paths.map(async (path) => {
-      const file = await getRepoFileAtRef(path, headSha)
+      const file = await getRepoFile(path)
       return { path, file }
     })
   )
@@ -119,7 +108,7 @@ export async function getRepoFiles<T extends string>(paths: T[]) {
       : { content: null, sha: null }
   }
 
-  return { headSha, files: result }
+  return { files: result }
 }
 
 export async function getShowsFile() {
@@ -142,95 +131,114 @@ export async function getStateFile() {
   return data
 }
 
-export async function saveShowsFile(
-  shows: unknown[],
-  sha: string,
-  message = 'chore: 🧹 update shows from admin CMS'
-) {
-  const { repo, branch } = getConfig()
-  const content = JSON.stringify({ shows }, null, 2) + '\n'
+export interface RepoFiles {
+  'shows.json': ShowsFile
+  'state.json': StateFile
+}
 
-  return githubFetch(`/repos/${repo}/contents/shows.json`, {
-    method: 'PUT',
+export type RepoPath = keyof RepoFiles
+
+const MISSING_FILE_DEFAULTS: Partial<RepoFiles> = {
+  'state.json': { shows: {} },
+}
+
+interface GitHubCommitResponse {
+  sha: string
+  commit: { tree: { sha: string } }
+}
+
+async function readRepoFileAtRef<P extends RepoPath>(
+  path: P,
+  ref: string
+): Promise<RepoFiles[P]> {
+  const file = await getRepoFileAtRef(path, ref)
+  if (file) return file.content as RepoFiles[P]
+
+  const fallback = MISSING_FILE_DEFAULTS[path]
+  if (!fallback) throw new Error(`${path} not found in repository`)
+  return structuredClone(fallback) as RepoFiles[P]
+}
+
+const UPDATE_ATTEMPTS = 3
+
+type ApplyRepoUpdate<P extends RepoPath> = (
+  files: Pick<RepoFiles, P>
+) => Partial<Pick<RepoFiles, P>> | null
+
+async function tryUpdateRepoFiles<P extends RepoPath>(
+  paths: P[],
+  apply: ApplyRepoUpdate<P>,
+  message: string
+): Promise<'committed' | 'unchanged' | 'conflict'> {
+  const { repo, branch } = getConfig()
+
+  const head = await githubFetch<GitHubCommitResponse>(
+    `/repos/${repo}/commits/${encodeURIComponent(branch)}`
+  )
+  if (!head) throw new Error(`Could not resolve latest commit for ${branch}`)
+
+  const entries = await Promise.all(
+    paths.map(async (path) => [path, await readRepoFileAtRef(path, head.sha)])
+  )
+  const updates = apply(Object.fromEntries(entries) as Pick<RepoFiles, P>)
+  if (!updates || Object.keys(updates).length === 0) return 'unchanged'
+
+  const tree = await githubFetch<{ sha: string }>(`/repos/${repo}/git/trees`, {
+    method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      message,
-      content: Buffer.from(content, 'utf8').toString('base64'),
-      sha,
-      branch,
+      base_tree: head.commit.tree.sha,
+      tree: Object.entries(updates).map(([path, content]) => ({
+        path,
+        mode: '100644',
+        type: 'blob',
+        content: JSON.stringify(content, null, 2) + '\n',
+      })),
     }),
   })
-}
-
-export async function saveShowsFileRetrying(
-  shows: unknown[],
-  message = 'chore: 🧹 update shows from admin CMS'
-) {
-  let { sha } = await getShowsFile()
-  let lastError: unknown
-
-  for (let attempt = 0; attempt < 3; attempt += 1) {
-    try {
-      await saveShowsFile(shows, sha, message)
-      return
-    } catch (error) {
-      lastError = error
-      if (!isGithubConflictError(error) || attempt === 2) {
-        throw error
-      }
-      sha = (await getShowsFile()).sha
+  const commit = await githubFetch<{ sha: string }>(
+    `/repos/${repo}/git/commits`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message, tree: tree!.sha, parents: [head.sha] }),
     }
-  }
+  )
 
-  throw lastError
+  try {
+    // Not forced: GitHub rejects the update if the branch moved since we read it.
+    await githubFetch(`/repos/${repo}/git/refs/heads/${branch}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sha: commit!.sha, force: false }),
+    })
+  } catch (error) {
+    if (isGithubConflictError(error)) return 'conflict'
+    throw error
+  }
+  return 'committed'
 }
 
-export async function saveStateFileRetrying(
-  state: unknown,
-  message = 'chore: 🧹 update episode progress from admin CMS'
-) {
-  let { sha } = await getStateFile()
-  let lastError: unknown
-
-  for (let attempt = 0; attempt < 3; attempt += 1) {
-    try {
-      await saveStateFile(state, sha, message)
-      return
-    } catch (error) {
-      lastError = error
-      if (!isGithubConflictError(error) || attempt === 2) {
-        throw error
-      }
-      sha = (await getStateFile()).sha
-    }
+/**
+ * Read-modify-write of repo files as one commit. `apply` gets fresh copies of
+ * the files at the branch head and returns the files to write (or null to
+ * write nothing). If another commit lands first, the files are re-read and
+ * `apply` runs again, so it must be safe to repeat. Returns whether a commit
+ * was made.
+ */
+export async function updateRepoFiles<P extends RepoPath>(
+  paths: P[],
+  apply: ApplyRepoUpdate<P>,
+  message: string
+): Promise<boolean> {
+  for (let attempt = 0; attempt < UPDATE_ATTEMPTS; attempt += 1) {
+    const result = await tryUpdateRepoFiles(paths, apply, message)
+    if (result !== 'conflict') return result === 'committed'
   }
 
-  throw lastError
-}
-
-export async function saveStateFile(
-  state: unknown,
-  sha: string | null,
-  message = 'chore: 🧹 update episode progress from admin CMS'
-) {
-  const { repo, branch } = getConfig()
-  const content = JSON.stringify(state, null, 2) + '\n'
-
-  const body: Record<string, string> = {
-    message,
-    content: Buffer.from(content, 'utf8').toString('base64'),
-    branch,
-  }
-
-  if (sha) {
-    body.sha = sha
-  }
-
-  return githubFetch(`/repos/${repo}/contents/state.json`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  })
+  throw new Error(
+    `Gave up writing ${paths.join(', ')} after repeated conflicts`
+  )
 }
 
 export async function dispatchCheckWorkflow(force = true): Promise<void> {

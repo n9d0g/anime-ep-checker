@@ -1,16 +1,9 @@
 import { NextResponse } from 'next/server'
-import {
-  dispatchCheckWorkflow,
-  getShowsFile,
-  getStateFile,
-  isGithubConflictError,
-  saveShowsFileRetrying,
-  saveStateFile,
-} from '@/lib/github'
+import { dispatchCheckWorkflow, updateRepoFiles } from '@/lib/github'
 import { setMalWatchingStatus } from '@/lib/mal'
 import { normalizeShow } from '@/lib/normalize-show'
 import { uniqueShowId } from '@/lib/ptw-watch'
-import type { Show, ShowFormValues, StateFile } from '@/lib/types'
+import type { Show, ShowFormValues } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
 
@@ -23,22 +16,6 @@ interface PtwWatchBody {
   netflixUrl?: string
   disneyUrl?: string
   schedule?: ShowFormValues['schedule']
-}
-
-async function saveStateWithRetry(state: StateFile, message: string) {
-  let { sha } = await getStateFile()
-
-  try {
-    await saveStateFile(state, sha, message)
-    return
-  } catch (error) {
-    if (!isGithubConflictError(error)) {
-      throw error
-    }
-  }
-
-  const refreshed = await getStateFile()
-  await saveStateFile(state, refreshed.sha, message)
 }
 
 export async function POST(request: Request) {
@@ -59,33 +36,51 @@ export async function POST(request: Request) {
       throw new Error('provider and schedule are required')
     }
 
-    const { content } = await getShowsFile()
-    const shows = (content.shows ?? []) as Show[]
+    const { provider, schedule } = body
+    let show: Show | undefined
+    await updateRepoFiles(
+      ['shows.json', 'state.json'],
+      ({ 'shows.json': showsFile, 'state.json': state }) => {
+        const shows = showsFile.shows ?? []
+        if (shows.some((entry) => entry.malId === malId)) {
+          throw new Error('This show is already on the watching list')
+        }
 
-    if (shows.some((show) => show.malId === malId)) {
-      throw new Error('This show is already on the watching list')
-    }
+        const existingIds = new Set(shows.map((entry) => entry.id))
+        show = normalizeShow({
+          id: uniqueShowId(title, malId, existingIds),
+          title,
+          titleEnglish: body.titleEnglish?.trim() || undefined,
+          provider,
+          crunchyrollUrl: body.crunchyrollUrl ?? '',
+          seriesId: '',
+          netflixUrl: body.netflixUrl ?? '',
+          netflixId: '',
+          disneyUrl: body.disneyUrl ?? '',
+          disneyId: '',
+          malId: String(malId),
+          redditSearchTitle: '',
+          schedule,
+        })
 
-    const existingIds = new Set(shows.map((show) => show.id))
-    const show = normalizeShow({
-      id: uniqueShowId(title, malId, existingIds),
-      title,
-      titleEnglish: body.titleEnglish?.trim() || undefined,
-      provider: body.provider,
-      crunchyrollUrl: body.crunchyrollUrl ?? '',
-      seriesId: '',
-      netflixUrl: body.netflixUrl ?? '',
-      netflixId: '',
-      disneyUrl: body.disneyUrl ?? '',
-      disneyId: '',
-      malId: String(malId),
-      redditSearchTitle: '',
-      schedule: body.schedule,
-    })
+        if (state.meta?.planToWatch?.entries) {
+          state.meta.planToWatch = {
+            ...state.meta.planToWatch,
+            entries: state.meta.planToWatch.entries.filter(
+              (entry) => entry.malId !== malId
+            ),
+          }
+        }
+        if (state.meta?.planToWatchAlerts) {
+          delete state.meta.planToWatchAlerts[String(malId)]
+        }
 
-    await saveShowsFileRetrying(
-      [...shows, show],
-      `chore: move ${show.title} from plan-to-watch to watching`
+        return {
+          'shows.json': { ...showsFile, shows: [...shows, show] },
+          'state.json': state,
+        }
+      },
+      `chore: move ${title} from plan-to-watch to watching`
     )
 
     let malUpdated = false
@@ -95,27 +90,6 @@ export async function POST(request: Request) {
     } catch (error) {
       console.warn('Failed to mark MAL status watching:', error)
     }
-
-    const { content: stateContent } = await getStateFile()
-    const state = stateContent as StateFile
-
-    if (state.meta?.planToWatch?.entries) {
-      state.meta.planToWatch = {
-        ...state.meta.planToWatch,
-        entries: state.meta.planToWatch.entries.filter(
-          (entry) => entry.malId !== malId
-        ),
-      }
-    }
-
-    if (state.meta?.planToWatchAlerts) {
-      delete state.meta.planToWatchAlerts[String(malId)]
-    }
-
-    await saveStateWithRetry(
-      state,
-      `chore: 🧹 remove ${show.title} from plan-to-watch snapshot`
-    )
 
     let workflowTriggered = false
     try {

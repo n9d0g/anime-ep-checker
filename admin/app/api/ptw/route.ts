@@ -1,34 +1,7 @@
 import { NextResponse } from 'next/server'
-import { getStateFile, saveStateFile } from '@/lib/github'
+import { getStateFile, updateRepoFiles } from '@/lib/github'
 import { fetchPlanToWatchAnime } from '@/lib/mal'
 import type { PlanToWatchSnapshot, StateFile } from '@/lib/types'
-
-async function saveStateWithRetry(state: StateFile): Promise<void> {
-  let { sha } = await getStateFile()
-
-  try {
-    await saveStateFile(
-      state,
-      sha,
-      'chore: 🧹 refresh plan-to-watch snapshot from admin'
-    )
-    return
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error)
-    const isConflict = message.includes('409') || message.includes('422')
-
-    if (!isConflict) {
-      throw error
-    }
-  }
-
-  const refreshed = await getStateFile()
-  await saveStateFile(
-    state,
-    refreshed.sha,
-    'chore: 🧹 refresh plan-to-watch snapshot from admin'
-  )
-}
 
 export async function GET() {
   try {
@@ -67,16 +40,18 @@ export async function POST() {
       entries: result.entries,
     }
 
-    const { content } = await getStateFile()
-    const state = content as StateFile
-
-    state.meta = {
-      ...state.meta,
-      planToWatch: snapshot,
-      planToWatchCheckedAt: updatedAt,
-    }
-
-    await saveStateWithRetry(state)
+    await updateRepoFiles(
+      ['state.json'],
+      ({ 'state.json': state }) => {
+        state.meta = {
+          ...state.meta,
+          planToWatch: snapshot,
+          planToWatchCheckedAt: updatedAt,
+        }
+        return { 'state.json': state }
+      },
+      'chore: 🧹 refresh plan-to-watch snapshot from admin'
+    )
 
     return NextResponse.json({ planToWatch: snapshot })
   } catch (error) {

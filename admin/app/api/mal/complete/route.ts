@@ -1,11 +1,6 @@
 import { NextResponse } from 'next/server'
-import {
-  dispatchCheckWorkflow,
-  getShowsFile,
-  saveShowsFile,
-} from '@/lib/github'
+import { dispatchCheckWorkflow, updateRepoFiles } from '@/lib/github'
 import { completeMalAnime } from '@/lib/mal'
-import type { Show } from '@/lib/types'
 
 interface MalCompleteBody {
   malId?: number
@@ -34,18 +29,21 @@ export async function POST(request: Request) {
 
     await completeMalAnime(malId!, score!)
 
-    const { content, sha } = await getShowsFile()
-    const shows = (content.shows ?? []) as Show[]
-    const show = shows.find((entry) => entry.id === showId)
-    if (!show) {
-      throw new Error(`Show not found: ${showId}`)
-    }
-
-    const nextShows = shows.filter((entry) => entry.id !== showId)
-    await saveShowsFile(
-      nextShows,
-      sha,
-      `chore: complete ${show.title || showId} on MAL`
+    await updateRepoFiles(
+      ['shows.json'],
+      ({ 'shows.json': showsFile }) => {
+        const shows = showsFile.shows ?? []
+        if (!shows.some((entry) => entry.id === showId)) {
+          throw new Error(`Show not found: ${showId}`)
+        }
+        return {
+          'shows.json': {
+            ...showsFile,
+            shows: shows.filter((entry) => entry.id !== showId),
+          },
+        }
+      },
+      `chore: complete ${showId} on MAL`
     )
 
     let cleanupTriggered = false

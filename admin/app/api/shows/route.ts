@@ -3,7 +3,7 @@ import {
   dispatchCheckWorkflow,
   getShowsFile,
   NO_STORE_HEADERS,
-  saveShowsFileRetrying,
+  updateRepoFiles,
 } from '@/lib/github'
 import { normalizeShow } from '@/lib/normalize-show'
 import type { Show, ShowFormValues } from '@/lib/types'
@@ -44,12 +44,15 @@ export async function PUT(request: Request) {
       ids.add(show.id)
     }
 
-    const { content } = await getShowsFile()
-    const previousIds = new Set(
-      ((content.shows ?? []) as Show[]).map((show) => show.id)
+    let previousIds = new Set<string>()
+    await updateRepoFiles(
+      ['shows.json'],
+      ({ 'shows.json': showsFile }) => {
+        previousIds = new Set((showsFile.shows ?? []).map((show) => show.id))
+        return { 'shows.json': { ...showsFile, shows } }
+      },
+      'chore: 🧹 update shows from admin CMS'
     )
-
-    await saveShowsFileRetrying(shows)
 
     const newIds = new Set(shows.map((show) => show.id))
     const removedIds = [...previousIds].filter((id) => !newIds.has(id))

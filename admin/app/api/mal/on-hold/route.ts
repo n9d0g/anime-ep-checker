@@ -1,13 +1,7 @@
 import { NextResponse } from 'next/server'
-import {
-  dispatchCheckWorkflow,
-  getShowsFile,
-  getStateFile,
-  saveShowsFileRetrying,
-  saveStateFileRetrying,
-} from '@/lib/github'
+import { dispatchCheckWorkflow, updateRepoFiles } from '@/lib/github'
 import { setMalAnimeListStatus } from '@/lib/mal'
-import type { OnHoldSnapshot, Show, StateFile } from '@/lib/types'
+import type { OnHoldSnapshot, Show } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
 
@@ -51,28 +45,30 @@ export async function POST(request: Request) {
 
     await setMalAnimeListStatus(malId!, 'on_hold')
 
-    const { content: showsContent } = await getShowsFile()
-    const shows = (showsContent.shows ?? []) as Show[]
-    const show = shows.find((entry) => entry.id === showId)
-    if (!show) {
-      throw new Error(`Show not found: ${showId}`)
-    }
+    await updateRepoFiles(
+      ['shows.json', 'state.json'],
+      ({ 'shows.json': showsFile, 'state.json': state }) => {
+        const shows = showsFile.shows ?? []
+        const show = shows.find((entry) => entry.id === showId)
+        if (!show) {
+          throw new Error(`Show not found: ${showId}`)
+        }
 
-    const { content: stateContent } = await getStateFile()
-    const state = stateContent as StateFile
-    const heldAt = new Date().toISOString()
-    state.meta = {
-      ...state.meta,
-      onHold: upsertOnHoldEntry(state.meta?.onHold, show, heldAt),
-    }
+        const heldAt = new Date().toISOString()
+        state.meta = {
+          ...state.meta,
+          onHold: upsertOnHoldEntry(state.meta?.onHold, show, heldAt),
+        }
 
-    await saveStateFileRetrying(
-      state,
-      `chore: archive ${show.title || showId} to on hold`
-    )
-    await saveShowsFileRetrying(
-      shows.filter((entry) => entry.id !== showId),
-      `chore: put ${show.title || showId} on hold`
+        return {
+          'shows.json': {
+            ...showsFile,
+            shows: shows.filter((entry) => entry.id !== showId),
+          },
+          'state.json': state,
+        }
+      },
+      `chore: put ${showId} on hold`
     )
 
     let cleanupTriggered = false

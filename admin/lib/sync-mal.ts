@@ -1,12 +1,6 @@
-import {
-  getShowsFile,
-  getStateFile,
-  isGithubConflictError,
-  saveShowsFile,
-  saveStateFileRetrying,
-} from './github'
+import { getShowsFile, getStateFile, updateRepoFiles } from './github'
 import { alignStartAtToBroadcast, type MalBroadcast } from './broadcast'
-import type { OnHoldSnapshotEntry, StateFile } from './types'
+import type { StateFile } from './types'
 import { resolveMalIdFromSearch, type MalSearchResult } from './mal-match'
 import { fetchMalAnimeTitles, searchMalAnime } from './mal'
 import type { Show } from './types'
@@ -183,49 +177,38 @@ export async function syncOnHoldEnglishTitles(): Promise<SyncOnHoldEnglishResult
     )
   )
 
-  const updatedShowIds: string[] = []
-  const nextEntries: OnHoldSnapshotEntry[] = entries.map((entry) => {
-    const malId = entry.show.malId
-    if (!malId) {
-      return entry
-    }
+  let updatedShowIds: string[] = []
+  const changed = await updateRepoFiles(
+    ['state.json'],
+    ({ 'state.json': latest }) => {
+      updatedShowIds = []
+      const latestOnHold = latest.meta?.onHold
+      if (!latestOnHold) return null
 
-    const titleEnglish = titlesByMalId.get(malId)
-    if (!titleEnglish || entry.show.titleEnglish === titleEnglish) {
-      return entry
-    }
+      const nextEntries = latestOnHold.entries.map((entry) => {
+        const malId = entry.show.malId
+        const titleEnglish = malId ? titlesByMalId.get(malId) : undefined
+        if (!titleEnglish || entry.show.titleEnglish === titleEnglish) {
+          return entry
+        }
 
-    updatedShowIds.push(entry.show.id)
-    return {
-      ...entry,
-      show: {
-        ...entry.show,
-        titleEnglish,
-      },
-    }
-  })
+        updatedShowIds.push(entry.show.id)
+        return { ...entry, show: { ...entry.show, titleEnglish } }
+      })
+      if (updatedShowIds.length === 0) return null
 
-  if (updatedShowIds.length === 0) {
-    return { changed: false, updatedShowIds: [] }
-  }
-
-  const nextState: StateFile = {
-    ...state,
-    meta: {
-      ...state.meta,
-      onHold: {
-        ...onHold!,
-        entries: nextEntries,
-      },
+      latest.meta = {
+        ...latest.meta,
+        onHold: { ...latestOnHold, entries: nextEntries },
+      }
+      return { 'state.json': latest }
     },
-  }
-
-  await saveStateFileRetrying(
-    nextState,
     'chore: 🧹 sync English titles for on-hold shows from admin'
   )
 
-  return { changed: true, updatedShowIds }
+  return changed
+    ? { changed: true, updatedShowIds }
+    : { changed: false, updatedShowIds: [] }
 }
 
 async function collectMalUpdates(shows: Show[]): Promise<MalShowUpdate[]> {
@@ -297,48 +280,39 @@ export async function syncShowsWithMal(): Promise<SyncMalResult> {
     }
   }
 
-  let latest = await getShowsFile()
-
-  for (let attempt = 0; attempt < 3; attempt += 1) {
-    const latestShows = withDefaultProvider(
-      (latest.content.shows ?? []) as Show[]
-    )
-    const merged = applyMalUpdatesToShows(latestShows, updates)
-
-    if (!hasMalChanges(merged)) {
-      return {
-        changed: false,
-        resolvedIds: [],
-        updatedTitles: [],
-        updatedEnglish: [],
-        updatedEpisodeCounts: [],
-        updatedStartTimes: [],
-        shows: latestShows,
-      }
-    }
-
-    try {
-      await saveShowsFile(
-        merged.shows,
-        latest.sha,
-        'chore: 🧹 sync MAL IDs, titles, episode counts, and release times from admin'
+  let merged = initialMerge
+  const changed = await updateRepoFiles(
+    ['shows.json'],
+    ({ 'shows.json': latest }) => {
+      merged = applyMalUpdatesToShows(
+        withDefaultProvider(latest.shows ?? []),
+        updates
       )
-      return {
-        changed: true,
-        resolvedIds: merged.resolvedIds,
-        updatedTitles: merged.updatedTitles,
-        updatedEnglish: merged.updatedEnglish,
-        updatedEpisodeCounts: merged.updatedEpisodeCounts,
-        updatedStartTimes: merged.updatedStartTimes,
-        shows: merged.shows,
-      }
-    } catch (error) {
-      if (!isGithubConflictError(error) || attempt === 2) {
-        throw error
-      }
-      latest = await getShowsFile()
+      if (!hasMalChanges(merged)) return null
+      return { 'shows.json': { ...latest, shows: merged.shows } }
+    },
+    'chore: 🧹 sync MAL IDs, titles, episode counts, and release times from admin'
+  )
+
+  if (!changed) {
+    return {
+      changed: false,
+      resolvedIds: [],
+      updatedTitles: [],
+      updatedEnglish: [],
+      updatedEpisodeCounts: [],
+      updatedStartTimes: [],
+      shows: merged.shows,
     }
   }
 
-  throw new Error('Failed to sync MAL data after concurrent updates')
+  return {
+    changed: true,
+    resolvedIds: merged.resolvedIds,
+    updatedTitles: merged.updatedTitles,
+    updatedEnglish: merged.updatedEnglish,
+    updatedEpisodeCounts: merged.updatedEpisodeCounts,
+    updatedStartTimes: merged.updatedStartTimes,
+    shows: merged.shows,
+  }
 }

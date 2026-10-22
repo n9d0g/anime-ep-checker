@@ -1,13 +1,11 @@
 import { NextResponse } from 'next/server'
 import {
   dispatchCheckWorkflow,
-  getShowsFile,
   getStateFile,
-  saveShowsFileRetrying,
-  saveStateFileRetrying,
+  updateRepoFiles,
 } from '@/lib/github'
 import { setMalWatchingStatus } from '@/lib/mal'
-import type { OnHoldSnapshot, Show, StateFile } from '@/lib/types'
+import type { Show, StateFile } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
 
@@ -36,60 +34,50 @@ export async function POST(request: Request) {
       throw new Error('showId is required')
     }
 
-    const { content: stateContent } = await getStateFile()
-    const state = stateContent as StateFile
-    const onHold = state.meta?.onHold
-    const entry = onHold?.entries.find((item) => item.show.id === showId)
-    if (!entry) {
-      throw new Error(`On-hold entry not found: ${showId}`)
-    }
+    let show: Show | undefined
+    await updateRepoFiles(
+      ['shows.json', 'state.json'],
+      ({ 'shows.json': showsFile, 'state.json': state }) => {
+        const entries = state.meta?.onHold?.entries ?? []
+        show = entries.find((item) => item.show.id === showId)?.show
+        if (!show) {
+          throw new Error(`On-hold entry not found: ${showId}`)
+        }
+        if (!show.malId || show.malId < 1) {
+          throw new Error('Show must have a MAL ID to restore to watching')
+        }
 
-    const show = entry.show
-    if (!show.malId || show.malId < 1) {
-      throw new Error('Show must have a MAL ID to restore to watching')
-    }
+        const restored = show
+        const shows = showsFile.shows ?? []
+        const alreadyTracked = shows.some(
+          (item) => item.id === showId || item.malId === restored.malId
+        )
 
-    const { content: showsContent } = await getShowsFile()
-    const shows = (showsContent.shows ?? []) as Show[]
-    const alreadyTracked = shows.some(
-      (item) => item.id === showId || item.malId === show.malId
+        state.meta = {
+          ...state.meta,
+          onHold: {
+            updatedAt: new Date().toISOString(),
+            entries: entries.filter((item) => item.show.id !== showId),
+          },
+        }
+
+        return {
+          'shows.json': alreadyTracked
+            ? showsFile
+            : { ...showsFile, shows: [...shows, restored] },
+          'state.json': state,
+        }
+      },
+      `chore: restore ${showId} from on hold to watching`
     )
-
-    if (!alreadyTracked) {
-      await saveShowsFileRetrying(
-        [...shows, show],
-        `chore: restore ${show.title || showId} to watching`
-      )
-    }
 
     let malUpdated = false
     try {
-      await setMalWatchingStatus(show.malId)
+      await setMalWatchingStatus(show!.malId!)
       malUpdated = true
     } catch (error) {
       console.warn('Failed to mark MAL status watching:', error)
     }
-
-    const { content: latestStateContent } = await getStateFile()
-    const latestState = latestStateContent as StateFile
-    const updatedAt = new Date().toISOString()
-    const nextEntries = (latestState.meta?.onHold?.entries ?? []).filter(
-      (item) => item.show.id !== showId
-    )
-    const nextSnapshot: OnHoldSnapshot = {
-      updatedAt,
-      entries: nextEntries,
-    }
-
-    latestState.meta = {
-      ...latestState.meta,
-      onHold: nextSnapshot,
-    }
-
-    await saveStateFileRetrying(
-      latestState,
-      `chore: remove ${show.title || showId} from on hold`
-    )
 
     let workflowTriggered = false
     try {

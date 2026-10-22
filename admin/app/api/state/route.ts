@@ -3,10 +3,10 @@ import {
   getShowsFile,
   getStateFile,
   NO_STORE_HEADERS,
-  saveStateFile,
+  updateRepoFiles,
 } from '@/lib/github'
 import { fetchMalAnimeDetails } from '@/lib/mal'
-import type { Show, ShowStateSummary, StateFile } from '@/lib/types'
+import type { Show, ShowState, ShowStateSummary, StateFile } from '@/lib/types'
 
 interface StatePatchBody {
   showId?: string
@@ -58,25 +58,6 @@ async function attachMalWatched(
   return next
 }
 
-async function saveStateWithRetry(state: StateFile): Promise<void> {
-  let { sha } = await getStateFile()
-
-  try {
-    await saveStateFile(state, sha)
-    return
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error)
-    const isConflict = message.includes('409') || message.includes('422')
-
-    if (!isConflict) {
-      throw error
-    }
-  }
-
-  const refreshed = await getStateFile()
-  await saveStateFile(state, refreshed.sha)
-}
-
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
@@ -112,29 +93,32 @@ export async function PATCH(request: Request) {
       throw new Error('episodeNumber must be a positive number')
     }
 
-    const { content } = await getStateFile()
-    const state = content as StateFile
-    const existing = state.shows?.[showId]
+    let existing: ShowState | undefined
+    await updateRepoFiles(
+      ['state.json'],
+      ({ 'state.json': state }) => {
+        existing = state.shows?.[showId]
+        if (!existing) {
+          throw new Error(`No state found for show: ${showId}`)
+        }
 
-    if (!existing) {
-      throw new Error(`No state found for show: ${showId}`)
-    }
-
-    state.shows[showId] = {
-      ...existing,
-      lastEpisodeNumber: String(episodeNumber),
-      waitingNotifiedForEpisode: null,
-    }
-
-    await saveStateWithRetry(state)
+        state.shows[showId] = {
+          ...existing,
+          lastEpisodeNumber: String(episodeNumber),
+          waitingNotifiedForEpisode: null,
+        }
+        return { 'state.json': state }
+      },
+      'chore: 🧹 update episode progress from admin CMS'
+    )
 
     return NextResponse.json(
       {
         ok: true,
         show: {
           lastEpisodeNumber: String(episodeNumber),
-          lastEpisodeTitle: existing.lastEpisodeTitle,
-          lastNotifiedAt: existing.lastNotifiedAt,
+          lastEpisodeTitle: existing!.lastEpisodeTitle,
+          lastNotifiedAt: existing!.lastNotifiedAt,
         },
       },
       { headers: NO_STORE_HEADERS }
