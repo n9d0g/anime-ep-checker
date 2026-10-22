@@ -586,44 +586,6 @@ async function getDisneyAccessToken(): Promise<string> {
   return cachedAccessToken
 }
 
-// Diagnostic for #31: what the explore page returns per season, so the run
-// log shows why a Disney+ show's snapshot is behind. Remove once #31 is fixed.
-function describeExploreSeasons(
-  exploreData: Record<string, unknown>
-): string[] {
-  const page = isRecord(exploreData.page) ? exploreData.page : exploreData
-  const containers = Array.isArray(page.containers) ? page.containers : []
-  const lines: string[] = []
-
-  for (const container of containers) {
-    if (!isRecord(container) || container.type !== 'episodes') continue
-    const seasons = Array.isArray(container.seasons) ? container.seasons : []
-    for (const season of seasons) {
-      if (!isRecord(season)) continue
-      const visuals = isRecord(season.visuals) ? season.visuals : null
-      const items = Array.isArray(season.items) ? season.items : []
-      const episodes = items.filter(isRecord).map((item) => {
-        const itemVisuals = isRecord(item.visuals) ? item.visuals : null
-        const number = getNumber(itemVisuals?.episodeNumber) ?? '?'
-        return itemVisuals?.isUnavailable === true
-          ? `${number}(unavailable)`
-          : String(number)
-      })
-      const extraKeys = Object.keys(season).filter(
-        (key) => !['id', 'visuals', 'items', 'type'].includes(key)
-      )
-      lines.push(
-        `season ${getString(season.id) ?? '?'} "${getString(visuals?.name) ?? getString(visuals?.title) ?? ''}" ` +
-          `number=${getNumber(visuals?.seasonNumber) ?? getNumber(season.sequenceNumber) ?? '?'} ` +
-          `items=${items.length} episodes=[${episodes.join(',')}]` +
-          (extraKeys.length > 0 ? ` keys=${extraKeys.join(',')}` : '')
-      )
-    }
-  }
-
-  return lines.length > 0 ? lines : ['no episodes container']
-}
-
 export async function getLatestAvailableEpisodeForTitle(
   disneyId: string
 ): Promise<EpisodeSnapshot | null> {
@@ -638,15 +600,7 @@ export async function getLatestAvailableEpisodeForTitle(
   const accessToken = await getDisneyAccessToken()
   const exploreData = await fetchExplorePage(disneyId, accessToken)
   const explore = parseExploreEpisodes(exploreData, disneyId)
-  for (const line of describeExploreSeasons(exploreData)) {
-    console.log(`  Disney+ explore: ${line}`)
-  }
   const best = pickBestEpisode(explore.candidates)
-  console.log(
-    best
-      ? `  Disney+ picked season ${best.seasonNumber} episode ${best.episodeNumber} (${best.isAvailable ? 'available' : 'unavailable'})`
-      : '  Disney+ picked no episode'
-  )
   if (!best) {
     return null
   }
