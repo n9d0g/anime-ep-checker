@@ -1,13 +1,13 @@
 {
   "shows": {
     "bleach": {
-      "lastEpisodeId": "anilist-60636-8",
-      "lastEpisodeNumber": "8",
+      "lastEpisodeId": "anilist-60636-9",
+      "lastEpisodeNumber": "9",
       "lastEpisodeTitle": "",
-      "lastNotifiedAt": "2026-09-12T15:05:35.415Z",
+      "lastNotifiedAt": "2026-10-22T18:43:47.381Z",
       "seasonId": "571475d5-8b1a-453f-a57f-26bb4dd13304",
       "seasonTitle": "Season 1",
-      "waitingNotifiedForEpisode": 9,
+      "waitingNotifiedForEpisode": null,
       "malMeanScore": 9.02,
       "googleCalendarEvents": {
         "10": {
@@ -18,7 +18,7 @@
       "discussionUrl": "https://www.reddit.com/r/anime/comments/1wefsn2/bleach_thousandyear_blood_war_the_calamity_bleach/",
       "discussionUrlEpisode": 8,
       "malScoreAlertedAt": "2026-10-01T03:55:32.164Z",
-      "lastSnapshotEpisode": 1,
+      "lastSnapshotEpisode": 9,
       "airingSchedule": {
         "fetchedAt": "2026-10-22T18:35:24.318Z",
         "episodes": {
@@ -217,7 +217,7 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-10-22T18:35:24.318Z",
+    "planToWatchCheckedAt": "2026-10-22T18:43:47.381Z",
     "planToWatch": {
       "updatedAt": "2026-10-22T18:35:24.318Z",
       "entries": [
@@ -810,7 +810,7 @@
       ]
     },
     "watchingDashboardHashes": {
-      "bleach": "9eb6a41192da5d6966071c9895c76c51719297e2",
+      "bleach": "f80d575c5c745e1ad2417fda5f141291b141ae3d",
       "kusuriya-no-hitorigoto-3rd-season": "263e97e6f38be143f177d69ba20942d5193ac15f",
       "ao-no-hako-season-2": "8eecc1257dfb77512b5ebd6aa841a8e90ed46c32",
       "cyberpunk-edgerunners-2": "b775cf50b019e480c6aba82c7b98cb90d682c326"
@@ -872,6 +872,7 @@
           "t3_1s7xema"
         ],
         "checkedAt": "2026-10-22T18:35:24.318Z",
+        "lastErrorAt": "2026-10-22T18:43:47.381Z",
         "lastPostPublishedAt": "2026-10-16T12:30:04.000Z"
       },
       "abysswatcherbel": {
