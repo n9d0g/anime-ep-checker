@@ -23,9 +23,11 @@ export async function POST(request: Request) {
       }
 
       let show: Show | undefined
+      let versionBefore: string | null = null
       const { versions } = await updateRepoFiles(
         ['shows.json', 'state.json'],
-        ({ 'shows.json': showsFile, 'state.json': state }) => {
+        ({ 'shows.json': showsFile, 'state.json': state }, current) => {
+          versionBefore = current['shows.json']
           show = showsFile.shows.find((entry) => entry.id === showId)
           if (!show) {
             throw new Error(`Show not found: ${showId}`)
@@ -56,6 +58,7 @@ export async function POST(request: Request) {
         workflowTriggered,
         show,
         showsVersion: versions['shows.json'],
+        showsVersionBefore: versionBefore,
       })
     }
   )

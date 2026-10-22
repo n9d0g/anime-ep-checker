@@ -13,6 +13,7 @@ import {
   serializeShows,
   showRowValues,
   stepEpisode,
+  replaceShowInRows,
   toShowRows,
   type ShowRow,
 } from './watching'
@@ -341,4 +342,21 @@ test('show rows keep a client key that never reaches the serialized shows', () =
   ])
   assert.equal(serializeShows(values), JSON.stringify(values))
   assert.doesNotMatch(serializeShows(values), /show:a|new:/)
+})
+
+test('replaceShowInRows swaps in one show and keeps every other row as edited', () => {
+  const rows = toShowRows([
+    form({ id: 'a', schedule: { startAt: '2026-10-01T15:00' } }),
+    form({ id: 'b', title: 'Edited but unsaved' }),
+  ])
+  const delayed = form({ id: 'a', schedule: { startAt: '2026-10-08T15:00' } })
+
+  const next = replaceShowInRows(rows, delayed)
+
+  assert.deepEqual(
+    next.map((row) => row.key),
+    rows.map((row) => row.key)
+  )
+  assert.equal(next[0].values, delayed)
+  assert.equal(next[1], rows[1])
 })

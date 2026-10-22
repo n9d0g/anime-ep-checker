@@ -11,6 +11,7 @@ import {
   buildShowViewModel,
   newShowRow,
   orderRowsBySavedNextDrop,
+  replaceShowInRows,
   serializeShows,
   showRowValues,
   toShowRows,
@@ -516,32 +517,28 @@ export function useWatchingShows(options: {
       const data = (await response.json()) as {
         error?: string
         workflowTriggered?: boolean
+        show?: Show
+        showsVersion?: string | null
+        showsVersionBefore?: string | null
       }
 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to delay show')
       }
 
-      const [showsResponse, stateResponse] = await Promise.all([
-        noStoreFetch('/api/shows'),
-        noStoreFetch('/api/state'),
-      ])
-      const showsData = (await showsResponse.json()) as {
-        shows?: Show[]
-        showsVersion?: string | null
-      }
-      const stateData = (await stateResponse.json()) as {
-        shows?: ShowStates
-      }
-
-      if (showsResponse.ok && showsData.shows) {
-        setLoadedShows(showsData.shows.map(showToForm))
-        showsVersionRef.current = showsData.showsVersion ?? null
-      }
-      if (stateResponse.ok) {
-        setShowStates((current) =>
-          withKnownWatched(stateData.shows ?? {}, current)
+      // Apply the server's copy of just this show: no refetch, and unsaved
+      // edits on other shows stay on screen.
+      if (data.show) {
+        const delayed = showToForm(data.show)
+        setRows((current) => replaceShowInRows(current, delayed))
+        setSavedRows((current) =>
+          current ? replaceShowInRows(current, delayed) : current
         )
+      }
+      // Same rule as removeShowFromLocal: only adopt the new version if
+      // shows.json hadn't changed elsewhere since this page loaded it.
+      if (data.showsVersionBefore === showsVersionRef.current) {
+        showsVersionRef.current = data.showsVersion ?? null
       }
 
       toast.success(

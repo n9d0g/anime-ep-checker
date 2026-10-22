@@ -43,6 +43,16 @@ export function toShowRows(shows: ShowFormValues[]): ShowRow[] {
   )
 }
 
+/** Puts the server's copy of one show into its row; other rows (and their edits) are untouched. */
+export function replaceShowInRows(
+  rows: ShowRow[],
+  show: ShowFormValues
+): ShowRow[] {
+  return rows.map((row) =>
+    row.values.id === show.id ? { ...row, values: show } : row
+  )
+}
+
 export function showRowValues(rows: ShowRow[]): ShowFormValues[] {
   return rows.map((row) => row.values)
 }
