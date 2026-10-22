@@ -127,3 +127,43 @@ test('nothing desired deletes everything', () => {
     { deletes: ['x'], writes: [], unchanged: [] }
   )
 })
+
+test('a listed event at the same instant in another format is unchanged', () => {
+  const plan = planCalendarSync(
+    [{ episode: 4, startAt: '2026-10-24T15:00:00.000Z' }],
+    [
+      {
+        eventId: 'listed-4',
+        episode: '4',
+        startAt: '2026-10-24T11:00:00-04:00',
+      },
+    ]
+  )
+
+  assert.deepEqual(plan.writes, [])
+  assert.deepEqual(plan.unchanged, [
+    { episode: 4, startAt: '2026-10-24T15:00:00.000Z', eventId: 'listed-4' },
+  ])
+})
+
+test('a listed event at a different instant is updated', () => {
+  const plan = planCalendarSync(
+    [{ episode: 4, startAt: '2026-10-24T15:00:00.000Z' }],
+    [
+      {
+        eventId: 'listed-4',
+        episode: '4',
+        startAt: '2026-10-24T15:00:00-04:00',
+      },
+    ]
+  )
+
+  assert.deepEqual(plan.writes, [
+    {
+      action: 'update',
+      episode: 4,
+      startAt: '2026-10-24T15:00:00.000Z',
+      eventId: 'listed-4',
+    },
+  ])
+})

@@ -88,6 +88,16 @@ export function getDesiredCalendarEvents(
  * kept or updated. Every existing event for an episode that is not desired
  * is deleted. An event is only rewritten when its start time differs.
  */
+/**
+ * Google returns an event's start without milliseconds and often with an
+ * offset (e.g. `…T11:00:00-04:00`), so compare instants, not strings.
+ */
+function isSameInstant(a: string | null, b: string): boolean {
+  if (a === null) return false
+  const time = Date.parse(a)
+  return !Number.isNaN(time) && time === Date.parse(b)
+}
+
 export function planCalendarSync(
   desired: DesiredCalendarEvent[],
   existing: ExistingCalendarEvent[]
@@ -110,7 +120,7 @@ export function planCalendarSync(
     const current = existingByEpisode.get(String(episode))
     if (!current) {
       writes.push({ action: 'create', episode, startAt })
-    } else if (current.startAt === startAt) {
+    } else if (isSameInstant(current.startAt, startAt)) {
       unchanged.push({ episode, startAt, eventId: current.eventId })
     } else {
       writes.push({
