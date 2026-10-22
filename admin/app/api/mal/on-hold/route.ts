@@ -46,9 +46,11 @@ export async function POST(request: Request) {
 
     await setMalAnimeListStatus(malId, 'on_hold')
 
+    let versionBefore: string | null = null
     const { versions } = await updateRepoFiles(
       ['shows.json', 'state.json'],
-      ({ 'shows.json': showsFile, 'state.json': state }) => {
+      ({ 'shows.json': showsFile, 'state.json': state }, current) => {
+        versionBefore = current['shows.json']
         const shows = showsFile.shows ?? []
         const show = shows.find((entry) => entry.id === showId)
         if (!show) {
@@ -78,6 +80,7 @@ export async function POST(request: Request) {
       ok: true,
       cleanupTriggered,
       showsVersion: versions['shows.json'],
+      showsVersionBefore: versionBefore,
     })
   })
 }

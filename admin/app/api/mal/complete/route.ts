@@ -30,9 +30,11 @@ export async function POST(request: Request) {
 
     await completeMalAnime(malId, score!)
 
+    let versionBefore: string | null = null
     const { versions } = await updateRepoFiles(
       ['shows.json'],
-      ({ 'shows.json': showsFile }) => {
+      ({ 'shows.json': showsFile }, current) => {
+        versionBefore = current['shows.json']
         const shows = showsFile.shows ?? []
         if (!shows.some((entry) => entry.id === showId)) {
           throw new Error(`Show not found: ${showId}`)
@@ -53,6 +55,7 @@ export async function POST(request: Request) {
       ok: true,
       cleanupTriggered,
       showsVersion: versions['shows.json'],
+      showsVersionBefore: versionBefore,
     })
   })
 }

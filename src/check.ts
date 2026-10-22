@@ -644,10 +644,10 @@ export async function checkShows({
       }
 
       latestSnapshot = relativeResult.snapshot
-      snapshotEpisodes.set(
-        showId,
-        parseEpisodeNumber(String(latestSnapshot.episode.episode ?? ''))
+      const snapshotEpisode = parseEpisodeNumber(
+        String(latestSnapshot.episode.episode ?? '')
       )
+      if (snapshotEpisode > 0) snapshotEpisodes.set(showId, snapshotEpisode)
       if (previousState?.episodeOffset == null) {
         episodeOffsetToSave = relativeResult.episodeOffset
       }

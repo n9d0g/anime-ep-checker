@@ -962,13 +962,20 @@ export default function AdminPage() {
     }
   }
 
-  function removeShowFromLocalAfterComplete(
+  function removeShowFromLocal(
     showId: string,
-    showsVersion: string | null | undefined
+    versions: {
+      showsVersion?: string | null
+      showsVersionBefore?: string | null
+    }
   ): void {
-    // The server removed exactly this show, so the rest of the list (and any
-    // unsaved edits) still matches the new version.
-    showsVersionRef.current = showsVersion ?? null
+    // The server only removed this show. If shows.json was still at the
+    // version this page loaded, the rest of the list (and any unsaved edits)
+    // matches the new version; otherwise keep the old one so the next save is
+    // rejected rather than erasing changes made elsewhere.
+    if (versions.showsVersionBefore === showsVersionRef.current) {
+      showsVersionRef.current = versions.showsVersion ?? null
+    }
     setShows((current) => current.filter((show) => show.id !== showId))
     setShowStates((current) => {
       const next = { ...current }
@@ -1070,13 +1077,14 @@ export default function AdminPage() {
         error?: string
         cleanupTriggered?: boolean
         showsVersion?: string | null
+        showsVersionBefore?: string | null
       }
 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to mark show completed')
       }
 
-      removeShowFromLocalAfterComplete(prompt.showId, data.showsVersion)
+      removeShowFromLocal(prompt.showId, data)
       setCompletePrompt(null)
 
       toast.success(
@@ -1125,13 +1133,14 @@ export default function AdminPage() {
         error?: string
         cleanupTriggered?: boolean
         showsVersion?: string | null
+        showsVersionBefore?: string | null
       }
 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to put show on hold')
       }
 
-      removeShowFromLocalAfterComplete(show.id, data.showsVersion)
+      removeShowFromLocal(show.id, data)
 
       toast.success(
         data.cleanupTriggered
