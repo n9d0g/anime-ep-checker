@@ -78,6 +78,19 @@ function getDisneyRefreshToken(): string | null {
   return refreshToken || null
 }
 
+// One login per check run: Disney rotates the refresh token on exchange, so a
+// second exchange with the original token would fail.
+let cachedAccessToken: string | null = null
+let accessTokenExpiresAt = 0
+let currentRefreshToken: string | null = null
+
+/** Forgets the run's Disney+ login so the next lookup starts from the env token. */
+export function resetDisneyAuthForRun(): void {
+  cachedAccessToken = null
+  accessTokenExpiresAt = 0
+  currentRefreshToken = null
+}
+
 async function exchangeRefreshToken(
   refreshToken: string
 ): Promise<DisneyTokenResponse> {
@@ -372,9 +385,7 @@ async function fetchEpisodesForSeasonAnonymous(
   return candidates
 }
 
-async function fetchSeriesBundleAnonymous(
-  disneyId: string
-): Promise<{
+async function fetchSeriesBundleAnonymous(disneyId: string): Promise<{
   seriesTitle: string
   candidates: DisneyEpisodeCandidate[]
 } | null> {
@@ -573,6 +584,26 @@ async function fetchExplorePage(
   return data.data
 }
 
+async function getDisneyAccessToken(): Promise<string> {
+  const now = Date.now()
+  if (cachedAccessToken && now < accessTokenExpiresAt - 60_000) {
+    return cachedAccessToken
+  }
+
+  const refreshToken = currentRefreshToken ?? getDisneyRefreshToken()
+  if (!refreshToken) {
+    throw new DisneyAuthError(
+      'Disney+ anonymous metadata is unavailable and DISNEY_REFRESH_TOKEN is not set. Copy a refresh token from DevTools on disneyplus.com (see README §6) into GitHub Actions secrets.'
+    )
+  }
+
+  const token = await exchangeRefreshToken(refreshToken)
+  cachedAccessToken = token.access_token!
+  accessTokenExpiresAt = now + (token.expires_in ?? 3600) * 1000
+  currentRefreshToken = token.refresh_token || refreshToken
+  return cachedAccessToken
+}
+
 export async function getLatestAvailableEpisodeForTitle(
   disneyId: string
 ): Promise<EpisodeSnapshot | null> {
@@ -584,15 +615,8 @@ export async function getLatestAvailableEpisodeForTitle(
     }
   }
 
-  const refreshToken = getDisneyRefreshToken()
-  if (!refreshToken) {
-    throw new DisneyAuthError(
-      'Disney+ anonymous metadata is unavailable and DISNEY_REFRESH_TOKEN is not set. Copy a refresh token from DevTools on disneyplus.com (see README §6) into GitHub Actions secrets.'
-    )
-  }
-
-  const token = await exchangeRefreshToken(refreshToken)
-  const exploreData = await fetchExplorePage(disneyId, token.access_token!)
+  const accessToken = await getDisneyAccessToken()
+  const exploreData = await fetchExplorePage(disneyId, accessToken)
   const explore = parseExploreEpisodes(exploreData, disneyId)
   const best = pickBestEpisode(explore.candidates)
   if (!best) {
