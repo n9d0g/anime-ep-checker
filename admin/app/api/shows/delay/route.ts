@@ -13,7 +13,7 @@ export async function POST(request: Request) {
     }
 
     let show: Show | undefined
-    await updateRepoFiles(
+    const { versions } = await updateRepoFiles(
       ['shows.json', 'state.json'],
       ({ 'shows.json': showsFile, 'state.json': state }) => {
         show = showsFile.shows.find((entry) => entry.id === showId)
@@ -51,6 +51,7 @@ export async function POST(request: Request) {
       ok: true,
       workflowTriggered,
       show,
+      showsVersion: versions['shows.json'],
     })
   } catch (error) {
     return NextResponse.json(

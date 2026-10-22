@@ -150,26 +150,36 @@ interface GitHubCommitResponse {
 async function readRepoFileAtRef<P extends RepoPath>(
   path: P,
   ref: string
-): Promise<RepoFiles[P]> {
+): Promise<{ content: RepoFiles[P]; version: string | null }> {
   const file = await getRepoFileAtRef(path, ref)
-  if (file) return file.content as RepoFiles[P]
+  if (file) return { content: file.content as RepoFiles[P], version: file.sha }
 
   const fallback = MISSING_FILE_DEFAULTS[path]
   if (!fallback) throw new Error(`${path} not found in repository`)
-  return structuredClone(fallback) as RepoFiles[P]
+  return { content: structuredClone(fallback) as RepoFiles[P], version: null }
 }
+
+/** Blob SHA of each file: changes whenever the file's content changes. */
+export type RepoFileVersions<P extends RepoPath> = Record<P, string | null>
 
 const UPDATE_ATTEMPTS = 3
 
 type ApplyRepoUpdate<P extends RepoPath> = (
-  files: Pick<RepoFiles, P>
+  files: Pick<RepoFiles, P>,
+  versions: RepoFileVersions<P>
 ) => Partial<Pick<RepoFiles, P>> | null
+
+export interface RepoUpdateResult<P extends RepoPath> {
+  committed: boolean
+  /** File versions after the update (unchanged files keep their version). */
+  versions: RepoFileVersions<P>
+}
 
 async function tryUpdateRepoFiles<P extends RepoPath>(
   paths: P[],
   apply: ApplyRepoUpdate<P>,
   message: string
-): Promise<'committed' | 'unchanged' | 'conflict'> {
+): Promise<RepoUpdateResult<P> | 'conflict'> {
   const { repo, branch } = getConfig()
 
   const head = await githubFetch<GitHubCommitResponse>(
@@ -177,13 +187,24 @@ async function tryUpdateRepoFiles<P extends RepoPath>(
   )
   if (!head) throw new Error(`Could not resolve latest commit for ${branch}`)
 
-  const entries = await Promise.all(
-    paths.map(async (path) => [path, await readRepoFileAtRef(path, head.sha)])
+  const files = {} as Pick<RepoFiles, P>
+  const versions = {} as RepoFileVersions<P>
+  await Promise.all(
+    paths.map(async (path) => {
+      const file = await readRepoFileAtRef(path, head.sha)
+      files[path] = file.content
+      versions[path] = file.version
+    })
   )
-  const updates = apply(Object.fromEntries(entries) as Pick<RepoFiles, P>)
-  if (!updates || Object.keys(updates).length === 0) return 'unchanged'
+  const updates = apply(files, { ...versions })
+  if (!updates || Object.keys(updates).length === 0) {
+    return { committed: false, versions }
+  }
 
-  const tree = await githubFetch<{ sha: string }>(`/repos/${repo}/git/trees`, {
+  const tree = await githubFetch<{
+    sha: string
+    tree: { path: string; sha: string }[]
+  }>(`/repos/${repo}/git/trees`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -216,24 +237,28 @@ async function tryUpdateRepoFiles<P extends RepoPath>(
     if (isGithubConflictError(error)) return 'conflict'
     throw error
   }
-  return 'committed'
+
+  for (const entry of tree!.tree) {
+    if (entry.path in updates) versions[entry.path as P] = entry.sha
+  }
+  return { committed: true, versions }
 }
 
 /**
  * Read-modify-write of repo files as one commit. `apply` gets fresh copies of
  * the files at the branch head and returns the files to write (or null to
  * write nothing). If another commit lands first, the files are re-read and
- * `apply` runs again, so it must be safe to repeat. Returns whether a commit
- * was made.
+ * `apply` runs again, so it must be safe to repeat. `apply` also gets each
+ * file's current version, for callers that reject stale edits.
  */
 export async function updateRepoFiles<P extends RepoPath>(
   paths: P[],
   apply: ApplyRepoUpdate<P>,
   message: string
-): Promise<boolean> {
+): Promise<RepoUpdateResult<P>> {
   for (let attempt = 0; attempt < UPDATE_ATTEMPTS; attempt += 1) {
     const result = await tryUpdateRepoFiles(paths, apply, message)
-    if (result !== 'conflict') return result === 'committed'
+    if (result !== 'conflict') return result
   }
 
   throw new Error(

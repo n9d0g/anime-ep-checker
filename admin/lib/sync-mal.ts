@@ -24,6 +24,8 @@ export interface SyncMalResult {
   updatedEpisodeCounts: string[]
   updatedStartTimes: string[]
   shows: Show[]
+  /** shows.json version that `shows` came from. */
+  showsVersion: string | null
 }
 
 export interface SyncOnHoldEnglishResult {
@@ -178,7 +180,7 @@ export async function syncOnHoldEnglishTitles(): Promise<SyncOnHoldEnglishResult
   )
 
   let updatedShowIds: string[] = []
-  const changed = await updateRepoFiles(
+  const { committed: changed } = await updateRepoFiles(
     ['state.json'],
     ({ 'state.json': latest }) => {
       updatedShowIds = []
@@ -277,11 +279,12 @@ export async function syncShowsWithMal(): Promise<SyncMalResult> {
       updatedEpisodeCounts: [],
       updatedStartTimes: [],
       shows: initialShows,
+      showsVersion: initial.sha,
     }
   }
 
   let merged = initialMerge
-  const changed = await updateRepoFiles(
+  const { committed: changed, versions } = await updateRepoFiles(
     ['shows.json'],
     ({ 'shows.json': latest }) => {
       merged = applyMalUpdatesToShows(
@@ -303,6 +306,7 @@ export async function syncShowsWithMal(): Promise<SyncMalResult> {
       updatedEpisodeCounts: [],
       updatedStartTimes: [],
       shows: merged.shows,
+      showsVersion: versions['shows.json'],
     }
   }
 
@@ -314,5 +318,6 @@ export async function syncShowsWithMal(): Promise<SyncMalResult> {
     updatedEpisodeCounts: merged.updatedEpisodeCounts,
     updatedStartTimes: merged.updatedStartTimes,
     shows: merged.shows,
+    showsVersion: versions['shows.json'],
   }
 }

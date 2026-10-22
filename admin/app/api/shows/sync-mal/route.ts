@@ -20,6 +20,7 @@ export async function POST() {
         updatedStartTimes: result.updatedStartTimes,
         onHoldEnglishUpdated: onHoldEnglish.updatedShowIds,
         shows: result.shows,
+        showsVersion: result.showsVersion,
       },
       { headers: NO_STORE_HEADERS }
     )

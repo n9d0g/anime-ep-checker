@@ -483,6 +483,9 @@ export default function AdminPage() {
   const episodeSaveStatusRef = useRef(episodeSaveStatus)
   const loadInFlightRef = useRef(false)
   const lastFetchAtRef = useRef(0)
+  // shows.json version the list on screen came from; saves are rejected if
+  // the file has changed since, so they never erase shows added elsewhere.
+  const showsVersionRef = useRef<string | null>(null)
 
   showsRef.current = shows
   baselineRef.current = baseline
@@ -601,6 +604,7 @@ export default function AdminPage() {
         error?: string
         shows?: Show[]
         changed?: boolean
+        showsVersion?: string | null
         resolvedIds?: string[]
         updatedTitles?: string[]
         updatedEpisodeCounts?: string[]
@@ -613,6 +617,7 @@ export default function AdminPage() {
         if (!savingRef.current && !hasUnsavedLocalEdits()) {
           setShows(loadedShows)
           setBaseline(nextSerialized)
+          showsVersionRef.current = syncData.showsVersion ?? null
         }
 
         const parts: string[] = []
@@ -678,6 +683,7 @@ export default function AdminPage() {
       const bootstrapData = (await bootstrapResponse.json()) as {
         error?: string
         shows?: Show[]
+        showsVersion?: string | null
         showStates?: Record<string, ShowStateSummary>
       }
 
@@ -699,6 +705,7 @@ export default function AdminPage() {
       const nextSerialized = serializeShows(loadedShows)
       setShows(loadedShows)
       setBaseline(nextSerialized)
+      showsVersionRef.current = bootstrapData.showsVersion ?? null
       setShowStates((current) =>
         withKnownWatched(bootstrapData.showStates ?? {}, current)
       )
@@ -953,7 +960,13 @@ export default function AdminPage() {
     }
   }
 
-  function removeShowFromLocalAfterComplete(showId: string): void {
+  function removeShowFromLocalAfterComplete(
+    showId: string,
+    showsVersion: string | null | undefined
+  ): void {
+    // The server removed exactly this show, so the rest of the list (and any
+    // unsaved edits) still matches the new version.
+    showsVersionRef.current = showsVersion ?? null
     setShows((current) => current.filter((show) => show.id !== showId))
     setShowStates((current) => {
       const next = { ...current }
@@ -1054,13 +1067,14 @@ export default function AdminPage() {
       const data = (await response.json()) as {
         error?: string
         cleanupTriggered?: boolean
+        showsVersion?: string | null
       }
 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to mark show completed')
       }
 
-      removeShowFromLocalAfterComplete(prompt.showId)
+      removeShowFromLocalAfterComplete(prompt.showId, data.showsVersion)
       setCompletePrompt(null)
 
       toast.success(
@@ -1108,13 +1122,14 @@ export default function AdminPage() {
       const data = (await response.json()) as {
         error?: string
         cleanupTriggered?: boolean
+        showsVersion?: string | null
       }
 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to put show on hold')
       }
 
-      removeShowFromLocalAfterComplete(show.id)
+      removeShowFromLocalAfterComplete(show.id, data.showsVersion)
 
       toast.success(
         data.cleanupTriggered
@@ -1222,12 +1237,13 @@ export default function AdminPage() {
       const response = await noStoreFetch('/api/shows', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ shows }),
+        body: JSON.stringify({ shows, version: showsVersionRef.current }),
       })
 
       const data = (await response.json()) as {
         error?: string
         shows?: Show[]
+        showsVersion?: string | null
         cleanupTriggered?: boolean
       }
 
@@ -1238,6 +1254,7 @@ export default function AdminPage() {
       const savedShows = (data.shows ?? []).map(showToForm)
       setShows(savedShows)
       setBaseline(serializeShows(savedShows))
+      showsVersionRef.current = data.showsVersion ?? null
       if (data.cleanupTriggered) {
         toast.success(
           'Saved to GitHub. Calendar and Discord cleanup will run shortly.'
@@ -1289,7 +1306,10 @@ export default function AdminPage() {
         noStoreFetch('/api/shows'),
         noStoreFetch('/api/state'),
       ])
-      const showsData = (await showsResponse.json()) as { shows?: Show[] }
+      const showsData = (await showsResponse.json()) as {
+        shows?: Show[]
+        showsVersion?: string | null
+      }
       const stateData = (await stateResponse.json()) as {
         shows?: Record<string, ShowStateSummary>
       }
@@ -1298,6 +1318,7 @@ export default function AdminPage() {
         const loadedShows = showsData.shows.map(showToForm)
         setShows(loadedShows)
         setBaseline(serializeShows(loadedShows))
+        showsVersionRef.current = showsData.showsVersion ?? null
       }
       if (stateResponse.ok) {
         setShowStates((current) =>

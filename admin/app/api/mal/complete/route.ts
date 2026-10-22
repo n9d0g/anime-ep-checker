@@ -29,7 +29,7 @@ export async function POST(request: Request) {
 
     await completeMalAnime(malId!, score!)
 
-    await updateRepoFiles(
+    const { versions } = await updateRepoFiles(
       ['shows.json'],
       ({ 'shows.json': showsFile }) => {
         const shows = showsFile.shows ?? []
@@ -54,7 +54,11 @@ export async function POST(request: Request) {
       console.warn('Failed to dispatch cleanup check workflow:', error)
     }
 
-    return NextResponse.json({ ok: true, cleanupTriggered })
+    return NextResponse.json({
+      ok: true,
+      cleanupTriggered,
+      showsVersion: versions['shows.json'],
+    })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json({ error: message }, { status: 400 })

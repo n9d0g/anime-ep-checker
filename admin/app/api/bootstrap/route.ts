@@ -41,6 +41,7 @@ export async function GET() {
     return NextResponse.json(
       {
         shows,
+        showsVersion: showsFile.sha,
         showStates: toSummaryMap(state),
       },
       { headers: NO_STORE_HEADERS }

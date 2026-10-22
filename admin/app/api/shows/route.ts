@@ -3,25 +3,30 @@ import {
   dispatchCheckWorkflow,
   getShowsFile,
   NO_STORE_HEADERS,
-  updateRepoFiles,
 } from '@/lib/github'
 import { normalizeShow } from '@/lib/normalize-show'
+import { saveShowsList, ShowsChangedError } from '@/lib/save-shows'
 import type { Show, ShowFormValues } from '@/lib/types'
 
 interface ShowsPutBody {
   shows?: ShowFormValues[]
+  /** shows.json version the page loaded. */
+  version?: string
 }
 
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
   try {
-    const { content } = await getShowsFile()
+    const { content, sha } = await getShowsFile()
     const shows = (content.shows ?? []).map((show: Show) => ({
       ...show,
       provider: show.provider ?? 'crunchyroll',
     }))
-    return NextResponse.json({ shows }, { headers: NO_STORE_HEADERS })
+    return NextResponse.json(
+      { shows, showsVersion: sha },
+      { headers: NO_STORE_HEADERS }
+    )
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json(
@@ -44,18 +49,11 @@ export async function PUT(request: Request) {
       ids.add(show.id)
     }
 
-    let previousIds = new Set<string>()
-    await updateRepoFiles(
-      ['shows.json'],
-      ({ 'shows.json': showsFile }) => {
-        previousIds = new Set((showsFile.shows ?? []).map((show) => show.id))
-        return { 'shows.json': { ...showsFile, shows } }
-      },
-      'chore: 🧹 update shows from admin CMS'
-    )
+    if (!body.version) {
+      throw new Error('version is required; reload the page')
+    }
 
-    const newIds = new Set(shows.map((show) => show.id))
-    const removedIds = [...previousIds].filter((id) => !newIds.has(id))
+    const { version, removedIds } = await saveShowsList(shows, body.version)
 
     let cleanupTriggered = false
     if (removedIds.length > 0) {
@@ -71,6 +69,7 @@ export async function PUT(request: Request) {
       {
         ok: true,
         shows,
+        showsVersion: version,
         cleanupTriggered,
         removedIds,
       },
@@ -78,9 +77,10 @@ export async function PUT(request: Request) {
     )
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error'
+    const status = error instanceof ShowsChangedError ? 409 : 400
     return NextResponse.json(
       { error: message },
-      { status: 400, headers: NO_STORE_HEADERS }
+      { status, headers: NO_STORE_HEADERS }
     )
   }
 }
