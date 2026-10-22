@@ -1,3 +1,10 @@
+import {
+  parsePlanToWatchPage,
+  PLAN_TO_WATCH_LIST_FIELDS,
+  type MalPlanToWatchNode,
+  type MalPlanToWatchPage,
+} from '../shared/mal-plan-to-watch.ts'
+import type { PlanToWatchSnapshotEntry } from '../shared/types.ts'
 export interface MalProgress {
   watched: number
   total: number | null
@@ -10,19 +17,7 @@ export interface MalAnimeDetails {
   coverUrl: string | null
 }
 
-export interface MalPlanToWatchEntry {
-  malId: number
-  title: string
-  titleEnglish?: string
-  status: string
-  startDate: string | null
-  broadcast: {
-    dayOfWeek: string | null
-    startTime: string | null
-  } | null
-  coverUrl: string | null
-  numEpisodes: number | null
-}
+export type MalPlanToWatchEntry = PlanToWatchSnapshotEntry
 
 export type MalPlanToWatchResult =
   | { status: 'ok'; entries: MalPlanToWatchEntry[] }
@@ -59,39 +54,9 @@ interface MalAnimeResponse {
   my_list_status?: MalListStatus
 }
 
-interface MalAnimelistNode {
-  id: number
-  title: string
-  alternative_titles?: {
-    en?: string
-    ja?: string
-    synonyms?: string[]
-  }
-  status?: string
-  start_date?: string
-  num_episodes?: number
-  main_picture?: MalMainPicture
-  broadcast?: {
-    day_of_the_week?: string
-    start_time?: string
-  }
-}
-
-interface MalAnimelistEntry {
-  node: MalAnimelistNode
-}
-
-interface MalAnimelistResponse {
-  data?: MalAnimelistEntry[]
-  paging?: {
-    next?: string
-  }
-}
+type MalAnimelistResponse = MalPlanToWatchPage<MalPlanToWatchNode>
 
 const MAL_ANIME_FIELDS = 'num_episodes,my_list_status,mean,main_picture'
-
-const MAL_ANIMELIST_FIELDS =
-  'list_status,num_episodes,start_date,broadcast,main_picture,status,alternative_titles'
 
 let cachedAccessToken: string | null | undefined
 const detailsCache = new Map<number, MalFetchDetailsResult>()
@@ -248,38 +213,13 @@ export function formatMalProgressLabel(result: MalFetchResult): string {
   return 'MAL unavailable'
 }
 
-function parsePlanToWatchEntry(node: MalAnimelistNode): MalPlanToWatchEntry {
-  const broadcast = node.broadcast
-    ? {
-        dayOfWeek: node.broadcast.day_of_the_week ?? null,
-        startTime: node.broadcast.start_time ?? null,
-      }
-    : null
-
-  const titleEnglish = node.alternative_titles?.en?.trim() || undefined
-
-  return {
-    malId: node.id,
-    title: node.title,
-    titleEnglish,
-    status: node.status ?? '',
-    startDate: node.start_date ?? null,
-    broadcast,
-    coverUrl: node.main_picture?.large ?? node.main_picture?.medium ?? null,
-    numEpisodes:
-      typeof node.num_episodes === 'number' && node.num_episodes > 0
-        ? node.num_episodes
-        : null,
-  }
-}
-
 async function fetchPlanToWatchPage(
   accessToken: string,
   url?: string
 ): Promise<MalAnimelistResponse | null> {
   const requestUrl =
     url ??
-    `https://api.myanimelist.net/v2/users/@me/animelist?status=plan_to_watch&limit=1000&nsfw=true&fields=${MAL_ANIMELIST_FIELDS}`
+    `https://api.myanimelist.net/v2/users/@me/animelist?status=plan_to_watch&limit=1000&nsfw=true&fields=${PLAN_TO_WATCH_LIST_FIELDS.join(',')}`
 
   const response = await fetch(requestUrl, {
     headers: { Authorization: `Bearer ${accessToken}` },
@@ -314,11 +254,7 @@ export async function fetchPlanToWatchAnime(): Promise<MalPlanToWatchResult> {
         : { status: 'unavailable' }
     }
 
-    for (const item of page.data ?? []) {
-      if (item.node?.id) {
-        entries.push(parsePlanToWatchEntry(item.node))
-      }
-    }
+    entries.push(...parsePlanToWatchPage(page))
 
     nextUrl = page.paging?.next
   } while (nextUrl)

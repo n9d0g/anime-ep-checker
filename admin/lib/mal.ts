@@ -1,3 +1,9 @@
+import {
+  parsePlanToWatchEntry,
+  PLAN_TO_WATCH_LIST_FIELDS,
+  type MalPlanToWatchNode,
+} from '@shared/mal-plan-to-watch'
+import type { PlanToWatchSnapshotEntry } from '@shared/types'
 import type { MalBroadcast } from './broadcast'
 import type { PtwDetails, WatchedEntry } from './types'
 
@@ -32,26 +38,8 @@ interface MalAnimeResponse {
   my_list_status?: MalListStatus
 }
 
-interface MalAnimelistNode {
-  id: number
-  title: string
-  alternative_titles?: {
-    en?: string
-    ja?: string
-    synonyms?: string[]
-  }
-  status?: string
-  start_date?: string
-  num_episodes?: number
-  main_picture?: MalMainPicture
-  broadcast?: {
-    day_of_the_week?: string
-    start_time?: string
-  }
-}
-
 interface MalAnimelistEntry {
-  node: MalAnimelistNode & MalPtwDetailsNode
+  node: MalPlanToWatchNode & MalPtwDetailsNode
   list_status?: { updated_at?: string }
 }
 
@@ -159,30 +147,20 @@ const MAL_PTW_DETAILS_FIELDS = [
 
 // Snapshot fields plus the detail fields, so one list fetch serves both.
 const MAL_ANIMELIST_FIELDS = [
-  'list_status',
-  'status',
-  'alternative_titles',
-  ...MAL_PTW_DETAILS_FIELDS.split(',').filter(
-    (field) => !field.startsWith('list_status')
-  ),
+  ...new Set([
+    ...PLAN_TO_WATCH_LIST_FIELDS,
+    ...MAL_PTW_DETAILS_FIELDS.split(',').filter(
+      (field) => !field.startsWith('list_status')
+    ),
+  ]),
 ].join(',')
 
-interface MalPlanToWatchEntry {
-  malId: number
-  title: string
-  titleEnglish?: string
-  status: string
-  startDate: string | null
-  broadcast: {
-    dayOfWeek: string | null
-    startTime: string | null
-  } | null
-  coverUrl: string | null
-  numEpisodes: number | null
-}
-
 type MalPlanToWatchResult =
-  | { status: 'ok'; entries: MalPlanToWatchEntry[]; details: PtwDetails[] }
+  | {
+      status: 'ok'
+      entries: PlanToWatchSnapshotEntry[]
+      details: PtwDetails[]
+    }
   | { status: 'not_configured' }
   | { status: 'unavailable' }
 
@@ -504,31 +482,6 @@ export async function fetchMalPages<T>(
   }
 
   return items
-}
-
-function parsePlanToWatchEntry(node: MalAnimelistNode): MalPlanToWatchEntry {
-  const broadcast = node.broadcast
-    ? {
-        dayOfWeek: node.broadcast.day_of_the_week ?? null,
-        startTime: node.broadcast.start_time ?? null,
-      }
-    : null
-
-  const titleEnglish = node.alternative_titles?.en?.trim() || undefined
-
-  return {
-    malId: node.id,
-    title: node.title,
-    titleEnglish,
-    status: node.status ?? '',
-    startDate: node.start_date ?? null,
-    broadcast,
-    coverUrl: node.main_picture?.large ?? node.main_picture?.medium ?? null,
-    numEpisodes:
-      typeof node.num_episodes === 'number' && node.num_episodes > 0
-        ? node.num_episodes
-        : null,
-  }
 }
 
 /** The plan-to-watch snapshot and its page details, from one list fetch. */

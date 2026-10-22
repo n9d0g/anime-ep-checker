@@ -1,0 +1,73 @@
+{
+  "data": [
+    {
+      "node": {
+        "id": 59978,
+        "title": "Sousou no Frieren 2nd Season",
+        "main_picture": {
+          "medium": "https://cdn.myanimelist.net/images/anime/1921/154528.jpg",
+          "large": "https://cdn.myanimelist.net/images/anime/1921/154528l.jpg"
+        },
+        "alternative_titles": {
+          "synonyms": ["Frieren at the Funeral 2nd Season"],
+          "en": "Frieren: Beyond Journey's End Season 2",
+          "ja": "葬送のフリーレン 第2期"
+        },
+        "start_date": "2027-01-16",
+        "status": "not_yet_aired",
+        "num_episodes": 0,
+        "broadcast": { "day_of_the_week": "saturday", "start_time": "23:00" }
+      },
+      "list_status": {
+        "status": "plan_to_watch",
+        "score": 0,
+        "num_episodes_watched": 0,
+        "is_rewatching": false,
+        "updated_at": "2026-09-30T12:01:44+00:00"
+      }
+    },
+    {
+      "node": {
+        "id": 21,
+        "title": "One Piece",
+        "main_picture": {
+          "medium": "https://cdn.myanimelist.net/images/anime/1244/138851.jpg"
+        },
+        "alternative_titles": {
+          "synonyms": ["OP"],
+          "en": " ",
+          "ja": "ONE PIECE"
+        },
+        "start_date": "1999-10-20",
+        "status": "currently_airing",
+        "num_episodes": 0
+      },
+      "list_status": {
+        "status": "plan_to_watch",
+        "score": 0,
+        "num_episodes_watched": 0,
+        "is_rewatching": false,
+        "updated_at": "2026-08-02T09:15:00+00:00"
+      }
+    },
+    {
+      "node": {
+        "id": 5114,
+        "title": "Fullmetal Alchemist: Brotherhood",
+        "alternative_titles": { "en": "Fullmetal Alchemist: Brotherhood" },
+        "start_date": "2009-04-05",
+        "status": "finished_airing",
+        "num_episodes": 64,
+        "broadcast": { "day_of_the_week": "sunday" }
+      },
+      "list_status": {
+        "status": "plan_to_watch",
+        "updated_at": "2026-07-11T20:30:00+00:00"
+      }
+    },
+    { "node": { "title": "Entry without an id" } }
+  ],
+  "paging": {
+    "next": "https://api.myanimelist.net/v2/users/@me/animelist?offset=4&status=plan_to_watch&limit=4"
+  }
+}
