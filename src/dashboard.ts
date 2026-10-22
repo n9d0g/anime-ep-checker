@@ -84,12 +84,15 @@ function resolveDashboardStatus(
   return 'upcoming'
 }
 
-export async function buildShowDashboardRow(
+/**
+ * Card status from saved state only (the run's latest episode snapshot is
+ * saved on the show state), so it stays stable between drop windows.
+ */
+export function resolveShowDashboardStatus(
   show: Show,
   showState: ShowState | null,
-  now: Date,
-  providerLatestEpisode: number | null
-): Promise<ShowDashboardRow> {
+  now: Date
+): DashboardStatus {
   const lastEpisodeNumber = showState
     ? parseEpisodeNumber(showState.lastEpisodeNumber)
     : null
@@ -97,16 +100,29 @@ export async function buildShowDashboardRow(
   const expectedAt =
     nextEpisode !== null ? getExpectedDropAt(show.schedule, nextEpisode) : null
 
-  const status: DashboardStatus =
-    nextEpisode === null || !expectedAt
-      ? 'upcoming'
-      : resolveDashboardStatus(
-          expectedAt,
-          now,
-          providerLatestEpisode,
-          nextEpisode,
-          showState?.waitingNotifiedForEpisode
-        )
+  if (nextEpisode === null || !expectedAt) return 'upcoming'
+
+  return resolveDashboardStatus(
+    expectedAt,
+    now,
+    showState?.lastSnapshotEpisode ?? null,
+    nextEpisode,
+    showState?.waitingNotifiedForEpisode
+  )
+}
+
+export async function buildShowDashboardRow(
+  show: Show,
+  showState: ShowState | null,
+  now: Date
+): Promise<ShowDashboardRow> {
+  const lastEpisodeNumber = showState
+    ? parseEpisodeNumber(showState.lastEpisodeNumber)
+    : null
+  const nextEpisode = getNextExpectedEpisode(show.schedule, lastEpisodeNumber)
+  const expectedAt =
+    nextEpisode !== null ? getExpectedDropAt(show.schedule, nextEpisode) : null
+  const status = resolveShowDashboardStatus(show, showState, now)
 
   let malProgress = '—'
   let malScore = '—'
@@ -181,7 +197,7 @@ export async function buildShowDashboardRow(
     malScore,
     coverUrl,
     discussionUrl,
-    providerLatestEpisode,
+    providerLatestEpisode: showState?.lastSnapshotEpisode ?? null,
   }
 }
 

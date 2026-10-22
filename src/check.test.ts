@@ -199,10 +199,22 @@ test('recording a new episode keeps the rest of the show state', async () => {
     seasonTitle: 'Season 1',
     episodeOffset: 0,
     waitingNotifiedForEpisode: null,
+    lastSnapshotEpisode: 3,
     malMeanScore: 9.1,
     malScoreAlertedAt: '2026-10-01T00:00:00.000Z',
     discussionUrl: 'https://www.reddit.com/r/anime/comments/abc/',
     discussionUrlEpisode: 2,
     googleCalendarEvents: { '4': calendarEvent },
   })
+})
+
+test('remembers the episode of the latest snapshot for each checked show', async () => {
+  const frieren = makeShow('frieren')
+  const { run, savedState } = await setup([frieren], {
+    shows: { frieren: showState(2) },
+  })
+
+  await run({ fetchEpisode: async () => snapshot(frieren, 2) })
+
+  assert.equal((await savedState()).shows.frieren.lastSnapshotEpisode, 2)
 })

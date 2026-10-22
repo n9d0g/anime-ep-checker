@@ -162,30 +162,6 @@ function toRelativeEpisodeResult(
   return { kind: 'snapshot', snapshot, episodeOffset: resolved }
 }
 
-async function fetchRelativeEpisode(
-  show: Show,
-  previousState: ShowState | null
-): Promise<RelativeEpisodeResult | null> {
-  const raw = await fetchLatestEpisode(show)
-  if (!raw) {
-    return null
-  }
-
-  return toRelativeEpisodeResult(show, previousState, raw)
-}
-
-async function fetchRelativeEpisodeSnapshot(
-  show: Show,
-  state: StateFile
-): Promise<EpisodeSnapshot | null> {
-  const previousState = getShowState(state, show.id)
-  const result = await fetchRelativeEpisode(show, previousState)
-  if (!result || result.kind === 'previous_season') {
-    return null
-  }
-  return result.snapshot
-}
-
 async function tryDisneyAnilistFallback(
   show: Show,
   disneyId: string,
@@ -429,31 +405,6 @@ function getDiscordDashboardConfigFromEnv() {
   }
 }
 
-function isShowInCheckWindow(
-  show: Show,
-  state: StateFile,
-  now: Date,
-  force: boolean
-): boolean {
-  if (force) return true
-
-  const previousState = getShowState(state, show.id)
-  const lastEpisodeNumber = previousState
-    ? parseEpisodeNumber(previousState.lastEpisodeNumber)
-    : null
-  const nextExpectedEp = getNextExpectedEpisode(
-    show.schedule,
-    lastEpisodeNumber
-  )
-
-  if (nextExpectedEp === null) return false
-
-  const expectedAt = getExpectedDropAt(show.schedule, nextExpectedEp)
-  if (!expectedAt) return false
-
-  return isInCheckWindow(expectedAt, now)
-}
-
 export async function checkShows({
   showsPath = SHOWS_PATH,
   statePath = STATE_PATH,
@@ -477,6 +428,7 @@ export async function checkShows({
   let skipNetflixShows = false
   let disneyAuthFailed = false
   const failedShows: string[] = []
+  const snapshotEpisodes = new Map<string, number>()
 
   const noteStateChange = (reason: string) => {
     stateChangeReasons.push(reason)
@@ -692,6 +644,10 @@ export async function checkShows({
       }
 
       latestSnapshot = relativeResult.snapshot
+      snapshotEpisodes.set(
+        showId,
+        parseEpisodeNumber(String(latestSnapshot.episode.episode ?? ''))
+      )
       if (previousState?.episodeOffset == null) {
         episodeOffsetToSave = relativeResult.episodeOffset
       }
@@ -822,6 +778,15 @@ export async function checkShows({
     }
   }
 
+  // Saved so the dashboard keeps a stable status between drop windows.
+  for (const [showId, episode] of snapshotEpisodes) {
+    const showState = state.shows[showId]
+    if (showState && showState.lastSnapshotEpisode !== episode) {
+      showState.lastSnapshotEpisode = episode
+      noteStateChange(`latest snapshot ${showId} ep ${episode}`)
+    }
+  }
+
   try {
     const malStatusResult = await syncMalStatusAlerts({
       state,
@@ -937,8 +902,6 @@ export async function checkShows({
         state,
         now,
         dryRun,
-        fetchLatest: (show) => fetchRelativeEpisodeSnapshot(show, state),
-        inWindowForShow: (show) => isShowInCheckWindow(show, state, now, force),
       })
       if (dashboardResult.changed) {
         stateChangeReasons.push(...dashboardResult.reasons)

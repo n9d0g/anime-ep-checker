@@ -12,8 +12,7 @@ import {
   shouldRecreateWatchingMessageOnEditFailure,
 } from './discord-api.js'
 import type { ShowDashboardRow } from './dashboard.js'
-import type { EpisodeSnapshot, Show, StateFile } from './types.js'
-import { parseEpisodeNumber } from './schedule.js'
+import type { Show, StateFile } from './types.js'
 import { getShowState } from './compare.js'
 
 // MAL mean scores drift by ±0.01 between runs; only re-render for bigger moves.
@@ -52,22 +51,6 @@ function hasDashboardConfig(config: DiscordDashboardConfig): boolean {
   return Boolean(config.botToken?.trim() && config.watchingChannelId?.trim())
 }
 
-async function fetchProviderLatestEpisode(
-  show: Show,
-  fetchLatest: (show: Show) => Promise<EpisodeSnapshot | null>,
-  inWindow: boolean
-): Promise<number | null> {
-  if (!inWindow) return null
-
-  try {
-    const snapshot = await fetchLatest(show)
-    if (!snapshot?.episode.episode) return null
-    return parseEpisodeNumber(String(snapshot.episode.episode))
-  } catch {
-    return null
-  }
-}
-
 async function migrateLegacyDashboardMessage(
   botToken: string,
   channelId: string,
@@ -94,16 +77,12 @@ export async function syncWatchingDashboard({
   state,
   now = new Date(),
   dryRun = false,
-  fetchLatest,
-  inWindowForShow,
 }: {
   config: DiscordDashboardConfig
   shows: Show[]
   state: StateFile
   now?: Date
   dryRun?: boolean
-  fetchLatest: (show: Show) => Promise<EpisodeSnapshot | null>
-  inWindowForShow: (show: Show) => boolean
 }): Promise<DashboardSyncResult> {
   const reasons: string[] = []
 
@@ -152,17 +131,7 @@ export async function syncWatchingDashboard({
 
   for (const show of shows) {
     const showState = getShowState(state, show.id)
-    const providerLatest = await fetchProviderLatestEpisode(
-      show,
-      fetchLatest,
-      inWindowForShow(show)
-    )
-    const row = await buildShowDashboardRow(
-      show,
-      showState,
-      now,
-      providerLatest
-    )
+    const row = await buildShowDashboardRow(show, showState, now)
 
     const payload = buildShowDashboardPayload(row)
     const payloadHash = hashDashboardRow(row)

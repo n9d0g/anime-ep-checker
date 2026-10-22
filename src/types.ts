@@ -45,6 +45,8 @@ export interface ShowState {
   seasonTitle: string
   episodeOffset?: number | null
   waitingNotifiedForEpisode?: number | null
+  /** Episode number of the latest episode snapshot seen for this show. */
+  lastSnapshotEpisode?: number | null
   malMeanScore?: number | null
   malScoreAlertedAt?: string | null
   discussionUrl?: string | null
