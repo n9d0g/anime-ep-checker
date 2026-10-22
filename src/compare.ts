@@ -50,6 +50,9 @@ export function createUpdatedState(
     options.episodeOffset ?? options.previousState?.episodeOffset ?? undefined
 
   return {
+    // Keep fields owned by other features (MAL score, discussion link,
+    // calendar entries); only the episode fields change on a drop.
+    ...options.previousState,
     lastEpisodeId: latestSnapshot.episode.id,
     lastEpisodeNumber: String(episodeNumber),
     lastEpisodeTitle: latestSnapshot.episode.title ?? '',

@@ -165,3 +165,44 @@ test('records the episode when clearing its calendar entry fails', async () => {
   assert.deepEqual(alerts, ['✅ frieren — Episode 3 is out!'])
   assert.equal((await savedState()).shows.frieren.lastEpisodeNumber, '3')
 })
+
+test('recording a new episode keeps the rest of the show state', async () => {
+  const frieren = makeShow('frieren')
+  const calendarEvent = {
+    eventId: 'event-4',
+    startAt: '2026-10-22T15:00:00.000Z',
+  }
+  const { run, savedState } = await setup([frieren], {
+    shows: {
+      frieren: {
+        ...showState(2),
+        waitingNotifiedForEpisode: 3,
+        malMeanScore: 9.1,
+        malScoreAlertedAt: '2026-10-01T00:00:00.000Z',
+        discussionUrl: 'https://www.reddit.com/r/anime/comments/abc/',
+        discussionUrlEpisode: 2,
+        googleCalendarEvents: { '4': calendarEvent },
+      },
+    },
+  })
+
+  await run({ fetchEpisode: async () => snapshot(frieren, 3) })
+
+  const saved = (await savedState()).shows.frieren
+  assert.notEqual(saved.lastNotifiedAt, showState(2).lastNotifiedAt)
+  assert.deepEqual(saved, {
+    lastEpisodeId: 'ep-3',
+    lastEpisodeNumber: '3',
+    lastEpisodeTitle: 'Episode 3',
+    lastNotifiedAt: saved.lastNotifiedAt,
+    seasonId: 'season-1',
+    seasonTitle: 'Season 1',
+    episodeOffset: 0,
+    waitingNotifiedForEpisode: null,
+    malMeanScore: 9.1,
+    malScoreAlertedAt: '2026-10-01T00:00:00.000Z',
+    discussionUrl: 'https://www.reddit.com/r/anime/comments/abc/',
+    discussionUrlEpisode: 2,
+    googleCalendarEvents: { '4': calendarEvent },
+  })
+})
