@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import { ModalOverlay } from '@/app/components/ModalOverlay'
+import { SegmentedControl } from '@/app/components/SegmentedControl'
 import {
   hasKnownEpisodeCount,
   hasKnownStartAt,
@@ -12,34 +14,6 @@ import type {
   ShowFormValues,
   ShowProvider,
 } from '@/lib/types'
-
-function SegmentedControl<T extends string>({
-  value,
-  options,
-  onChange,
-  ariaLabel,
-}: {
-  value: T
-  options: Array<{ value: T; label: string }>
-  onChange: (value: T) => void
-  ariaLabel: string
-}) {
-  return (
-    <div className="segmented" role="group" aria-label={ariaLabel}>
-      {options.map((option) => (
-        <button
-          key={option.value}
-          type="button"
-          className={value === option.value ? 'active' : ''}
-          aria-pressed={value === option.value}
-          onClick={() => onChange(option.value)}
-        >
-          {option.label}
-        </button>
-      ))}
-    </div>
-  )
-}
 
 function providerUrlField(provider: ShowProvider): {
   key: 'crunchyrollUrl' | 'netflixUrl' | 'disneyUrl'
@@ -100,17 +74,6 @@ export function MoveToWatchingModal({
     setForm(watchFormDefaults(entry))
   }, [entry])
 
-  useEffect(() => {
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape' && !submitting) {
-        onCancel()
-      }
-    }
-
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [onCancel, submitting])
-
   const unknownLabels = useMemo(() => unknownWatchFieldLabels(entry), [entry])
   const startKnown = hasKnownStartAt(entry)
   const episodeCountKnown = hasKnownEpisodeCount(entry)
@@ -137,15 +100,7 @@ export function MoveToWatchingModal({
   }
 
   return (
-    <div
-      className="modal-overlay"
-      role="presentation"
-      onClick={(event) => {
-        if (event.target === event.currentTarget && !submitting) {
-          onCancel()
-        }
-      }}
-    >
+    <ModalOverlay submitting={submitting} onCancel={onCancel}>
       <form
         className="modal-panel modal-panel-wide"
         role="dialog"
@@ -275,6 +230,6 @@ export function MoveToWatchingModal({
           </button>
         </div>
       </form>
-    </div>
+    </ModalOverlay>
   )
 }

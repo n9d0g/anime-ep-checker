@@ -261,7 +261,6 @@ h3 {
   gap: 1.5rem;
 }
 
-.ptw-row-link,
 .ptw-row-main {
   text-decoration: none;
   color: inherit;
@@ -947,18 +946,6 @@ select:focus {
   color: var(--text);
 }
 
-.integrations-panel {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
-.integrations-panel h2 {
-  font-size: 1rem;
-}
-
 .episode-stepper-row {
   display: flex;
   align-items: center;
@@ -1015,20 +1002,6 @@ select:focus {
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   color: var(--text-secondary);
-}
-
-.episode-save-status {
-  flex-shrink: 0;
-  font-size: 0.78rem;
-  color: var(--muted);
-}
-
-.episode-save-status.saved {
-  color: var(--success);
-}
-
-.episode-save-status.error {
-  color: var(--danger);
 }
 
 .toast-stack {
