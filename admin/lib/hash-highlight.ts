@@ -28,20 +28,31 @@ export function hashOf(href: string): string {
   return index === -1 ? '' : href.slice(index)
 }
 
+/**
+ * How long a highlight request waits for its row. A row that never renders
+ * (stale search index, hidden by a filter) shouldn't flash much later.
+ */
+export const HIGHLIGHT_REQUEST_TTL_MS = 10_000
+
 export function createHighlightTracker() {
   let pendingId: string | null = null
+  let requestedAt = 0
 
   return {
     /** Ask for the row a hash points at to be highlighted. */
-    request(hash: string): string | null {
+    request(hash: string, now = Date.now()): string | null {
       pendingId = targetIdFromHash(hash)
+      requestedAt = now
       return pendingId
     },
     pending(): string | null {
       return pendingId
     },
     /** The id to highlight now, if its row exists; each request is taken once. */
-    take(exists: (id: string) => boolean): string | null {
+    take(exists: (id: string) => boolean, now = Date.now()): string | null {
+      if (pendingId !== null && now - requestedAt > HIGHLIGHT_REQUEST_TTL_MS) {
+        pendingId = null
+      }
       if (pendingId === null || !exists(pendingId)) {
         return null
       }

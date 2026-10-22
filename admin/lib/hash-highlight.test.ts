@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import {
   createHighlightTracker,
+  HIGHLIGHT_REQUEST_TTL_MS,
   hashOf,
   malIdFromElementId,
   pathOf,
@@ -84,4 +85,21 @@ test('malIdFromElementId reads MAL-keyed rows only', () => {
   assert.equal(malIdFromElementId('show-52991'), 52991)
   assert.equal(malIdFromElementId('show-frieren'), null)
   assert.equal(malIdFromElementId('show-1a'), null)
+})
+
+test('a highlight request for a row that never appears expires', () => {
+  const tracker = createHighlightTracker()
+  tracker.request('#show-42', 1_000)
+
+  assert.equal(
+    tracker.take(() => false, 5_000),
+    null
+  )
+  assert.equal(tracker.pending(), 'show-42')
+
+  assert.equal(
+    tracker.take(() => true, 1_000 + HIGHLIGHT_REQUEST_TTL_MS + 1),
+    null
+  )
+  assert.equal(tracker.pending(), null)
 })
