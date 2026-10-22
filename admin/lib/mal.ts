@@ -537,7 +537,7 @@ export async function fetchPlanToWatchList(): Promise<MalPlanToWatchResult> {
     const items = (
       await fetchMalPages<MalAnimelistEntry>(
         await getMalAccessToken(),
-        `https://api.myanimelist.net/v2/users/@me/animelist?status=plan_to_watch&limit=100&fields=${encodeURIComponent(MAL_ANIMELIST_FIELDS)}`,
+        `https://api.myanimelist.net/v2/users/@me/animelist?status=plan_to_watch&limit=1000&nsfw=true&fields=${encodeURIComponent(MAL_ANIMELIST_FIELDS)}`,
         'MAL plan-to-watch lookup'
       )
     ).filter((item) => item.node?.id)

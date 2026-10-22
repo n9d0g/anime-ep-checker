@@ -279,7 +279,7 @@ async function fetchPlanToWatchPage(
 ): Promise<MalAnimelistResponse | null> {
   const requestUrl =
     url ??
-    `https://api.myanimelist.net/v2/users/@me/animelist?status=plan_to_watch&limit=100&fields=${MAL_ANIMELIST_FIELDS}`
+    `https://api.myanimelist.net/v2/users/@me/animelist?status=plan_to_watch&limit=1000&nsfw=true&fields=${MAL_ANIMELIST_FIELDS}`
 
   const response = await fetch(requestUrl, {
     headers: { Authorization: `Bearer ${accessToken}` },
