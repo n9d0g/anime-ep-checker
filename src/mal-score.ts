@@ -2,7 +2,7 @@ import { getShowState } from './compare.ts'
 import { sendMalScoreAlert } from './discord.ts'
 import type { DiscordConfig } from './discord.ts'
 import { fetchMalAnimeDetails } from './mal.ts'
-import type { Show, StateFile } from './types.ts'
+import type { Show, StateFile } from '../shared/types.ts'
 
 const MAL_SCORE_ALERT_DELTA = 0.05
 

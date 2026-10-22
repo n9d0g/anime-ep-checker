@@ -6,7 +6,7 @@ import {
 } from '@/lib/api-route'
 import { getStateFile, updateRepoFiles } from '@/lib/github'
 import { setMalWatchingStatus } from '@/lib/mal'
-import type { Show, StateFile } from '@/lib/types'
+import type { Show, StateFile } from '@shared/types'
 
 export const dynamic = 'force-dynamic'
 

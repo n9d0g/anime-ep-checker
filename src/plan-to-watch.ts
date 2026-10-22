@@ -5,7 +5,7 @@ import type {
   PlanToWatchAlertReason,
   PlanToWatchSnapshotEntry,
   StateFile,
-} from './types.ts'
+} from '../shared/types.ts'
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000
 const UPCOMING_WINDOW_DAYS = 7

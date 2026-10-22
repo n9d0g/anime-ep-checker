@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { syncMalStatusAlerts } from './mal-status.ts'
 import type { MalHealth } from './mal.ts'
-import type { StateFile } from './types.ts'
+import type { StateFile } from '../shared/types.ts'
 
 const now = new Date('2026-10-21T12:00:00Z')
 

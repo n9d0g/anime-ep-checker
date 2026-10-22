@@ -3,7 +3,7 @@ import { afterEach, beforeEach, test } from 'node:test'
 import { installFakeGitHub } from './fake-github'
 import { fetchMalAnimeDetails, fetchPlanToWatchList } from './mal'
 import { syncShowsWithMal } from './sync-mal'
-import type { Show } from './types'
+import type { Show } from '@shared/types'
 
 // The MAL client caches its access token per module, so the cold-start test
 // must run first in this file.

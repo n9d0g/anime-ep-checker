@@ -1,7 +1,8 @@
 'use client'
 
 import { SegmentedControl } from '@/app/components/SegmentedControl'
-import type { ShowFormValues, ShowProvider } from '@/lib/types'
+import type { ShowFormValues } from '@/lib/types'
+import type { ShowProvider } from '@shared/types'
 import { MAL_DOWN_MESSAGE } from '@/lib/watching'
 
 // The "More options" fields of a Watching row. `rowKey` keeps input IDs

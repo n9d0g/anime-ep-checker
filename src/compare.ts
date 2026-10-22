@@ -1,10 +1,5 @@
-import type {
-  EpisodeSnapshot,
-  Show,
-  ShowState,
-  StateFile,
-  TimingStatus,
-} from './types.ts'
+import type { EpisodeSnapshot, TimingStatus } from './types.ts'
+import type { Show, ShowState, StateFile } from '../shared/types.ts'
 import { formatEasternTime } from './time.ts'
 
 export function getShowState(

@@ -1,4 +1,4 @@
-import type { ShowsFile, StateFile } from './types'
+import type { ShowsFile, StateFile } from '@shared/types'
 
 const GITHUB_API = 'https://api.github.com'
 

@@ -26,10 +26,8 @@ import {
 import type {
   PlanToWatchSnapshot,
   PlanToWatchSnapshotEntry,
-  PtwDetails,
-  PtwDetailsList,
-  ShowFormValues,
-} from '@/lib/types'
+} from '@shared/types'
+import type { PtwDetails, PtwDetailsList, ShowFormValues } from '@/lib/types'
 
 function startOfUtcDay(date: Date): Date {
   return new Date(

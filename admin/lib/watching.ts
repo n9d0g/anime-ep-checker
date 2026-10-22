@@ -1,25 +1,20 @@
-import { buildAnimeDiscussionSearchUrl } from './reddit'
+import { buildAnimeDiscussionSearchUrl } from '@shared/reddit'
 import {
   getExpectedDropAt,
   getLastScheduledEpisode,
   getNextExpectedEpisode,
   isEpisodeInSchedule,
   parseEpisodeNumber,
-} from './schedule'
+} from '@shared/schedule'
 import { emptyShowForm } from './show-form'
-import { getShowWatchUrl } from './shows'
+import { getShowWatchUrl } from '@shared/shows'
 import {
   formatEasternShortMilitary,
   formatEasternTime,
   fromDatetimeLocalValue,
 } from './time'
-import type {
-  Show,
-  ShowFormValues,
-  ShowProvider,
-  ShowSchedule,
-  ShowStateSummary,
-} from './types'
+import type { Show, ShowProvider, ShowSchedule } from '@shared/types'
+import type { ShowFormValues, ShowStateSummary } from './types'
 
 export const MAL_DOWN_MESSAGE =
   'MAL servers are down. Progress can’t be loaded or changed.'

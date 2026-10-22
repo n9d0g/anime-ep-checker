@@ -57,14 +57,6 @@ interface JsonGraph {
   >
 }
 
-export function parseNetflixIdFromUrl(url: string): string {
-  const match = String(url).match(/\/title\/(\d+)/i)
-  if (!match) {
-    throw new Error(`Could not parse Netflix title ID from URL: ${url}`)
-  }
-  return match[1]
-}
-
 export class NetflixAuthError extends Error {
   constructor(message: string) {
     super(message)

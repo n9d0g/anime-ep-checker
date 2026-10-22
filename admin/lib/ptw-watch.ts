@@ -2,7 +2,8 @@ import { normalizeBroadcastTime, RELEASE_BUFFER_MS } from './broadcast'
 import { slugify } from './slugify'
 import { fromDatetimeLocalValue, toDatetimeLocalValue } from './time'
 import { emptyShowForm } from './show-form'
-import type { PlanToWatchSnapshotEntry, ShowFormValues } from './types'
+import type { PlanToWatchSnapshotEntry } from '@shared/types'
+import type { ShowFormValues } from './types'
 
 type UnknownWatchField = 'provider' | 'startAt' | 'episodeCount'
 

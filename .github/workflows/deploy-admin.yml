@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'admin/**'
+      - 'shared/**'
 
 concurrency:
   group: deploy-admin

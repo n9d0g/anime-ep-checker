@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server'
 import { withErrorResponse } from '@/lib/api-route'
 import { getRepoFiles, NO_STORE_HEADERS } from '@/lib/github'
-import type { Show, ShowStateSummary, StateFile } from '@/lib/types'
+import type { Show, StateFile } from '@shared/types'
+import type { ShowStateSummary } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
 

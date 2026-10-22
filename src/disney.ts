@@ -33,24 +33,6 @@ interface DisneyEpisodeCandidate {
   isAvailable: boolean
 }
 
-export function parseDisneyIdFromUrl(url: string): string {
-  const entityMatch = String(url).match(
-    /\/browse\/entity-([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i
-  )
-  if (entityMatch) {
-    return entityMatch[1]
-  }
-
-  const seriesMatch = String(url).match(
-    /\/series\/[a-z0-9-]+\/([a-zA-Z0-9-]+)/i
-  )
-  if (seriesMatch) {
-    return seriesMatch[1]
-  }
-
-  throw new Error(`Could not parse Disney+ ID from URL: ${url}`)
-}
-
 function buildDisneyBrowseUrl(disneyId: string): string {
   if (/^[0-9a-f-]{36}$/i.test(disneyId)) {
     return `https://www.disneyplus.com/browse/entity-${disneyId}`

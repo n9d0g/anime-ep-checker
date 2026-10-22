@@ -3,7 +3,7 @@ import { afterEach, beforeEach, test } from 'node:test'
 import { blobSha, installFakeGitHub, type FakeGitHub } from './fake-github'
 import { getRepoFiles } from './github'
 import { saveShowsList, ShowsChangedError } from './save-shows'
-import type { Show, ShowsFile } from './types'
+import type { Show, ShowsFile } from '@shared/types'
 
 function show(id: string): Show {
   return {

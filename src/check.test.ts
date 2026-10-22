@@ -4,7 +4,8 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, test } from 'node:test'
 import { checkShows, type CheckOptions } from './check.ts'
-import type { EpisodeSnapshot, Show, ShowState, StateFile } from './types.ts'
+import type { EpisodeSnapshot } from './types.ts'
+import type { Show, ShowState, StateFile } from '../shared/types.ts'
 
 const WEBHOOK_URL = 'https://discord.test/webhook'
 

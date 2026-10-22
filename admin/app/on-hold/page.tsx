@@ -8,7 +8,7 @@ import { useHashScrollHighlight } from '@/app/components/useHashScrollHighlight'
 import { cacheKeys, readJsonCache, writeJsonCache } from '@/lib/client-cache'
 import { PtwListSkeleton } from '@/app/components/ListSkeleton'
 import { useToast } from '@/app/components/Toast'
-import type { OnHoldSnapshot, OnHoldSnapshotEntry } from '@/lib/types'
+import type { OnHoldSnapshot, OnHoldSnapshotEntry } from '@shared/types'
 
 function formatHeldMeta(entry: OnHoldSnapshotEntry): string {
   const parts: string[] = []

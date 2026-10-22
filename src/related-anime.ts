@@ -6,7 +6,7 @@ import {
   fetchUserAnimeList,
   type MalRelatedAnime,
 } from './mal.ts'
-import type { StateFile } from './types.ts'
+import type { StateFile } from '../shared/types.ts'
 
 // MAL's rate limits are undocumented; ~1 req/s has been safe in practice.
 const MAL_REQUEST_DELAY_MS = 1000

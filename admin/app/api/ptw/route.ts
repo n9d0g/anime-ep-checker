@@ -2,11 +2,8 @@ import { NextResponse } from 'next/server'
 import { withErrorResponse } from '@/lib/api-route'
 import { getStateFile, updateRepoFiles } from '@/lib/github'
 import { fetchPlanToWatchList } from '@/lib/mal'
-import type {
-  PlanToWatchSnapshot,
-  PtwDetailsList,
-  StateFile,
-} from '@/lib/types'
+import type { PlanToWatchSnapshot, StateFile } from '@shared/types'
+import type { PtwDetailsList } from '@/lib/types'
 
 export async function GET() {
   return withErrorResponse({ status: 500 }, async () => {

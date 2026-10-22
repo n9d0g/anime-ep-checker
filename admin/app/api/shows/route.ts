@@ -3,7 +3,8 @@ import { tryDispatchCheckWorkflow, withErrorResponse } from '@/lib/api-route'
 import { getShowsFile, NO_STORE_HEADERS } from '@/lib/github'
 import { normalizeShow } from '@/lib/normalize-show'
 import { saveShowsList, ShowsChangedError } from '@/lib/save-shows'
-import type { Show, ShowFormValues } from '@/lib/types'
+import type { Show } from '@shared/types'
+import type { ShowFormValues } from '@/lib/types'
 
 interface ShowsPutBody {
   shows?: ShowFormValues[]

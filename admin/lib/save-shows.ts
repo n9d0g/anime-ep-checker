@@ -1,5 +1,5 @@
 import { updateRepoFiles } from './github'
-import type { Show } from './types'
+import type { Show } from '@shared/types'
 
 /** The shows list changed since the editor loaded it. */
 export class ShowsChangedError extends Error {

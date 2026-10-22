@@ -1,6 +1,6 @@
 import { getShowsFile, getStateFile, updateRepoFiles } from './github'
 import { alignStartAtToBroadcast, type MalBroadcast } from './broadcast'
-import type { StateFile } from './types'
+import type { StateFile } from '@shared/types'
 import { resolveMalIdFromSearch, type MalSearchResult } from './mal-match'
 import {
   fetchMalAnimeInfo,
@@ -8,7 +8,7 @@ import {
   isMalOutageError,
   searchMalAnime,
 } from './mal'
-import type { Show } from './types'
+import type { Show } from '@shared/types'
 
 interface MalShowUpdate {
   id: string

@@ -9,11 +9,8 @@ import {
   unknownWatchFieldLabels,
   watchFormDefaults,
 } from '@/lib/ptw-watch'
-import type {
-  PlanToWatchSnapshotEntry,
-  ShowFormValues,
-  ShowProvider,
-} from '@/lib/types'
+import type { PlanToWatchSnapshotEntry, ShowProvider } from '@shared/types'
+import type { ShowFormValues } from '@/lib/types'
 
 function providerUrlField(provider: ShowProvider): {
   key: 'crunchyrollUrl' | 'netflixUrl' | 'disneyUrl'

@@ -1,4 +1,14 @@
-function buildSearchQueries(
+/** Pure r/anime discussion helpers: slugs, search queries and the search URL. */
+
+export function slugifyForReddit(value: string): string {
+  return String(value)
+    .toLowerCase()
+    .replace(/['’]/g, '')
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+}
+
+export function buildSearchQueries(
   showTitle: string,
   episodeNumber: number,
   redditSearchTitle?: string
@@ -16,14 +26,6 @@ function buildSearchQueries(
   }
 
   return [...new Set(queries)]
-}
-
-function slugifyForReddit(value: string): string {
-  return String(value)
-    .toLowerCase()
-    .replace(/['’]/g, '')
-    .replace(/[^a-z0-9]+/g, '_')
-    .replace(/^_+|_+$/g, '')
 }
 
 export function buildAnimeDiscussionSearchUrl(

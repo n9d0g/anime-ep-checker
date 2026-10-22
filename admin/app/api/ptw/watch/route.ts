@@ -9,7 +9,8 @@ import { updateRepoFiles } from '@/lib/github'
 import { setMalWatchingStatus } from '@/lib/mal'
 import { normalizeShow } from '@/lib/normalize-show'
 import { uniqueShowId } from '@/lib/ptw-watch'
-import type { Show, ShowFormValues } from '@/lib/types'
+import type { Show } from '@shared/types'
+import type { ShowFormValues } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
 

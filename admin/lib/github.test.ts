@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { afterEach, beforeEach, test } from 'node:test'
 import { installFakeGitHub, type FakeGitHub } from './fake-github'
 import { getRepoFiles, getStateFile, updateRepoFiles } from './github'
-import type { ShowsFile, StateFile } from './types'
+import type { ShowsFile, StateFile } from '@shared/types'
 
 const realFetch = globalThis.fetch
 let github: FakeGitHub

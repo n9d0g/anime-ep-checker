@@ -6,7 +6,7 @@ import {
 } from '@/lib/api-route'
 import { updateRepoFiles } from '@/lib/github'
 import { setMalAnimeListStatus } from '@/lib/mal'
-import type { OnHoldSnapshot, Show } from '@/lib/types'
+import type { OnHoldSnapshot, Show } from '@shared/types'
 
 export const dynamic = 'force-dynamic'
 

@@ -5,7 +5,7 @@ import {
   withErrorResponse,
 } from '@/lib/api-route'
 import { updateRepoFiles } from '@/lib/github'
-import type { Show } from '@/lib/types'
+import type { Show } from '@shared/types'
 
 const MS_PER_WEEK = 7 * 24 * 60 * 60 * 1000
 

@@ -319,31 +319,32 @@ Shows your MAL plan-to-watch list from `state.meta.planToWatch`, grouped into **
 
 ## Files
 
-| File                                                                           | Purpose                                                                       |
-| ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------- |
-| [`shows.json`](shows.json)                                                     | Tracked series + weekly schedules                                             |
-| [`state.json`](state.json)                                                     | Last notified episode per show                                                |
-| [`src/check.ts`](src/check.ts)                                                 | Main checker CLI                                                              |
-| [`src/schedule.ts`](src/schedule.ts)                                           | Expected drop times + check windows                                           |
-| [`src/crunchyroll.ts`](src/crunchyroll.ts)                                     | Crunchyroll API client                                                        |
-| [`src/netflix.ts`](src/netflix.ts)                                             | Netflix pathEvaluator client (cookie auth)                                    |
-| [`src/disney.ts`](src/disney.ts)                                               | Disney+ explore API client (refresh token auth)                               |
-| [`src/anilist.ts`](src/anilist.ts)                                             | AniList airing schedule fallback for Disney+ shows                            |
-| [`src/reddit.ts`](src/reddit.ts)                                               | r/anime discussion lookup (AutoLovepon RSS + search fallback)                 |
-| [`src/reddit-feeds.ts`](src/reddit-feeds.ts)                                   | Reddit user submission feeds + Discord alerts                                 |
-| [`src/discord.ts`](src/discord.ts)                                             | Discord bot/webhook alerts + score alerts                                     |
-| [`src/discord-format.ts`](src/discord-format.ts)                               | Embed formatting helpers                                                      |
-| [`src/discord-dashboard.ts`](src/discord-dashboard.ts)                         | #watching dashboard sync                                                      |
-| [`src/google-calendar.ts`](src/google-calendar.ts)                             | Google Calendar episode sync                                                  |
-| [`src/dashboard.ts`](src/dashboard.ts)                                         | Dashboard status + embed builder                                              |
-| [`src/mal.ts`](src/mal.ts)                                                     | MAL read-only progress (checker)                                              |
-| [`src/mal-score.ts`](src/mal-score.ts)                                         | MAL score spike/tank detection                                                |
-| [`src/plan-to-watch.ts`](src/plan-to-watch.ts)                                 | MAL plan-to-watch airing alerts                                               |
-| [`src/related-anime.ts`](src/related-anime.ts)                                 | Weekly MAL related anime (sequel etc.) alerts                                 |
-| [`src/should-run.mjs`](src/should-run.mjs)                                     | Cheap gate for Actions (no marketplace actions on skip path)                  |
-| [`admin/`](admin/)                                                             | Cloudflare CMS (vinext)                                                       |
-| [`.github/workflows/check-episodes.yml`](.github/workflows/check-episodes.yml) | Gate + full episode check (`schedule`, `workflow_dispatch`, or external cron) |
-| [`.github/workflows/deploy-admin.yml`](.github/workflows/deploy-admin.yml)     | Deploy admin Worker + Discord deploy notify                                   |
+| File                                                                           | Purpose                                                                                                       |
+| ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------- |
+| [`shows.json`](shows.json)                                                     | Tracked series + weekly schedules                                                                             |
+| [`state.json`](state.json)                                                     | Last notified episode per show                                                                                |
+| [`src/check.ts`](src/check.ts)                                                 | Main checker CLI                                                                                              |
+| [`shared/schedule.ts`](shared/schedule.ts)                                     | Expected drop times + check windows                                                                           |
+| [`shared/`](shared/)                                                           | Pure modules imported by both the checker and the admin (types, provider URLs, watch URLs, Reddit search URL) |
+| [`src/crunchyroll.ts`](src/crunchyroll.ts)                                     | Crunchyroll API client                                                                                        |
+| [`src/netflix.ts`](src/netflix.ts)                                             | Netflix pathEvaluator client (cookie auth)                                                                    |
+| [`src/disney.ts`](src/disney.ts)                                               | Disney+ explore API client (refresh token auth)                                                               |
+| [`src/anilist.ts`](src/anilist.ts)                                             | AniList airing schedule fallback for Disney+ shows                                                            |
+| [`src/reddit.ts`](src/reddit.ts)                                               | r/anime discussion lookup (AutoLovepon RSS + search fallback)                                                 |
+| [`src/reddit-feeds.ts`](src/reddit-feeds.ts)                                   | Reddit user submission feeds + Discord alerts                                                                 |
+| [`src/discord.ts`](src/discord.ts)                                             | Discord bot/webhook alerts + score alerts                                                                     |
+| [`src/discord-format.ts`](src/discord-format.ts)                               | Embed formatting helpers                                                                                      |
+| [`src/discord-dashboard.ts`](src/discord-dashboard.ts)                         | #watching dashboard sync                                                                                      |
+| [`src/google-calendar.ts`](src/google-calendar.ts)                             | Google Calendar episode sync                                                                                  |
+| [`src/dashboard.ts`](src/dashboard.ts)                                         | Dashboard status + embed builder                                                                              |
+| [`src/mal.ts`](src/mal.ts)                                                     | MAL read-only progress (checker)                                                                              |
+| [`src/mal-score.ts`](src/mal-score.ts)                                         | MAL score spike/tank detection                                                                                |
+| [`src/plan-to-watch.ts`](src/plan-to-watch.ts)                                 | MAL plan-to-watch airing alerts                                                                               |
+| [`src/related-anime.ts`](src/related-anime.ts)                                 | Weekly MAL related anime (sequel etc.) alerts                                                                 |
+| [`src/should-run.mjs`](src/should-run.mjs)                                     | Cheap gate for Actions (no marketplace actions on skip path)                                                  |
+| [`admin/`](admin/)                                                             | Cloudflare CMS (vinext)                                                                                       |
+| [`.github/workflows/check-episodes.yml`](.github/workflows/check-episodes.yml) | Gate + full episode check (`schedule`, `workflow_dispatch`, or external cron)                                 |
+| [`.github/workflows/deploy-admin.yml`](.github/workflows/deploy-admin.yml)     | Deploy admin Worker + Discord deploy notify                                                                   |
 
 ## Notes
 

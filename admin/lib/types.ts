@@ -1,71 +1,5 @@
-type ScheduleMode = 'finite' | 'ongoing'
-export type ShowProvider = 'crunchyroll' | 'netflix' | 'disney'
-
-export interface ShowSchedule {
-  mode: ScheduleMode
-  startAt: string
-  startEpisode: number
-  episodeCount: number | null
-  premiereBatchSize: number
-}
-
-export interface Show {
-  id: string
-  title: string
-  titleEnglish?: string
-  provider: ShowProvider
-  crunchyrollUrl?: string
-  seriesId?: string
-  netflixUrl?: string
-  netflixId?: string
-  disneyUrl?: string
-  disneyId?: string
-  malId?: number
-  redditSearchTitle?: string
-  schedule: ShowSchedule
-}
-
-export interface ShowsFile {
-  shows: Show[]
-}
-
-export interface ShowState {
-  lastEpisodeId: string
-  lastEpisodeNumber: string
-  lastEpisodeTitle: string
-  lastNotifiedAt: string
-  seasonId: string
-  seasonTitle: string
-  episodeOffset?: number | null
-  waitingNotifiedForEpisode?: number | null
-  malMeanScore?: number | null
-  malScoreAlertedAt?: string | null
-  discussionUrl?: string | null
-  discussionUrlEpisode?: number | null
-  googleCalendarEvents?: Record<
-    string,
-    { eventId: string; startAt: string }
-  > | null
-}
-
-export interface PlanToWatchSnapshotEntry {
-  malId: number
-  title: string
-  titleEnglish?: string
-  status: string
-  startDate: string | null
-  broadcast: {
-    dayOfWeek: string | null
-    startTime: string | null
-  } | null
-  coverUrl: string | null
-  numEpisodes: number | null
-}
-
-export interface PlanToWatchSnapshot {
-  updatedAt: string
-  entries: PlanToWatchSnapshotEntry[]
-}
+/** Admin-only types. Show and state types live in shared/types.ts. */
+import type { ScheduleMode, ShowProvider } from '@shared/types'
 
 export interface WatchedEntry {
   malId: number
@@ -119,31 +53,6 @@ export interface PtwDetailsList {
 export interface WatchedList {
   fetchedAt: string
   entries: WatchedEntry[]
-}
-
-export interface OnHoldSnapshotEntry {
-  show: Show
-  heldAt: string
-}
-
-export interface OnHoldSnapshot {
-  updatedAt: string
-  entries: OnHoldSnapshotEntry[]
-}
-
-export interface StateFile {
-  shows: Record<string, ShowState>
-  meta?: {
-    netflixCookieAlertSentAt?: string | null
-    disneyCookieAlertSentAt?: string | null
-    watchingDashboardMessageId?: string | null
-    watchingDashboardMessageIds?: Record<string, string>
-    planToWatchCheckedAt?: string | null
-    planToWatchAlerts?: Record<string, { alertedAt: string; reason: string }>
-    planToWatch?: PlanToWatchSnapshot
-    onHold?: OnHoldSnapshot
-    [key: string]: unknown
-  }
 }
 
 export interface ShowStateSummary {

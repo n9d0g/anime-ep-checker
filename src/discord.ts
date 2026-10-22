@@ -12,14 +12,9 @@ import type {
   MalRelatedAnime,
 } from './mal.ts'
 import { formatEasternTime } from './time.ts'
-import {
-  getShowWatchUrl,
-  providerLabel,
-  type EpisodeSnapshot,
-  type PlanToWatchAlertReason,
-  type Show,
-  type TimingStatus,
-} from './types.ts'
+import { getShowWatchUrl, providerLabel } from '../shared/shows.ts'
+import type { EpisodeSnapshot, TimingStatus } from './types.ts'
+import type { PlanToWatchAlertReason, Show } from '../shared/types.ts'
 
 export interface DiscordConfig {
   botToken?: string

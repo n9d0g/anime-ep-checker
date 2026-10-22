@@ -18,14 +18,6 @@ function randomSessionId(): string {
   return crypto.randomUUID()
 }
 
-export function parseSeriesIdFromUrl(url: string): string {
-  const match = String(url).match(/\/series\/([A-Z0-9]+)/i)
-  if (!match) {
-    throw new Error(`Could not parse Crunchyroll series ID from URL: ${url}`)
-  }
-  return match[1].toUpperCase()
-}
-
 function buildWatchUrl(episode: CrunchyrollEpisode): string {
   const slug = episode.slug_title || 'episode'
   return `https://www.crunchyroll.com/watch/${episode.id}/${slug}`

@@ -5,7 +5,8 @@ import { useToast } from '@/app/components/Toast'
 import { cacheKeys, readJsonCache, writeJsonCache } from '@/lib/client-cache'
 import { noStoreFetch } from '@/lib/no-store-fetch'
 import { showToForm } from '@/lib/show-form'
-import type { Show, ShowFormValues, ShowStateSummary } from '@/lib/types'
+import type { Show } from '@shared/types'
+import type { ShowFormValues, ShowStateSummary } from '@/lib/types'
 import {
   buildShowViewModel,
   newShowRow,

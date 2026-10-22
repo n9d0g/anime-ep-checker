@@ -2,10 +2,11 @@ import {
   parseDisneyIdFromUrl,
   parseNetflixIdFromUrl,
   parseSeriesIdFromUrl,
-} from './provider-urls'
+} from '@shared/provider-urls'
 import { slugify } from './slugify'
 import { fromDatetimeLocalValue } from './time'
-import type { Show, ShowFormValues, ShowProvider } from './types'
+import type { Show, ShowProvider } from '@shared/types'
+import type { ShowFormValues } from './types'
 
 export function normalizeShow(show: ShowFormValues): Show {
   const provider: ShowProvider = show.provider ?? 'crunchyroll'

@@ -7,7 +7,7 @@ import {
   unknownWatchFieldLabels,
   watchFormDefaults,
 } from './ptw-watch'
-import type { PlanToWatchSnapshotEntry } from './types'
+import type { PlanToWatchSnapshotEntry } from '@shared/types'
 
 function entry(
   overrides: Partial<PlanToWatchSnapshotEntry> &

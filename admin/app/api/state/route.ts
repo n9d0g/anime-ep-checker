@@ -7,7 +7,8 @@ import {
   updateRepoFiles,
 } from '@/lib/github'
 import { fetchMalAnimeDetails } from '@/lib/mal'
-import type { Show, ShowState, ShowStateSummary, StateFile } from '@/lib/types'
+import type { Show, ShowState, StateFile } from '@shared/types'
+import type { ShowStateSummary } from '@/lib/types'
 
 interface StatePatchBody {
   showId?: string

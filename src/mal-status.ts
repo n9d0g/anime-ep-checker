@@ -1,7 +1,7 @@
 import { sendMalStatusAlert } from './discord.ts'
 import type { DiscordConfig } from './discord.ts'
 import { probeMalHealth, type MalHealth } from './mal.ts'
-import type { StateFile } from './types.ts'
+import type { StateFile } from '../shared/types.ts'
 
 function hasDiscordConfig(discord: DiscordConfig): boolean {
   return Boolean(

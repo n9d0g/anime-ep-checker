@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { withErrorResponse } from '@/lib/api-route'
 import { getShowsFile, NO_STORE_HEADERS } from '@/lib/github'
 import { fetchMalAnimeDetails, isMalOutageError } from '@/lib/mal'
-import type { Show } from '@/lib/types'
+import type { Show } from '@shared/types'
 
 export const dynamic = 'force-dynamic'
 

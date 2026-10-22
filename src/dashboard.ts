@@ -4,24 +4,18 @@ import {
   formatMalScoreLabel,
 } from './discord-format.ts'
 import { formatEasternTime } from './time.ts'
-import {
-  getShowWatchUrl,
-  providerLabel,
-  type Show,
-  type ShowState,
-} from './types.ts'
+import { getShowWatchUrl, providerLabel } from '../shared/shows.ts'
+import type { Show, ShowState } from '../shared/types.ts'
 import {
   getExpectedDropAt,
   getNextExpectedEpisode,
   isInCheckWindow,
   isPastWaitingGrace,
   parseEpisodeNumber,
-} from './schedule.ts'
+} from '../shared/schedule.ts'
 import { fetchMalAnimeDetails, formatMalProgressLabel } from './mal.ts'
-import {
-  buildAnimeDiscussionSearchUrl,
-  findAnimeDiscussionPermalink,
-} from './reddit.ts'
+import { buildAnimeDiscussionSearchUrl } from '../shared/reddit.ts'
+import { findAnimeDiscussionPermalink } from './reddit.ts'
 
 export type DashboardStatus = 'upcoming' | 'in_window' | 'waiting' | 'out'
 

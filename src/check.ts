@@ -10,10 +10,12 @@ import {
   getTimingStatus,
 } from './compare.ts'
 import { resolveEpisodeOffset, toRelativeSnapshot } from './episode-offset.ts'
+import { getLatestAvailableEpisodeForSeries } from './crunchyroll.ts'
 import {
-  getLatestAvailableEpisodeForSeries,
+  parseDisneyIdFromUrl,
+  parseNetflixIdFromUrl,
   parseSeriesIdFromUrl,
-} from './crunchyroll.ts'
+} from '../shared/provider-urls.ts'
 import {
   sendEpisodeAlert,
   sendDisneyAuthAlert,
@@ -39,12 +41,10 @@ import { writeStateCommitMessage } from './state-commit.ts'
 import {
   DisneyAuthError,
   getLatestAvailableEpisodeForTitle as getLatestDisneyEpisode,
-  parseDisneyIdFromUrl,
 } from './disney.ts'
 import {
   getLatestAvailableEpisodeForTitle,
   NetflixAuthError,
-  parseNetflixIdFromUrl,
 } from './netflix.ts'
 import { findAnimeDiscussionUrl } from './reddit.ts'
 import {
@@ -57,17 +57,14 @@ import {
   needsPlanToWatchCheck,
   needsRelatedAnimeCheck,
   parseEpisodeNumber,
-} from './schedule.ts'
+} from '../shared/schedule.ts'
 import {
   normalizeShowProvider,
   providerLabel,
   getShowWatchUrl,
-  type EpisodeSnapshot,
-  type Show,
-  type ShowState,
-  type ShowsFile,
-  type StateFile,
-} from './types.ts'
+} from '../shared/shows.ts'
+import type { EpisodeSnapshot } from './types.ts'
+import type { Show, ShowState, ShowsFile, StateFile } from '../shared/types.ts'
 
 type RelativeEpisodeResult =
   | { kind: 'previous_season' }
@@ -98,25 +95,44 @@ async function writeJson(path: string, data: unknown): Promise<void> {
   await writeFile(path, `${JSON.stringify(data, null, 2)}\n`, 'utf8')
 }
 
+function requireParsedId(id: string | null, message: string): string {
+  if (!id) {
+    throw new Error(message)
+  }
+  return id
+}
+
 function resolveProviderId(show: Show): string {
   const normalized = normalizeShowProvider(show)
 
   if (normalized.provider === 'netflix') {
     if (normalized.netflixId) return normalized.netflixId
-    if (normalized.netflixUrl)
-      return parseNetflixIdFromUrl(normalized.netflixUrl)
+    if (normalized.netflixUrl) {
+      return requireParsedId(
+        parseNetflixIdFromUrl(normalized.netflixUrl),
+        `Could not parse Netflix title ID from URL: ${normalized.netflixUrl}`
+      )
+    }
     throw new Error(`Netflix ID missing for show ${show.id}`)
   }
 
   if (normalized.provider === 'disney') {
     if (normalized.disneyId) return normalized.disneyId
-    if (normalized.disneyUrl) return parseDisneyIdFromUrl(normalized.disneyUrl)
+    if (normalized.disneyUrl) {
+      return requireParsedId(
+        parseDisneyIdFromUrl(normalized.disneyUrl),
+        `Could not parse Disney+ ID from URL: ${normalized.disneyUrl}`
+      )
+    }
     throw new Error(`Disney+ ID missing for show ${show.id}`)
   }
 
   if (normalized.seriesId) return normalized.seriesId
   if (normalized.crunchyrollUrl) {
-    return parseSeriesIdFromUrl(normalized.crunchyrollUrl)
+    return requireParsedId(
+      parseSeriesIdFromUrl(normalized.crunchyrollUrl),
+      `Could not parse Crunchyroll series ID from URL: ${normalized.crunchyrollUrl}`
+    )
   }
   throw new Error(`Crunchyroll series ID missing for show ${show.id}`)
 }

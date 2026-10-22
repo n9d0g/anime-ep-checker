@@ -3,7 +3,7 @@ import { withErrorResponse } from '@/lib/api-route'
 import { getRepoFiles, NO_STORE_HEADERS } from '@/lib/github'
 import { fetchCompletedAnime } from '@/lib/mal'
 import type { SearchIndexItem } from '@/lib/search'
-import type { Show, StateFile } from '@/lib/types'
+import type { Show, StateFile } from '@shared/types'
 
 export const dynamic = 'force-dynamic'
 

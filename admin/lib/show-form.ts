@@ -1,5 +1,6 @@
 import { toDatetimeLocalValue } from './time'
-import type { Show, ShowFormValues } from './types'
+import type { Show } from '@shared/types'
+import type { ShowFormValues } from './types'
 
 export function emptyShowForm(): ShowFormValues {
   return {

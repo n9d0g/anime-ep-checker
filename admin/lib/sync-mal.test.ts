@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { applyMalUpdatesToShows } from './sync-mal'
-import type { Show } from './types'
+import type { Show } from '@shared/types'
 
 function show(overrides: Partial<Show> & Pick<Show, 'id' | 'title'>): Show {
   return {

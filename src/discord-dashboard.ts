@@ -12,7 +12,7 @@ import {
   shouldRecreateWatchingMessageOnEditFailure,
 } from './discord-api.ts'
 import type { ShowDashboardRow } from './dashboard.ts'
-import type { Show, StateFile } from './types.ts'
+import type { Show, StateFile } from '../shared/types.ts'
 import { getShowState } from './compare.ts'
 
 // MAL mean scores drift by ±0.01 between runs; only re-render for bigger moves.
