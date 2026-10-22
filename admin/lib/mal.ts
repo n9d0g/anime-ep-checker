@@ -51,7 +51,8 @@ interface MalAnimelistNode {
 }
 
 interface MalAnimelistEntry {
-  node: MalAnimelistNode
+  node: MalAnimelistNode & MalPtwDetailsNode
+  list_status?: { updated_at?: string }
 }
 
 interface MalCompletedNode {
@@ -118,7 +119,9 @@ interface MalSearchResponse {
   data?: Array<{ node: MalSearchNode }>
 }
 
-const MAL_ANIME_FIELDS = 'title,num_episodes,my_list_status,mean,main_picture'
+// One anime request serves progress, score, cover and title/schedule sync.
+const MAL_ANIME_FIELDS =
+  'title,alternative_titles,num_episodes,broadcast,my_list_status,mean,main_picture'
 
 const MAL_COMPLETED_FIELDS = [
   'list_status{score,start_date,finish_date,updated_at,num_times_rewatched}',
@@ -154,8 +157,15 @@ const MAL_PTW_DETAILS_FIELDS = [
   'studios',
 ].join(',')
 
-const MAL_ANIMELIST_FIELDS =
-  'list_status,num_episodes,start_date,broadcast,main_picture,status,alternative_titles'
+// Snapshot fields plus the detail fields, so one list fetch serves both.
+const MAL_ANIMELIST_FIELDS = [
+  'list_status',
+  'status',
+  'alternative_titles',
+  ...MAL_PTW_DETAILS_FIELDS.split(',').filter(
+    (field) => !field.startsWith('list_status')
+  ),
+].join(',')
 
 interface MalPlanToWatchEntry {
   malId: number
@@ -172,7 +182,7 @@ interface MalPlanToWatchEntry {
 }
 
 type MalPlanToWatchResult =
-  | { status: 'ok'; entries: MalPlanToWatchEntry[] }
+  | { status: 'ok'; entries: MalPlanToWatchEntry[]; details: PtwDetails[] }
   | { status: 'not_configured' }
   | { status: 'unavailable' }
 
@@ -182,6 +192,15 @@ interface MalAnimeDetails {
   meanScore: number | null
   coverUrl: string | null
 }
+
+export interface MalAnimeTitles {
+  title: string | null
+  titleEnglish: string | null
+  numEpisodes: number | null
+  broadcast: MalBroadcast | null
+}
+
+export type MalAnimeInfo = MalAnimeDetails & MalAnimeTitles
 
 /** MAL credentials are missing from the environment. */
 export class MalConfigError extends Error {}
@@ -286,12 +305,22 @@ export function isMalOutageError(error: unknown): boolean {
 let cachedMalAccessToken: string | null = null
 let malAccessTokenExpiresAt = 0
 
+// Concurrent callers on a cold start share one refresh.
+let malTokenRefresh: Promise<string> | null = null
+
 async function getMalAccessToken(): Promise<string> {
-  const now = Date.now()
-  if (cachedMalAccessToken && malAccessTokenExpiresAt > now + 60_000) {
+  if (cachedMalAccessToken && malAccessTokenExpiresAt > Date.now() + 60_000) {
     return cachedMalAccessToken
   }
 
+  malTokenRefresh ??= refreshMalAccessToken().finally(() => {
+    malTokenRefresh = null
+  })
+  return malTokenRefresh
+}
+
+async function refreshMalAccessToken(): Promise<string> {
+  const now = Date.now()
   const { clientId, clientSecret, refreshToken } = getMalRefreshConfig()
 
   const response = await fetch('https://myanimelist.net/v1/oauth2/token', {
@@ -317,7 +346,7 @@ async function getMalAccessToken(): Promise<string> {
 async function fetchMalAnime(
   accessToken: string,
   malId: number
-): Promise<MalAnimeDetails> {
+): Promise<MalAnimeInfo> {
   const current = await malGet<MalAnimeResponse>(
     accessToken,
     `https://api.myanimelist.net/v2/anime/${malId}?fields=${MAL_ANIME_FIELDS}`,
@@ -335,7 +364,26 @@ async function fetchMalAnime(
   const coverUrl =
     current.main_picture?.large ?? current.main_picture?.medium ?? null
 
-  return { watched, total, meanScore, coverUrl }
+  return {
+    watched,
+    total,
+    meanScore,
+    coverUrl,
+    title: current.title?.trim() || null,
+    titleEnglish: current.alternative_titles?.en?.trim() || null,
+    numEpisodes: positiveNumber(current.num_episodes),
+    broadcast: current.broadcast?.day_of_the_week
+      ? {
+          dayOfWeek: current.broadcast.day_of_the_week,
+          startTime: current.broadcast.start_time ?? null,
+        }
+      : null,
+  }
+}
+
+/** Progress, score, cover and titles from one MAL anime request. */
+export async function fetchMalAnimeInfo(malId: number): Promise<MalAnimeInfo> {
+  return fetchMalAnime(await getMalAccessToken(), malId)
 }
 
 export async function fetchMalAnimeDetails(
@@ -483,18 +531,24 @@ function parsePlanToWatchEntry(node: MalAnimelistNode): MalPlanToWatchEntry {
   }
 }
 
-export async function fetchPlanToWatchAnime(): Promise<MalPlanToWatchResult> {
+/** The plan-to-watch snapshot and its page details, from one list fetch. */
+export async function fetchPlanToWatchList(): Promise<MalPlanToWatchResult> {
   try {
-    const items = await fetchMalPages<MalAnimelistEntry>(
-      await getMalAccessToken(),
-      `https://api.myanimelist.net/v2/users/@me/animelist?status=plan_to_watch&limit=100&fields=${MAL_ANIMELIST_FIELDS}`,
-      'MAL plan-to-watch lookup'
-    )
-    const entries = items
-      .filter((item) => item.node?.id)
-      .map((item) => parsePlanToWatchEntry(item.node))
+    const items = (
+      await fetchMalPages<MalAnimelistEntry>(
+        await getMalAccessToken(),
+        `https://api.myanimelist.net/v2/users/@me/animelist?status=plan_to_watch&limit=100&fields=${encodeURIComponent(MAL_ANIMELIST_FIELDS)}`,
+        'MAL plan-to-watch lookup'
+      )
+    ).filter((item) => item.node?.id)
 
-    return { status: 'ok', entries }
+    return {
+      status: 'ok',
+      entries: items.map((item) => parsePlanToWatchEntry(item.node)),
+      details: items.map((item) =>
+        parsePtwDetails(item.node, item.list_status)
+      ),
+    }
   } catch (error) {
     if (error instanceof MalConfigError) {
       return { status: 'not_configured' }
@@ -529,29 +583,12 @@ export async function searchMalAnime(query: string) {
   }))
 }
 
-export async function fetchMalAnimeTitles(malId: number): Promise<{
-  title: string | null
-  titleEnglish: string | null
-  numEpisodes: number | null
-  broadcast: MalBroadcast | null
-}> {
-  const accessToken = await getMalAccessToken()
-  const data = await malGet<MalAnimeResponse>(
-    accessToken,
-    `https://api.myanimelist.net/v2/anime/${malId}?fields=title,alternative_titles,num_episodes,broadcast`,
-    'MAL anime lookup'
-  )
-  return {
-    title: data.title?.trim() || null,
-    titleEnglish: data.alternative_titles?.en?.trim() || null,
-    numEpisodes: positiveNumber(data.num_episodes),
-    broadcast: data.broadcast?.day_of_the_week
-      ? {
-          dayOfWeek: data.broadcast.day_of_the_week,
-          startTime: data.broadcast.start_time ?? null,
-        }
-      : null,
-  }
+export async function fetchMalAnimeTitles(
+  malId: number
+): Promise<MalAnimeTitles> {
+  const { title, titleEnglish, numEpisodes, broadcast } =
+    await fetchMalAnimeInfo(malId)
+  return { title, titleEnglish, numEpisodes, broadcast }
 }
 
 function getNames(items?: Array<{ name?: string }>): string[] {

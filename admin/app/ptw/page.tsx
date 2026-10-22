@@ -424,10 +424,16 @@ export default function PlanToWatchPage() {
       const data = (await response.json()) as {
         error?: string
         planToWatch?: PlanToWatchSnapshot
+        details?: PtwDetailsList
       }
 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to refresh plan-to-watch list')
+      }
+
+      if (data.details) {
+        setDetails(data.details)
+        writeJsonCache(cacheKeys.ptwDetails, data.details)
       }
 
       const refreshed = data.planToWatch ?? null
@@ -566,7 +572,6 @@ export default function PlanToWatchPage() {
             type="button"
             onClick={() => {
               void refreshSnapshot(false)
-              void loadDetails()
             }}
             disabled={loading || refreshing}
           >

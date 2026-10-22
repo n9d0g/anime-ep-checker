@@ -24,6 +24,8 @@ export async function POST() {
           onHoldEnglishUpdated: onHoldEnglish.updatedShowIds,
           shows: result.shows,
           showsVersion: result.showsVersion,
+          watchedByShowId: result.watchedByShowId,
+          malDown: result.malDown,
         },
         { headers: NO_STORE_HEADERS }
       )

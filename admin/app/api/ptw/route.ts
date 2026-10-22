@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server'
 import { withErrorResponse } from '@/lib/api-route'
 import { getStateFile, updateRepoFiles } from '@/lib/github'
-import { fetchPlanToWatchAnime } from '@/lib/mal'
-import type { PlanToWatchSnapshot, StateFile } from '@/lib/types'
+import { fetchPlanToWatchList } from '@/lib/mal'
+import type {
+  PlanToWatchSnapshot,
+  PtwDetailsList,
+  StateFile,
+} from '@/lib/types'
 
 export async function GET() {
   return withErrorResponse({ status: 500 }, async () => {
@@ -16,7 +20,7 @@ export async function GET() {
 
 export async function POST() {
   return withErrorResponse({ status: 500 }, async () => {
-    const result = await fetchPlanToWatchAnime()
+    const result = await fetchPlanToWatchList()
 
     if (result.status === 'not_configured') {
       return NextResponse.json(
@@ -51,6 +55,10 @@ export async function POST() {
       'chore: 🧹 refresh plan-to-watch snapshot from admin'
     )
 
-    return NextResponse.json({ planToWatch: snapshot })
+    const details: PtwDetailsList = {
+      fetchedAt: updatedAt,
+      details: result.details,
+    }
+    return NextResponse.json({ planToWatch: snapshot, details })
   })
 }

@@ -607,10 +607,21 @@ export default function AdminPage() {
         shows?: Show[]
         changed?: boolean
         showsVersion?: string | null
+        watchedByShowId?: Record<string, number | null>
+        malDown?: boolean
         resolvedIds?: string[]
         updatedTitles?: string[]
         updatedEpisodeCounts?: string[]
         updatedStartTimes?: string[]
+      }
+
+      if (syncResponse.ok && syncData.watchedByShowId) {
+        applyWatched({
+          watchedByShowId: syncData.watchedByShowId,
+          malDown: Boolean(syncData.malDown),
+        })
+      } else {
+        void fetchWatched().then(applyWatched)
       }
 
       if (syncResponse.ok && syncData.changed && syncData.shows) {
@@ -642,6 +653,7 @@ export default function AdminPage() {
         console.warn('MAL sync skipped:', syncData.error)
       }
     } catch (error) {
+      void fetchWatched().then(applyWatched)
       console.warn(
         'MAL background sync failed:',
         error instanceof Error ? error.message : error
@@ -680,7 +692,9 @@ export default function AdminPage() {
         : null
 
       // Start the slow MAL watched lookup alongside bootstrap, not after it.
-      const watchedPromise = fetchWatched()
+      // A MAL sync returns watched counts from its own per-show requests, so
+      // loads that sync skip this lookup.
+      const watchedPromise = syncMal ? null : fetchWatched()
       const bootstrapResponse = await noStoreFetch('/api/bootstrap')
       const bootstrapData = (await bootstrapResponse.json()) as {
         error?: string
@@ -700,7 +714,7 @@ export default function AdminPage() {
           withKnownWatched(bootstrapData.showStates ?? {}, current)
         )
         lastFetchAtRef.current = Date.now()
-        void watchedPromise.then(applyWatched)
+        void watchedPromise?.then(applyWatched)
         return
       }
 
@@ -733,7 +747,7 @@ export default function AdminPage() {
         toast.success('Shows updated.')
       }
 
-      void watchedPromise.then(applyWatched)
+      void watchedPromise?.then(applyWatched)
       if (syncMal) {
         void applyMalBackground()
       }

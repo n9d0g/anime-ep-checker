@@ -2,7 +2,12 @@ import { getShowsFile, getStateFile, updateRepoFiles } from './github'
 import { alignStartAtToBroadcast, type MalBroadcast } from './broadcast'
 import type { StateFile } from './types'
 import { resolveMalIdFromSearch, type MalSearchResult } from './mal-match'
-import { fetchMalAnimeTitles, searchMalAnime } from './mal'
+import {
+  fetchMalAnimeInfo,
+  fetchMalAnimeTitles,
+  isMalOutageError,
+  searchMalAnime,
+} from './mal'
 import type { Show } from './types'
 
 interface MalShowUpdate {
@@ -26,6 +31,8 @@ interface SyncMalResult {
   shows: Show[]
   /** shows.json version that `shows` came from. */
   showsVersion: string | null
+  watchedByShowId: Record<string, number | null>
+  malDown: boolean
 }
 
 interface SyncOnHoldEnglishResult {
@@ -213,8 +220,19 @@ export async function syncOnHoldEnglishTitles(): Promise<SyncOnHoldEnglishResult
     : { changed: false, updatedShowIds: [] }
 }
 
-async function collectMalUpdates(shows: Show[]): Promise<MalShowUpdate[]> {
-  return Promise.all(
+interface MalCollected {
+  updates: MalShowUpdate[]
+  /** Episodes watched on MAL per show ID (null when unknown). */
+  watchedByShowId: Record<string, number | null>
+  malDown: boolean
+}
+
+/** One MAL anime request per show, for both sync updates and watched counts. */
+async function collectMalUpdates(shows: Show[]): Promise<MalCollected> {
+  const watchedByShowId: Record<string, number | null> = {}
+  let malDown = false
+
+  const updates = await Promise.all(
     shows.map(async (show) => {
       const next: MalShowUpdate = {
         id: show.id,
@@ -230,9 +248,11 @@ async function collectMalUpdates(shows: Show[]): Promise<MalShowUpdate[]> {
         }
       }
 
+      watchedByShowId[show.id] = null
       if (next.malId) {
         try {
-          const malTitles = await fetchMalAnimeTitles(next.malId)
+          const malTitles = await fetchMalAnimeInfo(next.malId)
+          watchedByShowId[show.id] = malTitles.watched
           if (malTitles.title) {
             next.title = malTitles.title
           }
@@ -245,14 +265,17 @@ async function collectMalUpdates(shows: Show[]): Promise<MalShowUpdate[]> {
           if (malTitles.broadcast) {
             next.broadcast = malTitles.broadcast
           }
-        } catch {
+        } catch (error) {
           // Skip title sync when MAL lookup fails for a single show.
+          if (isMalOutageError(error)) malDown = true
         }
       }
 
       return next
     })
   )
+
+  return { updates, watchedByShowId, malDown }
 }
 
 function withDefaultProvider(shows: Show[]): Show[] {
@@ -267,7 +290,8 @@ export async function syncShowsWithMal(): Promise<SyncMalResult> {
   const initialShows = withDefaultProvider(
     (initial.content.shows ?? []) as Show[]
   )
-  const updates = await collectMalUpdates(initialShows)
+  const { updates, watchedByShowId, malDown } =
+    await collectMalUpdates(initialShows)
   const initialMerge = applyMalUpdatesToShows(initialShows, updates)
 
   if (!hasMalChanges(initialMerge)) {
@@ -280,6 +304,8 @@ export async function syncShowsWithMal(): Promise<SyncMalResult> {
       updatedStartTimes: [],
       shows: initialShows,
       showsVersion: initial.sha,
+      watchedByShowId,
+      malDown,
     }
   }
 
@@ -307,6 +333,8 @@ export async function syncShowsWithMal(): Promise<SyncMalResult> {
       updatedStartTimes: [],
       shows: merged.shows,
       showsVersion: versions['shows.json'],
+      watchedByShowId,
+      malDown,
     }
   }
 
@@ -319,5 +347,7 @@ export async function syncShowsWithMal(): Promise<SyncMalResult> {
     updatedStartTimes: merged.updatedStartTimes,
     shows: merged.shows,
     showsVersion: versions['shows.json'],
+    watchedByShowId,
+    malDown,
   }
 }
