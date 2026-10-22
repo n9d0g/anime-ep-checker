@@ -1,10 +1,8 @@
 import { buildAnimeDiscussionSearchUrl } from '@shared/reddit'
 import {
-  getExpectedDropAt,
   getLastScheduledEpisode,
-  getNextExpectedEpisode,
+  getNextDrop,
   isEpisodeInSchedule,
-  parseEpisodeNumber,
 } from '@shared/schedule'
 import { emptyShowForm } from './show-form'
 import { getShowWatchUrl } from '@shared/shows'
@@ -243,7 +241,7 @@ export function stepEpisode(
   return { base, next, max }
 }
 
-// The next episode due and when, or null when the show has no start time.
+// The next drop (episode and time), or null when the show has no start time.
 function nextScheduledDrop(
   schedule: ShowSchedule,
   liveState?: ShowStateSummary
@@ -252,18 +250,16 @@ function nextScheduledDrop(
     return null
   }
 
-  const lastEpisode = liveState?.lastEpisodeNumber
-    ? parseEpisodeNumber(liveState.lastEpisodeNumber)
-    : null
-  const episode = getNextExpectedEpisode(schedule, lastEpisode)
+  // An empty saved episode means no episode yet, as does no live state.
+  const nextDrop = getNextDrop(schedule, liveState?.lastEpisodeNumber || null)
 
   return {
-    episode,
-    at: episode === null ? null : getExpectedDropAt(schedule, episode),
+    episode: nextDrop?.episode ?? null,
+    at: nextDrop?.expectedAt ?? null,
   }
 }
 
-function getNextEpisodeDropTime(
+function getNextDropTime(
   show: ShowFormValues,
   liveState?: ShowStateSummary
 ): number | null {
@@ -354,7 +350,7 @@ export function orderRowsBySavedNextDrop(
   for (const saved of savedRows) {
     savedDropTimes.set(
       saved.key,
-      getNextEpisodeDropTime(
+      getNextDropTime(
         saved.values,
         saved.values.id ? showStates[saved.values.id] : undefined
       )

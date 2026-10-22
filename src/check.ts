@@ -1,27 +1,10 @@
 import { readFile, writeFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { getLatestAiredEpisode } from './anilist.ts'
+import { getShowState, getTimingStatus } from './compare.ts'
 import {
-  createBaselineState,
-  createPreviousSeasonBaseline,
-  createUpdatedState,
-  getShowState,
-  getTimingStatus,
-} from './compare.ts'
-import { resolveEpisodeOffset, toRelativeSnapshot } from './episode-offset.ts'
-import { getLatestAvailableEpisodeForSeries } from './crunchyroll.ts'
-import {
-  parseDisneyIdFromUrl,
-  parseNetflixIdFromUrl,
-  parseSeriesIdFromUrl,
-} from '../shared/provider-urls.ts'
-import {
-  hasDiscordBotConfig,
   hasDiscordConfig,
   sendEpisodeAlert,
-  sendDisneyAuthAlert,
-  sendNetflixCookieAlert,
   sendWaitingAlert,
   type DiscordConfig,
 } from './discord.ts'
@@ -37,40 +20,30 @@ import { fetchMalAnimeDetails } from './mal.ts'
 import { syncMalScoreAlerts } from './mal-score.ts'
 import { syncMalStatusAlerts } from './mal-status.ts'
 import { syncPlanToWatchAlerts } from './plan-to-watch.ts'
+import {
+  createProviderLookup,
+  fetchLatestEpisode,
+  resolveProviderId,
+  type FetchEpisode,
+} from './provider-lookup.ts'
 import { syncRedditUserFeeds } from './reddit-feeds.ts'
+import { findAnimeDiscussionUrl } from './reddit.ts'
 import { syncRelatedAnimeAlerts } from './related-anime.ts'
+import {
+  decideShow,
+  planShowLookup,
+  type LookupPlan,
+  type ShowDecision,
+} from './show-decision.ts'
 import { writeStateCommitMessage } from './state-commit.ts'
 import {
-  DisneyAuthError,
-  getLatestAvailableEpisodeForTitle as getLatestDisneyEpisode,
-} from './disney.ts'
-import {
-  getLatestAvailableEpisodeForTitle,
-  NetflixAuthError,
-} from './netflix.ts'
-import { findAnimeDiscussionUrl } from './reddit.ts'
-import {
-  getExpectedDropAt,
-  getNextExpectedEpisode,
-  getCheckWindowMode,
   hasOrphanedShows,
-  isInCheckWindow,
-  isPastWaitingGrace,
   needsPlanToWatchCheck,
   needsRelatedAnimeCheck,
-  parseEpisodeNumber,
 } from '../shared/schedule.ts'
-import {
-  normalizeShowProvider,
-  providerLabel,
-  getShowWatchUrl,
-} from '../shared/shows.ts'
+import { normalizeShowProvider, providerLabel } from '../shared/shows.ts'
 import type { EpisodeSnapshot } from './types.ts'
-import type { Show, ShowState, ShowsFile, StateFile } from '../shared/types.ts'
-
-type RelativeEpisodeResult =
-  | { kind: 'previous_season' }
-  | { kind: 'snapshot'; snapshot: EpisodeSnapshot; episodeOffset: number }
+import type { Show, ShowsFile, StateFile } from '../shared/types.ts'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const SHOWS_PATH = resolve(ROOT, 'shows.json')
@@ -97,212 +70,13 @@ async function writeJson(path: string, data: unknown): Promise<void> {
   await writeFile(path, `${JSON.stringify(data, null, 2)}\n`, 'utf8')
 }
 
-function requireParsedId(id: string | null, message: string): string {
-  if (!id) {
-    throw new Error(message)
-  }
-  return id
-}
-
-function resolveProviderId(show: Show): string {
-  const normalized = normalizeShowProvider(show)
-
-  if (normalized.provider === 'netflix') {
-    if (normalized.netflixId) return normalized.netflixId
-    if (normalized.netflixUrl) {
-      return requireParsedId(
-        parseNetflixIdFromUrl(normalized.netflixUrl),
-        `Could not parse Netflix title ID from URL: ${normalized.netflixUrl}`
-      )
-    }
-    throw new Error(`Netflix ID missing for show ${show.id}`)
-  }
-
-  if (normalized.provider === 'disney') {
-    if (normalized.disneyId) return normalized.disneyId
-    if (normalized.disneyUrl) {
-      return requireParsedId(
-        parseDisneyIdFromUrl(normalized.disneyUrl),
-        `Could not parse Disney+ ID from URL: ${normalized.disneyUrl}`
-      )
-    }
-    throw new Error(`Disney+ ID missing for show ${show.id}`)
-  }
-
-  if (normalized.seriesId) return normalized.seriesId
-  if (normalized.crunchyrollUrl) {
-    return requireParsedId(
-      parseSeriesIdFromUrl(normalized.crunchyrollUrl),
-      `Could not parse Crunchyroll series ID from URL: ${normalized.crunchyrollUrl}`
-    )
-  }
-  throw new Error(`Crunchyroll series ID missing for show ${show.id}`)
-}
-
-async function fetchLatestEpisode(show: Show): Promise<EpisodeSnapshot | null> {
-  const normalized = normalizeShowProvider(show)
-  const providerId = resolveProviderId(normalized)
-
-  if (normalized.provider === 'netflix') {
-    return getLatestAvailableEpisodeForTitle(providerId)
-  }
-
-  return getLatestAvailableEpisodeForSeries(providerId)
-}
-
-function toRelativeEpisodeResult(
-  show: Show,
-  previousState: ShowState | null,
-  raw: EpisodeSnapshot
-): RelativeEpisodeResult {
-  const knownOffset = previousState?.episodeOffset
-  if (knownOffset != null) {
-    return {
-      kind: 'snapshot',
-      snapshot: toRelativeSnapshot(raw, knownOffset),
-      episodeOffset: knownOffset,
-    }
-  }
-
-  const resolved = resolveEpisodeOffset(show, raw)
-  if (resolved === null) {
-    return { kind: 'previous_season' }
-  }
-
-  const snapshot = toRelativeSnapshot(raw, resolved)
-  const relativeEpisode = parseEpisodeNumber(snapshot.episode.episode)
-  if (relativeEpisode < show.schedule.startEpisode) {
-    return { kind: 'previous_season' }
-  }
-
-  return { kind: 'snapshot', snapshot, episodeOffset: resolved }
-}
-
-async function tryDisneyAnilistFallback(
-  show: Show,
-  disneyId: string,
-  expectedAt: Date,
-  now: Date
-): Promise<EpisodeSnapshot | null> {
-  if (!show.malId) {
-    console.log('  AniList fallback unavailable: show has no malId')
-    return null
-  }
-
-  if (now.getTime() < expectedAt.getTime()) {
-    console.log(
-      '  AniList fallback skipped: before scheduled Disney+ drop time'
-    )
-    return null
-  }
-
-  const aired = await getLatestAiredEpisode(show.malId, now)
-  if (!aired) {
-    return null
-  }
-
-  console.log(`  AniList fallback: latest aired episode ${aired.episodeNumber}`)
-
-  return {
-    provider: 'disney',
-    seriesId: disneyId,
-    seriesTitle: aired.seriesTitle || show.title,
-    seasonId: disneyId,
-    seasonTitle: 'Season 1',
-    episode: {
-      id: `anilist-${show.malId}-${aired.episodeNumber}`,
-      episode: aired.episodeNumber,
-      availableAt: null,
-    },
-    watchUrl: getShowWatchUrl(show),
-  }
-}
-
-async function fetchDisneyEpisode(
-  show: Show,
-  disneyId: string,
-  expectedAt: Date,
-  now: Date,
-  authAlreadyFailed: boolean
-): Promise<{
-  snapshot: EpisodeSnapshot | null
-  apiSucceeded: boolean
-  authFailed: boolean
-}> {
-  if (authAlreadyFailed) {
-    const fallback = await tryDisneyAnilistFallback(
-      show,
-      disneyId,
-      expectedAt,
-      now
-    )
-    return { snapshot: fallback, apiSucceeded: false, authFailed: true }
-  }
-
-  try {
-    const snapshot = await getLatestDisneyEpisode(disneyId)
-    if (snapshot) {
-      return { snapshot, apiSucceeded: true, authFailed: false }
-    }
-
-    console.log('  Disney+ API returned no episodes; trying AniList fallback')
-    const fallback = await tryDisneyAnilistFallback(
-      show,
-      disneyId,
-      expectedAt,
-      now
-    )
-    return { snapshot: fallback, apiSucceeded: true, authFailed: false }
-  } catch (error) {
-    if (!(error instanceof DisneyAuthError)) {
-      throw error
-    }
-
-    console.error(`  Disney+ auth failed: ${error.message}`)
-    const fallback = await tryDisneyAnilistFallback(
-      show,
-      disneyId,
-      expectedAt,
-      now
-    )
-    return { snapshot: fallback, apiSucceeded: false, authFailed: true }
-  }
-}
-
-async function notifyDisneyAuthFailure(
-  discord: DiscordConfig,
-  dryRun: boolean,
-  state: StateFile,
-  now: Date,
-  noteStateChange: (reason: string) => void
-): Promise<void> {
-  if (!state.meta?.disneyCookieAlertSentAt) {
-    if (!dryRun && hasDiscordBotConfig(discord)) {
-      await sendDisneyAuthAlert(discord)
-      console.log('  Disney+ refresh token alert sent via Discord bot')
-    } else if (!dryRun) {
-      console.log(
-        '  Discord bot not configured; skipping Disney+ refresh token alert'
-      )
-    }
-
-    state.meta = {
-      ...state.meta,
-      disneyCookieAlertSentAt: now.toISOString(),
-    }
-    noteStateChange('Disney auth alert flag set')
-  } else {
-    console.log('  Disney+ refresh token alert already sent; skipping')
-  }
-}
-
 export interface CheckOptions {
   showsPath?: string
   statePath?: string
   discord?: DiscordConfig
   calendar?: GoogleCalendarConfig
   /** Provider lookup for Crunchyroll and Netflix shows. */
-  fetchEpisode?: (show: Show) => Promise<EpisodeSnapshot | null>
+  fetchEpisode?: FetchEpisode
   dryRun?: boolean
   force?: boolean
 }
@@ -395,6 +169,113 @@ async function announceEpisode({
   }
 }
 
+function logSkippedLookup(plan: Exclude<LookupPlan, { kind: 'look_up' }>) {
+  if (plan.kind === 'schedule_ended') {
+    console.log('  No next drop: the schedule has no more episodes')
+  } else if (plan.kind === 'no_expected_time') {
+    console.log(`  Could not compute the next drop time for ep ${plan.episode}`)
+  } else {
+    console.log(
+      `  Outside drop window for next drop ep ${plan.nextDrop.episode} (expected ${plan.nextDrop.expectedAt.toISOString()})`
+    )
+  }
+}
+
+/** Performs the alerts and state writes for one show's decision. */
+async function applyDecision(
+  decision: ShowDecision,
+  {
+    discord,
+    calendarConfig,
+    dryRun,
+    show,
+    state,
+    noteStateChange,
+  }: {
+    discord: DiscordConfig
+    calendarConfig: GoogleCalendarConfig
+    dryRun: boolean
+    show: Show
+    state: StateFile
+    noteStateChange: (reason: string) => void
+  }
+): Promise<void> {
+  const showId = show.id
+  const showName = show.title || showId
+
+  switch (decision.kind) {
+    case 'previous_season_baseline':
+      if (!dryRun) {
+        state.shows[showId] = decision.state
+      }
+      noteStateChange(`previous season baseline ${showName}`)
+      console.log('  Baseline: previous season only')
+      return
+
+    case 'previous_season_on_provider':
+      console.log('  Next drop not out: provider still has the previous season')
+      return
+
+    case 'baseline': {
+      const { episode } = decision.snapshot
+      state.shows[showId] = decision.state
+      noteStateChange(`baseline ${showName} ep ${episode.episode}`)
+      console.log(
+        `  Baseline set to episode ${episode.episode} (${episode.id})`
+      )
+      return
+    }
+
+    case 'episode_alert':
+      await announceEpisode({
+        discord,
+        calendarConfig,
+        dryRun,
+        show,
+        showId,
+        latestSnapshot: decision.snapshot,
+        episodeNumber: decision.episodeNumber,
+        expectedDropAt: decision.expectedDropAt,
+        state,
+        noteStateChange,
+      })
+      state.shows[showId] = decision.state
+      noteStateChange(
+        `${decision.catchUp ? 'catch-up episode alert' : 'episode alert'} ${showName} ep ${decision.episodeNumber}`
+      )
+      return
+
+    case 'still_waiting':
+      console.log(
+        `  Episode ${decision.episodeNumber} is past its drop; sending still-waiting alert`
+      )
+      if (!dryRun) {
+        if (hasDiscordConfig(discord)) {
+          await sendWaitingAlert({
+            discord,
+            show,
+            episodeNumber: decision.episodeNumber,
+            expectedDropAt: decision.expectedDropAt,
+          })
+          console.log('  Discord still-waiting alert sent')
+        } else {
+          console.log('  Discord not configured; skipping still-waiting alert')
+        }
+      }
+      state.shows[showId] = decision.state
+      noteStateChange(
+        `still-waiting alert ${showName} ep ${decision.episodeNumber}`
+      )
+      return
+
+    case 'not_out_yet':
+      console.log(
+        `  Next drop ep ${decision.episodeNumber} not out yet (latest on ${providerLabel(show.provider)}: ${decision.snapshotEpisode})`
+      )
+      return
+  }
+}
+
 function getDiscordConfigFromEnv(): DiscordConfig {
   return {
     botToken: process.env.DISCORD_BOT_TOKEN,
@@ -430,8 +311,6 @@ export async function checkShows({
   const now = new Date()
   let stateChanged = false
   const stateChangeReasons: string[] = []
-  let skipNetflixShows = false
-  let disneyAuthFailed = false
   const failedShows: string[] = []
   const snapshotEpisodes = new Map<string, number>()
 
@@ -439,6 +318,15 @@ export async function checkShows({
     stateChangeReasons.push(reason)
     stateChanged = true
   }
+
+  const providers = createProviderLookup({
+    discord,
+    dryRun,
+    state,
+    now,
+    noteStateChange,
+    fetchEpisode,
+  })
 
   if (hasOrphanedShows(shows, state)) {
     for (const showId of Object.keys(state.shows)) {
@@ -477,300 +365,50 @@ export async function checkShows({
       const showId = show.id
       const providerId = resolveProviderId(show)
       const previousState = getShowState(state, showId)
-      const lastEpisodeNumber = previousState
-        ? parseEpisodeNumber(previousState.lastEpisodeNumber)
-        : null
-      const nextExpectedEp = getNextExpectedEpisode(
-        show.schedule,
-        lastEpisodeNumber
-      )
 
       console.log(
         `Checking ${show.title || showId} (${providerLabel(show.provider)} ${providerId})...`
       )
 
-      if (show.provider === 'netflix' && skipNetflixShows) {
+      const plan = planShowLookup({ show, previousState, now, force })
+      if (plan.kind !== 'look_up') {
+        logSkippedLookup(plan)
+        continue
+      }
+      if (plan.mode) {
         console.log(
-          '  Skipping Netflix show (cookie auth failed earlier this run)'
+          plan.mode === 'drop_window' ? '  In drop window' : '  In late slot'
         )
+      }
+
+      const providerSnapshot = await providers.lookUpEpisode(
+        show,
+        providerId,
+        plan.nextDrop.expectedAt
+      )
+      if (!providerSnapshot) {
         continue
       }
 
-      if (show.provider === 'disney' && disneyAuthFailed) {
-        console.log(
-          '  Disney+ API unavailable; trying AniList fallback for this show'
-        )
-      }
-
-      if (nextExpectedEp === null) {
-        console.log('  No more scheduled episodes for this show')
-        continue
-      }
-
-      const expectedAt = getExpectedDropAt(show.schedule, nextExpectedEp)
-      if (!expectedAt) {
-        console.log(
-          `  Could not compute expected drop for episode ${nextExpectedEp}`
-        )
-        continue
-      }
-
-      if (!force && !isInCheckWindow(expectedAt, now)) {
-        console.log(
-          `  Outside check window for ep ${nextExpectedEp} (expected ${expectedAt.toISOString()})`
-        )
-        continue
-      }
-
-      if (!force) {
-        const windowMode = getCheckWindowMode(expectedAt, now)
-        if (windowMode) {
-          console.log(`  Check window: ${windowMode}`)
-        }
-      }
-
-      let latestSnapshot: EpisodeSnapshot | null
-      let disneyApiSucceeded = false
-
-      try {
-        if (show.provider === 'disney') {
-          const disneyResult = await fetchDisneyEpisode(
-            show,
-            providerId,
-            expectedAt,
-            now,
-            disneyAuthFailed
-          )
-          latestSnapshot = disneyResult.snapshot
-          disneyApiSucceeded = disneyResult.apiSucceeded
-
-          if (disneyResult.authFailed) {
-            if (!disneyAuthFailed) {
-              disneyAuthFailed = true
-              await notifyDisneyAuthFailure(
-                discord,
-                dryRun,
-                state,
-                now,
-                noteStateChange
-              )
-            }
-
-            if (!latestSnapshot) {
-              console.log(
-                '  Disney+ and AniList fallback found no aired episode yet'
-              )
-              continue
-            }
-          } else if (!latestSnapshot) {
-            console.log('  No available episodes found from Disney+ or AniList')
-            continue
-          }
-        } else {
-          latestSnapshot = await fetchEpisode(show)
-        }
-      } catch (error) {
-        if (error instanceof NetflixAuthError) {
-          console.error(`  Netflix auth failed: ${error.message}`)
-          skipNetflixShows = true
-
-          if (!state.meta?.netflixCookieAlertSentAt) {
-            if (!dryRun && hasDiscordBotConfig(discord)) {
-              await sendNetflixCookieAlert(discord)
-              console.log('  Netflix cookie refresh alert sent via Discord bot')
-            } else if (!dryRun) {
-              console.log(
-                '  Discord bot not configured; skipping Netflix cookie refresh alert'
-              )
-            }
-
-            state.meta = {
-              ...state.meta,
-              netflixCookieAlertSentAt: now.toISOString(),
-            }
-            noteStateChange('Netflix cookie alert flag set')
-          } else {
-            console.log('  Netflix cookie refresh alert already sent; skipping')
-          }
-
-          continue
-        }
-
-        throw error
-      }
-
-      if (show.provider === 'netflix' && state.meta?.netflixCookieAlertSentAt) {
-        state.meta = {
-          ...state.meta,
-          netflixCookieAlertSentAt: null,
-        }
-        noteStateChange(
-          `cleared Netflix auth alert flag for ${show.title || showId}`
-        )
-      }
-
-      if (
-        show.provider === 'disney' &&
-        disneyApiSucceeded &&
-        state.meta?.disneyCookieAlertSentAt
-      ) {
-        state.meta = {
-          ...state.meta,
-          disneyCookieAlertSentAt: null,
-        }
-        noteStateChange(
-          `cleared Disney auth alert flag for ${show.title || showId}`
-        )
-      }
-
-      if (!latestSnapshot) {
-        console.log(`  No available episodes found for ${showId}`)
-        continue
-      }
-
-      const relativeResult = toRelativeEpisodeResult(
+      const decision = decideShow({
         show,
         previousState,
-        latestSnapshot
-      )
-      let episodeOffsetToSave: number | undefined
-
-      if (relativeResult.kind === 'previous_season') {
-        if (!previousState) {
-          if (!dryRun) {
-            state.shows[showId] = createPreviousSeasonBaseline(show)
-          }
-          noteStateChange(`previous season baseline ${show.title || showId}`)
-          console.log('  Baseline: previous season only')
-        } else {
-          console.log('  Still waiting (previous season on provider)')
-        }
-        continue
+        snapshot: providerSnapshot,
+        nextDrop: plan.nextDrop,
+        now,
+      })
+      if ('snapshotEpisode' in decision && decision.snapshotEpisode > 0) {
+        snapshotEpisodes.set(showId, decision.snapshotEpisode)
       }
 
-      latestSnapshot = relativeResult.snapshot
-      const snapshotEpisode = parseEpisodeNumber(latestSnapshot.episode.episode)
-      if (snapshotEpisode > 0) snapshotEpisodes.set(showId, snapshotEpisode)
-      if (previousState?.episodeOffset == null) {
-        episodeOffsetToSave = relativeResult.episodeOffset
-      }
-
-      if (!previousState) {
-        const latestEpisodeNumber = parseEpisodeNumber(
-          latestSnapshot.episode.episode
-        )
-
-        if (latestEpisodeNumber >= nextExpectedEp) {
-          const alertExpectedAt =
-            getExpectedDropAt(show.schedule, latestEpisodeNumber) ?? expectedAt
-
-          await announceEpisode({
-            discord,
-            calendarConfig,
-            dryRun,
-            show,
-            showId,
-            latestSnapshot,
-            episodeNumber: latestEpisodeNumber,
-            expectedDropAt: alertExpectedAt.toISOString(),
-            state,
-            noteStateChange,
-          })
-
-          state.shows[showId] = createUpdatedState(
-            latestSnapshot,
-            latestEpisodeNumber,
-            {
-              episodeOffset: episodeOffsetToSave,
-              previousState,
-            }
-          )
-          noteStateChange(
-            `catch-up episode alert ${show.title || showId} ep ${latestEpisodeNumber}`
-          )
-          continue
-        }
-
-        state.shows[showId] = createBaselineState(latestSnapshot, {
-          episodeOffset: episodeOffsetToSave,
-        })
-        noteStateChange(
-          `baseline ${show.title || showId} ep ${latestSnapshot.episode.episode}`
-        )
-        console.log(
-          `  Baseline set to episode ${latestSnapshot.episode.episode} (${latestSnapshot.episode.id})`
-        )
-        continue
-      }
-
-      const latestEpisodeNumber = parseEpisodeNumber(
-        latestSnapshot.episode.episode
-      )
-      const expectedDropAt = expectedAt.toISOString()
-
-      if (latestEpisodeNumber >= nextExpectedEp) {
-        await announceEpisode({
-          discord,
-          calendarConfig,
-          dryRun,
-          show,
-          showId,
-          latestSnapshot,
-          episodeNumber: nextExpectedEp,
-          expectedDropAt,
-          state,
-          noteStateChange,
-        })
-
-        state.shows[showId] = createUpdatedState(
-          latestSnapshot,
-          nextExpectedEp,
-          {
-            episodeOffset: episodeOffsetToSave,
-            previousState,
-          }
-        )
-        noteStateChange(
-          `episode alert ${show.title || showId} ep ${nextExpectedEp}`
-        )
-        continue
-      }
-
-      if (
-        isPastWaitingGrace(expectedAt, now) &&
-        previousState.waitingNotifiedForEpisode !== nextExpectedEp
-      ) {
-        console.log(
-          `  Episode ${nextExpectedEp} is late; sending waiting alert`
-        )
-
-        if (!dryRun) {
-          if (hasDiscordConfig(discord)) {
-            await sendWaitingAlert({
-              discord,
-              show,
-              episodeNumber: nextExpectedEp,
-              expectedDropAt,
-            })
-            console.log('  Discord waiting alert sent')
-          } else {
-            console.log('  Discord not configured; skipping waiting alert')
-          }
-        }
-
-        state.shows[showId] = {
-          ...previousState,
-          waitingNotifiedForEpisode: nextExpectedEp,
-        }
-        noteStateChange(
-          `waiting alert ${show.title || showId} ep ${nextExpectedEp}`
-        )
-        continue
-      }
-
-      console.log(
-        `  Still waiting for episode ${nextExpectedEp} (latest on ${providerLabel(show.provider)}: ${latestEpisodeNumber})`
-      )
+      await applyDecision(decision, {
+        discord,
+        calendarConfig,
+        dryRun,
+        show,
+        state,
+        noteStateChange,
+      })
     } catch (error) {
       failedShows.push(show.id)
       console.error(
@@ -854,7 +492,7 @@ export async function checkShows({
   }
 
   // The Actions gate sets REDDIT_FEED_CHECK=false when no feed needs a fetch,
-  // so episode-window runs don't hit Reddit again.
+  // so drop-window runs don't hit Reddit again.
   if (force || process.env.REDDIT_FEED_CHECK !== 'false') {
     try {
       const redditResult = await syncRedditUserFeeds({

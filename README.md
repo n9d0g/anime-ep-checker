@@ -324,7 +324,7 @@ Shows your MAL plan-to-watch list from `state.meta.planToWatch`, grouped into **
 | [`shows.json`](shows.json)                                                     | Tracked series + weekly schedules                                                                             |
 | [`state.json`](state.json)                                                     | Last notified episode per show                                                                                |
 | [`src/check.ts`](src/check.ts)                                                 | Main checker CLI                                                                                              |
-| [`shared/schedule.ts`](shared/schedule.ts)                                     | Expected drop times + check windows                                                                           |
+| [`shared/schedule.ts`](shared/schedule.ts)                                     | Expected drop times + drop windows                                                                            |
 | [`shared/`](shared/)                                                           | Pure modules imported by both the checker and the admin (types, provider URLs, watch URLs, Reddit search URL) |
 | [`src/crunchyroll.ts`](src/crunchyroll.ts)                                     | Crunchyroll API client                                                                                        |
 | [`src/netflix.ts`](src/netflix.ts)                                             | Netflix pathEvaluator client (cookie auth)                                                                    |

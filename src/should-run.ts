@@ -13,13 +13,12 @@ import {
   shouldSendFeedErrorAlert,
 } from '../shared/reddit-feeds.ts'
 import {
-  getCheckWindowMode,
-  getExpectedDropAt,
-  getNextExpectedEpisode,
+  getDropWindowMode,
+  getNextDrop,
   hasOrphanedShows,
   needsPlanToWatchCheck,
   needsRelatedAnimeCheck,
-  parseEpisodeNumber,
+  type DropWindowMode,
 } from '../shared/schedule.ts'
 import type { Show, StateFile } from '../shared/types.ts'
 import {
@@ -38,27 +37,20 @@ interface GateDecision {
   reasons: string[]
 }
 
-type DropWindowMode = 'dense' | 'late'
-
 /** Whether the show's next drop puts it in its drop window or a late slot now. */
-function getDropWindowMode(
+function getShowDropWindowMode(
   show: Show,
   state: StateFile,
   now: Date
 ): DropWindowMode | null {
-  const showState = state.shows[show.id]
-  const lastEpisodeNumber = showState
-    ? parseEpisodeNumber(showState.lastEpisodeNumber)
-    : null
-  const nextEpisode = getNextExpectedEpisode(show.schedule, lastEpisodeNumber)
-  if (nextEpisode === null) {
+  const nextDrop = getNextDrop(
+    show.schedule,
+    state.shows[show.id]?.lastEpisodeNumber
+  )
+  if (!nextDrop?.expectedAt) {
     return null
   }
-  const expectedAt = getExpectedDropAt(show.schedule, nextEpisode)
-  if (!expectedAt) {
-    return null
-  }
-  return getCheckWindowMode(expectedAt, now)
+  return getDropWindowMode(nextDrop.expectedAt, now)
 }
 
 async function needsRedditFeedCheck(
@@ -127,14 +119,14 @@ export async function decideGate({
 
   const dropWindowModes = new Set<DropWindowMode>()
   for (const show of shows) {
-    const mode = getDropWindowMode(show, state, now)
+    const mode = getShowDropWindowMode(show, state, now)
     if (mode) {
       dropWindowModes.add(mode)
     }
   }
   if (dropWindowModes.size > 0) {
     const modeLabel = [...dropWindowModes]
-      .map((mode) => (mode === 'dense' ? 'drop window' : 'late slot'))
+      .map((mode) => (mode === 'drop_window' ? 'drop window' : 'late slot'))
       .join(' + ')
     reasons.push(`At least one show is in its ${modeLabel}.`)
   }

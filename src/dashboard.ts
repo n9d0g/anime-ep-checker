@@ -11,9 +11,8 @@ import { formatEasternTime } from './time.ts'
 import { getShowWatchUrl, providerLabel } from '../shared/shows.ts'
 import type { Show, ShowState } from '../shared/types.ts'
 import {
-  getExpectedDropAt,
-  getNextExpectedEpisode,
-  isInCheckWindow,
+  getNextDrop,
+  isInDropWindowOrLateSlot,
   isPastWaitingGrace,
   parseEpisodeNumber,
 } from '../shared/schedule.ts'
@@ -75,7 +74,7 @@ function resolveDashboardStatus(
     return 'waiting'
   }
 
-  if (isInCheckWindow(expectedAt, now)) {
+  if (isInDropWindowOrLateSlot(expectedAt, now)) {
     return 'in_window'
   }
 
@@ -91,20 +90,14 @@ export function resolveShowDashboardStatus(
   showState: ShowState | null,
   now: Date
 ): DashboardStatus {
-  const lastEpisodeNumber = showState
-    ? parseEpisodeNumber(showState.lastEpisodeNumber)
-    : null
-  const nextEpisode = getNextExpectedEpisode(show.schedule, lastEpisodeNumber)
-  const expectedAt =
-    nextEpisode !== null ? getExpectedDropAt(show.schedule, nextEpisode) : null
-
-  if (nextEpisode === null || !expectedAt) return 'upcoming'
+  const nextDrop = getNextDrop(show.schedule, showState?.lastEpisodeNumber)
+  if (!nextDrop?.expectedAt) return 'upcoming'
 
   return resolveDashboardStatus(
-    expectedAt,
+    nextDrop.expectedAt,
     now,
     showState?.lastSnapshotEpisode ?? null,
-    nextEpisode,
+    nextDrop.episode,
     showState?.waitingNotifiedForEpisode
   )
 }
@@ -117,9 +110,9 @@ export async function buildShowDashboardRow(
   const lastEpisodeNumber = showState
     ? parseEpisodeNumber(showState.lastEpisodeNumber)
     : null
-  const nextEpisode = getNextExpectedEpisode(show.schedule, lastEpisodeNumber)
-  const expectedAt =
-    nextEpisode !== null ? getExpectedDropAt(show.schedule, nextEpisode) : null
+  const nextDrop = getNextDrop(show.schedule, showState?.lastEpisodeNumber)
+  const nextEpisode = nextDrop?.episode ?? null
+  const expectedAt = nextDrop?.expectedAt ?? null
   const status = resolveShowDashboardStatus(show, showState, now)
 
   let malProgress = '—'

@@ -5,7 +5,7 @@ import type { Show, ShowState, StateFile } from '../shared/types.ts'
 import {
   getExpectedDropAt,
   getLastScheduledEpisode,
-  getNextExpectedEpisode,
+  getNextDrop,
   isEpisodeInSchedule,
   parseEpisodeNumber,
 } from '../shared/schedule.ts'
@@ -345,10 +345,11 @@ function getDesiredCalendarEpisodes(
   lastEpisodeNumber: number | null,
   now: Date
 ): DesiredCalendarEpisode[] {
-  const nextEpisode = getNextExpectedEpisode(show.schedule, lastEpisodeNumber)
-  if (nextEpisode === null) {
+  const nextDrop = getNextDrop(show.schedule, lastEpisodeNumber)
+  if (nextDrop === null) {
     return []
   }
+  const nextEpisode = nextDrop.episode
 
   const episodeNumbers: number[] = []
   if (show.schedule.mode === 'ongoing') {

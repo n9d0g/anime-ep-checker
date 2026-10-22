@@ -2,9 +2,9 @@ import type { Show, ShowSchedule, StateFile } from './types.ts'
 import { EASTERN_TZ } from './time-zone.ts'
 
 const MS_PER_WEEK = 7 * 24 * 60 * 60 * 1000
-const WINDOW_BEFORE_MS = 5 * 60 * 1000
-const WINDOW_AFTER_DENSE_MS = 90 * 60 * 1000
-const LATE_POLL_INTERVAL_MS = 30 * 60 * 1000
+const DROP_WINDOW_BEFORE_MS = 5 * 60 * 1000
+const DROP_WINDOW_AFTER_MS = 90 * 60 * 1000
+const LATE_SLOT_INTERVAL_MS = 30 * 60 * 1000
 const CRON_INTERVAL_MS = 5 * 60 * 1000
 const WAITING_GRACE_MS = 15 * 60 * 1000
 const PTW_CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000
@@ -60,7 +60,7 @@ export function getExpectedDropAt(
   return new Date(start.getTime() + weeksAfterBatch * MS_PER_WEEK)
 }
 
-export function getNextExpectedEpisode(
+function getNextExpectedEpisode(
   schedule: ShowSchedule,
   lastEpisodeNumber: number | null
 ): number | null {
@@ -74,50 +74,77 @@ export function getNextExpectedEpisode(
   return next
 }
 
-function isInDenseCheckWindow(
-  expectedAt: Date,
-  now: Date = new Date()
-): boolean {
+/** The episode expected next and when it should drop. */
+export interface NextDrop {
+  episode: number
+  /** Null when the schedule's start time is not a valid date. */
+  expectedAt: Date | null
+}
+
+/**
+ * The next drop after the last recorded episode (a stored or parsed episode
+ * number; null or undefined before the first episode), or null once the
+ * schedule has no more episodes.
+ */
+export function getNextDrop(
+  schedule: ShowSchedule,
+  lastEpisodeNumber: string | number | null | undefined
+): NextDrop | null {
+  const last =
+    lastEpisodeNumber === null || lastEpisodeNumber === undefined
+      ? null
+      : parseEpisodeNumber(lastEpisodeNumber)
+  const episode = getNextExpectedEpisode(schedule, last)
+  if (episode === null) {
+    return null
+  }
+  return { episode, expectedAt: getExpectedDropAt(schedule, episode) }
+}
+
+/** From 5 minutes before the expected drop to 90 minutes after. */
+function isInDropWindow(expectedAt: Date, now: Date): boolean {
   const nowMs = now.getTime()
   const expectedMs = expectedAt.getTime()
   return (
-    nowMs >= expectedMs - WINDOW_BEFORE_MS &&
-    nowMs <= expectedMs + WINDOW_AFTER_DENSE_MS
+    nowMs >= expectedMs - DROP_WINDOW_BEFORE_MS &&
+    nowMs <= expectedMs + DROP_WINDOW_AFTER_MS
   )
 }
 
-function isInLateCheckSlot(expectedAt: Date, now: Date = new Date()): boolean {
-  const elapsed = now.getTime() - (expectedAt.getTime() + WINDOW_AFTER_DENSE_MS)
+/** A 30-minute late slot after the drop window, matched to the 5-minute cron. */
+function isInLateSlot(expectedAt: Date, now: Date): boolean {
+  const elapsed = now.getTime() - (expectedAt.getTime() + DROP_WINDOW_AFTER_MS)
   if (elapsed < 0) {
     return false
   }
 
   return (
-    Math.floor(elapsed / LATE_POLL_INTERVAL_MS) !==
-    Math.floor((elapsed - CRON_INTERVAL_MS) / LATE_POLL_INTERVAL_MS)
+    Math.floor(elapsed / LATE_SLOT_INTERVAL_MS) !==
+    Math.floor((elapsed - CRON_INTERVAL_MS) / LATE_SLOT_INTERVAL_MS)
   )
 }
 
-export function isInCheckWindow(
+export type DropWindowMode = 'drop_window' | 'late_slot'
+
+/** Whether `now` is in the drop window or a late slot for this drop. */
+export function getDropWindowMode(
+  expectedAt: Date,
+  now: Date = new Date()
+): DropWindowMode | null {
+  if (isInDropWindow(expectedAt, now)) {
+    return 'drop_window'
+  }
+  if (isInLateSlot(expectedAt, now)) {
+    return 'late_slot'
+  }
+  return null
+}
+
+export function isInDropWindowOrLateSlot(
   expectedAt: Date,
   now: Date = new Date()
 ): boolean {
-  return (
-    isInDenseCheckWindow(expectedAt, now) || isInLateCheckSlot(expectedAt, now)
-  )
-}
-
-export function getCheckWindowMode(
-  expectedAt: Date,
-  now: Date = new Date()
-): 'dense' | 'late' | null {
-  if (isInDenseCheckWindow(expectedAt, now)) {
-    return 'dense'
-  }
-  if (isInLateCheckSlot(expectedAt, now)) {
-    return 'late'
-  }
-  return null
+  return getDropWindowMode(expectedAt, now) !== null
 }
 
 export function isPastWaitingGrace(
