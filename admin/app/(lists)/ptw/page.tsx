@@ -1,11 +1,15 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
+import { ExpandableRowHeader } from '@/app/components/ExpandableRowHeader'
 import { MoveToWatchingModal } from '@/app/components/MoveToWatchingModal'
-import { TopHeader } from '@/app/components/TopHeader'
 import { ShowTitleDisplay } from '@/app/components/ShowTitleDisplay'
+import { useCachedResource } from '@/app/components/useCachedResource'
 import { useHashScrollHighlight } from '@/app/components/useHashScrollHighlight'
-import { cacheKeys, readJsonCache, writeJsonCache } from '@/lib/client-cache'
+import { apiErrorMessage, apiFetch } from '@/lib/api-fetch'
+import { cacheKeys, withoutPtwEntry } from '@/lib/client-cache'
+import { malIdFromElementId } from '@/lib/hash-highlight'
+import { searchIndex } from '@/lib/search-index-store'
 import { PtwListSkeleton } from '@/app/components/ListSkeleton'
 import { useToast } from '@/app/components/Toast'
 import {
@@ -28,6 +32,33 @@ import type {
   PlanToWatchSnapshotEntry,
 } from '@shared/types'
 import type { PtwDetails, PtwDetailsList, ShowFormValues } from '@/lib/types'
+
+async function fetchPtwSnapshot(): Promise<PlanToWatchSnapshot | null> {
+  const data = await apiFetch<{ planToWatch?: PlanToWatchSnapshot | null }>(
+    '/api/ptw',
+    { errorMessage: 'Failed to load plan-to-watch list' }
+  )
+  return data.planToWatch ?? null
+}
+
+async function fetchPtwDetails(): Promise<PtwDetailsList> {
+  const errorMessage = 'Failed to load plan-to-watch details'
+  const data = await apiFetch<{ details?: PtwDetailsList }>(
+    '/api/ptw/details',
+    { errorMessage }
+  )
+  if (!data.details) {
+    throw new Error(errorMessage)
+  }
+  return data.details
+}
+
+function needsEnglishTitles(snapshot: PlanToWatchSnapshot | null): boolean {
+  return (
+    (snapshot?.entries?.length ?? 0) > 0 &&
+    !snapshot?.entries.some((entry) => entry.titleEnglish?.trim())
+  )
+}
 
 function startOfUtcDay(date: Date): Date {
   return new Date(
@@ -272,25 +303,20 @@ function PtwSection({
               key={entry.malId}
             >
               <div className="show-row-header ptw-row-header">
-                <button
+                <ExpandableRowHeader
                   className="ptw-row-main ptw-row-toggle"
-                  type="button"
-                  aria-expanded={open}
-                  onClick={() => onToggle(entry.malId)}
-                >
-                  <div className="show-row-leading">
+                  open={open}
+                  onToggle={() => onToggle(entry.malId)}
+                  leading={
                     <ShowTitleDisplay
                       title={entry.title}
                       titleEnglish={entry.titleEnglish}
                     />
-                  </div>
-                  <div className="show-row-trailing">
-                    {meta ? <span className="ep-count">{meta}</span> : null}
-                    <span className={`chevron ${open ? 'expanded' : ''}`}>
-                      ▼
-                    </span>
-                  </div>
-                </button>
+                  }
+                  trailing={
+                    meta ? <span className="ep-count">{meta}</span> : null
+                  }
+                />
                 <button
                   className="btn btn-secondary ptw-watch-btn"
                   type="button"
@@ -318,19 +344,44 @@ function PtwSection({
 
 export default function PlanToWatchPage() {
   const toast = useToast()
-  const [snapshot, setSnapshot] = useState<PlanToWatchSnapshot | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [refreshing, setRefreshing] = useState(false)
   const autoEnglishRefreshStarted = useRef(false)
+  const ptw = useCachedResource({
+    cacheKey: cacheKeys.ptw,
+    fetch: fetchPtwSnapshot,
+    isUsable: (cached: PlanToWatchSnapshot) => Boolean(cached.entries?.length),
+    onLoad: (next) => {
+      if (needsEnglishTitles(next) && !autoEnglishRefreshStarted.current) {
+        autoEnglishRefreshStarted.current = true
+        void refreshSnapshot(true)
+      }
+    },
+  })
+  const ptwDetails = useCachedResource({
+    cacheKey: cacheKeys.ptwDetails,
+    fetch: fetchPtwDetails,
+    isUsable: (cached: PtwDetailsList) => Boolean(cached.details?.length),
+    onError: (error) => {
+      console.warn('Plan-to-watch details unavailable:', error)
+    },
+  })
+  const snapshot = ptw.data
+  const loading = ptw.loading
+  const details = ptwDetails.data
+  const detailsLoading = ptwDetails.loading
+  const [refreshing, setRefreshing] = useState(false)
   const [watchEntry, setWatchEntry] = useState<PlanToWatchSnapshotEntry | null>(
     null
   )
   const [moving, setMoving] = useState(false)
-  const [details, setDetails] = useState<PtwDetailsList | null>(null)
-  const [detailsLoading, setDetailsLoading] = useState(true)
   const [expandedId, setExpandedId] = useState<number | null>(null)
 
-  useHashScrollHighlight(Boolean(snapshot?.entries?.length))
+  // Expand the row a search result links to.
+  useHashScrollHighlight((elementId) => {
+    const malId = malIdFromElementId(elementId)
+    if (malId !== null) {
+      setExpandedId(malId)
+    }
+  })
 
   const detailsById = useMemo(
     () => new Map((details?.details ?? []).map((item) => [item.malId, item])),
@@ -349,67 +400,6 @@ export default function PlanToWatchPage() {
     }
   }, [snapshot])
 
-  async function loadSnapshot() {
-    setLoading(true)
-
-    try {
-      const response = await fetch('/api/ptw')
-      const data = (await response.json()) as {
-        error?: string
-        planToWatch?: PlanToWatchSnapshot | null
-      }
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to load plan-to-watch list')
-      }
-
-      const next = data.planToWatch ?? null
-      setSnapshot(next)
-      if (next) {
-        writeJsonCache(cacheKeys.ptw, next)
-      }
-
-      const needsEnglishTitles =
-        (next?.entries?.length ?? 0) > 0 &&
-        !next?.entries.some((entry) => entry.titleEnglish?.trim())
-      if (needsEnglishTitles && !autoEnglishRefreshStarted.current) {
-        autoEnglishRefreshStarted.current = true
-        void refreshSnapshot(true)
-      }
-    } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : 'Failed to load plan-to-watch list'
-      )
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  async function loadDetails() {
-    setDetailsLoading(true)
-
-    try {
-      const response = await fetch('/api/ptw/details', { cache: 'no-store' })
-      const data = (await response.json()) as {
-        error?: string
-        details?: PtwDetailsList
-      }
-
-      if (!response.ok || !data.details) {
-        throw new Error(data.error || 'Failed to load plan-to-watch details')
-      }
-
-      setDetails(data.details)
-      writeJsonCache(cacheKeys.ptwDetails, data.details)
-    } catch (error) {
-      console.warn('Plan-to-watch details unavailable:', error)
-    } finally {
-      setDetailsLoading(false)
-    }
-  }
-
   function toggleExpanded(malId: number) {
     setExpandedId((current) => (current === malId ? null : malId))
   }
@@ -418,54 +408,32 @@ export default function PlanToWatchPage() {
     setRefreshing(true)
 
     try {
-      const response = await fetch('/api/ptw', { method: 'POST' })
-      const data = (await response.json()) as {
-        error?: string
+      const data = await apiFetch<{
         planToWatch?: PlanToWatchSnapshot
         details?: PtwDetailsList
-      }
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to refresh plan-to-watch list')
-      }
+      }>('/api/ptw', {
+        method: 'POST',
+        errorMessage: 'Failed to refresh plan-to-watch list',
+      })
 
       if (data.details) {
-        setDetails(data.details)
-        writeJsonCache(cacheKeys.ptwDetails, data.details)
+        ptwDetails.set(data.details)
       }
 
-      const refreshed = data.planToWatch ?? null
-      setSnapshot(refreshed)
-      if (refreshed) {
-        writeJsonCache(cacheKeys.ptw, refreshed)
-      }
+      ptw.set(data.planToWatch ?? null)
+      searchIndex.invalidate()
       if (!silent) {
         toast.success('Refreshed from MyAnimeList.')
       }
     } catch (error) {
       if (!silent) {
         toast.error(
-          error instanceof Error
-            ? error.message
-            : 'Failed to refresh plan-to-watch list'
+          apiErrorMessage(error, 'Failed to refresh plan-to-watch list')
         )
       }
     } finally {
       setRefreshing(false)
     }
-  }
-
-  function removeEntryFromSnapshot(malId: number) {
-    setSnapshot((current) => {
-      if (!current) {
-        return current
-      }
-
-      return {
-        ...current,
-        entries: current.entries.filter((entry) => entry.malId !== malId),
-      }
-    })
   }
 
   async function moveToWatching(values: ShowFormValues) {
@@ -477,10 +445,12 @@ export default function PlanToWatchPage() {
     setMoving(true)
 
     try {
-      const response = await fetch('/api/ptw/watch', {
+      const data = await apiFetch<{
+        malUpdated?: boolean
+        workflowTriggered?: boolean
+      }>('/api/ptw/watch', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+        json: {
           malId: entry.malId,
           title: entry.title,
           titleEnglish: entry.titleEnglish,
@@ -489,20 +459,12 @@ export default function PlanToWatchPage() {
           netflixUrl: values.netflixUrl,
           disneyUrl: values.disneyUrl,
           schedule: values.schedule,
-        }),
+        },
+        errorMessage: 'Failed to move show to watching',
       })
 
-      const data = (await response.json()) as {
-        error?: string
-        malUpdated?: boolean
-        workflowTriggered?: boolean
-      }
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to move show to watching')
-      }
-
-      removeEntryFromSnapshot(entry.malId)
+      ptw.update((current) => withoutPtwEntry(current, entry.malId))
+      searchIndex.invalidate()
       setWatchEntry(null)
 
       if (!data.malUpdated) {
@@ -515,37 +477,11 @@ export default function PlanToWatchPage() {
         toast.success('Moved to watching.')
       }
     } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : 'Failed to move show to watching'
-      )
+      toast.error(apiErrorMessage(error, 'Failed to move show to watching'))
     } finally {
       setMoving(false)
     }
   }
-
-  useEffect(() => {
-    const cached = readJsonCache<PlanToWatchSnapshot>(cacheKeys.ptw)
-    if (cached?.entries?.length) {
-      setSnapshot(cached)
-      setLoading(false)
-    }
-
-    const cachedDetails = readJsonCache<PtwDetailsList>(cacheKeys.ptwDetails)
-    if (cachedDetails?.details?.length) {
-      setDetails(cachedDetails)
-    }
-
-    // Expand the row a search result links to.
-    const match = /^#show-(\d+)$/.exec(window.location.hash)
-    if (match) {
-      setExpandedId(Number(match[1]))
-    }
-
-    void loadSnapshot()
-    void loadDetails()
-  }, [])
 
   const hasEntries =
     sections.airing.length > 0 ||
@@ -554,8 +490,6 @@ export default function PlanToWatchPage() {
 
   return (
     <>
-      <TopHeader />
-
       <main className="container">
         <div className="page-heading page-heading-row">
           <div>

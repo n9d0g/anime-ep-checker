@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { apiFetch } from '@/lib/api-fetch'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -15,16 +16,11 @@ export default function LoginPage() {
     setStatus('')
 
     try {
-      const response = await fetch('/api/auth', {
+      await apiFetch('/api/auth', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password }),
+        json: { password },
+        errorMessage: 'Login failed',
       })
-
-      if (!response.ok) {
-        const data = (await response.json()) as { error?: string }
-        throw new Error(data.error || 'Login failed')
-      }
 
       router.push('/')
       router.refresh()

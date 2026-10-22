@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { ModalOverlay } from '@/app/components/ModalOverlay'
+import { Modal } from '@/app/components/Modal'
 import { SegmentedControl } from '@/app/components/SegmentedControl'
 import {
   hasKnownEpisodeCount,
@@ -97,136 +97,109 @@ export function MoveToWatchingModal({
   }
 
   return (
-    <ModalOverlay submitting={submitting} onCancel={onCancel}>
-      <form
-        className="modal-panel modal-panel-wide"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="ptw-watch-title"
-        onSubmit={(event) => {
-          event.preventDefault()
-          onSubmit(form)
-        }}
-      >
-        <h2 id="ptw-watch-title" className="modal-title">
-          Move {entry.title} to watching
-        </h2>
-        <p className="modal-subtitle">
-          Fill in {formatUnknownList(unknownLabels)}. Known details from
-          MyAnimeList are already filled in.
-        </p>
+    <Modal
+      title={`Move ${entry.title} to watching`}
+      subtitle={`Fill in ${formatUnknownList(unknownLabels)}. Known details from MyAnimeList are already filled in.`}
+      wide
+      submitting={submitting}
+      onCancel={onCancel}
+      onSubmit={() => onSubmit(form)}
+      primaryAction={
+        <button className="btn" type="submit" disabled={submitting}>
+          {submitting ? 'Moving…' : 'Move to watching'}
+        </button>
+      }
+    >
+      <div className="modal-form">
+        <div className="field">
+          <span id="ptw-provider-label">Streaming service</span>
+          <SegmentedControl
+            ariaLabel="Streaming service"
+            value={form.provider}
+            options={[
+              { value: 'crunchyroll', label: 'Crunchyroll' },
+              { value: 'netflix', label: 'Netflix' },
+              { value: 'disney', label: 'Disney+' },
+            ]}
+            onChange={(value) => update('provider', value)}
+          />
+        </div>
 
-        <div className="modal-form">
-          <div className="field">
-            <span id="ptw-provider-label">Streaming service</span>
-            <SegmentedControl
-              ariaLabel="Streaming service"
-              value={form.provider}
-              options={[
-                { value: 'crunchyroll', label: 'Crunchyroll' },
-                { value: 'netflix', label: 'Netflix' },
-                { value: 'disney', label: 'Disney+' },
-              ]}
-              onChange={(value) => update('provider', value)}
-            />
-          </div>
+        <div className="field">
+          <label htmlFor="ptw-watch-url">{urlField.label}</label>
+          <input
+            id="ptw-watch-url"
+            value={form[urlField.key]}
+            onChange={(event) => update(urlField.key, event.target.value)}
+            placeholder={urlField.placeholder}
+            required
+          />
+        </div>
 
+        <div className="field">
+          <span id="ptw-mode-label">Schedule type</span>
+          <SegmentedControl
+            ariaLabel="Schedule type"
+            value={form.schedule.mode}
+            options={[
+              { value: 'finite', label: 'Finite season' },
+              { value: 'ongoing', label: 'Ongoing' },
+            ]}
+            onChange={(value) => updateSchedule('mode', value)}
+          />
+        </div>
+
+        <div className="field">
+          <label htmlFor="ptw-watch-start">
+            Start date and time (Japan Time / JST)
+          </label>
+          <input
+            id="ptw-watch-start"
+            type="datetime-local"
+            value={form.schedule.startAt}
+            onChange={(event) => updateSchedule('startAt', event.target.value)}
+            required
+          />
+          {startKnown ? null : (
+            <p className="hint">MAL did not have a full start date and time.</p>
+          )}
+        </div>
+
+        <div className="field-row field-row-2">
           <div className="field">
-            <label htmlFor="ptw-watch-url">{urlField.label}</label>
+            <label htmlFor="ptw-watch-start-ep">Episode on start date</label>
             <input
-              id="ptw-watch-url"
-              value={form[urlField.key]}
-              onChange={(event) => update(urlField.key, event.target.value)}
-              placeholder={urlField.placeholder}
-              required
-            />
-          </div>
-
-          <div className="field">
-            <span id="ptw-mode-label">Schedule type</span>
-            <SegmentedControl
-              ariaLabel="Schedule type"
-              value={form.schedule.mode}
-              options={[
-                { value: 'finite', label: 'Finite season' },
-                { value: 'ongoing', label: 'Ongoing' },
-              ]}
-              onChange={(value) => updateSchedule('mode', value)}
-            />
-          </div>
-
-          <div className="field">
-            <label htmlFor="ptw-watch-start">
-              Start date and time (Japan Time / JST)
-            </label>
-            <input
-              id="ptw-watch-start"
-              type="datetime-local"
-              value={form.schedule.startAt}
+              id="ptw-watch-start-ep"
+              type="number"
+              min="1"
+              value={form.schedule.startEpisode}
               onChange={(event) =>
-                updateSchedule('startAt', event.target.value)
+                updateSchedule('startEpisode', event.target.value)
               }
               required
             />
-            {startKnown ? null : (
-              <p className="hint">
-                MAL did not have a full start date and time.
-              </p>
-            )}
           </div>
 
-          <div className="field-row field-row-2">
+          {form.schedule.mode === 'finite' ? (
             <div className="field">
-              <label htmlFor="ptw-watch-start-ep">Episode on start date</label>
+              <label htmlFor="ptw-watch-count">Episodes in season</label>
               <input
-                id="ptw-watch-start-ep"
+                id="ptw-watch-count"
                 type="number"
                 min="1"
-                value={form.schedule.startEpisode}
+                value={form.schedule.episodeCount}
                 onChange={(event) =>
-                  updateSchedule('startEpisode', event.target.value)
+                  updateSchedule('episodeCount', event.target.value)
                 }
                 required
               />
+              {episodeCountKnown ? null : (
+                <p className="hint">MAL does not list an episode count yet.</p>
+              )}
             </div>
-
-            {form.schedule.mode === 'finite' ? (
-              <div className="field">
-                <label htmlFor="ptw-watch-count">Episodes in season</label>
-                <input
-                  id="ptw-watch-count"
-                  type="number"
-                  min="1"
-                  value={form.schedule.episodeCount}
-                  onChange={(event) =>
-                    updateSchedule('episodeCount', event.target.value)
-                  }
-                  required
-                />
-                {episodeCountKnown ? null : (
-                  <p className="hint">
-                    MAL does not list an episode count yet.
-                  </p>
-                )}
-              </div>
-            ) : null}
-          </div>
+          ) : null}
         </div>
-
-        <div className="modal-actions">
-          <button
-            className="btn btn-secondary"
-            type="button"
-            disabled={submitting}
-            onClick={onCancel}
-          >
-            Cancel
-          </button>
-          <button className="btn" type="submit" disabled={submitting}>
-            {submitting ? 'Moving…' : 'Move to watching'}
-          </button>
-        </div>
-      </form>
-    </ModalOverlay>
+      </div>
+    </Modal>
   )
 }

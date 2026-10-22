@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, type ComponentProps } from 'react'
+import { ExpandableRowHeader } from '@/app/components/ExpandableRowHeader'
 import { ShowEditForm } from '@/app/components/ShowEditForm'
 import { ShowTitleDisplay } from '@/app/components/ShowTitleDisplay'
 import type { EpisodeSaveStatus } from '@/app/components/useEpisodeProgress'
@@ -48,30 +49,29 @@ export function ShowRow({
       id={show.id ? `show-${show.id}` : undefined}
       className={`show-row${open ? ' expanded' : ''}`}
     >
-      <button
-        type="button"
-        className="show-row-header"
-        aria-expanded={open}
-        onClick={() => setOpen((current) => !current)}
-      >
-        <div className="show-row-leading">
-          <span
-            className={`provider-dot ${view.providerDotClass}`}
-            aria-hidden="true"
-          />
-          <ShowTitleDisplay
-            title={show.title || `Show ${index + 1}`}
-            titleEnglish={show.titleEnglish}
-            belowSubtitle={
-              view.nextDropLine ? (
-                <span className="show-row-next-episode">
-                  {view.nextDropLine}
-                </span>
-              ) : null
-            }
-          />
-        </div>
-        <div className="show-row-trailing">
+      <ExpandableRowHeader
+        open={open}
+        onToggle={() => setOpen((current) => !current)}
+        leading={
+          <>
+            <span
+              className={`provider-dot ${view.providerDotClass}`}
+              aria-hidden="true"
+            />
+            <ShowTitleDisplay
+              title={show.title || `Show ${index + 1}`}
+              titleEnglish={show.titleEnglish}
+              belowSubtitle={
+                view.nextDropLine ? (
+                  <span className="show-row-next-episode">
+                    {view.nextDropLine}
+                  </span>
+                ) : null
+              }
+            />
+          </>
+        }
+        trailing={
           <span
             className={`ep-count${badge.behind ? ' ep-count-behind' : ''}${
               badge.malDown ? ' ep-count-mal-down' : ''
@@ -80,9 +80,8 @@ export function ShowRow({
           >
             {badge.label}
           </span>
-          <span className={`chevron ${open ? 'expanded' : ''}`}>▼</span>
-        </div>
-      </button>
+        }
+      />
 
       {open ? (
         <div className="show-row-body">

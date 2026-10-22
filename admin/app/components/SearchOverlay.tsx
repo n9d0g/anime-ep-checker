@@ -2,8 +2,11 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { ShowTitleDisplay } from '@/app/components/ShowTitleDisplay'
+import { requestHashHighlight } from '@/app/components/useHashScrollHighlight'
+import { hashOf, pathOf } from '@/lib/hash-highlight'
+import { searchIndex } from '@/lib/search-index-store'
 import {
   filterSearchIndex,
   type SearchCategory,
@@ -31,14 +34,18 @@ interface SearchOverlayProps {
 
 export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
   const router = useRouter()
+  const pathname = usePathname()
   const inputRef = useRef<HTMLInputElement>(null)
   const [query, setQuery] = useState('')
-  const [items, setItems] = useState<SearchIndexItem[]>([])
-  const [loading, setLoading] = useState(false)
+  // null until the index has loaded once this session.
+  const [items, setItems] = useState<SearchIndexItem[] | null>(null)
   const [activeIndex, setActiveIndex] = useState(0)
-  const loadedRef = useRef(false)
+  const loading = items === null
 
-  const results = useMemo(() => filterSearchIndex(items, query), [items, query])
+  const results = useMemo(
+    () => filterSearchIndex(items ?? [], query),
+    [items, query]
+  )
 
   const grouped = useMemo(() => {
     const map = new Map<SearchCategory, SearchIndexItem[]>()
@@ -68,37 +75,37 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
 
     inputRef.current?.focus()
 
-    if (loadedRef.current) {
-      return
-    }
-
-    setLoading(true)
-    void fetch('/api/search-index', { cache: 'no-store' })
-      .then(async (response) => {
-        const data = (await response.json()) as {
-          error?: string
-          items?: SearchIndexItem[]
+    // Loaded once per session (the header stays mounted across pages); a
+    // move between lists invalidates it so this picks up a fresh copy.
+    let active = true
+    searchIndex
+      .load()
+      .then((loaded) => {
+        if (active) {
+          setItems(loaded)
         }
-        if (!response.ok) {
-          throw new Error(data.error || 'Failed to load search index')
-        }
-        setItems(data.items ?? [])
-        loadedRef.current = true
       })
       .catch(() => {
-        setItems([])
+        if (active) {
+          setItems((current) => current ?? [])
+        }
       })
-      .finally(() => {
-        setLoading(false)
-      })
+    return () => {
+      active = false
+    }
   }, [open])
 
   const selectItem = useCallback(
     (item: SearchIndexItem) => {
       onClose()
       router.push(item.href)
+      // Already on that list: no remount and no hashchange, so ask the page
+      // to highlight the row itself.
+      if (pathOf(item.href) === pathname) {
+        requestHashHighlight(hashOf(item.href))
+      }
     },
-    [onClose, router]
+    [onClose, router, pathname]
   )
 
   useEffect(() => {

@@ -9,7 +9,7 @@ import {
 } from 'react'
 import type { CompletePrompt } from '@/app/components/CompleteRatingModal'
 import { useToast } from '@/app/components/Toast'
-import { noStoreFetch } from '@/lib/no-store-fetch'
+import { ApiError, apiErrorMessage, apiFetch } from '@/lib/api-fetch'
 import type { ShowFormValues, ShowStateSummary } from '@/lib/types'
 import { getWatchedEpisode, stepEpisode, usesMalProgress } from '@/lib/watching'
 
@@ -97,24 +97,17 @@ export function useEpisodeProgress({
     setEpisodeSaveStatus((current) => ({ ...current, [showId]: 'saving' }))
 
     try {
-      const response = await noStoreFetch('/api/mal/progress', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ malId, episodeNumber }),
-      })
-
-      const data = (await response.json()) as {
-        error?: string
-        watched?: number
-        malDown?: boolean
-      }
+      const data = await apiFetch<{ watched?: number; malDown?: boolean }>(
+        '/api/mal/progress',
+        {
+          method: 'PATCH',
+          json: { malId, episodeNumber },
+          errorMessage: 'Failed to update MAL progress',
+        }
+      )
 
       if (data.malDown) {
         setMalDown(true)
-      }
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to update MAL progress')
       }
 
       if (typeof data.watched === 'number') {
@@ -130,10 +123,15 @@ export function useEpisodeProgress({
       setEpisodeSaveStatus((current) => ({ ...current, [showId]: 'saved' }))
       toast.success('Episode updated.')
     } catch (error) {
+      // A failed update can still report MAL as down.
+      if (
+        error instanceof ApiError &&
+        (error.data as { malDown?: boolean } | null)?.malDown
+      ) {
+        setMalDown(true)
+      }
       setEpisodeSaveStatus((current) => ({ ...current, [showId]: 'error' }))
-      toast.error(
-        error instanceof Error ? error.message : 'Failed to update MAL progress'
-      )
+      toast.error(apiErrorMessage(error, 'Failed to update MAL progress'))
     }
   }
 
@@ -144,20 +142,11 @@ export function useEpisodeProgress({
     setEpisodeSaveStatus((current) => ({ ...current, [showId]: 'saving' }))
 
     try {
-      const response = await noStoreFetch('/api/state', {
+      const data = await apiFetch<{ show?: ShowStateSummary }>('/api/state', {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ showId, episodeNumber }),
+        json: { showId, episodeNumber },
+        errorMessage: 'Failed to update episode',
       })
-
-      const data = (await response.json()) as {
-        error?: string
-        show?: ShowStateSummary
-      }
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to update episode')
-      }
 
       if (data.show) {
         setShowStates((current) => ({
@@ -173,9 +162,7 @@ export function useEpisodeProgress({
       toast.success('Episode updated.')
     } catch (error) {
       setEpisodeSaveStatus((current) => ({ ...current, [showId]: 'error' }))
-      toast.error(
-        error instanceof Error ? error.message : 'Failed to update episode'
-      )
+      toast.error(apiErrorMessage(error, 'Failed to update episode'))
     }
   }
 
@@ -227,26 +214,15 @@ export function useEpisodeProgress({
     setCompletingShow(true)
 
     try {
-      const response = await noStoreFetch('/api/mal/complete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          malId: prompt.malId,
-          showId: prompt.showId,
-          score,
-        }),
-      })
-
-      const data = (await response.json()) as {
-        error?: string
+      const data = await apiFetch<{
         cleanupTriggered?: boolean
         showsVersion?: string | null
         showsVersionBefore?: string | null
-      }
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to mark show completed')
-      }
+      }>('/api/mal/complete', {
+        method: 'POST',
+        json: { malId: prompt.malId, showId: prompt.showId, score },
+        errorMessage: 'Failed to mark show completed',
+      })
 
       removeShow(prompt.showId, data)
       setCompletePrompt(null)
@@ -257,9 +233,7 @@ export function useEpisodeProgress({
           : 'Marked completed on MAL and removed from tracked shows.'
       )
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : 'Failed to mark show completed'
-      )
+      toast.error(apiErrorMessage(error, 'Failed to mark show completed'))
     } finally {
       setCompletingShow(false)
     }
@@ -287,22 +261,15 @@ export function useEpisodeProgress({
     setHoldingShowId(show.id)
 
     try {
-      const response = await noStoreFetch('/api/mal/on-hold', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ malId, showId: show.id }),
-      })
-
-      const data = (await response.json()) as {
-        error?: string
+      const data = await apiFetch<{
         cleanupTriggered?: boolean
         showsVersion?: string | null
         showsVersionBefore?: string | null
-      }
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to put show on hold')
-      }
+      }>('/api/mal/on-hold', {
+        method: 'POST',
+        json: { malId, showId: show.id },
+        errorMessage: 'Failed to put show on hold',
+      })
 
       removeShow(show.id, data)
 
@@ -312,9 +279,7 @@ export function useEpisodeProgress({
           : 'On hold on MAL and removed from tracked shows.'
       )
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : 'Failed to put show on hold'
-      )
+      toast.error(apiErrorMessage(error, 'Failed to put show on hold'))
     } finally {
       setHoldingShowId(null)
     }

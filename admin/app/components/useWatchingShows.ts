@@ -2,8 +2,17 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useToast } from '@/app/components/Toast'
-import { cacheKeys, readJsonCache, writeJsonCache } from '@/lib/client-cache'
-import { noStoreFetch } from '@/lib/no-store-fetch'
+import { ApiError, apiErrorMessage, apiFetch } from '@/lib/api-fetch'
+import {
+  cacheKeys,
+  readJsonCache,
+  replaceBootstrapShow,
+  updateJsonCache,
+  withoutBootstrapShow,
+  writeJsonCache,
+  type BootstrapCache,
+} from '@/lib/client-cache'
+import { searchIndex } from '@/lib/search-index-store'
 import { showToForm } from '@/lib/show-form'
 import type { Show } from '@shared/types'
 import type { ShowFormValues, ShowStateSummary } from '@/lib/types'
@@ -55,12 +64,11 @@ function withKnownWatched(
 
 async function fetchWatched(): Promise<WatchedResult> {
   try {
-    const response = await noStoreFetch('/api/mal/watched')
-    const data = (await response.json()) as {
+    const data = await apiFetch<{
       watchedByShowId?: Record<string, number | null>
       malDown?: boolean
-    }
-    return response.ok && data.watchedByShowId
+    }>('/api/mal/watched', { errorMessage: 'Failed to load MAL progress' })
+    return data.watchedByShowId
       ? {
           watchedByShowId: data.watchedByShowId,
           malDown: Boolean(data.malDown),
@@ -160,10 +168,7 @@ export function useWatchingShows(options: {
       return next
     })
 
-    const cached = readJsonCache<{
-      shows: Show[]
-      showStates: ShowStates
-    }>(cacheKeys.bootstrap)
+    const cached = readJsonCache<BootstrapCache>(cacheKeys.bootstrap)
     if (cached?.showStates) {
       for (const [showId, watched] of Object.entries(watchedByShowId)) {
         if (cached.showStates[showId]) {
@@ -176,11 +181,7 @@ export function useWatchingShows(options: {
 
   async function applyMalBackground() {
     try {
-      const syncResponse = await noStoreFetch('/api/shows/sync-mal', {
-        method: 'POST',
-      })
-      const syncData = (await syncResponse.json()) as {
-        error?: string
+      const syncData = await apiFetch<{
         shows?: Show[]
         changed?: boolean
         showsVersion?: string | null
@@ -190,9 +191,12 @@ export function useWatchingShows(options: {
         updatedTitles?: string[]
         updatedEpisodeCounts?: string[]
         updatedStartTimes?: string[]
-      }
+      }>('/api/shows/sync-mal', {
+        method: 'POST',
+        errorMessage: 'MAL sync failed',
+      })
 
-      if (syncResponse.ok && syncData.watchedByShowId) {
+      if (syncData.watchedByShowId) {
         applyWatched({
           watchedByShowId: syncData.watchedByShowId,
           malDown: Boolean(syncData.malDown),
@@ -201,7 +205,7 @@ export function useWatchingShows(options: {
         void fetchWatched().then(applyWatched)
       }
 
-      if (syncResponse.ok && syncData.changed && syncData.shows) {
+      if (syncData.changed && syncData.shows) {
         if (!savingRef.current && !hasUnsavedLocalEdits()) {
           setLoadedShows(syncData.shows.map(showToForm))
           showsVersionRef.current = syncData.showsVersion ?? null
@@ -223,15 +227,17 @@ export function useWatchingShows(options: {
         if (parts.length > 0) {
           toast.success(`Auto-${parts.join(' and ')}.`)
         }
-      } else if (!syncResponse.ok && syncData.error) {
-        console.warn('MAL sync skipped:', syncData.error)
       }
     } catch (error) {
       void fetchWatched().then(applyWatched)
-      console.warn(
-        'MAL background sync failed:',
-        error instanceof Error ? error.message : error
-      )
+      if (error instanceof ApiError && error.data !== null) {
+        console.warn('MAL sync skipped:', error.message)
+      } else {
+        console.warn(
+          'MAL background sync failed:',
+          error instanceof Error ? error.message : error
+        )
+      }
     }
   }
 
@@ -269,17 +275,11 @@ export function useWatchingShows(options: {
       // A MAL sync returns watched counts from its own per-show requests, so
       // loads that sync skip this lookup.
       const watchedPromise = syncMal ? null : fetchWatched()
-      const bootstrapResponse = await noStoreFetch('/api/bootstrap')
-      const bootstrapData = (await bootstrapResponse.json()) as {
-        error?: string
+      const bootstrapData = await apiFetch<{
         shows?: Show[]
         showsVersion?: string | null
         showStates?: ShowStates
-      }
-
-      if (!bootstrapResponse.ok) {
-        throw new Error(bootstrapData.error || 'Failed to load shows')
-      }
+      }>('/api/bootstrap', { errorMessage: 'Failed to load shows' })
 
       const loadedShows = (bootstrapData.shows ?? []).map(showToForm)
 
@@ -332,9 +332,7 @@ export function useWatchingShows(options: {
         return
       }
 
-      toast.error(
-        error instanceof Error ? error.message : 'Failed to load shows'
-      )
+      toast.error(apiErrorMessage(error, 'Failed to load shows'))
     } finally {
       loadInFlightRef.current = false
       if (!silent) {
@@ -344,10 +342,7 @@ export function useWatchingShows(options: {
   }
 
   useEffect(() => {
-    const cached = readJsonCache<{
-      shows: Show[]
-      showStates: ShowStates
-    }>(cacheKeys.bootstrap)
+    const cached = readJsonCache<BootstrapCache>(cacheKeys.bootstrap)
 
     if (cached?.shows?.length) {
       setLoadedShows(cached.shows.map(showToForm))
@@ -448,34 +443,40 @@ export function useWatchingShows(options: {
       delete next[showId]
       return next
     })
+    // Keep it out of the cached list too, or the next visit shows it again
+    // until the fetch lands.
+    updateJsonCache<BootstrapCache>(cacheKeys.bootstrap, (cached) =>
+      withoutBootstrapShow(cached, showId)
+    )
+    searchIndex.invalidate()
   }
 
   async function saveShows() {
     setSaving(true)
 
     try {
-      const response = await noStoreFetch('/api/shows', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          shows: showRowValues(rows),
-          version: showsVersionRef.current,
-        }),
-      })
-
-      const data = (await response.json()) as {
-        error?: string
+      // A 409 (shows.json changed elsewhere) throws here, keeping the edits.
+      const data = await apiFetch<{
         shows?: Show[]
         showsVersion?: string | null
         cleanupTriggered?: boolean
-      }
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to save shows')
-      }
+      }>('/api/shows', {
+        method: 'PUT',
+        json: {
+          shows: showRowValues(rows),
+          version: showsVersionRef.current,
+        },
+        errorMessage: 'Failed to save shows',
+      })
 
       setLoadedShows((data.shows ?? []).map(showToForm))
       showsVersionRef.current = data.showsVersion ?? null
+      // Shows removed (or added) by the save leave (or join) the cached list.
+      updateJsonCache<BootstrapCache>(cacheKeys.bootstrap, (cached) => ({
+        ...cached,
+        shows: data.shows ?? [],
+      }))
+      searchIndex.invalidate()
       if (data.cleanupTriggered) {
         toast.success(
           'Saved to GitHub. Calendar and Discord cleanup will run shortly.'
@@ -486,9 +487,7 @@ export function useWatchingShows(options: {
         )
       }
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : 'Failed to save shows'
-      )
+      toast.error(apiErrorMessage(error, 'Failed to save shows'))
     } finally {
       setSaving(false)
     }
@@ -509,22 +508,16 @@ export function useWatchingShows(options: {
     }
 
     try {
-      const response = await noStoreFetch('/api/shows/delay', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ showId: show.id }),
-      })
-      const data = (await response.json()) as {
-        error?: string
+      const data = await apiFetch<{
         workflowTriggered?: boolean
         show?: Show
         showsVersion?: string | null
         showsVersionBefore?: string | null
-      }
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to delay show')
-      }
+      }>('/api/shows/delay', {
+        method: 'POST',
+        json: { showId: show.id },
+        errorMessage: 'Failed to delay show',
+      })
 
       // Apply the server's copy of just this show: no refetch, and unsaved
       // edits on other shows stay on screen.
@@ -533,6 +526,10 @@ export function useWatchingShows(options: {
         setRows((current) => replaceShowInRows(current, delayed))
         setSavedRows((current) =>
           current ? replaceShowInRows(current, delayed) : current
+        )
+        const delayedShow = data.show
+        updateJsonCache<BootstrapCache>(cacheKeys.bootstrap, (cached) =>
+          replaceBootstrapShow(cached, delayedShow)
         )
       }
       // Same rule as removeShowFromLocal: only adopt the new version if
@@ -547,9 +544,7 @@ export function useWatchingShows(options: {
           : 'Delayed one week. Run Actions → Check with force to rebuild events.'
       )
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : 'Failed to delay show'
-      )
+      toast.error(apiErrorMessage(error, 'Failed to delay show'))
     }
   }
 

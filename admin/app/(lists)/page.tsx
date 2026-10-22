@@ -4,7 +4,6 @@ import { useRef } from 'react'
 import { CompleteRatingModal } from '@/app/components/CompleteRatingModal'
 import { ShowListSkeleton } from '@/app/components/ListSkeleton'
 import { ShowRow } from '@/app/components/ShowRow'
-import { TopHeader } from '@/app/components/TopHeader'
 import { useEpisodeProgress } from '@/app/components/useEpisodeProgress'
 import { useHashScrollHighlight } from '@/app/components/useHashScrollHighlight'
 import { useWatchingShows } from '@/app/components/useWatchingShows'
@@ -22,8 +21,6 @@ export default function AdminPage() {
 
   return (
     <>
-      <TopHeader />
-
       <main className="container">
         <div className="page-heading">
           <h1>Tracked shows</h1>
