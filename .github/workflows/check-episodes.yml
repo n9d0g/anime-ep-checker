@@ -33,10 +33,10 @@ jobs:
           # Branch tip, like the check job: state.json from the last cron push.
           ref: ${{ github.ref_name }}
           sparse-checkout: |
-            shows.json
-            state.json
-            src
-            shared
+            /shows.json
+            /state.json
+            /src/
+            /shared/
           sparse-checkout-cone-mode: false
 
       # The gate runs TypeScript via Node's type stripping; pin the same Node

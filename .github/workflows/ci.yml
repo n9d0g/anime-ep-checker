@@ -73,3 +73,7 @@ jobs:
 
       - name: Test
         run: pnpm test
+
+      # Catches broken @shared imports before the deploy workflow does.
+      - name: Build
+        run: pnpm build
