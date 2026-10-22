@@ -145,20 +145,22 @@ Do **not** connect this repo in the Cloudflare dashboard (Workers Builds). That 
 ```bash
 cd admin
 npx wrangler secret put ADMIN_PASSWORD --name anime-ep-checker-admin
+npx wrangler secret put ADMIN_SESSION_SECRET --name anime-ep-checker-admin
 npx wrangler secret put GITHUB_TOKEN --name anime-ep-checker-admin
 # …repeat for every key in .env.example
 ```
 
-| Variable            | Description                                     |
-| ------------------- | ----------------------------------------------- |
-| `ADMIN_PASSWORD`    | Password for the admin UI                       |
-| `GITHUB_TOKEN`      | PAT with `contents: write` on this repo         |
-| `GITHUB_REPO`       | `your-username/anime-ep-checker`                |
-| `GITHUB_BRANCH`     | `main` (optional)                               |
-| `MAL_CLIENT_ID`     | MAL API client ID                               |
-| `MAL_CLIENT_SECRET` | MAL API client secret                           |
-| `MAL_REDIRECT_URI`  | `https://anime-ep-checker.dev/api/mal/callback` |
-| `MAL_REFRESH_TOKEN` | From one-time OAuth at `/mal`                   |
+| Variable               | Description                                                                                            |
+| ---------------------- | ------------------------------------------------------------------------------------------------------ |
+| `ADMIN_PASSWORD`       | Password for the admin UI                                                                              |
+| `ADMIN_SESSION_SECRET` | Random string (e.g. `openssl rand -hex 32`) that signs the login cookie; changing it logs everyone out |
+| `GITHUB_TOKEN`         | PAT with `contents: write` on this repo                                                                |
+| `GITHUB_REPO`          | `your-username/anime-ep-checker`                                                                       |
+| `GITHUB_BRANCH`        | `main` (optional)                                                                                      |
+| `MAL_CLIENT_ID`        | MAL API client ID                                                                                      |
+| `MAL_CLIENT_SECRET`    | MAL API client secret                                                                                  |
+| `MAL_REDIRECT_URI`     | `https://anime-ep-checker.dev/api/mal/callback`                                                        |
+| `MAL_REFRESH_TOKEN`    | From one-time OAuth at `/mal`                                                                          |
 
 **After the first deploy:**
 

@@ -13,6 +13,7 @@ export default defineConfig({
       ASSETS: bindings.assets(),
       IMAGES: bindings.images(),
       ADMIN_PASSWORD: bindings.secret(),
+      ADMIN_SESSION_SECRET: bindings.secret(),
       GITHUB_TOKEN: bindings.secret(),
       GITHUB_REPO: bindings.secret(),
       GITHUB_BRANCH: bindings.secret(),

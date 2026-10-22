@@ -18,7 +18,7 @@ function isPublicPwaAsset(pathname: string): boolean {
   )
 }
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   if (
@@ -30,7 +30,7 @@ export function proxy(request: NextRequest) {
     return withRobotsTag(NextResponse.next())
   }
 
-  if (!isAuthorizedRequest(request)) {
+  if (!(await isAuthorizedRequest(request))) {
     if (pathname.startsWith('/api/')) {
       return withRobotsTag(
         NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
