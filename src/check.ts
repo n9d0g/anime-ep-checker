@@ -27,6 +27,7 @@ import {
   clearGoogleCalendarEventsForShow,
   getGoogleCalendarConfigFromEnv,
   syncGoogleCalendarEvents,
+  type GoogleCalendarConfig,
 } from './google-calendar.js'
 import { fetchMalAnimeDetails } from './mal.js'
 import { syncMalScoreAlerts } from './mal-score.js'
@@ -307,6 +308,9 @@ export interface CheckOptions {
   showsPath?: string
   statePath?: string
   discord?: DiscordConfig
+  calendar?: GoogleCalendarConfig
+  /** Provider lookup for Crunchyroll and Netflix shows. */
+  fetchEpisode?: (show: Show) => Promise<EpisodeSnapshot | null>
   dryRun?: boolean
   force?: boolean
 }
@@ -324,6 +328,7 @@ function hasBotConfig(discord: DiscordConfig): boolean {
 
 async function announceEpisode({
   discord,
+  calendarConfig,
   dryRun,
   show,
   showId,
@@ -334,6 +339,7 @@ async function announceEpisode({
   noteStateChange,
 }: {
   discord: DiscordConfig
+  calendarConfig: GoogleCalendarConfig
   dryRun: boolean
   show: Show
   showId: string
@@ -380,18 +386,27 @@ async function announceEpisode({
       })
       console.log('  Discord alert sent')
 
-      const calendarConfig = getGoogleCalendarConfigFromEnv()
-      const calendarCleared = await clearGoogleCalendarEventForEpisode(
-        calendarConfig,
-        showId,
-        episodeNumber,
-        state
-      )
-      if (calendarCleared) {
-        noteStateChange(
-          `Google Calendar event cleared for ${show.title || showId} ep ${episodeNumber}`
+      // The alert is already out, so a Calendar failure must not fail the show
+      // (that would skip saving state and re-send the alert next run).
+      try {
+        const calendarCleared = await clearGoogleCalendarEventForEpisode(
+          calendarConfig,
+          showId,
+          episodeNumber,
+          state
         )
-        console.log('  Google Calendar event cleared')
+        if (calendarCleared) {
+          noteStateChange(
+            `Google Calendar event cleared for ${show.title || showId} ep ${episodeNumber}`
+          )
+          console.log('  Google Calendar event cleared')
+        }
+      } catch (error) {
+        console.warn(
+          `  Google Calendar clear failed: ${
+            error instanceof Error ? error.message : error
+          }`
+        )
       }
     } else {
       console.log('  Discord not configured; skipping alert')
@@ -443,9 +458,16 @@ export async function checkShows({
   showsPath = SHOWS_PATH,
   statePath = STATE_PATH,
   discord = getDiscordConfigFromEnv(),
+  calendar: calendarConfig = getGoogleCalendarConfigFromEnv(),
+  fetchEpisode = fetchLatestEpisode,
   dryRun = false,
   force = false,
-}: CheckOptions = {}): Promise<{ stateChanged: boolean; state: StateFile }> {
+}: CheckOptions = {}): Promise<{
+  stateChanged: boolean
+  state: StateFile
+  /** IDs of shows whose check threw; the rest of the run still completed. */
+  failedShows: string[]
+}> {
   const showsFile = await readJson<ShowsFile>(showsPath, { shows: [] })
   const state = await readJson<StateFile>(statePath, { shows: {} })
   const shows = (showsFile.shows ?? []).map(normalizeShowProvider)
@@ -454,13 +476,12 @@ export async function checkShows({
   const stateChangeReasons: string[] = []
   let skipNetflixShows = false
   let disneyAuthFailed = false
+  const failedShows: string[] = []
 
   const noteStateChange = (reason: string) => {
     stateChangeReasons.push(reason)
     stateChanged = true
   }
-
-  const calendarConfig = getGoogleCalendarConfigFromEnv()
 
   if (hasOrphanedShows(shows, state)) {
     for (const showId of Object.keys(state.shows)) {
@@ -495,293 +516,310 @@ export async function checkShows({
   }
 
   for (const show of shows) {
-    const showId = show.id
-    const providerId = resolveProviderId(show)
-    const previousState = getShowState(state, showId)
-    const lastEpisodeNumber = previousState
-      ? parseEpisodeNumber(previousState.lastEpisodeNumber)
-      : null
-    const nextExpectedEp = getNextExpectedEpisode(
-      show.schedule,
-      lastEpisodeNumber
-    )
-
-    console.log(
-      `Checking ${show.title || showId} (${providerLabel(show.provider)} ${providerId})...`
-    )
-
-    if (show.provider === 'netflix' && skipNetflixShows) {
-      console.log(
-        '  Skipping Netflix show (cookie auth failed earlier this run)'
-      )
-      continue
-    }
-
-    if (show.provider === 'disney' && disneyAuthFailed) {
-      console.log(
-        '  Disney+ API unavailable; trying AniList fallback for this show'
-      )
-    }
-
-    if (nextExpectedEp === null) {
-      console.log('  No more scheduled episodes for this show')
-      continue
-    }
-
-    const expectedAt = getExpectedDropAt(show.schedule, nextExpectedEp)
-    if (!expectedAt) {
-      console.log(
-        `  Could not compute expected drop for episode ${nextExpectedEp}`
-      )
-      continue
-    }
-
-    if (!force && !isInCheckWindow(expectedAt, now)) {
-      console.log(
-        `  Outside check window for ep ${nextExpectedEp} (expected ${expectedAt.toISOString()})`
-      )
-      continue
-    }
-
-    if (!force) {
-      const windowMode = getCheckWindowMode(expectedAt, now)
-      if (windowMode) {
-        console.log(`  Check window: ${windowMode}`)
-      }
-    }
-
-    let latestSnapshot: EpisodeSnapshot | null
-    let disneyApiSucceeded = false
-
     try {
-      if (show.provider === 'disney') {
-        const disneyResult = await fetchDisneyEpisode(
-          show,
-          providerId,
-          expectedAt,
-          now,
-          disneyAuthFailed
+      const showId = show.id
+      const providerId = resolveProviderId(show)
+      const previousState = getShowState(state, showId)
+      const lastEpisodeNumber = previousState
+        ? parseEpisodeNumber(previousState.lastEpisodeNumber)
+        : null
+      const nextExpectedEp = getNextExpectedEpisode(
+        show.schedule,
+        lastEpisodeNumber
+      )
+
+      console.log(
+        `Checking ${show.title || showId} (${providerLabel(show.provider)} ${providerId})...`
+      )
+
+      if (show.provider === 'netflix' && skipNetflixShows) {
+        console.log(
+          '  Skipping Netflix show (cookie auth failed earlier this run)'
         )
-        latestSnapshot = disneyResult.snapshot
-        disneyApiSucceeded = disneyResult.apiSucceeded
-
-        if (disneyResult.authFailed) {
-          if (!disneyAuthFailed) {
-            disneyAuthFailed = true
-            await notifyDisneyAuthFailure(
-              discord,
-              dryRun,
-              state,
-              now,
-              noteStateChange
-            )
-          }
-
-          if (!latestSnapshot) {
-            console.log(
-              '  Disney+ and AniList fallback found no aired episode yet'
-            )
-            continue
-          }
-        } else if (!latestSnapshot) {
-          console.log('  No available episodes found from Disney+ or AniList')
-          continue
-        }
-      } else {
-        latestSnapshot = await fetchLatestEpisode(show)
-      }
-    } catch (error) {
-      if (error instanceof NetflixAuthError) {
-        console.error(`  Netflix auth failed: ${error.message}`)
-        skipNetflixShows = true
-
-        if (!state.meta?.netflixCookieAlertSentAt) {
-          if (!dryRun && hasBotConfig(discord)) {
-            await sendNetflixCookieAlert(discord)
-            console.log('  Netflix cookie refresh alert sent via Discord bot')
-          } else if (!dryRun) {
-            console.log(
-              '  Discord bot not configured; skipping Netflix cookie refresh alert'
-            )
-          }
-
-          state.meta = {
-            ...state.meta,
-            netflixCookieAlertSentAt: now.toISOString(),
-          }
-          noteStateChange('Netflix cookie alert flag set')
-        } else {
-          console.log('  Netflix cookie refresh alert already sent; skipping')
-        }
-
         continue
       }
 
-      throw error
-    }
-
-    if (show.provider === 'netflix' && state.meta?.netflixCookieAlertSentAt) {
-      state.meta = {
-        ...state.meta,
-        netflixCookieAlertSentAt: null,
+      if (show.provider === 'disney' && disneyAuthFailed) {
+        console.log(
+          '  Disney+ API unavailable; trying AniList fallback for this show'
+        )
       }
-      noteStateChange(
-        `cleared Netflix auth alert flag for ${show.title || showId}`
-      )
-    }
 
-    if (
-      show.provider === 'disney' &&
-      disneyApiSucceeded &&
-      state.meta?.disneyCookieAlertSentAt
-    ) {
-      state.meta = {
-        ...state.meta,
-        disneyCookieAlertSentAt: null,
+      if (nextExpectedEp === null) {
+        console.log('  No more scheduled episodes for this show')
+        continue
       }
-      noteStateChange(
-        `cleared Disney auth alert flag for ${show.title || showId}`
-      )
-    }
 
-    if (!latestSnapshot) {
-      console.log(`  No available episodes found for ${showId}`)
-      continue
-    }
+      const expectedAt = getExpectedDropAt(show.schedule, nextExpectedEp)
+      if (!expectedAt) {
+        console.log(
+          `  Could not compute expected drop for episode ${nextExpectedEp}`
+        )
+        continue
+      }
 
-    const relativeResult = toRelativeEpisodeResult(
-      show,
-      previousState,
-      latestSnapshot
-    )
-    let episodeOffsetToSave: number | undefined
+      if (!force && !isInCheckWindow(expectedAt, now)) {
+        console.log(
+          `  Outside check window for ep ${nextExpectedEp} (expected ${expectedAt.toISOString()})`
+        )
+        continue
+      }
 
-    if (relativeResult.kind === 'previous_season') {
-      if (!previousState) {
-        if (!dryRun) {
-          state.shows[showId] = createPreviousSeasonBaseline(show)
+      if (!force) {
+        const windowMode = getCheckWindowMode(expectedAt, now)
+        if (windowMode) {
+          console.log(`  Check window: ${windowMode}`)
         }
-        noteStateChange(`previous season baseline ${show.title || showId}`)
-        console.log('  Baseline: previous season only')
-      } else {
-        console.log('  Still waiting (previous season on provider)')
       }
-      continue
-    }
 
-    latestSnapshot = relativeResult.snapshot
-    if (previousState?.episodeOffset == null) {
-      episodeOffsetToSave = relativeResult.episodeOffset
-    }
+      let latestSnapshot: EpisodeSnapshot | null
+      let disneyApiSucceeded = false
 
-    if (!previousState) {
+      try {
+        if (show.provider === 'disney') {
+          const disneyResult = await fetchDisneyEpisode(
+            show,
+            providerId,
+            expectedAt,
+            now,
+            disneyAuthFailed
+          )
+          latestSnapshot = disneyResult.snapshot
+          disneyApiSucceeded = disneyResult.apiSucceeded
+
+          if (disneyResult.authFailed) {
+            if (!disneyAuthFailed) {
+              disneyAuthFailed = true
+              await notifyDisneyAuthFailure(
+                discord,
+                dryRun,
+                state,
+                now,
+                noteStateChange
+              )
+            }
+
+            if (!latestSnapshot) {
+              console.log(
+                '  Disney+ and AniList fallback found no aired episode yet'
+              )
+              continue
+            }
+          } else if (!latestSnapshot) {
+            console.log('  No available episodes found from Disney+ or AniList')
+            continue
+          }
+        } else {
+          latestSnapshot = await fetchEpisode(show)
+        }
+      } catch (error) {
+        if (error instanceof NetflixAuthError) {
+          console.error(`  Netflix auth failed: ${error.message}`)
+          skipNetflixShows = true
+
+          if (!state.meta?.netflixCookieAlertSentAt) {
+            if (!dryRun && hasBotConfig(discord)) {
+              await sendNetflixCookieAlert(discord)
+              console.log('  Netflix cookie refresh alert sent via Discord bot')
+            } else if (!dryRun) {
+              console.log(
+                '  Discord bot not configured; skipping Netflix cookie refresh alert'
+              )
+            }
+
+            state.meta = {
+              ...state.meta,
+              netflixCookieAlertSentAt: now.toISOString(),
+            }
+            noteStateChange('Netflix cookie alert flag set')
+          } else {
+            console.log('  Netflix cookie refresh alert already sent; skipping')
+          }
+
+          continue
+        }
+
+        throw error
+      }
+
+      if (show.provider === 'netflix' && state.meta?.netflixCookieAlertSentAt) {
+        state.meta = {
+          ...state.meta,
+          netflixCookieAlertSentAt: null,
+        }
+        noteStateChange(
+          `cleared Netflix auth alert flag for ${show.title || showId}`
+        )
+      }
+
+      if (
+        show.provider === 'disney' &&
+        disneyApiSucceeded &&
+        state.meta?.disneyCookieAlertSentAt
+      ) {
+        state.meta = {
+          ...state.meta,
+          disneyCookieAlertSentAt: null,
+        }
+        noteStateChange(
+          `cleared Disney auth alert flag for ${show.title || showId}`
+        )
+      }
+
+      if (!latestSnapshot) {
+        console.log(`  No available episodes found for ${showId}`)
+        continue
+      }
+
+      const relativeResult = toRelativeEpisodeResult(
+        show,
+        previousState,
+        latestSnapshot
+      )
+      let episodeOffsetToSave: number | undefined
+
+      if (relativeResult.kind === 'previous_season') {
+        if (!previousState) {
+          if (!dryRun) {
+            state.shows[showId] = createPreviousSeasonBaseline(show)
+          }
+          noteStateChange(`previous season baseline ${show.title || showId}`)
+          console.log('  Baseline: previous season only')
+        } else {
+          console.log('  Still waiting (previous season on provider)')
+        }
+        continue
+      }
+
+      latestSnapshot = relativeResult.snapshot
+      if (previousState?.episodeOffset == null) {
+        episodeOffsetToSave = relativeResult.episodeOffset
+      }
+
+      if (!previousState) {
+        const latestEpisodeNumber = parseEpisodeNumber(
+          String(latestSnapshot.episode.episode ?? '')
+        )
+
+        if (latestEpisodeNumber >= nextExpectedEp) {
+          const alertExpectedAt =
+            getExpectedDropAt(show.schedule, latestEpisodeNumber) ?? expectedAt
+
+          await announceEpisode({
+            discord,
+            calendarConfig,
+            dryRun,
+            show,
+            showId,
+            latestSnapshot,
+            episodeNumber: latestEpisodeNumber,
+            expectedDropAt: alertExpectedAt.toISOString(),
+            state,
+            noteStateChange,
+          })
+
+          state.shows[showId] = createUpdatedState(
+            latestSnapshot,
+            latestEpisodeNumber,
+            {
+              episodeOffset: episodeOffsetToSave,
+              previousState,
+            }
+          )
+          noteStateChange(
+            `catch-up episode alert ${show.title || showId} ep ${latestEpisodeNumber}`
+          )
+          continue
+        }
+
+        state.shows[showId] = createBaselineState(latestSnapshot, {
+          episodeOffset: episodeOffsetToSave,
+        })
+        noteStateChange(
+          `baseline ${show.title || showId} ep ${latestSnapshot.episode.episode}`
+        )
+        console.log(
+          `  Baseline set to episode ${latestSnapshot.episode.episode} (${latestSnapshot.episode.id})`
+        )
+        continue
+      }
+
       const latestEpisodeNumber = parseEpisodeNumber(
         String(latestSnapshot.episode.episode ?? '')
       )
+      const expectedDropAt = expectedAt.toISOString()
 
       if (latestEpisodeNumber >= nextExpectedEp) {
-        const alertExpectedAt =
-          getExpectedDropAt(show.schedule, latestEpisodeNumber) ?? expectedAt
-
         await announceEpisode({
           discord,
+          calendarConfig,
           dryRun,
           show,
           showId,
           latestSnapshot,
-          episodeNumber: latestEpisodeNumber,
-          expectedDropAt: alertExpectedAt.toISOString(),
+          episodeNumber: nextExpectedEp,
+          expectedDropAt,
           state,
           noteStateChange,
         })
 
         state.shows[showId] = createUpdatedState(
           latestSnapshot,
-          latestEpisodeNumber,
+          nextExpectedEp,
           {
             episodeOffset: episodeOffsetToSave,
             previousState,
           }
         )
         noteStateChange(
-          `catch-up episode alert ${show.title || showId} ep ${latestEpisodeNumber}`
+          `episode alert ${show.title || showId} ep ${nextExpectedEp}`
         )
         continue
       }
 
-      state.shows[showId] = createBaselineState(latestSnapshot, {
-        episodeOffset: episodeOffsetToSave,
-      })
-      noteStateChange(
-        `baseline ${show.title || showId} ep ${latestSnapshot.episode.episode}`
-      )
-      console.log(
-        `  Baseline set to episode ${latestSnapshot.episode.episode} (${latestSnapshot.episode.id})`
-      )
-      continue
-    }
+      if (
+        isPastWaitingGrace(expectedAt, now) &&
+        previousState.waitingNotifiedForEpisode !== nextExpectedEp
+      ) {
+        console.log(
+          `  Episode ${nextExpectedEp} is late; sending waiting alert`
+        )
 
-    const latestEpisodeNumber = parseEpisodeNumber(
-      String(latestSnapshot.episode.episode ?? '')
-    )
-    const expectedDropAt = expectedAt.toISOString()
-
-    if (latestEpisodeNumber >= nextExpectedEp) {
-      await announceEpisode({
-        discord,
-        dryRun,
-        show,
-        showId,
-        latestSnapshot,
-        episodeNumber: nextExpectedEp,
-        expectedDropAt,
-        state,
-        noteStateChange,
-      })
-
-      state.shows[showId] = createUpdatedState(latestSnapshot, nextExpectedEp, {
-        episodeOffset: episodeOffsetToSave,
-        previousState,
-      })
-      noteStateChange(
-        `episode alert ${show.title || showId} ep ${nextExpectedEp}`
-      )
-      continue
-    }
-
-    if (
-      isPastWaitingGrace(expectedAt, now) &&
-      previousState.waitingNotifiedForEpisode !== nextExpectedEp
-    ) {
-      console.log(`  Episode ${nextExpectedEp} is late; sending waiting alert`)
-
-      if (!dryRun) {
-        if (hasDiscordConfig(discord)) {
-          await sendWaitingAlert({
-            discord,
-            show,
-            episodeNumber: nextExpectedEp,
-            expectedDropAt,
-          })
-          console.log('  Discord waiting alert sent')
-        } else {
-          console.log('  Discord not configured; skipping waiting alert')
+        if (!dryRun) {
+          if (hasDiscordConfig(discord)) {
+            await sendWaitingAlert({
+              discord,
+              show,
+              episodeNumber: nextExpectedEp,
+              expectedDropAt,
+            })
+            console.log('  Discord waiting alert sent')
+          } else {
+            console.log('  Discord not configured; skipping waiting alert')
+          }
         }
+
+        state.shows[showId] = {
+          ...previousState,
+          waitingNotifiedForEpisode: nextExpectedEp,
+        }
+        noteStateChange(
+          `waiting alert ${show.title || showId} ep ${nextExpectedEp}`
+        )
+        continue
       }
 
-      state.shows[showId] = {
-        ...previousState,
-        waitingNotifiedForEpisode: nextExpectedEp,
-      }
-      noteStateChange(
-        `waiting alert ${show.title || showId} ep ${nextExpectedEp}`
+      console.log(
+        `  Still waiting for episode ${nextExpectedEp} (latest on ${providerLabel(show.provider)}: ${latestEpisodeNumber})`
       )
-      continue
+    } catch (error) {
+      failedShows.push(show.id)
+      console.error(
+        `  Check failed for ${show.title || show.id}: ${
+          error instanceof Error ? error.message : error
+        }`
+      )
     }
-
-    console.log(
-      `  Still waiting for episode ${nextExpectedEp} (latest on ${providerLabel(show.provider)}: ${latestEpisodeNumber})`
-    )
   }
 
   try {
@@ -916,7 +954,7 @@ export async function checkShows({
 
     try {
       const calendarChanged = await syncGoogleCalendarEvents({
-        config: getGoogleCalendarConfigFromEnv(),
+        config: calendarConfig,
         shows,
         state,
         now,
@@ -940,7 +978,7 @@ export async function checkShows({
     writeStateCommitMessage(stateChangeReasons)
   }
 
-  return { stateChanged, state }
+  return { stateChanged, state, failedShows }
 }
 
 const isMain =
@@ -952,7 +990,11 @@ if (isMain) {
   const force = process.argv.includes('--force')
 
   checkShows({ dryRun, force })
-    .then(({ stateChanged }) => {
+    .then(({ stateChanged, failedShows }) => {
+      if (failedShows.length > 0) {
+        console.error(`Checks failed for: ${failedShows.join(', ')}`)
+        process.exitCode = 1
+      }
       if (dryRun) {
         console.log(
           stateChanged

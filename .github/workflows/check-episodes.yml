@@ -127,6 +127,9 @@ jobs:
           echo "Updated DISNEY_REFRESH_TOKEN secret."
 
       - name: Commit state updates
+        # Runs when the check step fails too: a failed show exits non-zero
+        # after state is saved, and dropping that state would re-send alerts.
+        if: ${{ !cancelled() }}
         run: |
           if git diff --quiet state.json; then
             echo "No state changes to commit."
