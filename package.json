@@ -9,6 +9,7 @@
     "format": "oxfmt",
     "format:check": "oxfmt --check",
     "lint": "eslint .",
+    "merge-state": "tsx src/state-merge.ts",
     "test": "node --import tsx --test 'src/**/*.test.ts'",
     "typecheck": "tsc --noEmit"
   },

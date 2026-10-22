@@ -68,6 +68,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          # Start from the branch tip, not the triggering commit: queued runs
+          # would otherwise merge against a base older than the last cron push.
+          ref: ${{ github.ref_name }}
 
       - name: Install pnpm
         uses: pnpm/action-setup@v6
@@ -143,8 +147,18 @@ jobs:
 
           BRANCH="${GITHUB_REF_NAME}"
 
+          # 3-way merge against the latest remote so admin edits made during
+          # the run survive; the admin wins same-field conflicts (ADR 0001).
+          BASE_STATE="${RUNNER_TEMP}/state.base.json"
+          OURS_STATE="${RUNNER_TEMP}/state.ours.json"
+          THEIRS_STATE="${RUNNER_TEMP}/state.theirs.json"
+          git show HEAD:state.json > "$BASE_STATE"
+          cp state.json "$OURS_STATE"
+
           for attempt in 1 2 3; do
             git fetch --depth=1 origin "$BRANCH"
+            git show "origin/$BRANCH:state.json" > "$THEIRS_STATE"
+            pnpm --silent merge-state "$BASE_STATE" "$OURS_STATE" "$THEIRS_STATE" state.json
             git reset --soft "origin/$BRANCH"
             git add state.json
 
