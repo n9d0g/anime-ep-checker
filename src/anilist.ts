@@ -37,7 +37,7 @@ interface AnilistMediaResponse {
   errors?: Array<{ message?: string }>
 }
 
-export interface AnilistLatestAiredEpisode {
+interface AnilistLatestAiredEpisode {
   episodeNumber: number
   seriesTitle: string
 }

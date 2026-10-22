@@ -1,9 +1,13 @@
 import { formatTimingLabel } from './compare.ts'
 import { createBotMessage } from './discord-api.ts'
 import {
+  discordFooter,
+  discordLinkButton,
+  discordLinkButtonRow,
   discordRelativeTimestamp,
   discordTimestamp,
   formatMalScoreLabel,
+  type DiscordActionRow,
 } from './discord-format.ts'
 import type {
   MalAnimeDetails,
@@ -64,7 +68,7 @@ interface RelatedAnimeAlertInput {
   summary?: MalAnimeSummary | null
 }
 
-export interface RedditPostAlertPost {
+interface RedditPostAlertPost {
   title: string
   href: string
   subreddit: string | null
@@ -95,11 +99,86 @@ function formatBroadcastLabel(
   return day ?? time
 }
 
-function hasBotConfig(discord: DiscordConfig): boolean {
+const NOT_CONFIGURED_MESSAGE =
+  'Discord not configured. Set DISCORD_BOT_TOKEN + DISCORD_CHANNEL_ID (preferred) or DISCORD_WEBHOOK_URL.'
+
+type DiscordPayload = Record<string, unknown>
+
+/** True when a bot token and channel are set (bot delivery is preferred). */
+export function hasDiscordBotConfig(
+  discord: Pick<DiscordConfig, 'botToken' | 'channelId'>
+): boolean {
   return Boolean(discord.botToken?.trim() && discord.channelId?.trim())
 }
 
-function buildEpisodeWebhookEmbed({
+/** True when alerts can go out through either the bot or the webhook. */
+export function hasDiscordConfig(discord: DiscordConfig): boolean {
+  return hasDiscordBotConfig(discord) || Boolean(discord.webhookUrl?.trim())
+}
+
+function malAnimeUrl(malId: number | undefined): string {
+  return `https://myanimelist.net/anime/${malId}`
+}
+
+async function postWebhook(
+  webhookUrl: string,
+  payload: DiscordPayload
+): Promise<void> {
+  const response = await fetch(webhookUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+
+  if (!response.ok) {
+    const body = await response.text()
+    throw new Error(`Discord webhook failed (${response.status}): ${body}`)
+  }
+}
+
+/**
+ * Sends one message through the bot when configured, else the webhook.
+ * Link buttons only work for bot messages, so `components` is added to the
+ * bot payload alone; `webhookPayload` replaces the payload for webhooks.
+ * `botOnly` names the alert for an error when no bot is configured.
+ */
+async function deliverDiscordMessage(
+  discord: DiscordConfig,
+  payload: DiscordPayload,
+  {
+    components,
+    webhookPayload,
+    botOnly,
+  }: {
+    components?: DiscordActionRow[]
+    webhookPayload?: DiscordPayload
+    botOnly?: string
+  } = {}
+): Promise<void> {
+  if (hasDiscordBotConfig(discord)) {
+    await createBotMessage(
+      discord.botToken!,
+      discord.channelId!,
+      components ? { ...payload, components } : payload
+    )
+    return
+  }
+
+  if (botOnly) {
+    throw new Error(
+      `${botOnly} requires DISCORD_BOT_TOKEN + DISCORD_CHANNEL_ID.`
+    )
+  }
+
+  if (discord.webhookUrl?.trim()) {
+    await postWebhook(discord.webhookUrl, webhookPayload ?? payload)
+    return
+  }
+
+  throw new Error(NOT_CONFIGURED_MESSAGE)
+}
+
+function buildEpisodeEmbed({
   show,
   latestSnapshot,
   episodeNumber,
@@ -159,75 +238,28 @@ function buildEpisodeWebhookEmbed({
     thumbnail: malDetails?.coverUrl ? { url: malDetails.coverUrl } : undefined,
     fields,
     timestamp: actualDropAt ?? new Date().toISOString(),
-    footer: {
-      text: 'Anime Episode Checker',
-    },
+    footer: discordFooter(),
   }
 }
 
-function buildEpisodeLinkButtons({
+function buildEpisodeLinks({
   show,
   latestSnapshot,
   discussionUrl,
 }: Pick<EpisodeAlertInput, 'show' | 'latestSnapshot' | 'discussionUrl'>) {
-  const buttons: Array<Record<string, unknown>> = []
+  const links: Array<{ label: string; url: string }> = []
 
   if (latestSnapshot.watchUrl) {
-    buttons.push({
-      type: 2,
-      style: 5,
-      label: 'Watch',
-      url: latestSnapshot.watchUrl,
-    })
+    links.push({ label: 'Watch', url: latestSnapshot.watchUrl })
   }
-
   if (discussionUrl) {
-    buttons.push({
-      type: 2,
-      style: 5,
-      label: 'r/anime',
-      url: discussionUrl,
-    })
+    links.push({ label: 'r/anime', url: discussionUrl })
   }
-
   if (show.malId) {
-    buttons.push({
-      type: 2,
-      style: 5,
-      label: 'MAL',
-      url: `https://myanimelist.net/anime/${show.malId}`,
-    })
+    links.push({ label: 'MAL', url: malAnimeUrl(show.malId) })
   }
 
-  if (buttons.length === 0) {
-    return undefined
-  }
-
-  return [{ type: 1, components: buttons }]
-}
-
-async function postBotMessage(
-  botToken: string,
-  channelId: string,
-  payload: Record<string, unknown>
-): Promise<void> {
-  await createBotMessage(botToken, channelId, payload)
-}
-
-async function postWebhook(
-  webhookUrl: string,
-  payload: Record<string, unknown>
-): Promise<void> {
-  const response = await fetch(webhookUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  })
-
-  if (!response.ok) {
-    const body = await response.text()
-    throw new Error(`Discord webhook failed (${response.status}): ${body}`)
-  }
+  return links
 }
 
 export async function sendMalScoreAlert({
@@ -249,7 +281,7 @@ export async function sendMalScoreAlert({
     title: isPickup
       ? `${showTitle} — MAL score pickup`
       : `${showTitle} — MAL score drop`,
-    url: watchUrl || `https://myanimelist.net/anime/${show.malId}`,
+    url: watchUrl || malAnimeUrl(show.malId),
     description: note?.trim() || undefined,
     color: isPickup ? 0x2ecc71 : 0xe74c3c,
     thumbnail: coverUrl ? { url: coverUrl } : undefined,
@@ -261,29 +293,17 @@ export async function sendMalScoreAlert({
       },
       {
         name: 'MAL',
-        value: `[View on MAL](https://myanimelist.net/anime/${show.malId})`,
+        value: `[View on MAL](${malAnimeUrl(show.malId)})`,
         inline: true,
       },
     ],
     timestamp: new Date().toISOString(),
-    footer: { text: 'Anime Episode Checker' },
+    footer: discordFooter(),
   }
 
   const payload = { embeds: [embed] }
 
-  if (hasBotConfig(discord)) {
-    await postBotMessage(discord.botToken!, discord.channelId!, payload)
-    return
-  }
-
-  if (discord.webhookUrl) {
-    await postWebhook(discord.webhookUrl, payload)
-    return
-  }
-
-  throw new Error(
-    'Discord not configured. Set DISCORD_BOT_TOKEN + DISCORD_CHANNEL_ID (preferred) or DISCORD_WEBHOOK_URL.'
-  )
+  await deliverDiscordMessage(discord, payload)
 }
 
 export async function sendRedditPostAlert({
@@ -298,42 +318,19 @@ export async function sendRedditPostAlert({
     description: `New post by u/${username} in ${subLabel}`,
     color: 0xff4500,
     timestamp: new Date().toISOString(),
-    footer: { text: 'Anime Episode Checker' },
+    footer: discordFooter(),
   }
 
-  const components = [
-    {
-      type: 1,
-      components: [
-        {
-          type: 2,
-          style: 5,
-          label: 'Reddit',
-          url: post.href,
-        },
-      ],
-    },
-  ]
+  const components = discordLinkButtonRow([
+    discordLinkButton('Reddit', post.href),
+  ])
 
-  const payload: Record<string, unknown> = {
+  const payload = {
     content: `**${post.title}** — new post by u/${username}`,
     embeds: [embed],
   }
 
-  if (hasBotConfig(discord)) {
-    payload.components = components
-    await postBotMessage(discord.botToken!, discord.channelId!, payload)
-    return
-  }
-
-  if (discord.webhookUrl) {
-    await postWebhook(discord.webhookUrl, payload)
-    return
-  }
-
-  throw new Error(
-    'Discord not configured. Set DISCORD_BOT_TOKEN + DISCORD_CHANNEL_ID (preferred) or DISCORD_WEBHOOK_URL.'
-  )
+  await deliverDiscordMessage(discord, payload, { components })
 }
 
 export async function sendPlanToWatchAlert({
@@ -341,7 +338,7 @@ export async function sendPlanToWatchAlert({
   entry,
   reason,
 }: PlanToWatchAlertInput): Promise<void> {
-  const malUrl = `https://myanimelist.net/anime/${entry.malId}`
+  const malUrl = malAnimeUrl(entry.malId)
   const isAiring = reason === 'airing'
   const broadcastLabel = formatBroadcastLabel(entry.broadcast)
   const fields: Array<{ name: string; value: string; inline?: boolean }> = []
@@ -382,42 +379,17 @@ export async function sendPlanToWatchAlert({
     thumbnail: entry.coverUrl ? { url: entry.coverUrl } : undefined,
     fields,
     timestamp: new Date().toISOString(),
-    footer: { text: 'Anime Episode Checker' },
+    footer: discordFooter(),
   }
 
-  const components = [
-    {
-      type: 1,
-      components: [
-        {
-          type: 2,
-          style: 5,
-          label: 'MAL',
-          url: malUrl,
-        },
-      ],
-    },
-  ]
+  const components = discordLinkButtonRow([discordLinkButton('MAL', malUrl)])
 
-  const payload: Record<string, unknown> = {
+  const payload = {
     content: `**${entry.title}** — plan to watch ${isAiring ? 'now airing' : 'starting soon'}`,
     embeds: [embed],
   }
 
-  if (hasBotConfig(discord)) {
-    payload.components = components
-    await postBotMessage(discord.botToken!, discord.channelId!, payload)
-    return
-  }
-
-  if (discord.webhookUrl) {
-    await postWebhook(discord.webhookUrl, payload)
-    return
-  }
-
-  throw new Error(
-    'Discord not configured. Set DISCORD_BOT_TOKEN + DISCORD_CHANNEL_ID (preferred) or DISCORD_WEBHOOK_URL.'
-  )
+  await deliverDiscordMessage(discord, payload, { components })
 }
 
 function formatMalEnum(value: string): string {
@@ -434,7 +406,7 @@ export async function sendRelatedAnimeAlert({
   related,
   summary,
 }: RelatedAnimeAlertInput): Promise<void> {
-  const malUrl = `https://myanimelist.net/anime/${related.malId}`
+  const malUrl = malAnimeUrl(related.malId)
   const relation = related.relationTypeFormatted
   const fields: Array<{ name: string; value: string; inline?: boolean }> = [
     { name: 'Relation', value: relation, inline: true },
@@ -472,40 +444,22 @@ export async function sendRelatedAnimeAlert({
   const embed = {
     title: related.title,
     url: malUrl,
-    description: `New ${relation.toLowerCase()} of [${source.title}](https://myanimelist.net/anime/${source.malId}) added on MAL.`,
+    description: `New ${relation.toLowerCase()} of [${source.title}](${malAnimeUrl(source.malId)}) added on MAL.`,
     color: 0xe67e22,
     thumbnail: coverUrl ? { url: coverUrl } : undefined,
     fields,
     timestamp: new Date().toISOString(),
-    footer: { text: 'Anime Episode Checker' },
+    footer: discordFooter(),
   }
 
-  const components = [
-    {
-      type: 1,
-      components: [{ type: 2, style: 5, label: 'MAL', url: malUrl }],
-    },
-  ]
+  const components = discordLinkButtonRow([discordLinkButton('MAL', malUrl)])
 
-  const payload: Record<string, unknown> = {
+  const payload = {
     content: `**${related.title}** — new ${relation.toLowerCase()} of ${source.title}`,
     embeds: [embed],
   }
 
-  if (hasBotConfig(discord)) {
-    payload.components = components
-    await postBotMessage(discord.botToken!, discord.channelId!, payload)
-    return
-  }
-
-  if (discord.webhookUrl) {
-    await postWebhook(discord.webhookUrl, payload)
-    return
-  }
-
-  throw new Error(
-    'Discord not configured. Set DISCORD_BOT_TOKEN + DISCORD_CHANNEL_ID (preferred) or DISCORD_WEBHOOK_URL.'
-  )
+  await deliverDiscordMessage(discord, payload, { components })
 }
 
 export async function sendMalRateLimitAlert({
@@ -530,24 +484,12 @@ export async function sendMalRateLimitAlert({
             : 'Stopped before the completed list could be fetched. The check will run again next Sunday.',
         color: 0xe74c3c,
         timestamp: new Date().toISOString(),
-        footer: { text: 'Anime Episode Checker' },
+        footer: discordFooter(),
       },
     ],
   }
 
-  if (hasBotConfig(discord)) {
-    await postBotMessage(discord.botToken!, discord.channelId!, payload)
-    return
-  }
-
-  if (discord.webhookUrl) {
-    await postWebhook(discord.webhookUrl, payload)
-    return
-  }
-
-  throw new Error(
-    'Discord not configured. Set DISCORD_BOT_TOKEN + DISCORD_CHANNEL_ID (preferred) or DISCORD_WEBHOOK_URL.'
-  )
+  await deliverDiscordMessage(discord, payload)
 }
 
 function formatOutageDuration(ms: number): string {
@@ -580,7 +522,7 @@ export async function sendMalStatusAlert({
                 'The MAL API is not responding. Dashboard progress, scores, and plan-to-watch checks will show as unavailable until it recovers. You will get another message when it is back.',
               color: 0xe74c3c,
               timestamp: downSince,
-              footer: { text: 'Anime Episode Checker' },
+              footer: discordFooter(),
             },
           ],
         }
@@ -594,80 +536,51 @@ export async function sendMalStatusAlert({
               )}).`,
               color: 0x2ecc71,
               timestamp: now.toISOString(),
-              footer: { text: 'Anime Episode Checker' },
+              footer: discordFooter(),
             },
           ],
         }
 
-  if (hasBotConfig(discord)) {
-    await postBotMessage(discord.botToken!, discord.channelId!, payload)
-    return
-  }
-
-  if (discord.webhookUrl) {
-    await postWebhook(discord.webhookUrl, payload)
-    return
-  }
-
-  throw new Error(
-    'Discord not configured. Set DISCORD_BOT_TOKEN + DISCORD_CHANNEL_ID (preferred) or DISCORD_WEBHOOK_URL.'
-  )
+  await deliverDiscordMessage(discord, payload)
 }
 
 export async function sendEpisodeAlert(
   input: EpisodeAlertInput
 ): Promise<void> {
-  if (hasBotConfig(input.discord)) {
-    const showTitle = input.show.title || input.latestSnapshot.seriesTitle
-    const embed = buildEpisodeWebhookEmbed(input)
-    const components = buildEpisodeLinkButtons(input)
-    const payload: Record<string, unknown> = {
+  const showTitle = input.show.title || input.latestSnapshot.seriesTitle
+  const embed = buildEpisodeEmbed(input)
+  const links = buildEpisodeLinks(input)
+
+  // Webhook messages can't carry link buttons, so they get a Links field.
+  const webhookEmbed =
+    links.length > 0
+      ? {
+          ...embed,
+          fields: [
+            ...embed.fields,
+            {
+              name: 'Links',
+              value: links
+                .map((link) => `[${link.label}](${link.url})`)
+                .join(' · '),
+              inline: false,
+            },
+          ],
+        }
+      : embed
+
+  await deliverDiscordMessage(
+    input.discord,
+    {
       content: `✅ **${showTitle}** — Episode ${input.episodeNumber} is out!`,
       embeds: [embed],
+    },
+    {
+      components: discordLinkButtonRow(
+        links.map((link) => discordLinkButton(link.label, link.url))
+      ),
+      webhookPayload: { embeds: [webhookEmbed] },
     }
-
-    if (components) {
-      payload.components = components
-    }
-
-    await postBotMessage(
-      input.discord.botToken!,
-      input.discord.channelId!,
-      payload
-    )
-    return
-  }
-
-  if (input.discord.webhookUrl) {
-    const embed = buildEpisodeWebhookEmbed(input)
-    const links: string[] = []
-    if (input.latestSnapshot.watchUrl) {
-      links.push(`[Watch](${input.latestSnapshot.watchUrl})`)
-    }
-    if (input.discussionUrl) {
-      links.push(`[r/anime](${input.discussionUrl})`)
-    }
-    if (input.show.malId) {
-      links.push(`[MAL](https://myanimelist.net/anime/${input.show.malId})`)
-    }
-
-    if (links.length > 0) {
-      embed.fields = [
-        ...(embed.fields ?? []),
-        {
-          name: 'Links',
-          value: links.join(' · '),
-          inline: false,
-        },
-      ]
-    }
-
-    await postWebhook(input.discord.webhookUrl, { embeds: [embed] })
-    return
-  }
-
-  throw new Error(
-    'Discord not configured. Set DISCORD_BOT_TOKEN + DISCORD_CHANNEL_ID (preferred) or DISCORD_WEBHOOK_URL.'
   )
 }
 
@@ -689,26 +602,12 @@ export async function sendWaitingAlert({
         title: `🤔 ${showTitle} — Episode ${episodeNumber} not on ${provider} yet.`,
         description: `Expected around ${expectedLabel}. Countdown: ${countdown}`,
         color: 0xf1c40f,
-        footer: {
-          text: 'Anime Episode Checker',
-        },
+        footer: discordFooter(),
       },
     ],
   }
 
-  if (hasBotConfig(discord)) {
-    await postBotMessage(discord.botToken!, discord.channelId!, payload)
-    return
-  }
-
-  if (discord.webhookUrl) {
-    await postWebhook(discord.webhookUrl, payload)
-    return
-  }
-
-  throw new Error(
-    'Discord not configured. Set DISCORD_BOT_TOKEN + DISCORD_CHANNEL_ID (preferred) or DISCORD_WEBHOOK_URL.'
-  )
+  await deliverDiscordMessage(discord, payload)
 }
 
 export async function sendRedditFeedErrorAlert({
@@ -731,37 +630,17 @@ export async function sendRedditFeedErrorAlert({
         title: 'Reddit user feed check failing',
         description,
         color: 0xe67e22,
-        footer: {
-          text: 'Anime Episode Checker',
-        },
+        footer: discordFooter(),
       },
     ],
   }
 
-  if (hasBotConfig(discord)) {
-    await postBotMessage(discord.botToken!, discord.channelId!, payload)
-    return
-  }
-
-  if (discord.webhookUrl) {
-    await postWebhook(discord.webhookUrl, payload)
-    return
-  }
-
-  throw new Error(
-    'Discord not configured. Set DISCORD_BOT_TOKEN + DISCORD_CHANNEL_ID (preferred) or DISCORD_WEBHOOK_URL.'
-  )
+  await deliverDiscordMessage(discord, payload)
 }
 
 export async function sendNetflixCookieAlert(
   discord: DiscordConfig
 ): Promise<void> {
-  if (!hasBotConfig(discord)) {
-    throw new Error(
-      'Netflix cookie alert requires DISCORD_BOT_TOKEN + DISCORD_CHANNEL_ID.'
-    )
-  }
-
   const payload = {
     embeds: [
       {
@@ -769,25 +648,19 @@ export async function sendNetflixCookieAlert(
         description:
           'The `NETFLIX_COOKIE` GitHub Actions secret is missing or expired. Netflix episode checks are paused until you update it.\n\nCopy your logged-in netflix.com `Cookie` header into the secret, then re-run the check workflow.',
         color: 0xe67e22,
-        footer: {
-          text: 'Anime Episode Checker',
-        },
+        footer: discordFooter(),
       },
     ],
   }
 
-  await postBotMessage(discord.botToken!, discord.channelId!, payload)
+  await deliverDiscordMessage(discord, payload, {
+    botOnly: 'Netflix cookie alert',
+  })
 }
 
 export async function sendDisneyAuthAlert(
   discord: DiscordConfig
 ): Promise<void> {
-  if (!hasBotConfig(discord)) {
-    throw new Error(
-      'Disney+ auth alert requires DISCORD_BOT_TOKEN + DISCORD_CHANNEL_ID.'
-    )
-  }
-
   const payload = {
     embeds: [
       {
@@ -795,12 +668,12 @@ export async function sendDisneyAuthAlert(
         description:
           'Disney+ episode checks failed (anonymous metadata was unavailable). Common causes:\n\n• **Geo-block** (`forbidden-location`) — GitHub Actions uses datacenter IPs. Disney shows are skipped for this run; run `pnpm check` from home when you need Disney baseline/alerts.\n• **Expired refresh token** — Re-copy `context.refreshToken` from DevTools on disneyplus.com (see README §6) into `DISNEY_REFRESH_TOKEN`.\n\nOther providers continue normally.',
         color: 0xe67e22,
-        footer: {
-          text: 'Anime Episode Checker',
-        },
+        footer: discordFooter(),
       },
     ],
   }
 
-  await postBotMessage(discord.botToken!, discord.channelId!, payload)
+  await deliverDiscordMessage(discord, payload, {
+    botOnly: 'Disney+ auth alert',
+  })
 }

@@ -1,4 +1,5 @@
 import type { Show, ShowSchedule, StateFile } from './types.ts'
+import { EASTERN_TZ } from './time-zone.ts'
 
 const MS_PER_WEEK = 7 * 24 * 60 * 60 * 1000
 const WINDOW_BEFORE_MS = 5 * 60 * 1000
@@ -7,7 +8,6 @@ const LATE_POLL_INTERVAL_MS = 30 * 60 * 1000
 const CRON_INTERVAL_MS = 5 * 60 * 1000
 const WAITING_GRACE_MS = 15 * 60 * 1000
 const PTW_CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000
-const EASTERN_TZ = 'America/New_York'
 
 function getPremiereBatchSize(schedule: ShowSchedule): number {
   return schedule.premiereBatchSize > 0 ? schedule.premiereBatchSize : 1
@@ -127,7 +127,10 @@ export function isPastWaitingGrace(
   return now.getTime() > expectedAt.getTime() + WAITING_GRACE_MS
 }
 
-export function parseEpisodeNumber(value: string | undefined): number {
+/** Episode number from a stored or provider value; 0 when missing or not numeric. */
+export function parseEpisodeNumber(
+  value: string | number | null | undefined
+): number {
   const parsed = Number(value)
   return Number.isFinite(parsed) ? parsed : 0
 }

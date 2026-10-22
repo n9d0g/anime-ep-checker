@@ -1,3 +1,5 @@
+import { sleep } from './sleep.ts'
+
 const DISCORD_API = 'https://discord.com/api/v10'
 
 export class DiscordApiError extends Error {
@@ -97,10 +99,6 @@ interface DiscordChannelMessage {
   id: string
   type: number
   message_reference?: { message_id?: string }
-}
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 async function listChannelMessages(

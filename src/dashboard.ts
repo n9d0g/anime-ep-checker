@@ -1,7 +1,11 @@
 import {
+  discordFooter,
+  discordLinkButton,
+  discordLinkButtonRow,
   discordRelativeTimestamp,
   discordTimestamp,
   formatMalScoreLabel,
+  type DiscordLinkButton,
 } from './discord-format.ts'
 import { formatEasternTime } from './time.ts'
 import { getShowWatchUrl, providerLabel } from '../shared/shows.ts'
@@ -17,7 +21,7 @@ import { fetchMalAnimeDetails, formatMalProgressLabel } from './mal.ts'
 import { buildAnimeDiscussionSearchUrl } from '../shared/reddit.ts'
 import { findAnimeDiscussionPermalink } from './reddit.ts'
 
-export type DashboardStatus = 'upcoming' | 'in_window' | 'waiting' | 'out'
+type DashboardStatus = 'upcoming' | 'in_window' | 'waiting' | 'out'
 
 export interface ShowDashboardRow {
   show: Show
@@ -235,7 +239,7 @@ function buildDashboardEmbed(row: ShowDashboardRow) {
         inline: false,
       },
     ],
-    footer: { text: 'Anime Episode Checker · Watching dashboard' },
+    footer: discordFooter('Watching dashboard'),
   }
 }
 
@@ -251,49 +255,25 @@ function buildDashboardLinkComponents(
   show: Show,
   discussionUrl?: string | null
 ) {
-  const linkButtons: Array<Record<string, unknown>> = []
   const watchUrl = getShowWatchUrl(show)
+  const buttons: DiscordLinkButton[] = []
 
   if (watchUrl) {
-    linkButtons.push({
-      type: 2,
-      style: 5,
-      label: 'Watch',
-      url: watchUrl,
-    })
+    buttons.push(discordLinkButton('Watch', watchUrl))
   }
-
   if (discussionUrl) {
-    linkButtons.push({
-      type: 2,
-      style: 5,
-      label: 'r/anime',
-      url: discussionUrl,
-    })
+    buttons.push(discordLinkButton('r/anime', discussionUrl))
   }
 
-  if (linkButtons.length === 0) {
-    return []
-  }
-
-  return [
-    {
-      type: 1,
-      components: linkButtons,
-    },
-  ]
+  return discordLinkButtonRow(buttons)
 }
 
 export function buildShowDashboardPayload(row: ShowDashboardRow) {
   const components = buildDashboardLinkComponents(row.show, row.discussionUrl)
-  const payload: Record<string, unknown> = {
+  const payload = {
     content: buildDashboardNotificationContent(row),
     embeds: [buildDashboardEmbed(row)],
   }
 
-  if (components.length > 0) {
-    payload.components = components
-  }
-
-  return payload
+  return components ? { ...payload, components } : payload
 }

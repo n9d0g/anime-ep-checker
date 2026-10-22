@@ -6,7 +6,7 @@ export interface SeasonEpisodeAvailability {
   available: boolean
 }
 
-export interface ProviderEpisode {
+interface ProviderEpisode {
   id: string
   episode?: string | number
   title?: string

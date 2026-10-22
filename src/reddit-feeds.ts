@@ -1,4 +1,5 @@
 import {
+  hasDiscordConfig,
   sendRedditFeedErrorAlert,
   sendRedditPostAlert,
   type DiscordConfig,
@@ -17,19 +18,12 @@ import type { StateFile } from '../shared/types.ts'
 const SEEN_POST_IDS_LIMIT = 50
 const CHECKED_AT_BUMP_MS = 60 * 60 * 1000
 
-export interface RedditUserPost {
+interface RedditUserPost {
   id: string
   title: string
   href: string
   published: string | null
   subreddit: string | null
-}
-
-function hasDiscordConfig(discord: DiscordConfig): boolean {
-  return Boolean(
-    (discord.botToken?.trim() && discord.channelId?.trim()) ||
-    discord.webhookUrl?.trim()
-  )
 }
 
 function sortPostsOldestFirst(posts: RedditUserPost[]): RedditUserPost[] {
@@ -105,16 +99,6 @@ export function applyRedditFeedFetchFailure(
   }
 
   return null
-}
-
-export async function fetchUserSubmissions(
-  username: string
-): Promise<RedditUserPost[] | null> {
-  const result = await fetchRedditUserSubmissions(username)
-  if (!result.ok) {
-    return null
-  }
-  return result.posts
 }
 
 export async function syncRedditUserFeeds({

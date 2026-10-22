@@ -1,3 +1,4 @@
+import { pickMalCoverUrl, type MalMainPicture } from './mal-cover.ts'
 import type { PlanToWatchSnapshotEntry } from './types.ts'
 
 /** MAL list fields a plan-to-watch snapshot entry is built from. */
@@ -22,7 +23,7 @@ export interface MalPlanToWatchNode {
   status?: string
   start_date?: string
   num_episodes?: number
-  main_picture?: { medium?: string; large?: string }
+  main_picture?: MalMainPicture
   broadcast?: {
     day_of_the_week?: string
     start_time?: string
@@ -53,7 +54,7 @@ export function parsePlanToWatchEntry(
     status: node.status ?? '',
     startDate: node.start_date ?? null,
     broadcast,
-    coverUrl: node.main_picture?.large ?? node.main_picture?.medium ?? null,
+    coverUrl: pickMalCoverUrl(node.main_picture),
     numEpisodes:
       typeof node.num_episodes === 'number' && node.num_episodes > 0
         ? node.num_episodes

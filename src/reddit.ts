@@ -1,13 +1,14 @@
+import { sleep } from './sleep.ts'
 import {
   buildAnimeDiscussionSearchUrl,
   buildSearchQueries,
   slugifyForReddit,
 } from '../shared/reddit.ts'
 
-export const REDDIT_USER_AGENT = 'node:anime-ep-checker:1.0 (by /u/n9d0g)'
+const REDDIT_USER_AGENT = 'node:anime-ep-checker:1.0 (by /u/n9d0g)'
 const USER_AGENT = REDDIT_USER_AGENT
 
-export interface RedditUserSubmission {
+interface RedditUserSubmission {
   id: string
   title: string
   href: string
@@ -21,11 +22,7 @@ export type RedditUserFetchResult =
 
 let cachedOAuthToken: { token: string; expiresAt: number } | null = null
 
-export function clearRedditOAuthTokenCache(): void {
-  cachedOAuthToken = null
-}
-
-export function getRedditCredentials(): {
+function getRedditCredentials(): {
   clientId: string
   clientSecret: string
 } | null {
@@ -37,7 +34,7 @@ export function getRedditCredentials(): {
   return { clientId, clientSecret }
 }
 
-export async function getRedditAccessToken(): Promise<string | null> {
+async function getRedditAccessToken(): Promise<string | null> {
   const creds = getRedditCredentials()
   if (!creds) {
     return null
@@ -203,7 +200,7 @@ const RSS_SEARCH_URL = 'https://www.reddit.com/r/anime/search.rss'
 
 let redditRateLimited = false
 
-export interface RedditAtomEntry {
+interface RedditAtomEntry {
   id: string
   title: string
   href: string
@@ -216,10 +213,6 @@ interface AtomEntry {
   title: string
   href: string
   author: string
-}
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 function decodeXmlEntities(value: string): string {
@@ -269,7 +262,7 @@ function parseSubredditFromEntry(block: string): string | null {
   return null
 }
 
-export function parseAtomEntries(xml: string): RedditAtomEntry[] {
+function parseAtomEntries(xml: string): RedditAtomEntry[] {
   const entries: RedditAtomEntry[] = []
   const entryRegex = /<entry>([\s\S]*?)<\/entry>/g
 

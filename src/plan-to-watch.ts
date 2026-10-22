@@ -1,4 +1,4 @@
-import { sendPlanToWatchAlert } from './discord.ts'
+import { hasDiscordConfig, sendPlanToWatchAlert } from './discord.ts'
 import type { DiscordConfig } from './discord.ts'
 import { fetchPlanToWatchAnime, type MalPlanToWatchEntry } from './mal.ts'
 import type {
@@ -9,14 +9,6 @@ import type {
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000
 const UPCOMING_WINDOW_DAYS = 7
-
-function hasBotConfig(discord: DiscordConfig): boolean {
-  return Boolean(discord.botToken?.trim() && discord.channelId?.trim())
-}
-
-function hasDiscordConfig(discord: DiscordConfig): boolean {
-  return hasBotConfig(discord) || Boolean(discord.webhookUrl?.trim())
-}
 
 function startOfUtcDay(date: Date): Date {
   return new Date(
@@ -89,7 +81,7 @@ function planToWatchEntriesMeaningfullyEqual(
   return JSON.stringify(prevNormalized) === JSON.stringify(nextNormalized)
 }
 
-export interface PlanToWatchSyncResult {
+interface PlanToWatchSyncResult {
   changed: boolean
   reasons: string[]
 }

@@ -32,3 +32,36 @@ export function discordTimestamp(
 
   return `<t:${unix}:f>`
 }
+
+const FOOTER_TEXT = 'Anime Episode Checker'
+
+/** Embed footer naming the checker, optionally with a section suffix. */
+export function discordFooter(section?: string): { text: string } {
+  return { text: section ? `${FOOTER_TEXT} · ${section}` : FOOTER_TEXT }
+}
+
+export interface DiscordLinkButton {
+  type: 2
+  style: 5
+  label: string
+  url: string
+}
+
+export interface DiscordActionRow {
+  type: 1
+  components: DiscordLinkButton[]
+}
+
+export function discordLinkButton(
+  label: string,
+  url: string
+): DiscordLinkButton {
+  return { type: 2, style: 5, label, url }
+}
+
+/** One action row of link buttons, or `undefined` when there are none. */
+export function discordLinkButtonRow(
+  buttons: DiscordLinkButton[]
+): DiscordActionRow[] | undefined {
+  return buttons.length > 0 ? [{ type: 1, components: buttons }] : undefined
+}

@@ -27,11 +27,9 @@ import {
   type RedditUserFetchResult,
 } from './reddit.ts'
 
-export type FetchRedditFeed = (
-  username: string
-) => Promise<RedditUserFetchResult>
+type FetchRedditFeed = (username: string) => Promise<RedditUserFetchResult>
 
-export interface GateDecision {
+interface GateDecision {
   /** Run the full check (`should_check`). */
   shouldCheck: boolean
   /** The full check should fetch Reddit user feeds (`reddit_check`). */

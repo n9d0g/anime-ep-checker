@@ -4,7 +4,8 @@
  * the Actions gate (`src/should-run.ts`) and the checker (`src/reddit-feeds.ts`).
  */
 
-const EASTERN_TZ = 'America/New_York'
+import { EASTERN_TZ } from './time-zone.ts'
+
 /** Posting day plus the following day, to cover late posts. */
 const REDDIT_FEED_WINDOW_DAYS = 2
 const REDDIT_FEED_POLL_INTERVAL_MS = 15 * 60 * 1000
@@ -15,9 +16,9 @@ const CRON_INTERVAL_MS = 5 * 60 * 1000
  * of its last success and its posting window opening) before it is stale: the
  * checker sends a one-time error alert, and the gate runs a full check so it can.
  */
-export const REDDIT_FEED_STALE_MS = 6 * 60 * 60 * 1000
+const REDDIT_FEED_STALE_MS = 6 * 60 * 60 * 1000
 
-export interface RedditUserFeedConfig {
+interface RedditUserFeedConfig {
   id: string
   username: string
   titlePattern?: RegExp

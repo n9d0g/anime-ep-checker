@@ -1,16 +1,12 @@
 import { getShowState } from './compare.ts'
-import { sendMalScoreAlert } from './discord.ts'
+import { hasDiscordBotConfig, sendMalScoreAlert } from './discord.ts'
 import type { DiscordConfig } from './discord.ts'
 import { fetchMalAnimeDetails } from './mal.ts'
 import type { Show, StateFile } from '../shared/types.ts'
 
 const MAL_SCORE_ALERT_DELTA = 0.05
 
-function hasBotConfig(discord: DiscordConfig): boolean {
-  return Boolean(discord.botToken?.trim() && discord.channelId?.trim())
-}
-
-export interface MalScoreSyncResult {
+interface MalScoreSyncResult {
   changed: boolean
   reasons: string[]
 }
@@ -74,7 +70,7 @@ export async function syncMalScoreAlerts({
 
     const direction = currentScore > previousScore ? 'pickup' : 'drop'
 
-    if (!dryRun && hasBotConfig(discord)) {
+    if (!dryRun && hasDiscordBotConfig(discord)) {
       await sendMalScoreAlert({
         discord,
         show,

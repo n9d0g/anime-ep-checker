@@ -1,16 +1,9 @@
-import { sendMalStatusAlert } from './discord.ts'
+import { hasDiscordConfig, sendMalStatusAlert } from './discord.ts'
 import type { DiscordConfig } from './discord.ts'
 import { probeMalHealth, type MalHealth } from './mal.ts'
 import type { StateFile } from '../shared/types.ts'
 
-function hasDiscordConfig(discord: DiscordConfig): boolean {
-  return Boolean(
-    (discord.botToken?.trim() && discord.channelId?.trim()) ||
-    discord.webhookUrl?.trim()
-  )
-}
-
-export interface MalStatusSyncResult {
+interface MalStatusSyncResult {
   changed: boolean
   reasons: string[]
 }

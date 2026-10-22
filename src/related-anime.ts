@@ -1,4 +1,9 @@
-import { sendMalRateLimitAlert, sendRelatedAnimeAlert } from './discord.ts'
+import { sleep } from './sleep.ts'
+import {
+  hasDiscordConfig,
+  sendMalRateLimitAlert,
+  sendRelatedAnimeAlert,
+} from './discord.ts'
 import type { DiscordConfig } from './discord.ts'
 import {
   fetchMalAnimeSummary,
@@ -13,17 +18,6 @@ const MAL_REQUEST_DELAY_MS = 1000
 
 // Character crossovers and "other" links are mostly noise.
 const IGNORED_RELATION_TYPES = new Set(['character', 'other'])
-
-function hasDiscordConfig(discord: DiscordConfig): boolean {
-  return (
-    Boolean(discord.botToken?.trim() && discord.channelId?.trim()) ||
-    Boolean(discord.webhookUrl?.trim())
-  )
-}
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
 
 /**
  * Diffs a completed title's related anime against what was seen last week.
@@ -56,7 +50,7 @@ export function diffRelatedAnime({
   return { seen, newRelated }
 }
 
-export interface RelatedAnimeSyncResult {
+interface RelatedAnimeSyncResult {
   changed: boolean
   reasons: string[]
 }

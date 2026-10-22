@@ -4,6 +4,7 @@ import type {
   EpisodeSnapshot,
   SeasonEpisodeAvailability,
 } from './types.ts'
+import { parseEpisodeNumber } from '../shared/schedule.ts'
 
 const API_BASE = 'https://beta-api.crunchyroll.com'
 const AUTH_BASIC = 'Basic bm9haWhkZXZtXzZpeWcwYThsMHE6'
@@ -113,11 +114,6 @@ function isEpisodeAvailable(
   return false
 }
 
-function parseEpisodeNumber(episode: CrunchyrollEpisode): number {
-  const value = Number(episode.episode)
-  return Number.isFinite(value) ? value : 0
-}
-
 function pickLatestAvailableEpisode(
   episodes: CrunchyrollEpisode[],
   now: Date = new Date()
@@ -128,8 +124,8 @@ function pickLatestAvailableEpisode(
   if (available.length === 0) return null
 
   return available.reduce((latest, episode) => {
-    const latestNum = parseEpisodeNumber(latest)
-    const episodeNum = parseEpisodeNumber(episode)
+    const latestNum = parseEpisodeNumber(latest.episode)
+    const episodeNum = parseEpisodeNumber(episode.episode)
     if (episodeNum > latestNum) return episode
     if (episodeNum < latestNum) return latest
 
@@ -145,7 +141,7 @@ function buildSeasonEpisodeAvailability(
 ): SeasonEpisodeAvailability[] {
   return episodes
     .map((episode) => {
-      const episodeNumber = parseEpisodeNumber(episode)
+      const episodeNumber = parseEpisodeNumber(episode.episode)
       if (episodeNumber <= 0) {
         return null
       }

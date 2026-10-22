@@ -1,11 +1,14 @@
+import { sleep } from './sleep.ts'
 import {
   parsePlanToWatchPage,
   PLAN_TO_WATCH_LIST_FIELDS,
   type MalPlanToWatchNode,
   type MalPlanToWatchPage,
 } from '../shared/mal-plan-to-watch.ts'
+import { pickMalCoverUrl, type MalMainPicture } from '../shared/mal-cover.ts'
 import type { PlanToWatchSnapshotEntry } from '../shared/types.ts'
-export interface MalProgress {
+
+interface MalProgress {
   watched: number
   total: number | null
 }
@@ -24,12 +27,12 @@ export type MalPlanToWatchResult =
   | { status: 'not_configured' }
   | { status: 'unavailable' }
 
-export type MalFetchResult =
+type MalFetchResult =
   | { status: 'ok'; progress: MalProgress }
   | { status: 'not_configured' }
   | { status: 'unavailable' }
 
-export type MalFetchDetailsResult =
+type MalFetchDetailsResult =
   | { status: 'ok'; details: MalAnimeDetails }
   | { status: 'not_configured' }
   | { status: 'unavailable' }
@@ -42,11 +45,6 @@ interface MalListStatus {
   num_episodes_watched?: number
 }
 
-interface MalMainPicture {
-  medium?: string
-  large?: string
-}
-
 interface MalAnimeResponse {
   num_episodes?: number
   mean?: number
@@ -56,6 +54,7 @@ interface MalAnimeResponse {
 
 type MalAnimelistResponse = MalPlanToWatchPage<MalPlanToWatchNode>
 
+const MAL_API = 'https://api.myanimelist.net/v2'
 const MAL_ANIME_FIELDS = 'num_episodes,my_list_status,mean,main_picture'
 
 let cachedAccessToken: string | null | undefined
@@ -127,28 +126,55 @@ function parseMalAnimeDetails(data: MalAnimeResponse): MalAnimeDetails {
     typeof data.mean === 'number' && Number.isFinite(data.mean)
       ? data.mean
       : null
-  const coverUrl = data.main_picture?.large ?? data.main_picture?.medium ?? null
+  const coverUrl = pickMalCoverUrl(data.main_picture)
 
   return { watched, total, meanScore, coverUrl }
 }
 
-async function fetchMalAnimeResponse(
-  malId: number,
-  accessToken: string
-): Promise<MalAnimeResponse | null> {
-  const response = await fetch(
-    `https://api.myanimelist.net/v2/anime/${malId}?fields=${MAL_ANIME_FIELDS}`,
-    {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    }
-  )
+type MalGetResult<T> =
+  | { status: 'ok'; data: T }
+  | { status: 'not_configured' }
+  | { status: 'unavailable' }
+  | { status: 'rate_limited'; httpStatus: number }
 
-  if (!response.ok) {
-    console.warn(`MAL anime lookup failed (${response.status}) for id ${malId}`)
-    return null
+// MAL answers throttling with 429, and sometimes a bare 403.
+function isMalRateLimitStatus(status: number): boolean {
+  return status === 429 || status === 403
+}
+
+/**
+ * Authenticated GET against the MAL API. Every failed response is logged as
+ * `MAL <label> failed (<status>)[ for id <malId>]`; 429 and 403 come back as
+ * `rate_limited`, anything else as `unavailable`.
+ */
+async function malGet<T>(
+  url: string,
+  label: string,
+  malId?: number
+): Promise<MalGetResult<T>> {
+  if (!isMalConfigured()) {
+    return { status: 'not_configured' }
   }
 
-  return (await response.json()) as MalAnimeResponse
+  const accessToken = await getCachedMalAccessToken()
+  if (!accessToken) {
+    return { status: 'unavailable' }
+  }
+
+  const response = await fetch(url, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  })
+
+  if (!response.ok) {
+    console.warn(
+      `MAL ${label} failed (${response.status})${malId === undefined ? '' : ` for id ${malId}`}`
+    )
+    return isMalRateLimitStatus(response.status)
+      ? { status: 'rate_limited', httpStatus: response.status }
+      : { status: 'unavailable' }
+  }
+
+  return { status: 'ok', data: (await response.json()) as T }
 }
 
 function notConfiguredDetailsResult(): MalFetchDetailsResult {
@@ -169,30 +195,18 @@ export async function fetchMalAnimeDetails(
     return cached
   }
 
-  if (!isMalConfigured()) {
-    const result = notConfiguredDetailsResult()
-    detailsCache.set(malId, result)
-    return result
-  }
+  const response = await malGet<MalAnimeResponse>(
+    `${MAL_API}/anime/${malId}?fields=${MAL_ANIME_FIELDS}`,
+    'anime lookup',
+    malId
+  )
+  const result: MalFetchDetailsResult =
+    response.status === 'ok'
+      ? { status: 'ok', details: parseMalAnimeDetails(response.data) }
+      : response.status === 'not_configured'
+        ? notConfiguredDetailsResult()
+        : { status: 'unavailable' }
 
-  const accessToken = await getCachedMalAccessToken()
-  if (!accessToken) {
-    const result: MalFetchDetailsResult = { status: 'unavailable' }
-    detailsCache.set(malId, result)
-    return result
-  }
-
-  const data = await fetchMalAnimeResponse(malId, accessToken)
-  if (!data) {
-    const result: MalFetchDetailsResult = { status: 'unavailable' }
-    detailsCache.set(malId, result)
-    return result
-  }
-
-  const result: MalFetchDetailsResult = {
-    status: 'ok',
-    details: parseMalAnimeDetails(data),
-  }
   detailsCache.set(malId, result)
   return result
 }
@@ -213,56 +227,33 @@ export function formatMalProgressLabel(result: MalFetchResult): string {
   return 'MAL unavailable'
 }
 
-async function fetchPlanToWatchPage(
-  accessToken: string,
-  url?: string
-): Promise<MalAnimelistResponse | null> {
-  const requestUrl =
-    url ??
-    `https://api.myanimelist.net/v2/users/@me/animelist?status=plan_to_watch&limit=1000&nsfw=true&fields=${PLAN_TO_WATCH_LIST_FIELDS.join(',')}`
-
-  const response = await fetch(requestUrl, {
-    headers: { Authorization: `Bearer ${accessToken}` },
-  })
-
-  if (!response.ok) {
-    console.warn(`MAL plan-to-watch lookup failed (${response.status})`)
-    return null
-  }
-
-  return (await response.json()) as MalAnimelistResponse
-}
-
 export async function fetchPlanToWatchAnime(): Promise<MalPlanToWatchResult> {
-  if (!isMalConfigured()) {
-    return { status: 'not_configured' }
-  }
-
-  const accessToken = await getCachedMalAccessToken()
-  if (!accessToken) {
-    return { status: 'unavailable' }
-  }
-
   const entries: MalPlanToWatchEntry[] = []
-  let nextUrl: string | undefined
+  let nextUrl: string | undefined =
+    `${MAL_API}/users/@me/animelist?status=plan_to_watch&limit=1000&nsfw=true&fields=${PLAN_TO_WATCH_LIST_FIELDS.join(',')}`
 
-  do {
-    const page = await fetchPlanToWatchPage(accessToken, nextUrl)
-    if (!page) {
+  while (nextUrl) {
+    const page: MalGetResult<MalAnimelistResponse> = await malGet(
+      nextUrl,
+      'plan-to-watch lookup'
+    )
+    if (page.status === 'not_configured') {
+      return { status: 'not_configured' }
+    }
+    if (page.status !== 'ok') {
       return entries.length > 0
         ? { status: 'ok', entries }
         : { status: 'unavailable' }
     }
 
-    entries.push(...parsePlanToWatchPage(page))
-
-    nextUrl = page.paging?.next
-  } while (nextUrl)
+    entries.push(...parsePlanToWatchPage(page.data))
+    nextUrl = page.data.paging?.next
+  }
 
   return { status: 'ok', entries }
 }
 
-export interface MalListEntry {
+interface MalListEntry {
   malId: number
   title: string
 }
@@ -283,13 +274,13 @@ export interface MalAnimeSummary {
   coverUrl: string | null
 }
 
-export type MalListResult =
+type MalListResult =
   | { status: 'ok'; entries: MalListEntry[] }
   | { status: 'not_configured' }
   | { status: 'unavailable' }
   | { status: 'rate_limited'; httpStatus: number }
 
-export type MalRelatedAnimeResult =
+type MalRelatedAnimeResult =
   | { status: 'ok'; related: MalRelatedAnime[] }
   | { status: 'not_configured' }
   | { status: 'unavailable' }
@@ -311,11 +302,6 @@ interface MalAnimeSummaryResponse {
   main_picture?: MalMainPicture
 }
 
-// MAL answers throttling with 429, and sometimes a bare 403.
-function isMalRateLimitStatus(status: number): boolean {
-  return status === 429 || status === 403
-}
-
 /**
  * Fetches the full user list (optionally one status) with no partial results:
  * callers diff against it, so a truncated list would cause false positives.
@@ -323,46 +309,30 @@ function isMalRateLimitStatus(status: number): boolean {
 export async function fetchUserAnimeList(
   status?: string
 ): Promise<MalListResult> {
-  if (!isMalConfigured()) {
-    return { status: 'not_configured' }
-  }
-
-  const accessToken = await getCachedMalAccessToken()
-  if (!accessToken) {
-    return { status: 'unavailable' }
-  }
-
   const params = new URLSearchParams({ limit: '1000', nsfw: 'true' })
   if (status) {
     params.set('status', status)
   }
 
   const entries: MalListEntry[] = []
-  let nextUrl: string | undefined =
-    `https://api.myanimelist.net/v2/users/@me/animelist?${params}`
+  let nextUrl: string | undefined = `${MAL_API}/users/@me/animelist?${params}`
 
   while (nextUrl) {
-    const response = await fetch(nextUrl, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    })
-
-    if (!response.ok) {
-      console.warn(
-        `MAL ${status ?? 'full'} list lookup failed (${response.status})`
-      )
-      return isMalRateLimitStatus(response.status)
-        ? { status: 'rate_limited', httpStatus: response.status }
-        : { status: 'unavailable' }
+    const page: MalGetResult<MalAnimelistResponse> = await malGet(
+      nextUrl,
+      `${status ?? 'full'} list lookup`
+    )
+    if (page.status !== 'ok') {
+      return page
     }
 
-    const page = (await response.json()) as MalAnimelistResponse
-    for (const item of page.data ?? []) {
+    for (const item of page.data.data ?? []) {
       if (item.node?.id) {
         entries.push({ malId: item.node.id, title: item.node.title })
       }
     }
 
-    nextUrl = page.paging?.next
+    nextUrl = page.data.paging?.next
   }
 
   return { status: 'ok', entries }
@@ -371,39 +341,23 @@ export async function fetchUserAnimeList(
 export async function fetchRelatedAnime(
   malId: number
 ): Promise<MalRelatedAnimeResult> {
-  if (!isMalConfigured()) {
-    return { status: 'not_configured' }
-  }
-
-  const accessToken = await getCachedMalAccessToken()
-  if (!accessToken) {
-    return { status: 'unavailable' }
-  }
-
-  const response = await fetch(
-    `https://api.myanimelist.net/v2/anime/${malId}?fields=related_anime`,
-    { headers: { Authorization: `Bearer ${accessToken}` } }
+  const response = await malGet<MalRelatedAnimeResponse>(
+    `${MAL_API}/anime/${malId}?fields=related_anime`,
+    'related anime lookup',
+    malId
   )
-
-  if (!response.ok) {
-    console.warn(
-      `MAL related anime lookup failed (${response.status}) for id ${malId}`
-    )
-    return isMalRateLimitStatus(response.status)
-      ? { status: 'rate_limited', httpStatus: response.status }
-      : { status: 'unavailable' }
+  if (response.status !== 'ok') {
+    return response
   }
 
-  const data = (await response.json()) as MalRelatedAnimeResponse
-  const related = (data.related_anime ?? [])
+  const related = (response.data.related_anime ?? [])
     .filter((item) => item.node?.id)
     .map((item) => ({
       malId: item.node.id,
       title: item.node.title,
       relationType: item.relation_type ?? 'other',
       relationTypeFormatted: item.relation_type_formatted ?? 'Related',
-      coverUrl:
-        item.node.main_picture?.large ?? item.node.main_picture?.medium ?? null,
+      coverUrl: pickMalCoverUrl(item.node.main_picture),
     }))
 
   return { status: 'ok', related }
@@ -444,7 +398,7 @@ export async function probeMalHealth(): Promise<MalHealth> {
     }
 
     if (attempt < MAL_PROBE_ATTEMPTS) {
-      await new Promise((r) => setTimeout(r, MAL_PROBE_RETRY_DELAY_MS))
+      await sleep(MAL_PROBE_RETRY_DELAY_MS)
     }
   }
 
@@ -454,24 +408,16 @@ export async function probeMalHealth(): Promise<MalHealth> {
 export async function fetchMalAnimeSummary(
   malId: number
 ): Promise<MalAnimeSummary | null> {
-  const accessToken = isMalConfigured() ? await getCachedMalAccessToken() : null
-  if (!accessToken) {
-    return null
-  }
-
-  const response = await fetch(
-    `https://api.myanimelist.net/v2/anime/${malId}?fields=media_type,status,start_date,num_episodes,main_picture`,
-    { headers: { Authorization: `Bearer ${accessToken}` } }
+  const response = await malGet<MalAnimeSummaryResponse>(
+    `${MAL_API}/anime/${malId}?fields=media_type,status,start_date,num_episodes,main_picture`,
+    'anime summary',
+    malId
   )
-
-  if (!response.ok) {
-    console.warn(
-      `MAL anime summary failed (${response.status}) for id ${malId}`
-    )
+  if (response.status !== 'ok') {
     return null
   }
 
-  const data = (await response.json()) as MalAnimeSummaryResponse
+  const data = response.data
   return {
     mediaType: data.media_type ?? null,
     status: data.status ?? null,
@@ -480,6 +426,6 @@ export async function fetchMalAnimeSummary(
       typeof data.num_episodes === 'number' && data.num_episodes > 0
         ? data.num_episodes
         : null,
-    coverUrl: data.main_picture?.large ?? data.main_picture?.medium ?? null,
+    coverUrl: pickMalCoverUrl(data.main_picture),
   }
 }

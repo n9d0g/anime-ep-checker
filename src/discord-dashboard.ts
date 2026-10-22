@@ -11,6 +11,7 @@ import {
   pinBotMessage,
   shouldRecreateWatchingMessageOnEditFailure,
 } from './discord-api.ts'
+import { hasDiscordBotConfig } from './discord.ts'
 import type { ShowDashboardRow } from './dashboard.ts'
 import type { Show, StateFile } from '../shared/types.ts'
 import { getShowState } from './compare.ts'
@@ -37,18 +38,14 @@ function hasMeaningfulScoreChange(
   return Math.abs(nextScore - previousScore) >= MAL_SCORE_REFRESH_DELTA - 1e-9
 }
 
-export interface DiscordDashboardConfig {
+interface DiscordDashboardConfig {
   botToken?: string
   watchingChannelId?: string
 }
 
-export interface DashboardSyncResult {
+interface DashboardSyncResult {
   changed: boolean
   reasons: string[]
-}
-
-function hasDashboardConfig(config: DiscordDashboardConfig): boolean {
-  return Boolean(config.botToken?.trim() && config.watchingChannelId?.trim())
 }
 
 async function migrateLegacyDashboardMessage(
@@ -86,7 +83,12 @@ export async function syncWatchingDashboard({
 }): Promise<DashboardSyncResult> {
   const reasons: string[] = []
 
-  if (!hasDashboardConfig(config)) {
+  if (
+    !hasDiscordBotConfig({
+      botToken: config.botToken,
+      channelId: config.watchingChannelId,
+    })
+  ) {
     return { changed: false, reasons }
   }
 

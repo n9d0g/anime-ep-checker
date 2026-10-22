@@ -1,4 +1,4 @@
-const EASTERN_TZ = 'America/New_York'
+import { EASTERN_TZ } from '../shared/time-zone.ts'
 
 export function formatEasternTime(
   isoOrDate: string | Date | null | undefined

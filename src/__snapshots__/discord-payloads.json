@@ -1,0 +1,381 @@
+{
+  "dashboard payloads": [
+    {
+      "method": "BUILD",
+      "url": "full",
+      "contentType": null,
+      "authorization": null,
+      "body": "{\"content\":\"**Frieren** — MAL 3 / 12 · Next Episode 4 · In window\",\"embeds\":[{\"title\":\"Frieren\",\"url\":\"https://www.crunchyroll.com/series/GG5H5XQX4/frieren\",\"color\":3447003,\"thumbnail\":{\"url\":\"https://cdn.myanimelist.net/images/anime/1/frieren.jpg\"},\"fields\":[{\"name\":\"Status\",\"value\":\"In window\",\"inline\":true},{\"name\":\"Provider\",\"value\":\"Crunchyroll\",\"inline\":true},{\"name\":\"MAL\",\"value\":\"3 / 12\",\"inline\":true},{\"name\":\"MAL score\",\"value\":\"9.31\",\"inline\":true},{\"name\":\"Next\",\"value\":\"Episode 4\",\"inline\":true},{\"name\":\"Countdown\",\"value\":\"<t:1792854000:R>\",\"inline\":true},{\"name\":\"Expected drop\",\"value\":\"Oct 24, 2026, 11:00:00 AM EDT (<t:1792854000:f>)\",\"inline\":false}],\"footer\":{\"text\":\"Anime Episode Checker · Watching dashboard\"}}],\"components\":[{\"type\":1,\"components\":[{\"type\":2,\"style\":5,\"label\":\"Watch\",\"url\":\"https://www.crunchyroll.com/series/GG5H5XQX4/frieren\"},{\"type\":2,\"style\":5,\"label\":\"r/anime\",\"url\":\"https://www.reddit.com/r/anime/comments/abc/frieren/\"}]}]}"
+    },
+    {
+      "method": "BUILD",
+      "url": "bare",
+      "contentType": null,
+      "authorization": null,
+      "body": "{\"content\":\"**bare-show** — MAL MAL not configured · Next Season complete · Out now\",\"embeds\":[{\"title\":\"bare-show\",\"color\":3066993,\"fields\":[{\"name\":\"Status\",\"value\":\"Out now\",\"inline\":true},{\"name\":\"Provider\",\"value\":\"Netflix\",\"inline\":true},{\"name\":\"MAL\",\"value\":\"MAL not configured\",\"inline\":true},{\"name\":\"MAL score\",\"value\":\"—\",\"inline\":true},{\"name\":\"Next\",\"value\":\"Season complete\",\"inline\":true},{\"name\":\"Countdown\",\"value\":\"—\",\"inline\":true},{\"name\":\"Expected drop\",\"value\":\"No upcoming drop\",\"inline\":false}],\"footer\":{\"text\":\"Anime Episode Checker · Watching dashboard\"}}]}"
+    }
+  ],
+  "dashboard sync create (bot)": [
+    {
+      "method": "POST",
+      "url": "https://discord.com/api/v10/channels/watching-1/messages",
+      "contentType": "application/json",
+      "authorization": "Bot bot-token",
+      "body": "{\"content\":\"**Frieren** — MAL — · Next Episode 4 · Upcoming\",\"embeds\":[{\"title\":\"Frieren\",\"url\":\"https://www.crunchyroll.com/series/GG5H5XQX4/frieren\",\"color\":9148581,\"fields\":[{\"name\":\"Status\",\"value\":\"Upcoming\",\"inline\":true},{\"name\":\"Provider\",\"value\":\"Crunchyroll\",\"inline\":true},{\"name\":\"MAL\",\"value\":\"—\",\"inline\":true},{\"name\":\"MAL score\",\"value\":\"—\",\"inline\":true},{\"name\":\"Next\",\"value\":\"Episode 4\",\"inline\":true},{\"name\":\"Countdown\",\"value\":\"<t:1792854000:R>\",\"inline\":true},{\"name\":\"Expected drop\",\"value\":\"Oct 24, 2026, 11:00:00 AM EDT (<t:1792854000:f>)\",\"inline\":false}],\"footer\":{\"text\":\"Anime Episode Checker · Watching dashboard\"}}],\"components\":[{\"type\":1,\"components\":[{\"type\":2,\"style\":5,\"label\":\"Watch\",\"url\":\"https://www.crunchyroll.com/series/GG5H5XQX4/frieren\"},{\"type\":2,\"style\":5,\"label\":\"r/anime\",\"url\":\"https://www.reddit.com/r/anime/comments/abc/frieren/\"}]}]}"
+    },
+    {
+      "method": "PUT",
+      "url": "https://discord.com/api/v10/channels/watching-1/pins/created-1",
+      "contentType": null,
+      "authorization": "Bot bot-token",
+      "body": null
+    },
+    {
+      "method": "GET",
+      "url": "https://discord.com/api/v10/channels/watching-1/messages?limit=15",
+      "contentType": null,
+      "authorization": "Bot bot-token",
+      "body": null
+    },
+    {
+      "method": "DELETE",
+      "url": "https://discord.com/api/v10/channels/watching-1/messages/system-1",
+      "contentType": null,
+      "authorization": "Bot bot-token",
+      "body": null
+    }
+  ],
+  "dashboard sync edit (bot)": [
+    {
+      "method": "PATCH",
+      "url": "https://discord.com/api/v10/channels/watching-1/messages/existing-1",
+      "contentType": "application/json",
+      "authorization": "Bot bot-token",
+      "body": "{\"content\":\"**Frieren** — MAL — · Next Episode 4 · Upcoming\",\"embeds\":[{\"title\":\"Frieren\",\"url\":\"https://www.crunchyroll.com/series/GG5H5XQX4/frieren\",\"color\":9148581,\"fields\":[{\"name\":\"Status\",\"value\":\"Upcoming\",\"inline\":true},{\"name\":\"Provider\",\"value\":\"Crunchyroll\",\"inline\":true},{\"name\":\"MAL\",\"value\":\"—\",\"inline\":true},{\"name\":\"MAL score\",\"value\":\"—\",\"inline\":true},{\"name\":\"Next\",\"value\":\"Episode 4\",\"inline\":true},{\"name\":\"Countdown\",\"value\":\"<t:1792854000:R>\",\"inline\":true},{\"name\":\"Expected drop\",\"value\":\"Oct 24, 2026, 11:00:00 AM EDT (<t:1792854000:f>)\",\"inline\":false}],\"footer\":{\"text\":\"Anime Episode Checker · Watching dashboard\"}}],\"components\":[{\"type\":1,\"components\":[{\"type\":2,\"style\":5,\"label\":\"Watch\",\"url\":\"https://www.crunchyroll.com/series/GG5H5XQX4/frieren\"},{\"type\":2,\"style\":5,\"label\":\"r/anime\",\"url\":\"https://www.reddit.com/r/anime/comments/abc/frieren/\"}]}]}"
+    }
+  ],
+  "Disney auth alert (bot)": [
+    {
+      "method": "POST",
+      "url": "https://discord.com/api/v10/channels/channel-1/messages",
+      "contentType": "application/json",
+      "authorization": "Bot bot-token",
+      "body": "{\"embeds\":[{\"title\":\"Disney+ checks need attention\",\"description\":\"Disney+ episode checks failed (anonymous metadata was unavailable). Common causes:\\n\\n• **Geo-block** (`forbidden-location`) — GitHub Actions uses datacenter IPs. Disney shows are skipped for this run; run `pnpm check` from home when you need Disney baseline/alerts.\\n• **Expired refresh token** — Re-copy `context.refreshToken` from DevTools on disneyplus.com (see README §6) into `DISNEY_REFRESH_TOKEN`.\\n\\nOther providers continue normally.\",\"color\":15105570,\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
+    }
+  ],
+  "episode alert, bare (bot)": [
+    {
+      "method": "POST",
+      "url": "https://discord.com/api/v10/channels/channel-1/messages",
+      "contentType": "application/json",
+      "authorization": "Bot bot-token",
+      "body": "{\"content\":\"✅ **Frieren: Beyond Journey’s End** — Episode 4 is out!\",\"embeds\":[{\"title\":\"✅ Frieren: Beyond Journey’s End — Episode 4 is out!\",\"url\":\"\",\"description\":\"New episode\",\"color\":3066993,\"fields\":[{\"name\":\"Season\",\"value\":\"Season 2\",\"inline\":true},{\"name\":\"MAL score\",\"value\":\"—\",\"inline\":true},{\"name\":\"Countdown\",\"value\":\"<t:1792854000:R>\",\"inline\":true},{\"name\":\"Timing\",\"value\":\"On time (expected Oct 24, 2026, 11:00:00 AM EDT, dropped Unknown time)\",\"inline\":false}],\"timestamp\":\"2026-10-22T12:34:56.000Z\",\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
+    }
+  ],
+  "episode alert, bare (webhook)": [
+    {
+      "method": "POST",
+      "url": "https://discord.test/webhook",
+      "contentType": "application/json",
+      "authorization": null,
+      "body": "{\"embeds\":[{\"title\":\"✅ Frieren: Beyond Journey’s End — Episode 4 is out!\",\"url\":\"\",\"description\":\"New episode\",\"color\":3066993,\"fields\":[{\"name\":\"Season\",\"value\":\"Season 2\",\"inline\":true},{\"name\":\"MAL score\",\"value\":\"—\",\"inline\":true},{\"name\":\"Countdown\",\"value\":\"<t:1792854000:R>\",\"inline\":true},{\"name\":\"Timing\",\"value\":\"On time (expected Oct 24, 2026, 11:00:00 AM EDT, dropped Unknown time)\",\"inline\":false}],\"timestamp\":\"2026-10-22T12:34:56.000Z\",\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
+    }
+  ],
+  "episode alert, full (bot)": [
+    {
+      "method": "POST",
+      "url": "https://discord.com/api/v10/channels/channel-1/messages",
+      "contentType": "application/json",
+      "authorization": "Bot bot-token",
+      "body": "{\"content\":\"✅ **Frieren** — Episode 3 is out!\",\"embeds\":[{\"title\":\"✅ Frieren — Episode 3 is out!\",\"url\":\"https://www.crunchyroll.com/watch/ep-3\",\"description\":\"The Mage’s Journey\",\"color\":15105570,\"thumbnail\":{\"url\":\"https://cdn.myanimelist.net/images/anime/1/frieren.jpg\"},\"fields\":[{\"name\":\"Season\",\"value\":\"Season 2\",\"inline\":true},{\"name\":\"MAL score\",\"value\":\"9.31\",\"inline\":true},{\"name\":\"Countdown\",\"value\":\"<t:1792251720:R>\",\"inline\":true},{\"name\":\"Timing\",\"value\":\"Late (expected Oct 17, 2026, 11:00:00 AM EDT, dropped Oct 17, 2026, 11:42:00 AM EDT)\",\"inline\":false},{\"name\":\"Discussion\",\"value\":\"[r/anime thread](https://www.reddit.com/r/anime/comments/abc/frieren/)\",\"inline\":false}],\"timestamp\":\"2026-10-17T15:42:00.000Z\",\"footer\":{\"text\":\"Anime Episode Checker\"}}],\"components\":[{\"type\":1,\"components\":[{\"type\":2,\"style\":5,\"label\":\"Watch\",\"url\":\"https://www.crunchyroll.com/watch/ep-3\"},{\"type\":2,\"style\":5,\"label\":\"r/anime\",\"url\":\"https://www.reddit.com/r/anime/comments/abc/frieren/\"},{\"type\":2,\"style\":5,\"label\":\"MAL\",\"url\":\"https://myanimelist.net/anime/52991\"}]}]}"
+    }
+  ],
+  "episode alert, full (webhook)": [
+    {
+      "method": "POST",
+      "url": "https://discord.test/webhook",
+      "contentType": "application/json",
+      "authorization": null,
+      "body": "{\"embeds\":[{\"title\":\"✅ Frieren — Episode 3 is out!\",\"url\":\"https://www.crunchyroll.com/watch/ep-3\",\"description\":\"The Mage’s Journey\",\"color\":15105570,\"thumbnail\":{\"url\":\"https://cdn.myanimelist.net/images/anime/1/frieren.jpg\"},\"fields\":[{\"name\":\"Season\",\"value\":\"Season 2\",\"inline\":true},{\"name\":\"MAL score\",\"value\":\"9.31\",\"inline\":true},{\"name\":\"Countdown\",\"value\":\"<t:1792251720:R>\",\"inline\":true},{\"name\":\"Timing\",\"value\":\"Late (expected Oct 17, 2026, 11:00:00 AM EDT, dropped Oct 17, 2026, 11:42:00 AM EDT)\",\"inline\":false},{\"name\":\"Discussion\",\"value\":\"[r/anime thread](https://www.reddit.com/r/anime/comments/abc/frieren/)\",\"inline\":false},{\"name\":\"Links\",\"value\":\"[Watch](https://www.crunchyroll.com/watch/ep-3) · [r/anime](https://www.reddit.com/r/anime/comments/abc/frieren/) · [MAL](https://myanimelist.net/anime/52991)\",\"inline\":false}],\"timestamp\":\"2026-10-17T15:42:00.000Z\",\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
+    }
+  ],
+  "MAL rate limit, before list (bot)": [
+    {
+      "method": "POST",
+      "url": "https://discord.com/api/v10/channels/channel-1/messages",
+      "contentType": "application/json",
+      "authorization": "Bot bot-token",
+      "body": "{\"content\":\"MAL rate limited the related anime check (HTTP 403)\",\"embeds\":[{\"title\":\"MAL rate limit hit\",\"description\":\"Stopped before the completed list could be fetched. The check will run again next Sunday.\",\"color\":15158332,\"timestamp\":\"2026-10-22T12:34:56.000Z\",\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
+    }
+  ],
+  "MAL rate limit, before list (webhook)": [
+    {
+      "method": "POST",
+      "url": "https://discord.test/webhook",
+      "contentType": "application/json",
+      "authorization": null,
+      "body": "{\"content\":\"MAL rate limited the related anime check (HTTP 403)\",\"embeds\":[{\"title\":\"MAL rate limit hit\",\"description\":\"Stopped before the completed list could be fetched. The check will run again next Sunday.\",\"color\":15158332,\"timestamp\":\"2026-10-22T12:34:56.000Z\",\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
+    }
+  ],
+  "MAL rate limit, partway (bot)": [
+    {
+      "method": "POST",
+      "url": "https://discord.com/api/v10/channels/channel-1/messages",
+      "contentType": "application/json",
+      "authorization": "Bot bot-token",
+      "body": "{\"content\":\"MAL rate limited the related anime check (HTTP 429)\",\"embeds\":[{\"title\":\"MAL rate limit hit\",\"description\":\"Stopped after checking 4 of 9 completed titles. The rest will be checked next Sunday.\",\"color\":15158332,\"timestamp\":\"2026-10-22T12:34:56.000Z\",\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
+    }
+  ],
+  "MAL rate limit, partway (webhook)": [
+    {
+      "method": "POST",
+      "url": "https://discord.test/webhook",
+      "contentType": "application/json",
+      "authorization": null,
+      "body": "{\"content\":\"MAL rate limited the related anime check (HTTP 429)\",\"embeds\":[{\"title\":\"MAL rate limit hit\",\"description\":\"Stopped after checking 4 of 9 completed titles. The rest will be checked next Sunday.\",\"color\":15158332,\"timestamp\":\"2026-10-22T12:34:56.000Z\",\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
+    }
+  ],
+  "MAL score drop (bot)": [
+    {
+      "method": "POST",
+      "url": "https://discord.com/api/v10/channels/channel-1/messages",
+      "contentType": "application/json",
+      "authorization": "Bot bot-token",
+      "body": "{\"embeds\":[{\"title\":\"bare-show — MAL score drop\",\"url\":\"https://myanimelist.net/anime/1\",\"color\":15158332,\"fields\":[{\"name\":\"Score\",\"value\":\"8.50 → 8.40 (-0.10)\",\"inline\":false},{\"name\":\"MAL\",\"value\":\"[View on MAL](https://myanimelist.net/anime/1)\",\"inline\":true}],\"timestamp\":\"2026-10-22T12:34:56.000Z\",\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
+    }
+  ],
+  "MAL score drop (webhook)": [
+    {
+      "method": "POST",
+      "url": "https://discord.test/webhook",
+      "contentType": "application/json",
+      "authorization": null,
+      "body": "{\"embeds\":[{\"title\":\"bare-show — MAL score drop\",\"url\":\"https://myanimelist.net/anime/1\",\"color\":15158332,\"fields\":[{\"name\":\"Score\",\"value\":\"8.50 → 8.40 (-0.10)\",\"inline\":false},{\"name\":\"MAL\",\"value\":\"[View on MAL](https://myanimelist.net/anime/1)\",\"inline\":true}],\"timestamp\":\"2026-10-22T12:34:56.000Z\",\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
+    }
+  ],
+  "MAL score pickup (bot)": [
+    {
+      "method": "POST",
+      "url": "https://discord.com/api/v10/channels/channel-1/messages",
+      "contentType": "application/json",
+      "authorization": "Bot bot-token",
+      "body": "{\"embeds\":[{\"title\":\"Frieren — MAL score pickup\",\"url\":\"https://www.crunchyroll.com/series/GG5H5XQX4/frieren\",\"description\":\"Big week\",\"color\":3066993,\"thumbnail\":{\"url\":\"https://cdn.myanimelist.net/images/anime/1/frieren.jpg\"},\"fields\":[{\"name\":\"Score\",\"value\":\"9.10 → 9.25 (+0.15)\",\"inline\":false},{\"name\":\"MAL\",\"value\":\"[View on MAL](https://myanimelist.net/anime/52991)\",\"inline\":true}],\"timestamp\":\"2026-10-22T12:34:56.000Z\",\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
+    }
+  ],
+  "MAL score pickup (webhook)": [
+    {
+      "method": "POST",
+      "url": "https://discord.test/webhook",
+      "contentType": "application/json",
+      "authorization": null,
+      "body": "{\"embeds\":[{\"title\":\"Frieren — MAL score pickup\",\"url\":\"https://www.crunchyroll.com/series/GG5H5XQX4/frieren\",\"description\":\"Big week\",\"color\":3066993,\"thumbnail\":{\"url\":\"https://cdn.myanimelist.net/images/anime/1/frieren.jpg\"},\"fields\":[{\"name\":\"Score\",\"value\":\"9.10 → 9.25 (+0.15)\",\"inline\":false},{\"name\":\"MAL\",\"value\":\"[View on MAL](https://myanimelist.net/anime/52991)\",\"inline\":true}],\"timestamp\":\"2026-10-22T12:34:56.000Z\",\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
+    }
+  ],
+  "MAL status down (bot)": [
+    {
+      "method": "POST",
+      "url": "https://discord.com/api/v10/channels/channel-1/messages",
+      "contentType": "application/json",
+      "authorization": "Bot bot-token",
+      "body": "{\"content\":\"🔴 MyAnimeList is down\",\"embeds\":[{\"title\":\"MAL is down\",\"description\":\"The MAL API is not responding. Dashboard progress, scores, and plan-to-watch checks will show as unavailable until it recovers. You will get another message when it is back.\",\"color\":15158332,\"timestamp\":\"2026-10-22T10:00:00.000Z\",\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
+    }
+  ],
+  "MAL status down (webhook)": [
+    {
+      "method": "POST",
+      "url": "https://discord.test/webhook",
+      "contentType": "application/json",
+      "authorization": null,
+      "body": "{\"content\":\"🔴 MyAnimeList is down\",\"embeds\":[{\"title\":\"MAL is down\",\"description\":\"The MAL API is not responding. Dashboard progress, scores, and plan-to-watch checks will show as unavailable until it recovers. You will get another message when it is back.\",\"color\":15158332,\"timestamp\":\"2026-10-22T10:00:00.000Z\",\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
+    }
+  ],
+  "MAL status up (bot)": [
+    {
+      "method": "POST",
+      "url": "https://discord.com/api/v10/channels/channel-1/messages",
+      "contentType": "application/json",
+      "authorization": "Bot bot-token",
+      "body": "{\"content\":\"🟢 MyAnimeList is back up\",\"embeds\":[{\"title\":\"MAL is back\",\"description\":\"The MAL API is responding again. Down since <t:1792663200:f> (about 2h 35m).\",\"color\":3066993,\"timestamp\":\"2026-10-22T12:34:56.000Z\",\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
+    }
+  ],
+  "MAL status up (webhook)": [
+    {
+      "method": "POST",
+      "url": "https://discord.test/webhook",
+      "contentType": "application/json",
+      "authorization": null,
+      "body": "{\"content\":\"🟢 MyAnimeList is back up\",\"embeds\":[{\"title\":\"MAL is back\",\"description\":\"The MAL API is responding again. Down since <t:1792663200:f> (about 2h 35m).\",\"color\":3066993,\"timestamp\":\"2026-10-22T12:34:56.000Z\",\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
+    }
+  ],
+  "Netflix cookie alert (bot)": [
+    {
+      "method": "POST",
+      "url": "https://discord.com/api/v10/channels/channel-1/messages",
+      "contentType": "application/json",
+      "authorization": "Bot bot-token",
+      "body": "{\"embeds\":[{\"title\":\"Netflix cookie needs refresh\",\"description\":\"The `NETFLIX_COOKIE` GitHub Actions secret is missing or expired. Netflix episode checks are paused until you update it.\\n\\nCopy your logged-in netflix.com `Cookie` header into the secret, then re-run the check workflow.\",\"color\":15105570,\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
+    }
+  ],
+  "plan-to-watch airing (bot)": [
+    {
+      "method": "POST",
+      "url": "https://discord.com/api/v10/channels/channel-1/messages",
+      "contentType": "application/json",
+      "authorization": "Bot bot-token",
+      "body": "{\"content\":\"**Airing Show** — plan to watch now airing\",\"embeds\":[{\"title\":\"Airing Show is airing on your plan-to-watch list\",\"url\":\"https://myanimelist.net/anime/100\",\"description\":\"This title is currently airing on MAL.\",\"color\":3447003,\"thumbnail\":{\"url\":\"https://cdn.myanimelist.net/images/anime/100.jpg\"},\"fields\":[{\"name\":\"Starts\",\"value\":\"2026-10-01\",\"inline\":true},{\"name\":\"Broadcast\",\"value\":\"Saturday at 23:30 JST\",\"inline\":true},{\"name\":\"Episodes\",\"value\":\"12\",\"inline\":true}],\"timestamp\":\"2026-10-22T12:34:56.000Z\",\"footer\":{\"text\":\"Anime Episode Checker\"}}],\"components\":[{\"type\":1,\"components\":[{\"type\":2,\"style\":5,\"label\":\"MAL\",\"url\":\"https://myanimelist.net/anime/100\"}]}]}"
+    }
+  ],
+  "plan-to-watch airing (webhook)": [
+    {
+      "method": "POST",
+      "url": "https://discord.test/webhook",
+      "contentType": "application/json",
+      "authorization": null,
+      "body": "{\"content\":\"**Airing Show** — plan to watch now airing\",\"embeds\":[{\"title\":\"Airing Show is airing on your plan-to-watch list\",\"url\":\"https://myanimelist.net/anime/100\",\"description\":\"This title is currently airing on MAL.\",\"color\":3447003,\"thumbnail\":{\"url\":\"https://cdn.myanimelist.net/images/anime/100.jpg\"},\"fields\":[{\"name\":\"Starts\",\"value\":\"2026-10-01\",\"inline\":true},{\"name\":\"Broadcast\",\"value\":\"Saturday at 23:30 JST\",\"inline\":true},{\"name\":\"Episodes\",\"value\":\"12\",\"inline\":true}],\"timestamp\":\"2026-10-22T12:34:56.000Z\",\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
+    }
+  ],
+  "plan-to-watch upcoming (bot)": [
+    {
+      "method": "POST",
+      "url": "https://discord.com/api/v10/channels/channel-1/messages",
+      "contentType": "application/json",
+      "authorization": "Bot bot-token",
+      "body": "{\"content\":\"**Upcoming Show** — plan to watch starting soon\",\"embeds\":[{\"title\":\"Upcoming Show starts airing soon\",\"url\":\"https://myanimelist.net/anime/101\",\"description\":\"This title starts within the next 7 days on MAL.\",\"color\":10181046,\"fields\":[{\"name\":\"Broadcast\",\"value\":\"01:00\",\"inline\":true}],\"timestamp\":\"2026-10-22T12:34:56.000Z\",\"footer\":{\"text\":\"Anime Episode Checker\"}}],\"components\":[{\"type\":1,\"components\":[{\"type\":2,\"style\":5,\"label\":\"MAL\",\"url\":\"https://myanimelist.net/anime/101\"}]}]}"
+    }
+  ],
+  "plan-to-watch upcoming (webhook)": [
+    {
+      "method": "POST",
+      "url": "https://discord.test/webhook",
+      "contentType": "application/json",
+      "authorization": null,
+      "body": "{\"content\":\"**Upcoming Show** — plan to watch starting soon\",\"embeds\":[{\"title\":\"Upcoming Show starts airing soon\",\"url\":\"https://myanimelist.net/anime/101\",\"description\":\"This title starts within the next 7 days on MAL.\",\"color\":10181046,\"fields\":[{\"name\":\"Broadcast\",\"value\":\"01:00\",\"inline\":true}],\"timestamp\":\"2026-10-22T12:34:56.000Z\",\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
+    }
+  ],
+  "Reddit feed error (bot)": [
+    {
+      "method": "POST",
+      "url": "https://discord.com/api/v10/channels/channel-1/messages",
+      "contentType": "application/json",
+      "authorization": "Bot bot-token",
+      "body": "{\"embeds\":[{\"title\":\"Reddit user feed check failing\",\"description\":\"Could not fetch submissions for u/someone (HTTP 403). Reddit often blocks logged-out RSS from GitHub Actions; set `REDDIT_CLIENT_ID` and `REDDIT_CLIENT_SECRET` (see README). Post alerts are paused until fetches succeed again.\",\"color\":15105570,\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
+    }
+  ],
+  "Reddit feed error (webhook)": [
+    {
+      "method": "POST",
+      "url": "https://discord.test/webhook",
+      "contentType": "application/json",
+      "authorization": null,
+      "body": "{\"embeds\":[{\"title\":\"Reddit user feed check failing\",\"description\":\"Could not fetch submissions for u/someone (HTTP 403). Reddit often blocks logged-out RSS from GitHub Actions; set `REDDIT_CLIENT_ID` and `REDDIT_CLIENT_SECRET` (see README). Post alerts are paused until fetches succeed again.\",\"color\":15105570,\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
+    }
+  ],
+  "Reddit post (bot)": [
+    {
+      "method": "POST",
+      "url": "https://discord.com/api/v10/channels/channel-1/messages",
+      "contentType": "application/json",
+      "authorization": "Bot bot-token",
+      "body": "{\"content\":\"**Weekly thread** — new post by u/someone\",\"embeds\":[{\"title\":\"Weekly thread\",\"url\":\"https://www.reddit.com/r/anime/comments/xyz/weekly/\",\"description\":\"New post by u/someone in r/anime\",\"color\":16729344,\"timestamp\":\"2026-10-22T12:34:56.000Z\",\"footer\":{\"text\":\"Anime Episode Checker\"}}],\"components\":[{\"type\":1,\"components\":[{\"type\":2,\"style\":5,\"label\":\"Reddit\",\"url\":\"https://www.reddit.com/r/anime/comments/xyz/weekly/\"}]}]}"
+    }
+  ],
+  "Reddit post (webhook)": [
+    {
+      "method": "POST",
+      "url": "https://discord.test/webhook",
+      "contentType": "application/json",
+      "authorization": null,
+      "body": "{\"content\":\"**Weekly thread** — new post by u/someone\",\"embeds\":[{\"title\":\"Weekly thread\",\"url\":\"https://www.reddit.com/r/anime/comments/xyz/weekly/\",\"description\":\"New post by u/someone in r/anime\",\"color\":16729344,\"timestamp\":\"2026-10-22T12:34:56.000Z\",\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
+    }
+  ],
+  "Reddit post without subreddit (bot)": [
+    {
+      "method": "POST",
+      "url": "https://discord.com/api/v10/channels/channel-1/messages",
+      "contentType": "application/json",
+      "authorization": "Bot bot-token",
+      "body": "{\"content\":\"**Profile post** — new post by u/someone\",\"embeds\":[{\"title\":\"Profile post\",\"url\":\"https://www.reddit.com/user/someone/comments/xyz/\",\"description\":\"New post by u/someone in Reddit\",\"color\":16729344,\"timestamp\":\"2026-10-22T12:34:56.000Z\",\"footer\":{\"text\":\"Anime Episode Checker\"}}],\"components\":[{\"type\":1,\"components\":[{\"type\":2,\"style\":5,\"label\":\"Reddit\",\"url\":\"https://www.reddit.com/user/someone/comments/xyz/\"}]}]}"
+    }
+  ],
+  "Reddit post without subreddit (webhook)": [
+    {
+      "method": "POST",
+      "url": "https://discord.test/webhook",
+      "contentType": "application/json",
+      "authorization": null,
+      "body": "{\"content\":\"**Profile post** — new post by u/someone\",\"embeds\":[{\"title\":\"Profile post\",\"url\":\"https://www.reddit.com/user/someone/comments/xyz/\",\"description\":\"New post by u/someone in Reddit\",\"color\":16729344,\"timestamp\":\"2026-10-22T12:34:56.000Z\",\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
+    }
+  ],
+  "related anime with summary (bot)": [
+    {
+      "method": "POST",
+      "url": "https://discord.com/api/v10/channels/channel-1/messages",
+      "contentType": "application/json",
+      "authorization": "Bot bot-token",
+      "body": "{\"content\":\"**Frieren Season 3** — new sequel of Frieren\",\"embeds\":[{\"title\":\"Frieren Season 3\",\"url\":\"https://myanimelist.net/anime/200\",\"description\":\"New sequel of [Frieren](https://myanimelist.net/anime/52991) added on MAL.\",\"color\":15105570,\"thumbnail\":{\"url\":\"https://cdn.myanimelist.net/images/anime/200-summary.jpg\"},\"fields\":[{\"name\":\"Relation\",\"value\":\"Sequel\",\"inline\":true},{\"name\":\"Type\",\"value\":\"TV\",\"inline\":true},{\"name\":\"Status\",\"value\":\"Not Yet Aired\",\"inline\":true},{\"name\":\"Starts\",\"value\":\"2027-01-10\",\"inline\":true},{\"name\":\"Episodes\",\"value\":\"24\",\"inline\":true}],\"timestamp\":\"2026-10-22T12:34:56.000Z\",\"footer\":{\"text\":\"Anime Episode Checker\"}}],\"components\":[{\"type\":1,\"components\":[{\"type\":2,\"style\":5,\"label\":\"MAL\",\"url\":\"https://myanimelist.net/anime/200\"}]}]}"
+    }
+  ],
+  "related anime with summary (webhook)": [
+    {
+      "method": "POST",
+      "url": "https://discord.test/webhook",
+      "contentType": "application/json",
+      "authorization": null,
+      "body": "{\"content\":\"**Frieren Season 3** — new sequel of Frieren\",\"embeds\":[{\"title\":\"Frieren Season 3\",\"url\":\"https://myanimelist.net/anime/200\",\"description\":\"New sequel of [Frieren](https://myanimelist.net/anime/52991) added on MAL.\",\"color\":15105570,\"thumbnail\":{\"url\":\"https://cdn.myanimelist.net/images/anime/200-summary.jpg\"},\"fields\":[{\"name\":\"Relation\",\"value\":\"Sequel\",\"inline\":true},{\"name\":\"Type\",\"value\":\"TV\",\"inline\":true},{\"name\":\"Status\",\"value\":\"Not Yet Aired\",\"inline\":true},{\"name\":\"Starts\",\"value\":\"2027-01-10\",\"inline\":true},{\"name\":\"Episodes\",\"value\":\"24\",\"inline\":true}],\"timestamp\":\"2026-10-22T12:34:56.000Z\",\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
+    }
+  ],
+  "related anime without summary (bot)": [
+    {
+      "method": "POST",
+      "url": "https://discord.com/api/v10/channels/channel-1/messages",
+      "contentType": "application/json",
+      "authorization": "Bot bot-token",
+      "body": "{\"content\":\"**Frieren Special** — new side story of Frieren\",\"embeds\":[{\"title\":\"Frieren Special\",\"url\":\"https://myanimelist.net/anime/201\",\"description\":\"New side story of [Frieren](https://myanimelist.net/anime/52991) added on MAL.\",\"color\":15105570,\"fields\":[{\"name\":\"Relation\",\"value\":\"Side Story\",\"inline\":true}],\"timestamp\":\"2026-10-22T12:34:56.000Z\",\"footer\":{\"text\":\"Anime Episode Checker\"}}],\"components\":[{\"type\":1,\"components\":[{\"type\":2,\"style\":5,\"label\":\"MAL\",\"url\":\"https://myanimelist.net/anime/201\"}]}]}"
+    }
+  ],
+  "related anime without summary (webhook)": [
+    {
+      "method": "POST",
+      "url": "https://discord.test/webhook",
+      "contentType": "application/json",
+      "authorization": null,
+      "body": "{\"content\":\"**Frieren Special** — new side story of Frieren\",\"embeds\":[{\"title\":\"Frieren Special\",\"url\":\"https://myanimelist.net/anime/201\",\"description\":\"New side story of [Frieren](https://myanimelist.net/anime/52991) added on MAL.\",\"color\":15105570,\"fields\":[{\"name\":\"Relation\",\"value\":\"Side Story\",\"inline\":true}],\"timestamp\":\"2026-10-22T12:34:56.000Z\",\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
+    }
+  ],
+  "waiting alert (bot)": [
+    {
+      "method": "POST",
+      "url": "https://discord.com/api/v10/channels/channel-1/messages",
+      "contentType": "application/json",
+      "authorization": "Bot bot-token",
+      "body": "{\"content\":\"🤔 **Frieren** — Episode 4 not on Crunchyroll yet.\",\"embeds\":[{\"title\":\"🤔 Frieren — Episode 4 not on Crunchyroll yet.\",\"description\":\"Expected around Oct 24, 2026, 11:00:00 AM EDT. Countdown: <t:1792854000:R>\",\"color\":15844367,\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
+    }
+  ],
+  "waiting alert (webhook)": [
+    {
+      "method": "POST",
+      "url": "https://discord.test/webhook",
+      "contentType": "application/json",
+      "authorization": null,
+      "body": "{\"content\":\"🤔 **Frieren** — Episode 4 not on Crunchyroll yet.\",\"embeds\":[{\"title\":\"🤔 Frieren — Episode 4 not on Crunchyroll yet.\",\"description\":\"Expected around Oct 24, 2026, 11:00:00 AM EDT. Countdown: <t:1792854000:R>\",\"color\":15844367,\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
+    }
+  ],
+  "waiting alert, bare (bot)": [
+    {
+      "method": "POST",
+      "url": "https://discord.com/api/v10/channels/channel-1/messages",
+      "contentType": "application/json",
+      "authorization": "Bot bot-token",
+      "body": "{\"content\":\"🤔 **bare-show** — Episode 4 not on Netflix yet.\",\"embeds\":[{\"title\":\"🤔 bare-show — Episode 4 not on Netflix yet.\",\"description\":\"Expected around Oct 24, 2026, 11:00:00 AM EDT. Countdown: <t:1792854000:R>\",\"color\":15844367,\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
+    }
+  ],
+  "waiting alert, bare (webhook)": [
+    {
+      "method": "POST",
+      "url": "https://discord.test/webhook",
+      "contentType": "application/json",
+      "authorization": null,
+      "body": "{\"content\":\"🤔 **bare-show** — Episode 4 not on Netflix yet.\",\"embeds\":[{\"title\":\"🤔 bare-show — Episode 4 not on Netflix yet.\",\"description\":\"Expected around Oct 24, 2026, 11:00:00 AM EDT. Countdown: <t:1792854000:R>\",\"color\":15844367,\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
+    }
+  ]
+}

@@ -17,6 +17,8 @@ import {
   parseSeriesIdFromUrl,
 } from '../shared/provider-urls.ts'
 import {
+  hasDiscordBotConfig,
+  hasDiscordConfig,
   sendEpisodeAlert,
   sendDisneyAuthAlert,
   sendNetflixCookieAlert,
@@ -168,9 +170,7 @@ function toRelativeEpisodeResult(
   }
 
   const snapshot = toRelativeSnapshot(raw, resolved)
-  const relativeEpisode = parseEpisodeNumber(
-    String(snapshot.episode.episode ?? '')
-  )
+  const relativeEpisode = parseEpisodeNumber(snapshot.episode.episode)
   if (relativeEpisode < show.schedule.startEpisode) {
     return { kind: 'previous_season' }
   }
@@ -277,7 +277,7 @@ async function notifyDisneyAuthFailure(
   noteStateChange: (reason: string) => void
 ): Promise<void> {
   if (!state.meta?.disneyCookieAlertSentAt) {
-    if (!dryRun && hasBotConfig(discord)) {
+    if (!dryRun && hasDiscordBotConfig(discord)) {
       await sendDisneyAuthAlert(discord)
       console.log('  Disney+ refresh token alert sent via Discord bot')
     } else if (!dryRun) {
@@ -305,17 +305,6 @@ export interface CheckOptions {
   fetchEpisode?: (show: Show) => Promise<EpisodeSnapshot | null>
   dryRun?: boolean
   force?: boolean
-}
-
-function hasDiscordConfig(discord: DiscordConfig): boolean {
-  return Boolean(
-    (discord.botToken?.trim() && discord.channelId?.trim()) ||
-    discord.webhookUrl?.trim()
-  )
-}
-
-function hasBotConfig(discord: DiscordConfig): boolean {
-  return Boolean(discord.botToken?.trim() && discord.channelId?.trim())
 }
 
 async function announceEpisode({
@@ -586,7 +575,7 @@ export async function checkShows({
           skipNetflixShows = true
 
           if (!state.meta?.netflixCookieAlertSentAt) {
-            if (!dryRun && hasBotConfig(discord)) {
+            if (!dryRun && hasDiscordBotConfig(discord)) {
               await sendNetflixCookieAlert(discord)
               console.log('  Netflix cookie refresh alert sent via Discord bot')
             } else if (!dryRun) {
@@ -660,9 +649,7 @@ export async function checkShows({
       }
 
       latestSnapshot = relativeResult.snapshot
-      const snapshotEpisode = parseEpisodeNumber(
-        String(latestSnapshot.episode.episode ?? '')
-      )
+      const snapshotEpisode = parseEpisodeNumber(latestSnapshot.episode.episode)
       if (snapshotEpisode > 0) snapshotEpisodes.set(showId, snapshotEpisode)
       if (previousState?.episodeOffset == null) {
         episodeOffsetToSave = relativeResult.episodeOffset
@@ -670,7 +657,7 @@ export async function checkShows({
 
       if (!previousState) {
         const latestEpisodeNumber = parseEpisodeNumber(
-          String(latestSnapshot.episode.episode ?? '')
+          latestSnapshot.episode.episode
         )
 
         if (latestEpisodeNumber >= nextExpectedEp) {
@@ -717,7 +704,7 @@ export async function checkShows({
       }
 
       const latestEpisodeNumber = parseEpisodeNumber(
-        String(latestSnapshot.episode.episode ?? '')
+        latestSnapshot.episode.episode
       )
       const expectedDropAt = expectedAt.toISOString()
 
