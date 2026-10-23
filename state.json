@@ -20,7 +20,7 @@
       "malScoreAlertedAt": "2026-10-01T03:55:32.164Z",
       "lastSnapshotEpisode": 9,
       "airingSchedule": {
-        "fetchedAt": "2026-10-22T18:35:24.318Z",
+        "fetchedAt": "2026-10-23T18:45:44.427Z",
         "episodes": {
           "1": "2026-07-25T14:00:00.000Z",
           "2": "2026-08-01T14:00:00.000Z",
@@ -147,7 +147,7 @@
         }
       },
       "airingSchedule": {
-        "fetchedAt": "2026-10-22T18:35:24.318Z",
+        "fetchedAt": "2026-10-23T18:45:44.427Z",
         "episodes": {
           "1": "2026-10-04T07:30:00.000Z",
           "2": "2026-10-11T07:30:00.000Z",
@@ -178,7 +178,7 @@
       "googleCalendarEvents": null,
       "malScoreAlertedAt": "2026-10-22T01:30:39.687Z",
       "airingSchedule": {
-        "fetchedAt": "2026-10-22T18:35:24.318Z",
+        "fetchedAt": "2026-10-23T18:45:44.427Z",
         "episodes": {
           "1": "2026-10-20T07:00:00.000Z",
           "2": "2026-10-20T07:00:00.000Z",
@@ -213,7 +213,7 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-10-22T18:43:47.381Z",
+    "planToWatchCheckedAt": "2026-10-23T18:45:44.427Z",
     "planToWatch": {
       "updatedAt": "2026-10-22T18:35:24.318Z",
       "entries": [
@@ -809,7 +809,7 @@
       "bleach": "c0138f77198f5bf7a120d59bef77b88a5d49d085",
       "kusuriya-no-hitorigoto-3rd-season": "6d2581b5e53fa66814653b06c6eae03b411c8337",
       "ao-no-hako-season-2": "8eecc1257dfb77512b5ebd6aa841a8e90ed46c32",
-      "cyberpunk-edgerunners-2": "b775cf50b019e480c6aba82c7b98cb90d682c326"
+      "cyberpunk-edgerunners-2": "f50677e459444a4828a72a4a4526c46b0681b1f7"
     },
     "onHold": {
       "updatedAt": "2026-09-28T21:46:38.715Z",
@@ -2165,7 +2165,7 @@
       "bleach": "8.99",
       "kusuriya-no-hitorigoto-3rd-season": "8.66",
       "ao-no-hako-season-2": "8.16",
-      "cyberpunk-edgerunners-2": "8.33"
+      "cyberpunk-edgerunners-2": "8.30"
     }
   }
 }
