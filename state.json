@@ -15,8 +15,8 @@
           "startAt": "2026-10-26T16:00:00.000Z"
         }
       },
-      "discussionUrl": "https://www.reddit.com/r/anime/comments/1wefsn2/bleach_thousandyear_blood_war_the_calamity_bleach/",
-      "discussionUrlEpisode": 8,
+      "discussionUrl": "https://www.reddit.com/r/anime/comments/1xa0vsp/bleach_thousandyear_blood_war_the_calamity_bleach/",
+      "discussionUrlEpisode": 9,
       "malScoreAlertedAt": "2026-10-01T03:55:32.164Z",
       "lastSnapshotEpisode": 9,
       "airingSchedule": {
@@ -84,7 +84,7 @@
         }
       },
       "airingSchedule": {
-        "fetchedAt": "2026-10-22T18:35:24.318Z",
+        "fetchedAt": "2026-10-23T14:55:41.734Z",
         "episodes": {
           "1": "2026-10-02T14:00:00.000Z",
           "2": "2026-10-09T14:00:00.000Z",
@@ -810,8 +810,8 @@
       ]
     },
     "watchingDashboardHashes": {
-      "bleach": "f80d575c5c745e1ad2417fda5f141291b141ae3d",
-      "kusuriya-no-hitorigoto-3rd-season": "263e97e6f38be143f177d69ba20942d5193ac15f",
+      "bleach": "c0138f77198f5bf7a120d59bef77b88a5d49d085",
+      "kusuriya-no-hitorigoto-3rd-season": "f23124e8c92f213a7e6f355b135648b510366702",
       "ao-no-hako-season-2": "8eecc1257dfb77512b5ebd6aa841a8e90ed46c32",
       "cyberpunk-edgerunners-2": "b775cf50b019e480c6aba82c7b98cb90d682c326"
     },
