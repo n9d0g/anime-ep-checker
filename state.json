@@ -36,10 +36,10 @@
       }
     },
     "kusuriya-no-hitorigoto-3rd-season": {
-      "lastEpisodeId": "GE00384329JAJP",
-      "lastEpisodeNumber": "3",
-      "lastEpisodeTitle": "Let Them Eat Cake",
-      "lastNotifiedAt": "2026-10-16T15:10:42.123Z",
+      "lastEpisodeId": "GE00384330JAJP",
+      "lastEpisodeNumber": "4",
+      "lastEpisodeTitle": "The Last Volume",
+      "lastNotifiedAt": "2026-10-23T15:05:44.007Z",
       "seasonId": "GS00384044JAJP",
       "seasonTitle": "Season 3",
       "waitingNotifiedForEpisode": null,
@@ -80,7 +80,7 @@
         }
       },
       "airingSchedule": {
-        "fetchedAt": "2026-10-23T15:00:50.541Z",
+        "fetchedAt": "2026-10-23T15:05:44.007Z",
         "episodes": {
           "1": "2026-10-02T14:00:00.000Z",
           "2": "2026-10-09T14:00:00.000Z",
@@ -96,7 +96,7 @@
           "12": "2026-12-18T14:00:00.000Z"
         }
       },
-      "lastSnapshotEpisode": 3
+      "lastSnapshotEpisode": 4
     },
     "ao-no-hako-season-2": {
       "lastEpisodeId": "82716333",
@@ -807,7 +807,7 @@
     },
     "watchingDashboardHashes": {
       "bleach": "c0138f77198f5bf7a120d59bef77b88a5d49d085",
-      "kusuriya-no-hitorigoto-3rd-season": "f23124e8c92f213a7e6f355b135648b510366702",
+      "kusuriya-no-hitorigoto-3rd-season": "6d2581b5e53fa66814653b06c6eae03b411c8337",
       "ao-no-hako-season-2": "8eecc1257dfb77512b5ebd6aa841a8e90ed46c32",
       "cyberpunk-edgerunners-2": "b775cf50b019e480c6aba82c7b98cb90d682c326"
     },
