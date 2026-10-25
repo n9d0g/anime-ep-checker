@@ -99,20 +99,16 @@
       "lastSnapshotEpisode": 4
     },
     "ao-no-hako-season-2": {
-      "lastEpisodeId": "82716333",
-      "lastEpisodeNumber": "3",
-      "lastEpisodeTitle": "They're One and the Same",
-      "lastNotifiedAt": "2026-10-18T08:25:42.727Z",
+      "lastEpisodeId": "82716334",
+      "lastEpisodeNumber": "4",
+      "lastEpisodeTitle": "Love Is the Most Powerful Feeling",
+      "lastNotifiedAt": "2026-10-25T08:25:37.436Z",
       "seasonId": "82715728",
       "seasonTitle": "Season 2",
       "waitingNotifiedForEpisode": null,
       "episodeOffset": 25,
       "malMeanScore": 8.17,
       "googleCalendarEvents": {
-        "4": {
-          "eventId": "4855n94epl05lqm1tdsk7rb0mo",
-          "startAt": "2026-10-25T08:30:00.000Z"
-        },
         "5": {
           "eventId": "mjskr7r7m6sudsh6vpcs1l9p38",
           "startAt": "2026-11-01T08:30:00.000Z"
@@ -147,7 +143,7 @@
         }
       },
       "airingSchedule": {
-        "fetchedAt": "2026-10-24T18:50:44.796Z",
+        "fetchedAt": "2026-10-25T08:25:37.436Z",
         "episodes": {
           "1": "2026-10-04T07:30:00.000Z",
           "2": "2026-10-11T07:30:00.000Z",
@@ -163,7 +159,7 @@
           "12": "2026-12-20T07:30:00.000Z"
         }
       },
-      "lastSnapshotEpisode": 3
+      "lastSnapshotEpisode": 4
     },
     "cyberpunk-edgerunners-2": {
       "lastEpisodeId": "81946382",
@@ -808,7 +804,7 @@
     "watchingDashboardHashes": {
       "bleach": "c0138f77198f5bf7a120d59bef77b88a5d49d085",
       "kusuriya-no-hitorigoto-3rd-season": "6d2581b5e53fa66814653b06c6eae03b411c8337",
-      "ao-no-hako-season-2": "8eecc1257dfb77512b5ebd6aa841a8e90ed46c32",
+      "ao-no-hako-season-2": "a5966a86c96752fcd7c6d5136d74484812605eaf",
       "cyberpunk-edgerunners-2": "f50677e459444a4828a72a4a4526c46b0681b1f7"
     },
     "onHold": {
@@ -2165,7 +2161,7 @@
     "watchingDashboardScores": {
       "bleach": "8.99",
       "kusuriya-no-hitorigoto-3rd-season": "8.66",
-      "ao-no-hako-season-2": "8.16",
+      "ao-no-hako-season-2": "8.15",
       "cyberpunk-edgerunners-2": "8.30"
     }
   }
