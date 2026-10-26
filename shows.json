@@ -1,22 +1,6 @@
 {
   "shows": [
     {
-      "id": "bleach",
-      "title": "Bleach: Sennen Kessen-hen - Kashin-tan",
-      "provider": "disney",
-      "schedule": {
-        "mode": "finite",
-        "startAt": "2026-08-22T15:00:00.000Z",
-        "startEpisode": 1,
-        "episodeCount": 10,
-        "premiereBatchSize": 1
-      },
-      "disneyUrl": "https://www.disneyplus.com/browse/entity-571475d5-8b1a-453f-a57f-26bb4dd13304",
-      "disneyId": "571475d5-8b1a-453f-a57f-26bb4dd13304",
-      "malId": 60636,
-      "titleEnglish": "Bleach: Thousand-Year Blood War - The Calamity"
-    },
-    {
       "id": "kusuriya-no-hitorigoto-3rd-season",
       "title": "Kusuriya no Hitorigoto 3rd Season",
       "provider": "crunchyroll",
