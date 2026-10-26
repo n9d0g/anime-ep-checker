@@ -20,7 +20,7 @@
       "malScoreAlertedAt": "2026-10-01T03:55:32.164Z",
       "lastSnapshotEpisode": 9,
       "airingSchedule": {
-        "fetchedAt": "2026-10-25T18:55:39.022Z",
+        "fetchedAt": "2026-10-26T15:55:42.939Z",
         "episodes": {
           "1": "2026-07-25T14:00:00.000Z",
           "2": "2026-08-01T14:00:00.000Z",
@@ -108,22 +108,55 @@
       "waitingNotifiedForEpisode": null,
       "episodeOffset": 25,
       "malMeanScore": 8.17,
-      "googleCalendarEvents": null,
+      "googleCalendarEvents": {
+        "5": {
+          "eventId": "mjskr7r7m6sudsh6vpcs1l9p38",
+          "startAt": "2026-11-15T08:30:00.000Z"
+        },
+        "6": {
+          "eventId": "46fk7p9p6uovka0f0vgnfe0su8",
+          "startAt": "2026-11-22T08:30:00.000Z"
+        },
+        "7": {
+          "eventId": "ougd2i2rg80cf7l82ihdag8ks4",
+          "startAt": "2026-11-29T08:30:00.000Z"
+        },
+        "8": {
+          "eventId": "kenpnq9j5r1ho8t5luagb1t21g",
+          "startAt": "2026-12-06T08:30:00.000Z"
+        },
+        "9": {
+          "eventId": "fhtr1n7uakjsbo3k7ujklo6o70",
+          "startAt": "2026-12-13T08:30:00.000Z"
+        },
+        "10": {
+          "eventId": "54p8ev2bcqh3241gctvvi01nco",
+          "startAt": "2026-12-20T08:30:00.000Z"
+        },
+        "11": {
+          "eventId": "i95ngqnprhttmfhq4kcbk9es14",
+          "startAt": "2026-12-27T08:30:00.000Z"
+        },
+        "12": {
+          "eventId": "s1so7ebf6f4g8r9ql7ni003scc",
+          "startAt": "2027-01-03T08:30:00.000Z"
+        }
+      },
       "airingSchedule": {
-        "fetchedAt": "2026-10-25T08:25:37.436Z",
+        "fetchedAt": "2026-10-26T15:55:42.939Z",
         "episodes": {
           "1": "2026-10-04T07:30:00.000Z",
           "2": "2026-10-11T07:30:00.000Z",
           "3": "2026-10-18T07:30:00.000Z",
           "4": "2026-10-25T07:30:00.000Z",
-          "5": "2026-11-01T07:30:00.000Z",
-          "6": "2026-11-08T07:30:00.000Z",
-          "7": "2026-11-15T07:30:00.000Z",
-          "8": "2026-11-22T07:30:00.000Z",
-          "9": "2026-11-29T07:30:00.000Z",
-          "10": "2026-12-06T07:30:00.000Z",
-          "11": "2026-12-13T07:30:00.000Z",
-          "12": "2026-12-20T07:30:00.000Z"
+          "5": "2026-11-08T07:30:00.000Z",
+          "6": "2026-11-15T07:30:00.000Z",
+          "7": "2026-11-22T07:30:00.000Z",
+          "8": "2026-11-29T07:30:00.000Z",
+          "9": "2026-12-06T07:30:00.000Z",
+          "10": "2026-12-13T07:30:00.000Z",
+          "11": "2026-12-20T07:30:00.000Z",
+          "12": "2026-12-27T07:30:00.000Z"
         }
       },
       "lastSnapshotEpisode": 4
@@ -769,10 +802,10 @@
       ]
     },
     "watchingDashboardHashes": {
-      "bleach": "c0138f77198f5bf7a120d59bef77b88a5d49d085",
+      "bleach": "c889de2c88effff6d1f00171147dc4c68ea999de",
       "kusuriya-no-hitorigoto-3rd-season": "6d2581b5e53fa66814653b06c6eae03b411c8337",
-      "ao-no-hako-season-2": "a5966a86c96752fcd7c6d5136d74484812605eaf",
-      "cyberpunk-edgerunners-2": "f50677e459444a4828a72a4a4526c46b0681b1f7"
+      "ao-no-hako-season-2": "4c927ad97a80ea3b5d713151fede07fe158b446b",
+      "cyberpunk-edgerunners-2": "63436028430722755beef9a84eb6fedf44abeb68"
     },
     "onHold": {
       "updatedAt": "2026-09-28T21:46:38.715Z",
@@ -2128,7 +2161,7 @@
       "bleach": "8.99",
       "kusuriya-no-hitorigoto-3rd-season": "8.66",
       "ao-no-hako-season-2": "8.15",
-      "cyberpunk-edgerunners-2": "8.30"
+      "cyberpunk-edgerunners-2": "8.24"
     }
   }
 }
