@@ -108,40 +108,7 @@
       "waitingNotifiedForEpisode": null,
       "episodeOffset": 25,
       "malMeanScore": 8.17,
-      "googleCalendarEvents": {
-        "5": {
-          "eventId": "mjskr7r7m6sudsh6vpcs1l9p38",
-          "startAt": "2026-11-01T08:30:00.000Z"
-        },
-        "6": {
-          "eventId": "46fk7p9p6uovka0f0vgnfe0su8",
-          "startAt": "2026-11-08T08:30:00.000Z"
-        },
-        "7": {
-          "eventId": "ougd2i2rg80cf7l82ihdag8ks4",
-          "startAt": "2026-11-15T08:30:00.000Z"
-        },
-        "8": {
-          "eventId": "kenpnq9j5r1ho8t5luagb1t21g",
-          "startAt": "2026-11-22T08:30:00.000Z"
-        },
-        "9": {
-          "eventId": "fhtr1n7uakjsbo3k7ujklo6o70",
-          "startAt": "2026-11-29T08:30:00.000Z"
-        },
-        "10": {
-          "eventId": "54p8ev2bcqh3241gctvvi01nco",
-          "startAt": "2026-12-06T08:30:00.000Z"
-        },
-        "11": {
-          "eventId": "i95ngqnprhttmfhq4kcbk9es14",
-          "startAt": "2026-12-13T08:30:00.000Z"
-        },
-        "12": {
-          "eventId": "s1so7ebf6f4g8r9ql7ni003scc",
-          "startAt": "2026-12-20T08:30:00.000Z"
-        }
-      },
+      "googleCalendarEvents": null,
       "airingSchedule": {
         "fetchedAt": "2026-10-25T08:25:37.436Z",
         "episodes": {
