@@ -1,35 +1,5 @@
 {
   "shows": {
-    "bleach": {
-      "lastEpisodeId": "anilist-60636-10",
-      "lastEpisodeNumber": "10",
-      "lastEpisodeTitle": "",
-      "lastNotifiedAt": "2026-10-26T16:00:51.568Z",
-      "seasonId": "571475d5-8b1a-453f-a57f-26bb4dd13304",
-      "seasonTitle": "Season 1",
-      "waitingNotifiedForEpisode": null,
-      "malMeanScore": 9.02,
-      "googleCalendarEvents": null,
-      "discussionUrl": "https://www.reddit.com/r/anime/comments/1xg0tlm/bleach_thousandyear_blood_war_the_calamity_bleach/",
-      "discussionUrlEpisode": 10,
-      "malScoreAlertedAt": "2026-10-01T03:55:32.164Z",
-      "lastSnapshotEpisode": 10,
-      "airingSchedule": {
-        "fetchedAt": "2026-10-26T16:00:51.568Z",
-        "episodes": {
-          "1": "2026-07-25T14:00:00.000Z",
-          "2": "2026-08-01T14:00:00.000Z",
-          "3": "2026-08-08T14:00:00.000Z",
-          "4": "2026-08-15T14:00:00.000Z",
-          "5": "2026-08-22T14:00:00.000Z",
-          "6": "2026-08-29T14:00:00.000Z",
-          "7": "2026-09-05T14:00:00.000Z",
-          "8": "2026-09-12T14:00:00.000Z",
-          "9": "2026-10-19T15:00:00.000Z",
-          "10": "2026-10-26T15:00:00.000Z"
-        }
-      }
-    },
     "kusuriya-no-hitorigoto-3rd-season": {
       "lastEpisodeId": "GE00384330JAJP",
       "lastEpisodeNumber": "4",
@@ -188,7 +158,6 @@
   "meta": {
     "watchingDashboardMessageId": null,
     "watchingDashboardMessageIds": {
-      "bleach": "1531685830114939012",
       "kusuriya-no-hitorigoto-3rd-season": "1554207487400484976",
       "ao-no-hako-season-2": "1554207496888131635",
       "cyberpunk-edgerunners-2": "1560009478512975895"
@@ -797,10 +766,9 @@
       ]
     },
     "watchingDashboardHashes": {
-      "bleach": "580194a9636d099564104cf9f78c08b435651682",
       "kusuriya-no-hitorigoto-3rd-season": "df519fffbb45e38e8a33e32a4fb810d79fd85639",
       "ao-no-hako-season-2": "cefa2deac54d7b828201ac6d4b6ce07046bf765e",
-      "cyberpunk-edgerunners-2": "f50677e459444a4828a72a4a4526c46b0681b1f7"
+      "cyberpunk-edgerunners-2": "63436028430722755beef9a84eb6fedf44abeb68"
     },
     "onHold": {
       "updatedAt": "2026-09-28T21:46:38.715Z",
@@ -2153,7 +2121,6 @@
       ]
     },
     "watchingDashboardScores": {
-      "bleach": "8.99",
       "kusuriya-no-hitorigoto-3rd-season": "8.65",
       "ao-no-hako-season-2": "8.15",
       "cyberpunk-edgerunners-2": "8.24"
