@@ -125,42 +125,13 @@
         }
       },
       "lastSnapshotEpisode": 4
-    },
-    "cyberpunk-edgerunners-2": {
-      "lastEpisodeId": "81946382",
-      "lastEpisodeNumber": "10",
-      "lastEpisodeTitle": "Then Everyone Went Home",
-      "lastNotifiedAt": "2026-10-20T08:55:35.693Z",
-      "seasonId": "81744227",
-      "seasonTitle": "Cyberpunk: Edgerunners 2",
-      "waitingNotifiedForEpisode": null,
-      "episodeOffset": 0,
-      "malMeanScore": 8.22,
-      "googleCalendarEvents": null,
-      "malScoreAlertedAt": "2026-10-28T19:10:43.680Z",
-      "airingSchedule": {
-        "fetchedAt": "2026-10-28T19:10:43.680Z",
-        "episodes": {
-          "1": "2026-10-20T07:00:00.000Z",
-          "2": "2026-10-20T07:00:00.000Z",
-          "3": "2026-10-20T07:00:00.000Z",
-          "4": "2026-10-20T07:00:00.000Z",
-          "5": "2026-10-20T07:00:00.000Z",
-          "6": "2026-10-20T07:00:00.000Z",
-          "7": "2026-10-20T07:00:00.000Z",
-          "8": "2026-10-20T07:00:00.000Z",
-          "9": "2026-10-20T07:00:00.000Z",
-          "10": "2026-10-20T07:00:00.000Z"
-        }
-      }
     }
   },
   "meta": {
     "watchingDashboardMessageId": null,
     "watchingDashboardMessageIds": {
       "kusuriya-no-hitorigoto-3rd-season": "1554207487400484976",
-      "ao-no-hako-season-2": "1554207496888131635",
-      "cyberpunk-edgerunners-2": "1560009478512975895"
+      "ao-no-hako-season-2": "1554207496888131635"
     },
     "disneyCookieAlertSentAt": "2026-07-27T16:30:34.187Z",
     "planToWatchAlerts": {
@@ -767,8 +738,7 @@
     },
     "watchingDashboardHashes": {
       "kusuriya-no-hitorigoto-3rd-season": "6d2581b5e53fa66814653b06c6eae03b411c8337",
-      "ao-no-hako-season-2": "4c927ad97a80ea3b5d713151fede07fe158b446b",
-      "cyberpunk-edgerunners-2": "244bb333fae22cd127c3e1b9f81c2f914adef041"
+      "ao-no-hako-season-2": "cefa2deac54d7b828201ac6d4b6ce07046bf765e"
     },
     "onHold": {
       "updatedAt": "2026-09-28T21:46:38.715Z",
@@ -2122,8 +2092,7 @@
     },
     "watchingDashboardScores": {
       "kusuriya-no-hitorigoto-3rd-season": "8.65",
-      "ao-no-hako-season-2": "8.15",
-      "cyberpunk-edgerunners-2": "8.22"
+      "ao-no-hako-season-2": "8.15"
     }
   }
 }
