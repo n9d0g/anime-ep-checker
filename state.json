@@ -45,7 +45,7 @@
         }
       },
       "airingSchedule": {
-        "fetchedAt": "2026-10-27T19:05:40.697Z",
+        "fetchedAt": "2026-10-28T19:10:43.680Z",
         "episodes": {
           "1": "2026-10-02T14:00:00.000Z",
           "2": "2026-10-09T14:00:00.000Z",
@@ -108,7 +108,7 @@
         }
       },
       "airingSchedule": {
-        "fetchedAt": "2026-10-27T19:05:40.697Z",
+        "fetchedAt": "2026-10-28T19:10:43.680Z",
         "episodes": {
           "1": "2026-10-04T07:30:00.000Z",
           "2": "2026-10-11T07:30:00.000Z",
@@ -135,11 +135,11 @@
       "seasonTitle": "Cyberpunk: Edgerunners 2",
       "waitingNotifiedForEpisode": null,
       "episodeOffset": 0,
-      "malMeanScore": 8.28,
+      "malMeanScore": 8.22,
       "googleCalendarEvents": null,
-      "malScoreAlertedAt": "2026-10-24T18:50:44.796Z",
+      "malScoreAlertedAt": "2026-10-28T19:10:43.680Z",
       "airingSchedule": {
-        "fetchedAt": "2026-10-27T19:05:40.697Z",
+        "fetchedAt": "2026-10-28T19:10:43.680Z",
         "episodes": {
           "1": "2026-10-20T07:00:00.000Z",
           "2": "2026-10-20T07:00:00.000Z",
@@ -173,7 +173,7 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-10-27T19:05:40.697Z",
+    "planToWatchCheckedAt": "2026-10-28T19:10:43.680Z",
     "planToWatch": {
       "updatedAt": "2026-10-24T18:50:44.796Z",
       "entries": [
@@ -767,8 +767,8 @@
     },
     "watchingDashboardHashes": {
       "kusuriya-no-hitorigoto-3rd-season": "6d2581b5e53fa66814653b06c6eae03b411c8337",
-      "ao-no-hako-season-2": "cefa2deac54d7b828201ac6d4b6ce07046bf765e",
-      "cyberpunk-edgerunners-2": "3636db8d7b5cce37fae0ade52529e464607525ac"
+      "ao-no-hako-season-2": "4c927ad97a80ea3b5d713151fede07fe158b446b",
+      "cyberpunk-edgerunners-2": "244bb333fae22cd127c3e1b9f81c2f914adef041"
     },
     "onHold": {
       "updatedAt": "2026-09-28T21:46:38.715Z",
@@ -2123,7 +2123,7 @@
     "watchingDashboardScores": {
       "kusuriya-no-hitorigoto-3rd-season": "8.65",
       "ao-no-hako-season-2": "8.15",
-      "cyberpunk-edgerunners-2": "8.23"
+      "cyberpunk-edgerunners-2": "8.22"
     }
   }
 }
