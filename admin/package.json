@@ -8,6 +8,7 @@
   },
   "scripts": {
     "dev": "vite dev --port 3001",
+    "prototype": "echo \"Open http://localhost:3001/prototype/redesign (phone: http://$(ipconfig getifaddr en0):3001/prototype/redesign)\" && vite dev --port 3001 --host",
     "build": "vite build",
     "start": "vite preview",
     "typecheck": "tsc --noEmit",
