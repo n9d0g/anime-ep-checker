@@ -49,3 +49,7 @@ The first episode snapshot recorded for a show, taken without sending an alert.
 **Still waiting**:
 The one-time alert sent when an expected episode is 15 or more minutes past its drop.
 _Avoid_: Late alert
+
+**Announcement check**:
+A read of a show's official news and Anime News Network for an announced break: in the day after each drop, the 3 days before the next drop, and while that drop is late.
+_Avoid_: News check, delay check
