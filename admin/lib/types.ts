@@ -1,6 +1,7 @@
 /** Admin-only types. Show and state types live in shared/types.ts. */
 import type {
   AiringSchedule,
+  AnnouncedBreak,
   ScheduleBreak,
   ScheduleMode,
   ShowProvider,
@@ -69,6 +70,7 @@ export interface ShowStateSummary {
   airingSchedule?: AiringSchedule | null
   /** AniList's Official Site link: null when it lists none, unset until checked. */
   officialSiteUrl?: string | null
+  announcedBreak?: AnnouncedBreak | null
 }
 
 export interface ShowFormValues {

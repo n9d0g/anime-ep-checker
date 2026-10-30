@@ -6,7 +6,9 @@ import { ShowEditForm } from '@/app/components/ShowEditForm'
 import { ShowTitleDisplay } from '@/app/components/ShowTitleDisplay'
 import type { EpisodeSaveStatus } from '@/app/components/useEpisodeProgress'
 import type { DisplayRow } from '@/app/components/useWatchingShows'
-import { MAL_DOWN_MESSAGE } from '@/lib/watching'
+import { getAnnouncedBreakSuggestion } from '@/lib/announced-break'
+import { formScheduleToSchedule, MAL_DOWN_MESSAGE } from '@/lib/watching'
+import { describeBreak } from '@/lib/schedule-break'
 import { getOfficialNewsUrl } from '@shared/shows'
 
 type EditFormHandlers = Pick<
@@ -30,6 +32,8 @@ export function ShowRow({
   completingShow,
   holding,
   onAdjustEpisode,
+  onConfirmAnnouncedBreak,
+  onDismissAnnouncedBreak,
   ...handlers
 }: {
   displayRow: DisplayRow
@@ -37,6 +41,8 @@ export function ShowRow({
   completingShow: boolean
   holding: boolean
   onAdjustEpisode: (delta: number) => void
+  onConfirmAnnouncedBreak: () => void
+  onDismissAnnouncedBreak: () => void
 } & EditFormHandlers) {
   const { row, index, liveState, view } = displayRow
   const show = row.values
@@ -45,6 +51,17 @@ export function ShowRow({
   const episodeSaving = episodeStatus === 'saving'
   const { currentEpisode, badge, malBlocked } = view
   const { min, max } = view.bounds
+  const announced =
+    liveState?.announcedBreak?.status === 'pending'
+      ? liveState.announcedBreak
+      : null
+  const suggestion = announced
+    ? getAnnouncedBreakSuggestion(
+        formScheduleToSchedule(show),
+        announced,
+        liveState?.airingSchedule
+      )
+    : null
   // Null from AniList means it was checked and lists no official site.
   const noOfficialSource =
     Boolean(show.id) &&
@@ -173,6 +190,51 @@ export function ShowRow({
                 </div>
               </div>
               {malBlocked ? <p className="hint">{MAL_DOWN_MESSAGE}</p> : null}
+            </div>
+          ) : null}
+
+          {show.id && announced ? (
+            <div className="field">
+              <label>⚠️ Announced break</label>
+              <p className="hint">
+                Episode {announced.episode} postponed:{' '}
+                {announced.newDate
+                  ? `new broadcast date ${announced.newDate} (JST)`
+                  : 'new date TBA'}
+                {announced.sourceUrl ? (
+                  <>
+                    {' · '}
+                    <a
+                      href={announced.sourceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Source
+                    </a>
+                  </>
+                ) : null}
+                {announced.newDate && !suggestion
+                  ? ' · Not a whole-week break; add one under More options if needed.'
+                  : null}
+              </p>
+              <div className="actions">
+                {suggestion ? (
+                  <button
+                    className="btn btn-secondary"
+                    type="button"
+                    onClick={onConfirmAnnouncedBreak}
+                  >
+                    Add {describeBreak(suggestion)}
+                  </button>
+                ) : null}
+                <button
+                  className="btn btn-secondary"
+                  type="button"
+                  onClick={onDismissAnnouncedBreak}
+                >
+                  Dismiss
+                </button>
+              </div>
             </div>
           ) : null}
 

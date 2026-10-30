@@ -69,6 +69,12 @@ export default function AdminPage() {
                       shows.updateSchedule(key, field, value)
                     }
                     onAddBreak={() => void shows.addBreak(values)}
+                    onConfirmAnnouncedBreak={() =>
+                      void shows.confirmAnnouncedBreak(values)
+                    }
+                    onDismissAnnouncedBreak={() =>
+                      void shows.dismissAnnouncedBreak(values)
+                    }
                     onRemoveBreak={(index) => shows.removeBreak(key, index)}
                     onComplete={() => progress.openCompletePrompt(values)}
                     onHold={() => void progress.putShowOnHold(values)}
