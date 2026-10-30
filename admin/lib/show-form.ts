@@ -15,6 +15,7 @@ export function emptyShowForm(): ShowFormValues {
     disneyId: '',
     malId: '',
     redditSearchTitle: '',
+    officialNewsUrl: '',
     schedule: {
       mode: 'finite',
       startAt: '',
@@ -41,6 +42,7 @@ export function showToForm(show: Show): ShowFormValues {
     disneyId: show.disneyId ?? '',
     malId: show.malId ? String(show.malId) : '',
     redditSearchTitle: show.redditSearchTitle ?? '',
+    officialNewsUrl: show.officialNewsUrl ?? '',
     schedule: {
       mode: show.schedule.mode,
       startAt: toDatetimeLocalValue(show.schedule.startAt),

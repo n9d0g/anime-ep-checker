@@ -12,7 +12,9 @@ import type { AiringSchedule, Show, ShowState } from '../shared/types.ts'
 /** About once a day (a little under, so a daily run never just misses it). */
 const REFRESH_INTERVAL_MS = 23 * 60 * 60 * 1000
 
-type FetchAiring = (malId: number) => Promise<{ nodes: AnilistAiring[] } | null>
+type FetchAiring = (
+  malId: number
+) => Promise<{ nodes: AnilistAiring[]; officialSiteUrl?: string | null } | null>
 
 /**
  * Whether to fetch the show's airing schedule this run: it has a MAL ID and
@@ -98,6 +100,8 @@ export interface AiringScheduleRefresh {
   airingSchedule: AiringSchedule | null
   /** Whether the episode times differ from the saved schedule. */
   episodesChanged: boolean
+  /** AniList's Official Site link when fetched this run (null: none listed). */
+  officialSiteUrl?: string | null
 }
 
 /**
@@ -120,7 +124,7 @@ export async function refreshAiringSchedule({
     return { airingSchedule: saved, episodesChanged: false }
   }
 
-  let fetched: { nodes: AnilistAiring[] } | null = null
+  let fetched: Awaited<ReturnType<FetchAiring>> = null
   try {
     fetched = await fetchAiring(show.malId)
   } catch (error) {
@@ -138,5 +142,6 @@ export async function refreshAiringSchedule({
   return {
     airingSchedule: { fetchedAt: now.toISOString(), episodes },
     episodesChanged: !sameEpisodes(saved?.episodes, episodes),
+    officialSiteUrl: fetched.officialSiteUrl ?? null,
   }
 }

@@ -67,6 +67,8 @@ export interface ShowStateSummary {
   watchedEpisode?: number | null
   /** The checker's AniList airing schedule; next-drop times follow it. */
   airingSchedule?: AiringSchedule | null
+  /** AniList's Official Site link: null when it lists none, unset until checked. */
+  officialSiteUrl?: string | null
 }
 
 export interface ShowFormValues {
@@ -82,6 +84,7 @@ export interface ShowFormValues {
   disneyId: string
   malId: string
   redditSearchTitle: string
+  officialNewsUrl: string
   schedule: {
     mode: ScheduleMode
     startAt: string
