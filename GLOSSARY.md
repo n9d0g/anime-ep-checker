@@ -29,6 +29,14 @@ The episodes that drop together on a show's first day; every episode after it dr
 A pause between two episodes that shifts every later drop by its length in weeks; earlier drops stay put. Entered by hand in the schedule, or seen as a gap in AniList's airing schedule.
 _Avoid_: Delay, hiatus
 
+**Announced break**:
+A break that a show's official sources have announced but that hasn't been confirmed yet. Confirming it makes it a break; dismissing it discards it. It may not have a new date yet.
+_Avoid_: Delay, postponement
+
+**Provider lag**:
+When an episode has broadcast in Japan but its provider hasn't made it available yet. Unlike a break, it doesn't shift later drops.
+_Avoid_: Delay, late release
+
 ### Checking
 
 **Episode snapshot**:
