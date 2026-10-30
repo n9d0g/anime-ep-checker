@@ -8,6 +8,7 @@ import {
 } from './compare.ts'
 import { resolveEpisodeOffset, toRelativeSnapshot } from './episode-offset.ts'
 import {
+  getBroadcastAt,
   getDropWindowMode,
   getExpectedDropAt,
   getNextDrop,
@@ -106,6 +107,8 @@ export type ShowDecision =
       kind: 'still_waiting'
       episodeNumber: number
       expectedDropAt: string
+      /** AniList's broadcast time if the episode has already aired (provider lag). */
+      airedAt: string | null
       snapshotEpisode: number
       state: ShowState
     }
@@ -245,10 +248,13 @@ export function decideShow({
     isPastWaitingGrace(nextDrop.expectedAt, now) &&
     previousState.waitingNotifiedForEpisode !== nextDrop.episode
   ) {
+    const broadcastAt = getBroadcastAt(airingSchedule, nextDrop.episode)
     return {
       kind: 'still_waiting',
       episodeNumber: nextDrop.episode,
       expectedDropAt,
+      airedAt:
+        broadcastAt && broadcastAt <= now ? broadcastAt.toISOString() : null,
       snapshotEpisode,
       state: { ...previousState, waitingNotifiedForEpisode: nextDrop.episode },
     }

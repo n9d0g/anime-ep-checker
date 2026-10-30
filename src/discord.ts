@@ -43,6 +43,8 @@ interface WaitingAlertInput {
   show: Show
   episodeNumber: number
   expectedDropAt: string
+  /** AniList's broadcast time when the episode already aired in Japan. */
+  airedAt?: string | null
 }
 
 interface MalScoreAlertInput {
@@ -589,17 +591,21 @@ export async function sendWaitingAlert({
   show,
   episodeNumber,
   expectedDropAt,
+  airedAt,
 }: WaitingAlertInput): Promise<void> {
   const showTitle = show.title || show.id
   const expectedLabel = formatEasternTime(expectedDropAt)
   const provider = providerLabel(show.provider ?? 'crunchyroll')
   const countdown = discordRelativeTimestamp(expectedDropAt, expectedLabel)
+  const headline = airedAt
+    ? `Provider lag: Episode ${episodeNumber} aired in Japan at ${formatEasternTime(airedAt)}, not on ${provider} yet.`
+    : `Episode ${episodeNumber} not on ${provider} yet.`
 
   const payload = {
-    content: `🤔 **${showTitle}** — Episode ${episodeNumber} not on ${provider} yet.`,
+    content: `🤔 **${showTitle}** — ${headline}`,
     embeds: [
       {
-        title: `🤔 ${showTitle} — Episode ${episodeNumber} not on ${provider} yet.`,
+        title: `🤔 ${showTitle} — ${headline}`,
         description: `Expected around ${expectedLabel}. Countdown: ${countdown}`,
         color: 0xf1c40f,
         footer: discordFooter(),

@@ -260,6 +260,7 @@ async function applyDecision(
             show,
             episodeNumber: decision.episodeNumber,
             expectedDropAt: decision.expectedDropAt,
+            airedAt: decision.airedAt,
           })
           console.log('  Discord still-waiting alert sent')
         } else {
