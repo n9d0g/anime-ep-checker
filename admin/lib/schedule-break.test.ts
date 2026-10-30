@@ -70,3 +70,27 @@ test('breaks round-trip through the edit form', async () => {
   assert.equal('breaks' in values.schedule, false)
   assert.deepEqual(normalizeShow(values), withoutBreaks)
 })
+
+test('a break added on top of AniList is kept apart and survives the edit form', async () => {
+  const breaks = addScheduleBreak([{ afterEpisode: 4, weeks: 1 }], 4, 1, true)
+  assert.deepEqual(breaks, [
+    { afterEpisode: 4, weeks: 1 },
+    { afterEpisode: 4, weeks: 1, onTopOfAniList: true },
+  ])
+  assert.equal(
+    describeBreak(breaks[1]!),
+    '1-week break after episode 4 (on top of AniList)'
+  )
+
+  const { showToForm } = await import('./show-form')
+  const { normalizeShow } = await import('./normalize-show')
+  const show: Show = {
+    id: 'ao-no-hako',
+    title: 'Ao no Hako',
+    provider: 'crunchyroll',
+    crunchyrollUrl: 'https://www.crunchyroll.com/series/GRVN8MNQY/ao',
+    seriesId: 'GRVN8MNQY',
+    schedule: { ...SCHEDULE, breaks },
+  }
+  assert.deepEqual(normalizeShow(showToForm(show)), show)
+})

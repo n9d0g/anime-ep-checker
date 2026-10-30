@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { getExpectedDropAt, getNextDrop } from './schedule.ts'
+import {
+  getAniListGapWeeks,
+  getExpectedDropAt,
+  getNextDrop,
+} from './schedule.ts'
 import type { AiringSchedule, ShowSchedule } from './types.ts'
 
 const SCHEDULE: ShowSchedule = {
@@ -168,6 +172,78 @@ test('manual breaks shift AniList times instead of replacing them', () => {
   assert.deepEqual(getExpectedDropAt(schedule, 6, airing), at(START, 8))
   assert.deepEqual(getExpectedDropAt(schedule, 8, airing), at(START, 10))
   assert.deepEqual(getExpectedDropAt(schedule, 9, airing), at(START, 12))
+})
+
+test('a manual break and an AniList gap after the same episode count once (Ao no Hako)', () => {
+  // A 1-week break after episode 4 was added by hand; AniList then showed
+  // the same 1-week gap. Episode 5 drops 2 weeks after episode 4, not 3.
+  const airing = anilist('2026-09-01T14:00:00.000Z', 12, {
+    afterEpisode: 4,
+    weeks: 1,
+  })
+  const schedule = { ...WEEKLY, breaks: [{ afterEpisode: 4, weeks: 1 }] }
+  assert.equal(getAniListGapWeeks(airing, 4), 1)
+  assert.equal(getAniListGapWeeks(airing, 5), 0)
+  assert.deepEqual(getExpectedDropAt(schedule, 4, airing), at(START, 3))
+  assert.deepEqual(getExpectedDropAt(schedule, 5, airing), at(START, 5))
+  assert.deepEqual(getExpectedDropAt(schedule, 12, airing), at(START, 12))
+})
+
+test('a partly covered break counts for the longer of the two', () => {
+  const oneWeekGap = anilist('2026-09-01T14:00:00.000Z', 12, {
+    afterEpisode: 4,
+    weeks: 1,
+  })
+  const twoWeekBreak = { ...WEEKLY, breaks: [{ afterEpisode: 4, weeks: 2 }] }
+  assert.deepEqual(getExpectedDropAt(twoWeekBreak, 5, oneWeekGap), at(START, 6))
+
+  const threeWeekGap = anilist('2026-09-01T14:00:00.000Z', 12, {
+    afterEpisode: 4,
+    weeks: 3,
+  })
+  const oneWeekBreak = { ...WEEKLY, breaks: [{ afterEpisode: 4, weeks: 1 }] }
+  assert.deepEqual(
+    getExpectedDropAt(oneWeekBreak, 5, threeWeekGap),
+    at(START, 7)
+  )
+})
+
+test('a break added on top of AniList counts in full', () => {
+  const airing = anilist('2026-09-01T14:00:00.000Z', 12, {
+    afterEpisode: 4,
+    weeks: 1,
+  })
+  const schedule = {
+    ...WEEKLY,
+    breaks: [{ afterEpisode: 4, weeks: 1, onTopOfAniList: true }],
+  }
+  assert.deepEqual(getExpectedDropAt(schedule, 5, airing), at(START, 6))
+})
+
+test('a break keeps its dates when AniList catches up with it', () => {
+  const schedule = { ...WEEKLY, breaks: [{ afterEpisode: 4, weeks: 1 }] }
+  // AniList lists episodes 1-4 only: the break shifts episode 5.
+  const before = anilist('2026-09-01T14:00:00.000Z', 4)
+  // Later it lists episode 5 a week late: the break is now covered.
+  const after = anilist('2026-09-01T14:00:00.000Z', 12, {
+    afterEpisode: 4,
+    weeks: 1,
+  })
+  for (const episode of [5, 6, 12]) {
+    assert.deepEqual(
+      getExpectedDropAt(schedule, episode, before),
+      getExpectedDropAt(schedule, episode, after)
+    )
+  }
+  assert.deepEqual(getExpectedDropAt(schedule, 5, before), at(START, 5))
+})
+
+test('a break before the season start (a provider behind Japan) always counts', () => {
+  // AniList has no gap data before this season's first episode.
+  const airing = anilist('2026-09-01T14:00:00.000Z', 12)
+  const schedule = { ...WEEKLY, breaks: [{ afterEpisode: 0, weeks: 1 }] }
+  assert.deepEqual(getExpectedDropAt(schedule, 1, airing), at(START, 1))
+  assert.deepEqual(getExpectedDropAt(schedule, 2, airing), at(START, 2))
 })
 
 test('premiere batch episodes drop together; AniList anchors on the batch end', () => {

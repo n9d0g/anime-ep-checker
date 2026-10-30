@@ -14,10 +14,15 @@ export interface ShowSchedule {
   breaks?: ScheduleBreak[]
 }
 
-/** Every episode after `afterEpisode` drops `weeks` weeks later. */
+/**
+ * Every episode after `afterEpisode` drops `weeks` weeks later. Where AniList
+ * shows a gap after the same episode, the break counts once, for the longer
+ * of the two, unless `onTopOfAniList` (added knowing AniList had the gap).
+ */
 export interface ScheduleBreak {
   afterEpisode: number
   weeks: number
+  onTopOfAniList?: boolean
 }
 
 /** AniList's broadcast time (ISO) per episode number, saved by the checker. */
