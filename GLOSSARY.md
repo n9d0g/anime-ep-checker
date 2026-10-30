@@ -26,7 +26,7 @@ _Avoid_: Late poll
 The episodes that drop together on a show's first day; every episode after it drops one week apart.
 
 **Break**:
-A pause between two episodes that shifts every later drop by its length in weeks; earlier drops stay put. Entered by hand in the schedule, or seen as a gap in AniList's airing schedule.
+A pause between two episodes that shifts every later drop by its length in weeks; earlier drops stay put. Entered by hand in the schedule, or seen as a gap in AniList's airing schedule; when both mark the same pause, it counts once, for the longer of the two.
 _Avoid_: Delay, hiatus
 
 **Announced break**:
