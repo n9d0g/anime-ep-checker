@@ -1,15 +1,10 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import type { AnnNewsItem } from './ann-feed.ts'
-import {
-  applyBreakReading,
-  parseBreakReading,
-  syncAnnouncedBreaks,
-} from './announced-breaks.ts'
-import type { ChatMessage, ModelsReply } from './github-models.ts'
+import { applyBreakReading, syncAnnouncedBreaks } from './announced-breaks.ts'
 import type { Show, ShowState, StateFile } from '../shared/types.ts'
 
-/** Episode 3 drops 2026-09-15T15:00Z; a day before, its check is due. */
+/** Episode 3 drops 2026-09-15T15:00Z (Sep 16, 00:00 JST); a day before, its check is due. */
 const SHOW: Show = {
   id: 'frieren',
   title: 'Sousou no Frieren',
@@ -26,11 +21,16 @@ const SHOW: Show = {
 const NOW = new Date('2026-09-14T15:00:00.000Z')
 const SITE = 'https://frieren-anime.jp/'
 const ANN: AnnNewsItem = {
-  title: 'Frieren Anime Delays Episode 3 by 1 Week',
+  title: "Frieren: Beyond Journey's End Anime Delays Episode 3 by 1 Week",
   url: 'https://www.animenewsnetwork.com/news/2026-09-13/frieren/.1',
   publishedAt: '2026-09-13T12:00:00.000Z',
 }
 const DISCORD = { webhookUrl: 'https://discord.test/webhook' }
+
+const DATED =
+  '2026.09.13\n第3話 放送延期のお知らせ。第3話は9月22日より放送いたします。'
+const TBA = '2026.09.13\n第3話 放送延期のお知らせ'
+const QUIET = '2026.09.10\n第3話 あらすじ公開'
 
 function makeState(extra: Partial<ShowState> = {}): StateFile {
   return {
@@ -39,7 +39,7 @@ function makeState(extra: Partial<ShowState> = {}): StateFile {
         lastEpisodeId: 'ep-2',
         lastEpisodeNumber: '2',
         lastEpisodeTitle: '',
-        lastNotifiedAt: '',
+        lastNotifiedAt: '2026-09-08T15:05:00.000Z',
         seasonId: '',
         seasonTitle: '',
         officialSiteUrl: SITE,
@@ -49,14 +49,21 @@ function makeState(extra: Partial<ShowState> = {}): StateFile {
   }
 }
 
-/** Runs a sync with stubbed sources, model and Discord; records the calls. */
+/** Runs a sync with stubbed sources and Discord; records the alerts. */
 async function run(
   state: StateFile,
-  reply: ModelsReply | null,
-  { token = 'token', now = NOW }: { token?: string; now?: Date } = {}
+  {
+    page = QUIET,
+    news = [],
+    now = NOW,
+  }: {
+    page?: string | null
+    news?: AnnNewsItem[] | null
+    now?: Date
+  } = {}
 ) {
-  const prompts: ChatMessage[][] = []
   const posts: string[] = []
+  const pages: string[] = []
   globalThis.fetch = (async (_url: unknown, init?: RequestInit) => {
     posts.push(JSON.parse(String(init?.body)).content ?? '')
     return new Response(null, { status: 204 })
@@ -67,48 +74,35 @@ async function run(
     discord: DISCORD,
     now,
     dryRun: false,
-    token,
-    completeJson: token
-      ? async (messages) => {
-          prompts.push(messages)
-          return reply!
-        }
-      : undefined,
-    fetchNews: async () => [ANN],
-    fetchPage: async () => '2026.09.13 第3話 放送延期のお知らせ',
+    fetchNews: async () => news,
+    fetchPage: async (url) => {
+      pages.push(url)
+      return page
+    },
   })
-  return { ...result, prompts, posts }
+  return { ...result, posts, pages }
 }
-
-const delayed = (newDate: string | null): ModelsReply => ({
-  ok: true,
-  json: { delayed: true, episode: 3, newDate, sourceUrl: ANN.url },
-})
 
 test('an announced break is saved and alerted once per episode and date', async () => {
   const state = makeState()
-  const first = await run(state, delayed('2026-09-22'))
-  assert.equal(first.prompts.length, 1)
-  assert.match(first.prompts[0]![1]!.content, /Next new episode: 3/)
-  assert.match(first.prompts[0]![1]!.content, /第3話 放送延期/)
-  assert.match(first.prompts[0]![1]!.content, /Delays Episode 3/)
+  const first = await run(state, { page: DATED })
+  assert.deepEqual(first.pages, [SITE])
   assert.deepEqual(first.posts, [
     '⏸️ **Sousou no Frieren** — Episode 3 postponed (announced): new broadcast date Tue, Sep 22 (JST).',
   ])
   assert.deepEqual(state.shows.frieren!.announcedBreak, {
     episode: 3,
     newDate: '2026-09-22',
-    sourceUrl: ANN.url,
+    sourceUrl: SITE,
     status: 'pending',
     announcedAt: NOW.toISOString(),
   })
   assert.equal(state.shows.frieren!.announcementCheckedAt, NOW.toISOString())
   assert.equal(state.shows.frieren!.announcementReadAt, NOW.toISOString())
 
-  // The next day's check reads the same news: no second alert.
+  // The next day's check reads the same notice: no second alert.
   const nextDay = new Date('2026-09-15T15:16:00.000Z')
-  const again = await run(state, delayed('2026-09-22'), { now: nextDay })
-  assert.equal(again.prompts.length, 1)
+  const again = await run(state, { page: DATED, now: nextDay })
   assert.deepEqual(again.posts, [])
   assert.equal(
     state.shows.frieren!.announcedBreak!.announcedAt,
@@ -118,20 +112,16 @@ test('an announced break is saved and alerted once per episode and date', async 
 
 test('a new date alerts again; a TBA after a date and a dismissed pair stay silent', async () => {
   const later = new Date('2026-09-15T15:16:00.000Z')
-  const tba = makeState({
-    announcedBreak: {
-      episode: 3,
-      newDate: null,
-      sourceUrl: null,
-      status: 'pending',
-      announcedAt: '2026-09-13T15:00:00.000Z',
-    },
-  })
-  const dated = await run(tba, delayed('2026-09-22'), { now: later })
+  const tba = makeState()
+  assert.equal((await run(tba, { page: TBA })).posts.length, 1)
+  assert.equal(tba.shows.frieren!.announcedBreak!.newDate, null)
+
+  const dated = await run(tba, { page: DATED, now: later })
   assert.equal(dated.posts.length, 1)
   assert.equal(tba.shows.frieren!.announcedBreak!.newDate, '2026-09-22')
 
-  const backToTba = await run(tba, delayed(null), {
+  const backToTba = await run(tba, {
+    page: TBA,
     now: new Date('2026-09-15T15:46:00.000Z'),
   })
   assert.deepEqual(backToTba.posts, [])
@@ -141,61 +131,60 @@ test('a new date alerts again; a TBA after a date and a dismissed pair stay sile
     announcedBreak: {
       episode: 3,
       newDate: '2026-09-22',
-      sourceUrl: ANN.url,
+      sourceUrl: SITE,
       status: 'dismissed',
       announcedAt: '2026-09-13T15:00:00.000Z',
     },
   })
-  const silent = await run(dismissed, delayed('2026-09-22'))
+  const silent = await run(dismissed, { page: DATED })
   assert.deepEqual(silent.posts, [])
   assert.equal(dismissed.shows.frieren!.announcedBreak!.status, 'dismissed')
 })
 
-test('a refused token alerts once until GitHub Models answers again', async () => {
-  const state = makeState()
-  const refused: ModelsReply = { ok: false, kind: 'auth', message: 'HTTP 403' }
-  const first = await run(state, refused)
-  assert.equal(first.posts.length, 1)
-  assert.equal(state.meta?.githubModelsAlertSentAt, NOW.toISOString())
-
-  const later = new Date('2026-09-15T15:16:00.000Z')
-  assert.equal((await run(state, refused, { now: later })).posts.length, 0)
-
-  const recovered = await run(state, delayed(null), {
-    now: new Date('2026-09-15T15:46:00.000Z'),
-  })
-  assert.equal(state.meta?.githubModelsAlertSentAt, null)
-  assert.match(recovered.posts[0]!, /new date TBA/)
+test('without an official site, an ANN headline since the last drop is a TBA break', async () => {
+  const state = makeState({ officialSiteUrl: null })
+  const result = await run(state, { news: [ANN] })
+  assert.deepEqual(result.pages, [])
+  assert.match(
+    result.posts[0]!,
+    /Episode 3 postponed \(announced\): new date TBA/
+  )
+  assert.equal(state.shows.frieren!.announcedBreak!.sourceUrl, ANN.url)
+  assert.equal(state.shows.frieren!.announcementReadAt, NOW.toISOString())
 })
 
-test('rate limits only warn, and the show waits for its next scheduled check', async () => {
+test('an unreadable page or feed only warns, and the check is not marked read', async () => {
   const state = makeState()
-  const limited = await run(state, {
-    ok: false,
-    kind: 'transient',
-    message: 'HTTP 429',
-  })
-  assert.deepEqual(limited.posts, [])
-  assert.equal(state.meta?.githubModelsAlertSentAt, undefined)
-  assert.equal(state.shows.frieren!.announcementReadAt, undefined)
+  const unreadable = await run(state, { page: null, news: [ANN] })
+  // ANN still found the break.
+  assert.equal(unreadable.posts.length, 1)
   assert.equal(state.shows.frieren!.announcementCheckedAt, NOW.toISOString())
+  assert.equal(state.shows.frieren!.announcementReadAt, undefined)
+
+  const noFeed = makeState()
+  await run(noFeed, { news: null })
+  assert.equal(noFeed.shows.frieren!.announcementReadAt, undefined)
+
   // Not due again an hour later.
-  const soon = await run(state, delayed(null), {
+  const soon = await run(state, {
+    page: DATED,
     now: new Date('2026-09-14T16:00:00.000Z'),
   })
-  assert.equal(soon.prompts.length, 0)
+  assert.deepEqual(soon.pages, [])
 })
 
-test('without GITHUB_TOKEN the checks are skipped', async () => {
+test('nothing announced: no alert, and the check is marked read', async () => {
   const state = makeState()
-  const skipped = await run(state, null, { token: '' })
-  assert.equal(skipped.changed, false)
-  assert.equal(state.shows.frieren!.announcementCheckedAt, undefined)
+  const quiet = await run(state)
+  assert.deepEqual(quiet.posts, [])
+  assert.equal(state.shows.frieren!.announcedBreak, undefined)
+  assert.equal(state.shows.frieren!.announcementReadAt, NOW.toISOString())
 })
 
 test('an announced break is cleared once its episode drops', async () => {
   const state = makeState({
     lastEpisodeNumber: '3',
+    announcementCheckedAt: NOW.toISOString(),
     announcedBreak: {
       episode: 3,
       newDate: '2026-09-22',
@@ -204,27 +193,12 @@ test('an announced break is cleared once its episode drops', async () => {
       announcedAt: '2026-09-13T15:00:00.000Z',
     },
   })
-  const result = await run(state, null, { token: '' })
+  const result = await run(state)
   assert.equal(state.shows.frieren!.announcedBreak, null)
   assert.deepEqual(result.reasons, ['announced break over Sousou no Frieren'])
 })
 
-test('readings ignore aired episodes, bad dates and made-up sources', () => {
-  const options = { nextEpisode: 3, knownUrls: new Set([SITE]) }
-  assert.equal(parseBreakReading({ delayed: false }, options), null)
-  assert.equal(parseBreakReading({ delayed: true, episode: 2 }, options), null)
-  assert.deepEqual(
-    parseBreakReading(
-      {
-        delayed: true,
-        episode: null,
-        newDate: 'next week',
-        sourceUrl: 'https://example.com/made-up',
-      },
-      options
-    ),
-    { episode: 3, newDate: null, sourceUrl: null }
-  )
+test('no reading keeps the saved announced break', () => {
   assert.deepEqual(applyBreakReading(null, null, NOW), {
     announcedBreak: null,
     alert: false,
