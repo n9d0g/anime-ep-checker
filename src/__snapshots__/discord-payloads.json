@@ -35,6 +35,15 @@
       "body": "{\"content\":\"⏸️ **bare-show** — Episode 4 postponed (announced): new date TBA.\",\"embeds\":[{\"title\":\"⏸️ bare-show — Episode 4 postponed (announced): new date TBA.\",\"description\":\"Read from the official news. Drop times stay put until you add the break in the admin.\",\"color\":10181046,\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
     }
   ],
+  "dashboard payload, announced break": [
+    {
+      "method": "BUILD",
+      "url": "announced break",
+      "contentType": null,
+      "authorization": null,
+      "body": "{\"content\":\"**Frieren** — MAL — · Next Episode 4 · Upcoming · ⚠️ Announced break\",\"embeds\":[{\"title\":\"Frieren\",\"url\":\"https://www.crunchyroll.com/series/GG5H5XQX4/frieren\",\"color\":9148581,\"fields\":[{\"name\":\"Status\",\"value\":\"Upcoming\",\"inline\":true},{\"name\":\"Provider\",\"value\":\"Crunchyroll\",\"inline\":true},{\"name\":\"MAL\",\"value\":\"—\",\"inline\":true},{\"name\":\"MAL score\",\"value\":\"—\",\"inline\":true},{\"name\":\"Next\",\"value\":\"Episode 4\",\"inline\":true},{\"name\":\"Countdown\",\"value\":\"<t:1792854000:R>\",\"inline\":true},{\"name\":\"Expected drop\",\"value\":\"Oct 24, 2026, 11:00:00 AM EDT (<t:1792854000:f>)\",\"inline\":false},{\"name\":\"⚠️ Announced break\",\"value\":\"[Episode 4 → Sat, Oct 31 (JST)](https://frieren-anime.jp/news/9)\",\"inline\":false}],\"footer\":{\"text\":\"Anime Episode Checker · Watching dashboard\"}}],\"components\":[{\"type\":1,\"components\":[{\"type\":2,\"style\":5,\"label\":\"Watch\",\"url\":\"https://www.crunchyroll.com/series/GG5H5XQX4/frieren\"},{\"type\":2,\"style\":5,\"label\":\"r/anime\",\"url\":\"https://www.reddit.com/r/anime/comments/abc/frieren/\"}]}]}"
+    }
+  ],
   "dashboard payloads": [
     {
       "method": "BUILD",
@@ -412,6 +421,24 @@
       "contentType": "application/json",
       "authorization": null,
       "body": "{\"content\":\"🤔 **Frieren** — Episode 4 not on Crunchyroll yet.\",\"embeds\":[{\"title\":\"🤔 Frieren — Episode 4 not on Crunchyroll yet.\",\"description\":\"Expected around Oct 24, 2026, 11:00:00 AM EDT. Countdown: <t:1792854000:R>\",\"color\":15844367,\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
+    }
+  ],
+  "waiting alert, announced break (bot)": [
+    {
+      "method": "POST",
+      "url": "https://discord.com/api/v10/channels/channel-1/messages",
+      "contentType": "application/json",
+      "authorization": "Bot bot-token",
+      "body": "{\"content\":\"⏸️ **Frieren** — Episode 4 postponed (announced): new broadcast date Sat, Oct 31 (JST).\",\"embeds\":[{\"title\":\"⏸️ Frieren — Episode 4 postponed (announced): new broadcast date Sat, Oct 31 (JST).\",\"description\":\"Expected around Oct 24, 2026, 11:00:00 AM EDT. Countdown: <t:1792854000:R>\",\"url\":\"https://frieren-anime.jp/news/9\",\"color\":15844367,\"footer\":{\"text\":\"Anime Episode Checker\"}}],\"components\":[{\"type\":1,\"components\":[{\"type\":2,\"style\":5,\"label\":\"Source\",\"url\":\"https://frieren-anime.jp/news/9\"}]}]}"
+    }
+  ],
+  "waiting alert, announced break (webhook)": [
+    {
+      "method": "POST",
+      "url": "https://discord.test/webhook",
+      "contentType": "application/json",
+      "authorization": null,
+      "body": "{\"content\":\"⏸️ **Frieren** — Episode 4 postponed (announced): new broadcast date Sat, Oct 31 (JST).\",\"embeds\":[{\"title\":\"⏸️ Frieren — Episode 4 postponed (announced): new broadcast date Sat, Oct 31 (JST).\",\"description\":\"Expected around Oct 24, 2026, 11:00:00 AM EDT. Countdown: <t:1792854000:R>\",\"url\":\"https://frieren-anime.jp/news/9\",\"color\":15844367,\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
     }
   ],
   "waiting alert, bare (bot)": [

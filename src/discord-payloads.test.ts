@@ -2,7 +2,10 @@ import assert from 'node:assert/strict'
 import { readFile, writeFile } from 'node:fs/promises'
 import { after, before, beforeEach, test } from 'node:test'
 import { syncWatchingDashboard } from './discord-dashboard.ts'
-import { buildShowDashboardPayload } from './dashboard.ts'
+import {
+  buildShowDashboardPayload,
+  buildShowDashboardRow,
+} from './dashboard.ts'
 import type { ShowDashboardRow } from './dashboard.ts'
 import {
   sendAnnouncedBreakAlert,
@@ -234,6 +237,24 @@ for (const [path, discord] of Object.entries(CONFIGS)) {
       airedAt: '2026-10-24T14:30:00.000Z',
     })
     check(`waiting alert, provider lag (${path})`)
+  })
+
+  test(`waiting alert, announced break (${path})`, async () => {
+    await sendWaitingAlert({
+      discord,
+      show,
+      episodeNumber: 4,
+      expectedDropAt: '2026-10-24T15:00:00.000Z',
+      airedAt: '2026-10-24T14:30:00.000Z',
+      announcedBreak: {
+        episode: 4,
+        newDate: '2026-10-31',
+        sourceUrl: 'https://frieren-anime.jp/news/9',
+        status: 'pending',
+        announcedAt: '2026-10-22T15:00:00.000Z',
+      },
+    })
+    check(`waiting alert, announced break (${path})`)
   })
 
   test(`announced break alert (${path})`, async () => {
@@ -533,6 +554,44 @@ const dashboardShowState: ShowState = {
   discussionUrlEpisode: 3,
 }
 const dashboardShow: Show = { ...show, malId: undefined }
+
+test('dashboard cards mark only pending announced breaks', async () => {
+  const announcedBreak = {
+    episode: 4,
+    newDate: '2026-10-31',
+    sourceUrl: 'https://frieren-anime.jp/news/9',
+    status: 'pending' as const,
+    announcedAt: '2026-10-22T15:00:00.000Z',
+  }
+  const now = new Date('2026-10-22T15:00:00.000Z')
+  const row = (extra: Partial<ShowState>) =>
+    buildShowDashboardRow(
+      dashboardShow,
+      { ...dashboardShowState, ...extra },
+      now
+    )
+
+  const pending = await row({ announcedBreak })
+  assert.deepEqual(pending.announcedBreak, announcedBreak)
+  assert.equal(
+    (await row({ announcedBreak: { ...announcedBreak, status: 'dismissed' } }))
+      .announcedBreak,
+    null
+  )
+  // The next drop doesn't move: same expected time with or without it.
+  assert.equal(pending.expectedDropAt, (await row({})).expectedDropAt)
+
+  requests = [
+    {
+      method: 'BUILD',
+      url: 'announced break',
+      contentType: null,
+      authorization: null,
+      body: JSON.stringify(buildShowDashboardPayload(pending)),
+    },
+  ]
+  check('dashboard payload, announced break')
+})
 
 test('dashboard sync creates and pins a card (bot)', async () => {
   const state: StateFile = {

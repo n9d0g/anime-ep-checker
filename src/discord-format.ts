@@ -33,6 +33,28 @@ export function discordTimestamp(
   return `<t:${unix}:f>`
 }
 
+/** A YYYY-MM-DD Japanese broadcast date, e.g. "Fri, Nov 13 (JST)". */
+export function formatJapanDate(date: string): string {
+  const label = new Intl.DateTimeFormat('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date(`${date}T00:00:00Z`))
+  return `${label} (JST)`
+}
+
+/** "Episode N postponed (announced): new broadcast date … / new date TBA." */
+export function formatAnnouncedBreak(
+  episode: number,
+  newDate: string | null
+): string {
+  const dateLabel = newDate
+    ? `new broadcast date ${formatJapanDate(newDate)}`
+    : 'new date TBA'
+  return `Episode ${episode} postponed (announced): ${dateLabel}.`
+}
+
 const FOOTER_TEXT = 'Anime Episode Checker'
 
 /** Embed footer naming the checker, optionally with a section suffix. */

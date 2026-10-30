@@ -238,6 +238,7 @@ test('past the grace period the next drop gets one still-waiting alert', () => {
     episodeNumber: 3,
     expectedDropAt: EP3.expectedAt.toISOString(),
     airedAt: null,
+    announcedBreak: null,
     snapshotEpisode: 2,
     state: { ...state(2), waitingNotifiedForEpisode: 3 },
   })
@@ -281,6 +282,29 @@ test('still waiting carries the broadcast time once AniList says it aired', () =
   )
 })
 
+test("still waiting carries the next episode's pending announced break only", () => {
+  const announced = {
+    episode: 3,
+    newDate: '2026-09-22',
+    sourceUrl: null,
+    status: 'pending' as const,
+    announcedAt: '2026-09-14T15:00:00.000Z',
+  }
+  const decide = (announcedBreak: typeof announced) => {
+    const decision = decideShow({
+      show: SHOW,
+      snapshot: snapshot(2),
+      nextDrop: EP3,
+      now: NOW,
+      previousState: state(2, { announcedBreak }),
+    })
+    return decision.kind === 'still_waiting' ? decision.announcedBreak : 'n/a'
+  }
+  assert.deepEqual(decide(announced), announced)
+  assert.equal(decide({ ...announced, status: 'dismissed' as never }), null)
+  assert.equal(decide({ ...announced, episode: 4 }), null)
+})
+
 test('within the grace period the next drop is just not out yet', () => {
   assert.deepEqual(
     decideShow({
@@ -315,4 +339,17 @@ test('an AniList fallback snapshot is already in season numbering and alerts as-
   assert.equal(decision.episodeNumber, 3)
   // No offset is learned from AniList's numbering.
   assert.equal(decision.state.episodeOffset, null)
+})
+
+test("an announced break doesn't move the drop window", () => {
+  const announcedBreak = {
+    episode: 3,
+    newDate: '2026-09-22',
+    sourceUrl: null,
+    status: 'pending' as const,
+    announcedAt: '2026-09-14T15:00:00.000Z',
+  }
+  const plan = (previousState: ShowState) =>
+    planShowLookup({ show: SHOW, previousState, now: NOW, force: false })
+  assert.deepEqual(plan(state(2, { announcedBreak })), plan(state(2)))
 })

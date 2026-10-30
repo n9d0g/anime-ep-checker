@@ -6,6 +6,7 @@ import {
   discordLinkButtonRow,
   discordRelativeTimestamp,
   discordTimestamp,
+  formatAnnouncedBreak,
   formatMalScoreLabel,
   type DiscordActionRow,
 } from './discord-format.ts'
@@ -18,7 +19,11 @@ import type {
 import { formatEasternTime } from './time.ts'
 import { getShowWatchUrl, providerLabel } from '../shared/shows.ts'
 import type { EpisodeSnapshot, TimingStatus } from './types.ts'
-import type { PlanToWatchAlertReason, Show } from '../shared/types.ts'
+import type {
+  AnnouncedBreak,
+  PlanToWatchAlertReason,
+  Show,
+} from '../shared/types.ts'
 
 export interface DiscordConfig {
   botToken?: string
@@ -45,6 +50,8 @@ interface WaitingAlertInput {
   expectedDropAt: string
   /** AniList's broadcast time when the episode already aired in Japan. */
   airedAt?: string | null
+  /** A pending announced break for this episode; wins over provider lag. */
+  announcedBreak?: AnnouncedBreak | null
 }
 
 interface MalScoreAlertInput {
@@ -592,28 +599,38 @@ export async function sendWaitingAlert({
   episodeNumber,
   expectedDropAt,
   airedAt,
+  announcedBreak,
 }: WaitingAlertInput): Promise<void> {
   const showTitle = show.title || show.id
   const expectedLabel = formatEasternTime(expectedDropAt)
   const provider = providerLabel(show.provider ?? 'crunchyroll')
   const countdown = discordRelativeTimestamp(expectedDropAt, expectedLabel)
-  const headline = airedAt
-    ? `Provider lag: Episode ${episodeNumber} aired in Japan at ${formatEasternTime(airedAt)}, not on ${provider} yet.`
-    : `Episode ${episodeNumber} not on ${provider} yet.`
+  const emoji = announcedBreak ? '⏸️' : '🤔'
+  const headline = announcedBreak
+    ? formatAnnouncedBreak(episodeNumber, announcedBreak.newDate)
+    : airedAt
+      ? `Provider lag: Episode ${episodeNumber} aired in Japan at ${formatEasternTime(airedAt)}, not on ${provider} yet.`
+      : `Episode ${episodeNumber} not on ${provider} yet.`
+  const sourceUrl = announcedBreak?.sourceUrl ?? null
 
   const payload = {
-    content: `🤔 **${showTitle}** — ${headline}`,
+    content: `${emoji} **${showTitle}** — ${headline}`,
     embeds: [
       {
-        title: `🤔 ${showTitle} — ${headline}`,
+        title: `${emoji} ${showTitle} — ${headline}`,
         description: `Expected around ${expectedLabel}. Countdown: ${countdown}`,
+        ...(sourceUrl ? { url: sourceUrl } : {}),
         color: 0xf1c40f,
         footer: discordFooter(),
       },
     ],
   }
 
-  await deliverDiscordMessage(discord, payload)
+  await deliverDiscordMessage(discord, payload, {
+    components: sourceUrl
+      ? discordLinkButtonRow([discordLinkButton('Source', sourceUrl)])
+      : undefined,
+  })
 }
 
 export async function sendRedditFeedErrorAlert({
@@ -684,17 +701,6 @@ export async function sendDisneyAuthAlert(
   })
 }
 
-/** A YYYY-MM-DD Japanese broadcast date, e.g. "Fri, Nov 13 (JST)". */
-function formatJapanDate(date: string): string {
-  const label = new Intl.DateTimeFormat('en-US', {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-    timeZone: 'UTC',
-  }).format(new Date(`${date}T00:00:00Z`))
-  return `${label} (JST)`
-}
-
 export async function sendAnnouncedBreakAlert({
   discord,
   show,
@@ -709,10 +715,7 @@ export async function sendAnnouncedBreakAlert({
   sourceUrl: string | null
 }): Promise<void> {
   const showTitle = show.title || show.id
-  const dateLabel = newDate
-    ? `new broadcast date ${formatJapanDate(newDate)}`
-    : 'new date TBA'
-  const headline = `Episode ${episodeNumber} postponed (announced): ${dateLabel}.`
+  const headline = formatAnnouncedBreak(episodeNumber, newDate)
 
   const payload = {
     content: `⏸️ **${showTitle}** — ${headline}`,
