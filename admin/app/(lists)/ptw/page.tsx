@@ -171,8 +171,9 @@ function formatTrailingMeta(
 ): string {
   const parts: string[] = []
 
-  if (entry.startDate) {
-    parts.push(entry.startDate)
+  const startDate = formatMalDate(entry.startDate)
+  if (startDate) {
+    parts.push(startDate)
   }
 
   if (kind !== 'upcoming' && entry.numEpisodes) {
