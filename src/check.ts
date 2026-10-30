@@ -1,6 +1,7 @@
 import { readFile, writeFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { syncAnnouncedBreaks } from './announced-breaks.ts'
 import {
   refreshAiringSchedule,
   shouldSaveAiringSchedule,
@@ -569,6 +570,28 @@ export async function checkShows({
         }`
       )
     }
+  }
+
+  // Not on forced runs: the admin forces a check on every show edit, and
+  // each read is a GitHub Models request.
+  try {
+    const announcedResult = await syncAnnouncedBreaks({
+      shows,
+      state,
+      discord,
+      now,
+      dryRun,
+    })
+    if (announcedResult.changed) {
+      stateChangeReasons.push(...announcedResult.reasons)
+      stateChanged = true
+    }
+  } catch (error) {
+    console.warn(
+      `Announced-break check failed: ${
+        error instanceof Error ? error.message : error
+      }`
+    )
   }
 
   if (!dryRun) {

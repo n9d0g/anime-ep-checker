@@ -683,3 +683,72 @@ export async function sendDisneyAuthAlert(
     botOnly: 'Disney+ auth alert',
   })
 }
+
+/** A YYYY-MM-DD Japanese broadcast date, e.g. "Fri, Nov 13 (JST)". */
+function formatJapanDate(date: string): string {
+  const label = new Intl.DateTimeFormat('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date(`${date}T00:00:00Z`))
+  return `${label} (JST)`
+}
+
+export async function sendAnnouncedBreakAlert({
+  discord,
+  show,
+  episodeNumber,
+  newDate,
+  sourceUrl,
+}: {
+  discord: DiscordConfig
+  show: Show
+  episodeNumber: number
+  newDate: string | null
+  sourceUrl: string | null
+}): Promise<void> {
+  const showTitle = show.title || show.id
+  const dateLabel = newDate
+    ? `new broadcast date ${formatJapanDate(newDate)}`
+    : 'new date TBA'
+  const headline = `Episode ${episodeNumber} postponed (announced): ${dateLabel}.`
+
+  const payload = {
+    content: `⏸️ **${showTitle}** — ${headline}`,
+    embeds: [
+      {
+        title: `⏸️ ${showTitle} — ${headline}`,
+        description:
+          'Read from the official news. Drop times stay put until you add the break in the admin.',
+        ...(sourceUrl ? { url: sourceUrl } : {}),
+        color: 0x9b59b6,
+        footer: discordFooter(),
+      },
+    ],
+  }
+
+  await deliverDiscordMessage(discord, payload, {
+    components: sourceUrl
+      ? discordLinkButtonRow([discordLinkButton('Source', sourceUrl)])
+      : undefined,
+  })
+}
+
+export async function sendGitHubModelsAlert(
+  discord: DiscordConfig,
+  message: string
+): Promise<void> {
+  const payload = {
+    embeds: [
+      {
+        title: "Announcement checks can't reach GitHub Models",
+        description: `GitHub Models refused the workflow's token (${message}). Announced-break checks are paused until it answers again.\n\nMake sure the check job in \`check-episodes.yml\` has \`permissions: models: read\` and passes \`GITHUB_TOKEN\` to the check step, and that GitHub Models is enabled for the account.`,
+        color: 0xe67e22,
+        footer: discordFooter(),
+      },
+    ],
+  }
+
+  await deliverDiscordMessage(discord, payload)
+}

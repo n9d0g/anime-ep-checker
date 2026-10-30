@@ -26,6 +26,18 @@ export interface AiringSchedule {
   episodes: Record<string, string>
 }
 
+/**
+ * A break the show's official sources announced, not yet confirmed. `newDate`
+ * is the new Japanese broadcast date (YYYY-MM-DD), or null while it's TBA.
+ */
+export interface AnnouncedBreak {
+  episode: number
+  newDate: string | null
+  sourceUrl: string | null
+  status: 'pending' | 'dismissed'
+  announcedAt: string
+}
+
 export interface Show {
   id: string
   title: string
@@ -66,6 +78,9 @@ export interface ShowState {
   airingSchedule?: AiringSchedule
   /** AniList's Official Site link: null when AniList lists none, unset until checked. */
   officialSiteUrl?: string | null
+  announcedBreak?: AnnouncedBreak | null
+  /** Last time the show's official news was read for an announced break. */
+  announcementCheckedAt?: string | null
   googleCalendarEvents?: Record<
     string,
     { eventId: string; startAt: string }
@@ -108,6 +123,8 @@ export interface StateFile {
   meta?: {
     netflixCookieAlertSentAt?: string | null
     disneyCookieAlertSentAt?: string | null
+    /** Set while GitHub Models refuses the token; cleared once it answers. */
+    githubModelsAlertSentAt?: string | null
     /** When the current MAL outage was first detected; null once it's back. */
     malDownSince?: string | null
     watchingDashboardMessageId?: string | null

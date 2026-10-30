@@ -24,7 +24,7 @@ flowchart LR
 3. Each show uses **Crunchyroll, Netflix, or Disney+** (not multiple).
 4. On first run for a show (inside a window), it **baselines** the current episode (no alert).
 5. When the expected episode becomes available, it posts to **Discord** (notification-friendly message with MAL cover thumbnail, episode metadata, and Watch / r/anime / MAL link buttons) and updates [`state.json`](state.json).
-6. If an episode is **late** (15+ min past expected), it sends a one-time **still waiting** Discord message.
+6. If an episode is **late** (15+ min past expected), it sends a one-time **still waiting** Discord message. When AniList shows the episode already broadcast in Japan, the message says **provider lag** instead.
 7. Each run also refreshes a **#watching dashboard** (MAL progress + next drops) and syncs **Discord Scheduled Events** for upcoming episodes.
 8. The **Cloudflare admin** edits `shows.json` in your repo.
 
@@ -59,6 +59,16 @@ Discord alerts still display times in **Eastern Time (EST/EDT)** even though sch
 | **Dense** | T-5m → T+90m                       | Full check about every **5 minutes** (external cron dispatch) |
 | **Late**  | After T+90m, episode still missing | Full check about every **30 minutes** until found             |
 | **Done**  | Episode found                      | State advances; show leaves the window until next ep          |
+
+### Announced breaks
+
+The checker also reads each show's official news for an **announced break** (a studio delay, broadcast pause or recap special):
+
+- **When:** once a day in the 3 days before a show's next drop; and once the drop is past still waiting, every 30 minutes for a day, then daily until the episode shows up.
+- **Sources:** the show's official site (AniList's **Official Site** link, or **Official news URL** in the admin when the news page lives elsewhere) and the last 7 days of [Anime News Network](https://www.animenewsnetwork.com/) news headlines. X/Twitter isn't read.
+- **Reader:** one [GitHub Models](https://docs.github.com/en/github-models) request per show per check (`openai/gpt-4.1-mini`, free tier). The check job's built-in `GITHUB_TOKEN` with `permissions: models: read` covers it, so no extra secret is needed. Local runs without `GITHUB_TOKEN` skip it.
+- **Alert:** one Discord message per (episode, new date). A changed date alerts again. Drop times, Calendar and Discord events don't move until you add the break.
+- **Failures:** if GitHub Models refuses the token, you get one **Announcement checks can't reach GitHub Models** alert until it answers again. Rate limits and outages only add a warning to the Actions run.
 
 GitHub’s built-in `schedule` on `check-episodes.yml` is kept as a backup but is often throttled to ~hourly on free/public repos. Use [Reliable polling](#reliable-polling) for actual 5-minute cadence during drop windows.
 

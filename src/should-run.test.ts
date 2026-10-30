@@ -45,8 +45,14 @@ function makeState(
   shows: StateFile['shows'] = {},
   meta: StateFile['meta'] = {}
 ): StateFile {
+  const checked = Object.fromEntries(
+    Object.entries(shows).map(([id, showState]) => [
+      id,
+      { announcementCheckedAt: now, ...showState },
+    ])
+  )
   return {
-    shows,
+    shows: checked,
     meta: {
       planToWatchCheckedAt: new Date(
         new Date(now).getTime() - 60 * 60 * 1000
@@ -377,4 +383,34 @@ test('failing feed reruns when the last alert predates the last success', async 
   )
   assert.equal(result.shouldCheck, true)
   assert.equal(result.redditCheck, true)
+})
+
+test('gate runs once a day for announcement checks in the 3 days before a drop', async () => {
+  const now = '2026-10-20T15:00:00.000Z' // two days before ep 4's 15:00 drop
+  const checkedAt = (hoursAgo: number) =>
+    new Date(Date.parse(now) - hoursAgo * 60 * 60 * 1000).toISOString()
+  const decideChecked = (hoursAgo: number) =>
+    decide(
+      now,
+      [makeShow()],
+      makeState(now, {
+        show: { ...lastEpisode(3), announcementCheckedAt: checkedAt(hoursAgo) },
+      })
+    )
+
+  const due = await decideChecked(23)
+  assert.equal(due.shouldCheck, true)
+  assert.match(due.reasons.join(' '), /Announced-break check/)
+  assert.equal((await decideChecked(22)).shouldCheck, false)
+
+  const early = '2026-10-19T14:00:00.000Z' // 3 days and an hour before
+  assert.equal(
+    (
+      await decide(early, [makeShow()], {
+        ...makeState(early, {}),
+        shows: { show: lastEpisode(3) },
+      })
+    ).shouldCheck,
+    false
+  )
 })

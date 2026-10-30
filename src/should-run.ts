@@ -12,6 +12,7 @@ import {
   matchesRedditFeedTitle,
   shouldSendFeedErrorAlert,
 } from '../shared/reddit-feeds.ts'
+import { isAnnouncementCheckDue } from '../shared/announced-break.ts'
 import {
   getDropWindowMode,
   getNextDrop,
@@ -143,6 +144,13 @@ export async function decideGate({
     reasons.push('Related anime check is due (weekly, Sundays).')
   }
 
+  const announcementCheck = shows.some((show) =>
+    isAnnouncementCheckDue(show, state.shows[show.id], now)
+  )
+  if (announcementCheck) {
+    reasons.push('Announced-break check is due for at least one show.')
+  }
+
   const hasOrphans = hasOrphanedShows(shows, state)
   if (hasOrphans) {
     reasons.push('Removed show still present in state; running cleanup.')
@@ -158,6 +166,7 @@ export async function decideGate({
       dropWindowModes.size > 0 ||
       needsPtwCheck ||
       needsRelatedCheck ||
+      announcementCheck ||
       hasOrphans ||
       redditCheck,
     redditCheck,
@@ -202,7 +211,7 @@ async function main(): Promise<void> {
     }
   } else {
     console.log(
-      'No shows in their drop window, plan-to-watch/related checks not due, and no new Reddit posts; skipping full check.'
+      'No shows in their drop window, plan-to-watch/related/announcement checks not due, and no new Reddit posts; skipping full check.'
     )
   }
 }
