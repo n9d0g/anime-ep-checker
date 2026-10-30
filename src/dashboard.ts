@@ -4,12 +4,13 @@ import {
   discordLinkButtonRow,
   discordRelativeTimestamp,
   discordTimestamp,
+  formatJapanDate,
   formatMalScoreLabel,
   type DiscordLinkButton,
 } from './discord-format.ts'
 import { formatEasternTime } from './time.ts'
 import { getShowWatchUrl, providerLabel } from '../shared/shows.ts'
-import type { Show, ShowState } from '../shared/types.ts'
+import type { AnnouncedBreak, Show, ShowState } from '../shared/types.ts'
 import {
   getNextDrop,
   isInDropWindowOrLateSlot,
@@ -32,6 +33,8 @@ export interface ShowDashboardRow {
   coverUrl: string | null
   discussionUrl: string | null
   providerLatestEpisode: number | null
+  /** A pending announced break for the next drop or later: a marker only. */
+  announcedBreak?: AnnouncedBreak | null
 }
 
 const STATUS_LABELS: Record<DashboardStatus, string> = {
@@ -200,7 +203,26 @@ export async function buildShowDashboardRow(
     coverUrl,
     discussionUrl,
     providerLatestEpisode: showState?.lastSnapshotEpisode ?? null,
+    announcedBreak: getPendingAnnouncedBreak(showState, nextDropEpisode),
   }
+}
+
+function getPendingAnnouncedBreak(
+  showState: ShowState | null,
+  nextDropEpisode: number | null
+): AnnouncedBreak | null {
+  const announced = showState?.announcedBreak
+  return announced?.status === 'pending' &&
+    nextDropEpisode !== null &&
+    announced.episode >= nextDropEpisode
+    ? announced
+    : null
+}
+
+function formatAnnouncedBreakField(announced: AnnouncedBreak): string {
+  const date = announced.newDate ? formatJapanDate(announced.newDate) : 'TBA'
+  const label = `Episode ${announced.episode} → ${date}`
+  return announced.sourceUrl ? `[${label}](${announced.sourceUrl})` : label
 }
 
 function buildDashboardEmbed(row: ShowDashboardRow) {
@@ -244,6 +266,15 @@ function buildDashboardEmbed(row: ShowDashboardRow) {
             : drop,
         inline: false,
       },
+      ...(row.announcedBreak
+        ? [
+            {
+              name: '⚠️ Announced break',
+              value: formatAnnouncedBreakField(row.announcedBreak),
+              inline: false,
+            },
+          ]
+        : []),
     ],
     footer: discordFooter('Watching dashboard'),
   }
@@ -256,7 +287,8 @@ function buildDashboardNotificationContent(row: ShowDashboardRow): string {
       ? `Episode ${row.nextDropEpisode}`
       : 'Season complete'
   const status = getDashboardStatusLabel(row.status)
-  return `**${title}** — MAL ${row.malProgress} · Next ${nextDropLabel} · ${status}`
+  const marker = row.announcedBreak ? ' · ⚠️ Announced break' : ''
+  return `**${title}** — MAL ${row.malProgress} · Next ${nextDropLabel} · ${status}${marker}`
 }
 
 function buildDashboardLinkComponents(

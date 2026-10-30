@@ -17,7 +17,12 @@ import {
   type DropWindowMode,
 } from '../shared/schedule.ts'
 import type { EpisodeSnapshot } from './types.ts'
-import type { AiringSchedule, Show, ShowState } from '../shared/types.ts'
+import type {
+  AiringSchedule,
+  AnnouncedBreak,
+  Show,
+  ShowState,
+} from '../shared/types.ts'
 
 /** A next drop with a known expected time. */
 export interface PlannedDrop {
@@ -109,6 +114,8 @@ export type ShowDecision =
       expectedDropAt: string
       /** AniList's broadcast time if the episode has already aired (provider lag). */
       airedAt: string | null
+      /** A pending announced break for this episode. */
+      announcedBreak: AnnouncedBreak | null
       snapshotEpisode: number
       state: ShowState
     }
@@ -249,12 +256,18 @@ export function decideShow({
     previousState.waitingNotifiedForEpisode !== nextDrop.episode
   ) {
     const broadcastAt = getBroadcastAt(airingSchedule, nextDrop.episode)
+    const announced = previousState.announcedBreak
     return {
       kind: 'still_waiting',
       episodeNumber: nextDrop.episode,
       expectedDropAt,
       airedAt:
         broadcastAt && broadcastAt <= now ? broadcastAt.toISOString() : null,
+      announcedBreak:
+        announced?.status === 'pending' &&
+        announced.episode === nextDrop.episode
+          ? announced
+          : null,
       snapshotEpisode,
       state: { ...previousState, waitingNotifiedForEpisode: nextDrop.episode },
     }

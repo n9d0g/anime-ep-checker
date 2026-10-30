@@ -262,6 +262,7 @@ async function applyDecision(
             episodeNumber: decision.episodeNumber,
             expectedDropAt: decision.expectedDropAt,
             airedAt: decision.airedAt,
+            announcedBreak: decision.announcedBreak,
           })
           console.log('  Discord still-waiting alert sent')
         } else {
