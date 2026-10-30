@@ -59,6 +59,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      # Announced-break checks read official news with GitHub Models.
+      models: read
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -96,6 +98,7 @@ jobs:
           REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
           REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
           REDDIT_FEED_CHECK: ${{ needs.gate.outputs.reddit_check == 'true' }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: pnpm check ${{ github.event.inputs.force == 'true' && '--force' || '' }}
 
       - name: Update Disney refresh token secret

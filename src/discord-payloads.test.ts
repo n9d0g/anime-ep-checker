@@ -5,8 +5,10 @@ import { syncWatchingDashboard } from './discord-dashboard.ts'
 import { buildShowDashboardPayload } from './dashboard.ts'
 import type { ShowDashboardRow } from './dashboard.ts'
 import {
+  sendAnnouncedBreakAlert,
   sendDisneyAuthAlert,
   sendEpisodeAlert,
+  sendGitHubModelsAlert,
   sendMalRateLimitAlert,
   sendMalScoreAlert,
   sendMalStatusAlert,
@@ -232,6 +234,33 @@ for (const [path, discord] of Object.entries(CONFIGS)) {
       airedAt: '2026-10-24T14:30:00.000Z',
     })
     check(`waiting alert, provider lag (${path})`)
+  })
+
+  test(`announced break alert (${path})`, async () => {
+    await sendAnnouncedBreakAlert({
+      discord,
+      show,
+      episodeNumber: 4,
+      newDate: '2026-10-31',
+      sourceUrl: 'https://frieren-anime.jp/news/9',
+    })
+    check(`announced break alert (${path})`)
+  })
+
+  test(`announced break alert, TBA (${path})`, async () => {
+    await sendAnnouncedBreakAlert({
+      discord,
+      show: bareShow,
+      episodeNumber: 4,
+      newDate: null,
+      sourceUrl: null,
+    })
+    check(`announced break alert, TBA (${path})`)
+  })
+
+  test(`GitHub Models alert (${path})`, async () => {
+    await sendGitHubModelsAlert(discord, 'HTTP 403')
+    check(`GitHub Models alert (${path})`)
   })
 
   test(`waiting alert, bare (${path})`, async () => {

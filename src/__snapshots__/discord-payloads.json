@@ -1,4 +1,40 @@
 {
+  "announced break alert (bot)": [
+    {
+      "method": "POST",
+      "url": "https://discord.com/api/v10/channels/channel-1/messages",
+      "contentType": "application/json",
+      "authorization": "Bot bot-token",
+      "body": "{\"content\":\"⏸️ **Frieren** — Episode 4 postponed (announced): new broadcast date Sat, Oct 31 (JST).\",\"embeds\":[{\"title\":\"⏸️ Frieren — Episode 4 postponed (announced): new broadcast date Sat, Oct 31 (JST).\",\"description\":\"Read from the official news. Drop times stay put until you add the break in the admin.\",\"url\":\"https://frieren-anime.jp/news/9\",\"color\":10181046,\"footer\":{\"text\":\"Anime Episode Checker\"}}],\"components\":[{\"type\":1,\"components\":[{\"type\":2,\"style\":5,\"label\":\"Source\",\"url\":\"https://frieren-anime.jp/news/9\"}]}]}"
+    }
+  ],
+  "announced break alert (webhook)": [
+    {
+      "method": "POST",
+      "url": "https://discord.test/webhook",
+      "contentType": "application/json",
+      "authorization": null,
+      "body": "{\"content\":\"⏸️ **Frieren** — Episode 4 postponed (announced): new broadcast date Sat, Oct 31 (JST).\",\"embeds\":[{\"title\":\"⏸️ Frieren — Episode 4 postponed (announced): new broadcast date Sat, Oct 31 (JST).\",\"description\":\"Read from the official news. Drop times stay put until you add the break in the admin.\",\"url\":\"https://frieren-anime.jp/news/9\",\"color\":10181046,\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
+    }
+  ],
+  "announced break alert, TBA (bot)": [
+    {
+      "method": "POST",
+      "url": "https://discord.com/api/v10/channels/channel-1/messages",
+      "contentType": "application/json",
+      "authorization": "Bot bot-token",
+      "body": "{\"content\":\"⏸️ **bare-show** — Episode 4 postponed (announced): new date TBA.\",\"embeds\":[{\"title\":\"⏸️ bare-show — Episode 4 postponed (announced): new date TBA.\",\"description\":\"Read from the official news. Drop times stay put until you add the break in the admin.\",\"color\":10181046,\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
+    }
+  ],
+  "announced break alert, TBA (webhook)": [
+    {
+      "method": "POST",
+      "url": "https://discord.test/webhook",
+      "contentType": "application/json",
+      "authorization": null,
+      "body": "{\"content\":\"⏸️ **bare-show** — Episode 4 postponed (announced): new date TBA.\",\"embeds\":[{\"title\":\"⏸️ bare-show — Episode 4 postponed (announced): new date TBA.\",\"description\":\"Read from the official news. Drop times stay put until you add the break in the admin.\",\"color\":10181046,\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
+    }
+  ],
   "dashboard payloads": [
     {
       "method": "BUILD",
@@ -97,6 +133,24 @@
       "contentType": "application/json",
       "authorization": null,
       "body": "{\"embeds\":[{\"title\":\"✅ Frieren — Episode 3 is out!\",\"url\":\"https://www.crunchyroll.com/watch/ep-3\",\"description\":\"The Mage’s Journey\",\"color\":15105570,\"thumbnail\":{\"url\":\"https://cdn.myanimelist.net/images/anime/1/frieren.jpg\"},\"fields\":[{\"name\":\"Season\",\"value\":\"Season 2\",\"inline\":true},{\"name\":\"MAL score\",\"value\":\"9.31\",\"inline\":true},{\"name\":\"Countdown\",\"value\":\"<t:1792251720:R>\",\"inline\":true},{\"name\":\"Timing\",\"value\":\"Late (expected Oct 17, 2026, 11:00:00 AM EDT, dropped Oct 17, 2026, 11:42:00 AM EDT)\",\"inline\":false},{\"name\":\"Discussion\",\"value\":\"[r/anime thread](https://www.reddit.com/r/anime/comments/abc/frieren/)\",\"inline\":false},{\"name\":\"Links\",\"value\":\"[Watch](https://www.crunchyroll.com/watch/ep-3) · [r/anime](https://www.reddit.com/r/anime/comments/abc/frieren/) · [MAL](https://myanimelist.net/anime/52991)\",\"inline\":false}],\"timestamp\":\"2026-10-17T15:42:00.000Z\",\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
+    }
+  ],
+  "GitHub Models alert (bot)": [
+    {
+      "method": "POST",
+      "url": "https://discord.com/api/v10/channels/channel-1/messages",
+      "contentType": "application/json",
+      "authorization": "Bot bot-token",
+      "body": "{\"embeds\":[{\"title\":\"Announcement checks can't reach GitHub Models\",\"description\":\"GitHub Models refused the workflow's token (HTTP 403). Announced-break checks are paused until it answers again.\\n\\nMake sure the check job in `check-episodes.yml` has `permissions: models: read` and passes `GITHUB_TOKEN` to the check step, and that GitHub Models is enabled for the account.\",\"color\":15105570,\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
+    }
+  ],
+  "GitHub Models alert (webhook)": [
+    {
+      "method": "POST",
+      "url": "https://discord.test/webhook",
+      "contentType": "application/json",
+      "authorization": null,
+      "body": "{\"embeds\":[{\"title\":\"Announcement checks can't reach GitHub Models\",\"description\":\"GitHub Models refused the workflow's token (HTTP 403). Announced-break checks are paused until it answers again.\\n\\nMake sure the check job in `check-episodes.yml` has `permissions: models: read` and passes `GITHUB_TOKEN` to the check step, and that GitHub Models is enabled for the account.\",\"color\":15105570,\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
     }
   ],
   "MAL rate limit, before list (bot)": [
