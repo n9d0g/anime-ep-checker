@@ -737,7 +737,7 @@
       ]
     },
     "watchingDashboardHashes": {
-      "kusuriya-no-hitorigoto-3rd-season": "6d2581b5e53fa66814653b06c6eae03b411c8337",
+      "kusuriya-no-hitorigoto-3rd-season": "d8d423dabc01699b2a836ccebb1f42b85bcd8fbd",
       "ao-no-hako-season-2": "cefa2deac54d7b828201ac6d4b6ce07046bf765e"
     },
     "onHold": {
@@ -768,6 +768,7 @@
     "redditUserFeeds": {
       "animecorner": {
         "seenPostIds": [
+          "t3_1xje7ls",
           "t3_1xdd4pf",
           "t3_1x7exgq",
           "t3_1x1k4ps",
@@ -797,8 +798,8 @@
           "t3_1shmi9o",
           "t3_1s7xema"
         ],
-        "checkedAt": "2026-10-23T13:00:51.200Z",
-        "lastPostPublishedAt": "2026-10-23T12:50:05.000Z"
+        "checkedAt": "2026-10-30T12:45:42.695Z",
+        "lastPostPublishedAt": "2026-10-30T12:37:01.000Z"
       },
       "abysswatcherbel": {
         "seenPostIds": [
@@ -2091,7 +2092,7 @@
       ]
     },
     "watchingDashboardScores": {
-      "kusuriya-no-hitorigoto-3rd-season": "8.65",
+      "kusuriya-no-hitorigoto-3rd-season": "8.64",
       "ao-no-hako-season-2": "8.15"
     }
   }
