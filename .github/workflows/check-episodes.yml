@@ -159,7 +159,10 @@ jobs:
             git fetch --depth=1 origin "$BRANCH"
             git show "origin/$BRANCH:state.json" > "$THEIRS_STATE"
             pnpm --silent merge-state "$BASE_STATE" "$OURS_STATE" "$THEIRS_STATE" state.json
-            git reset --soft "origin/$BRANCH"
+            # Mixed, not --soft: the index must match the remote, or files
+            # changed during the run (an admin edit to shows.json) are
+            # committed back to their checkout-time contents.
+            git reset "origin/$BRANCH"
             git add state.json
 
             if git diff --cached --quiet; then
