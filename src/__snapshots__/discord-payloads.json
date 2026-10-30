@@ -377,5 +377,23 @@
       "authorization": null,
       "body": "{\"content\":\"🤔 **bare-show** — Episode 4 not on Netflix yet.\",\"embeds\":[{\"title\":\"🤔 bare-show — Episode 4 not on Netflix yet.\",\"description\":\"Expected around Oct 24, 2026, 11:00:00 AM EDT. Countdown: <t:1792854000:R>\",\"color\":15844367,\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
     }
+  ],
+  "waiting alert, provider lag (bot)": [
+    {
+      "method": "POST",
+      "url": "https://discord.com/api/v10/channels/channel-1/messages",
+      "contentType": "application/json",
+      "authorization": "Bot bot-token",
+      "body": "{\"content\":\"🤔 **Frieren** — Provider lag: Episode 4 aired in Japan at Oct 24, 2026, 10:30:00 AM EDT, not on Crunchyroll yet.\",\"embeds\":[{\"title\":\"🤔 Frieren — Provider lag: Episode 4 aired in Japan at Oct 24, 2026, 10:30:00 AM EDT, not on Crunchyroll yet.\",\"description\":\"Expected around Oct 24, 2026, 11:00:00 AM EDT. Countdown: <t:1792854000:R>\",\"color\":15844367,\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
+    }
+  ],
+  "waiting alert, provider lag (webhook)": [
+    {
+      "method": "POST",
+      "url": "https://discord.test/webhook",
+      "contentType": "application/json",
+      "authorization": null,
+      "body": "{\"content\":\"🤔 **Frieren** — Provider lag: Episode 4 aired in Japan at Oct 24, 2026, 10:30:00 AM EDT, not on Crunchyroll yet.\",\"embeds\":[{\"title\":\"🤔 Frieren — Provider lag: Episode 4 aired in Japan at Oct 24, 2026, 10:30:00 AM EDT, not on Crunchyroll yet.\",\"description\":\"Expected around Oct 24, 2026, 11:00:00 AM EDT. Countdown: <t:1792854000:R>\",\"color\":15844367,\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
+    }
   ]
 }

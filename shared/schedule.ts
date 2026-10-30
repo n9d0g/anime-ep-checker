@@ -71,6 +71,15 @@ function getAiringMs(
   return Number.isNaN(ms) ? null : ms
 }
 
+/** AniList's broadcast time for an episode, or null if it has none. */
+export function getBroadcastAt(
+  airingSchedule: AiringSchedule | null | undefined,
+  episodeNumber: number
+): Date | null {
+  const ms = getAiringMs(airingSchedule, episodeNumber)
+  return ms === null ? null : new Date(ms)
+}
+
 /**
  * The drop time before manual breaks: AniList's broadcast time plus the
  * provider's offset from broadcast, continuing weekly from the last episode

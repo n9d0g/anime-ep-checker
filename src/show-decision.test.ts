@@ -237,6 +237,7 @@ test('past the grace period the next drop gets one still-waiting alert', () => {
     kind: 'still_waiting',
     episodeNumber: 3,
     expectedDropAt: EP3.expectedAt.toISOString(),
+    airedAt: null,
     snapshotEpisode: 2,
     state: { ...state(2), waitingNotifiedForEpisode: 3 },
   })
@@ -246,6 +247,37 @@ test('past the grace period the next drop gets one still-waiting alert', () => {
       previousState: state(2, { waitingNotifiedForEpisode: 3 }),
     }),
     { kind: 'not_out_yet', episodeNumber: 3, snapshotEpisode: 2 }
+  )
+})
+
+test('still waiting carries the broadcast time once AniList says it aired', () => {
+  const input = {
+    show: SHOW,
+    snapshot: snapshot(2),
+    nextDrop: EP3,
+    previousState: state(2),
+  }
+  const airingSchedule = {
+    fetchedAt: '2026-09-15T00:00:00.000Z',
+    episodes: { '3': '2026-09-15T14:30:00.000Z' },
+  }
+  const aired = decideShow({ ...input, now: NOW, airingSchedule })
+  assert.equal(
+    aired.kind === 'still_waiting' && aired.airedAt,
+    '2026-09-15T14:30:00.000Z'
+  )
+
+  const notYetAired = decideShow({
+    ...input,
+    now: NOW,
+    airingSchedule: {
+      ...airingSchedule,
+      episodes: { '3': '2026-09-15T17:00:00.000Z' },
+    },
+  })
+  assert.equal(
+    notYetAired.kind === 'still_waiting' && notYetAired.airedAt,
+    null
   )
 })
 

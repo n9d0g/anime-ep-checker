@@ -223,6 +223,17 @@ for (const [path, discord] of Object.entries(CONFIGS)) {
     check(`waiting alert (${path})`)
   })
 
+  test(`waiting alert, provider lag (${path})`, async () => {
+    await sendWaitingAlert({
+      discord,
+      show,
+      episodeNumber: 4,
+      expectedDropAt: '2026-10-24T15:00:00.000Z',
+      airedAt: '2026-10-24T14:30:00.000Z',
+    })
+    check(`waiting alert, provider lag (${path})`)
+  })
+
   test(`waiting alert, bare (${path})`, async () => {
     await sendWaitingAlert({
       discord,
