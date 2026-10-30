@@ -57,7 +57,8 @@
           "12": "2026-12-18T14:00:00.000Z"
         }
       },
-      "lastSnapshotEpisode": 5
+      "lastSnapshotEpisode": 5,
+      "announcementCheckedAt": "2026-10-30T18:00:58.622Z"
     },
     "ao-no-hako-season-2": {
       "lastEpisodeId": "82716334",
@@ -733,8 +734,8 @@
       ]
     },
     "watchingDashboardHashes": {
-      "kusuriya-no-hitorigoto-3rd-season": "880ecf6883265501b8420bd65896ba1bce0e6e16",
-      "ao-no-hako-season-2": "cefa2deac54d7b828201ac6d4b6ce07046bf765e"
+      "kusuriya-no-hitorigoto-3rd-season": "e0c6e148724af38dc757d8cbff071cb5d5db06c2",
+      "ao-no-hako-season-2": "9696767f6465a5d3724e1d711fa165385c5beef4"
     },
     "onHold": {
       "updatedAt": "2026-09-28T21:46:38.715Z",
