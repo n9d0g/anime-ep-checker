@@ -45,7 +45,7 @@
         }
       },
       "airingSchedule": {
-        "fetchedAt": "2026-10-29T19:15:45.419Z",
+        "fetchedAt": "2026-10-30T14:55:39.753Z",
         "episodes": {
           "1": "2026-10-02T14:00:00.000Z",
           "2": "2026-10-09T14:00:00.000Z",
@@ -737,7 +737,7 @@
       ]
     },
     "watchingDashboardHashes": {
-      "kusuriya-no-hitorigoto-3rd-season": "d8d423dabc01699b2a836ccebb1f42b85bcd8fbd",
+      "kusuriya-no-hitorigoto-3rd-season": "2a0fa1f540d94e0d15347a15936ead80fbf9fdb9",
       "ao-no-hako-season-2": "cefa2deac54d7b828201ac6d4b6ce07046bf765e"
     },
     "onHold": {
