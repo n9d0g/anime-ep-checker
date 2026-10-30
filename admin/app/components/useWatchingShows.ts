@@ -18,7 +18,7 @@ import { getAniListGapWeeks } from '@shared/schedule'
 import { searchIndex } from '@/lib/search-index-store'
 import { emptyShowForm, showToForm } from '@/lib/show-form'
 import { formatEasternDateTime } from '@/lib/time'
-import type { Show } from '@shared/types'
+import type { PlanToWatchSnapshotEntry, Show } from '@shared/types'
 import type { ShowFormValues, ShowStateSummary } from '@/lib/types'
 import {
   buildShowViewModel,
@@ -97,6 +97,9 @@ export function useWatchingShows(options: {
   // The rows as last loaded or saved; null until the first load.
   const [savedRows, setSavedRows] = useState<ShowRow[] | null>(null)
   const [showStates, setShowStates] = useState<ShowStates>({})
+  const [airingPlanToWatch, setAiringPlanToWatch] = useState<
+    PlanToWatchSnapshotEntry[]
+  >([])
   const [loading, setLoading] = useState(true)
   // The row whose Setup is being saved, if any.
   const [savingKey, setSavingKey] = useState<string | null>(null)
@@ -116,6 +119,8 @@ export function useWatchingShows(options: {
   baselineRef.current = baseline
   savingRef.current = savingKey !== null
   optionsRef.current = options
+
+  const savedShows = useMemo(() => showRowValues(savedRows ?? []), [savedRows])
 
   // Relative times ("in 20m") and chips ("Dropping now") move with the clock.
   const [now, setNow] = useState(() => Date.now())
@@ -289,9 +294,11 @@ export function useWatchingShows(options: {
         shows?: Show[]
         showsVersion?: string | null
         showStates?: ShowStates
+        airingPlanToWatch?: PlanToWatchSnapshotEntry[]
       }>('/api/bootstrap', { errorMessage: 'Failed to load shows' })
 
       const loadedShows = (bootstrapData.shows ?? []).map(showToForm)
+      setAiringPlanToWatch(bootstrapData.airingPlanToWatch ?? [])
 
       if (silent && (savingRef.current || hasUnsavedLocalEdits())) {
         setShowStates((current) =>
@@ -312,8 +319,9 @@ export function useWatchingShows(options: {
       const cachedStates =
         readJsonCache<{ showStates: ShowStates }>(cacheKeys.bootstrap)
           ?.showStates ?? {}
-      writeJsonCache(cacheKeys.bootstrap, {
+      writeJsonCache<BootstrapCache>(cacheKeys.bootstrap, {
         shows: bootstrapData.shows ?? [],
+        airingPlanToWatch: bootstrapData.airingPlanToWatch ?? [],
         showStates: withKnownWatched(
           bootstrapData.showStates ?? {},
           cachedStates
@@ -356,6 +364,7 @@ export function useWatchingShows(options: {
     if (cached?.shows?.length) {
       setLoadedShows(cached.shows.map(showToForm))
       setShowStates(cached.showStates ?? {})
+      setAiringPlanToWatch(cached.airingPlanToWatch ?? [])
       setLoading(false)
     }
 
@@ -791,6 +800,10 @@ export function useWatchingShows(options: {
     rows,
     displayRows,
     showStates,
+    savedShows,
+    airingPlanToWatch,
+    setAiringPlanToWatch,
+    reload: () => loadRemoteData({ silent: true }),
     setShowStates,
     malDown,
     setMalDown,

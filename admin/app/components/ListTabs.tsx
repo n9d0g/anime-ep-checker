@@ -1,6 +1,11 @@
 'use client'
 
-import { useEffect, useState, type ReactNode } from 'react'
+import {
+  useEffect,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+} from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
@@ -9,6 +14,7 @@ import {
   WatchedIcon,
   WatchingIcon,
 } from '@/app/components/ListIcons'
+import { inboxCount } from '@/lib/inbox-store'
 import { countByCategory, type SearchCategory } from '@/lib/search'
 import { searchIndex } from '@/lib/search-index-store'
 
@@ -85,6 +91,11 @@ function useListCounts(): Record<SearchCategory, number> | null {
 export function ListTabs({ placement }: { placement: 'top' | 'bottom' }) {
   const pathname = usePathname()
   const counts = useListCounts()
+  const needsYou = useSyncExternalStore(
+    inboxCount.subscribe,
+    inboxCount.get,
+    () => null
+  )
 
   return (
     <nav
@@ -93,7 +104,9 @@ export function ListTabs({ placement }: { placement: 'top' | 'bottom' }) {
     >
       {TABS.map((tab) => {
         const active = pathname === tab.href
-        const count = counts?.[tab.category]
+        // Watching's badge counts the inbox while it has anything in it.
+        const alert = tab.category === 'watching' && Boolean(needsYou)
+        const count = alert ? needsYou : counts?.[tab.category]
         return (
           <Link
             key={tab.href}
@@ -111,8 +124,13 @@ export function ListTabs({ placement }: { placement: 'top' | 'bottom' }) {
             <span className="list-tab-label-short" aria-hidden="true">
               {tab.shortLabel}
             </span>
-            {count !== undefined ? (
-              <span className="list-tab-count">{count}</span>
+            {count !== undefined && count !== null ? (
+              <span
+                className={`list-tab-count${alert ? ' list-tab-count-alert' : ''}`}
+                aria-label={alert ? `${count} need you` : undefined}
+              >
+                {count}
+              </span>
             ) : null}
           </Link>
         )

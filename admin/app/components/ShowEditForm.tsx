@@ -5,12 +5,13 @@ import type { ShowFormValues } from '@/lib/types'
 import type { ShowProvider } from '@shared/types'
 
 // The Setup section of a show's sheet: the fields saved to shows.json.
-// Collapsed for existing shows, open for a new one. `rowKey` keeps input IDs
+// Collapsed for existing shows unless asked to open. `rowKey` keeps input IDs
 // unique per row.
 export function ShowEditForm({
   rowKey,
   show,
   startHint,
+  open,
   malEditOpen,
   officialSiteUrl,
   dirty,
@@ -24,6 +25,8 @@ export function ShowEditForm({
   rowKey: string
   show: ShowFormValues
   startHint: string | null
+  /** Starts expanded: a new show, or a field to focus. */
+  open: boolean
   malEditOpen: boolean
   /** AniList's Official Site link, shown as the default. */
   officialSiteUrl: string | null | undefined
@@ -45,7 +48,7 @@ export function ShowEditForm({
   const id = (name: string) => `${name}-${rowKey}`
 
   return (
-    <details className="sheet-section sheet-setup" open={!show.id}>
+    <details className="sheet-section sheet-setup" open={open}>
       <summary>
         <h3 className="sheet-section-title">
           Setup

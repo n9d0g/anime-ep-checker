@@ -1,18 +1,45 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { CompleteRatingModal } from '@/app/components/CompleteRatingModal'
+import { Inbox } from '@/app/components/Inbox'
 import { ShowListSkeleton } from '@/app/components/ListSkeleton'
 import { Modal } from '@/app/components/Modal'
+import { MoveToWatchingModal } from '@/app/components/MoveToWatchingModal'
 import { ShowRow } from '@/app/components/ShowRow'
 import { ShowSheet } from '@/app/components/ShowSheet'
 import { useEpisodeProgress } from '@/app/components/useEpisodeProgress'
 import { useHashScrollHighlight } from '@/app/components/useHashScrollHighlight'
 import { useWatchingShows } from '@/app/components/useWatchingShows'
+import { useToast } from '@/app/components/Toast'
+import { apiErrorMessage } from '@/lib/api-fetch'
+import {
+  cacheKeys,
+  updateJsonCache,
+  withoutPtwEntry,
+  type BootstrapCache,
+} from '@/lib/client-cache'
+import { buildInbox } from '@/lib/inbox'
+import {
+  inboxCount,
+  readDismissedInboxKeys,
+  writeDismissedInboxKeys,
+} from '@/lib/inbox-store'
+import { moveToWatchingMessage, requestMoveToWatching } from '@/lib/ptw-move'
+import { searchIndex } from '@/lib/search-index-store'
+import type {
+  PlanToWatchSnapshot,
+  PlanToWatchSnapshotEntry,
+} from '@shared/types'
 
 // Which show's sheet is open: by row key (rows without an ID yet, e.g. a new
-// show) or by show ID (a search result, possibly before the list loads).
-type OpenSheet = { rowKey: string } | { showId: string } | null
+// show) or by show ID (a search result, possibly before the list loads). An
+// inbox action can open it on a Setup field.
+type SetupField = 'official-news' | 'mal'
+type OpenSheet =
+  | { rowKey: string }
+  | { showId: string; focusField?: SetupField }
+  | null
 
 export default function AdminPage() {
   const [openSheet, setOpenSheet] = useState<OpenSheet>(null)
@@ -31,6 +58,64 @@ export default function AdminPage() {
   })
   const progress = useEpisodeProgress(shows)
   episodeSavePendingRef.current = progress.hasPendingSave
+  const toast = useToast()
+
+  // Inbox items put off with "Not now"; read after mount (browser storage).
+  const [dismissedKeys, setDismissedKeys] = useState<ReadonlySet<string>>(
+    () => new Set()
+  )
+  useEffect(() => setDismissedKeys(readDismissedInboxKeys()), [])
+  const inboxItems = useMemo(
+    () =>
+      buildInbox({
+        shows: shows.savedShows,
+        showStates: shows.showStates,
+        airingPlanToWatch: shows.airingPlanToWatch,
+        dismissedKeys,
+      }),
+    [shows.savedShows, shows.showStates, shows.airingPlanToWatch, dismissedKeys]
+  )
+  useEffect(() => {
+    inboxCount.set(shows.loading ? null : inboxItems.length)
+  }, [shows.loading, inboxItems.length])
+
+  const [moveEntry, setMoveEntry] = useState<PlanToWatchSnapshotEntry | null>(
+    null
+  )
+  const [moving, setMoving] = useState(false)
+
+  function savedShowValues(showId: string) {
+    return shows.savedShows.find((show) => show.id === showId)
+  }
+
+  async function moveToWatching(
+    entry: PlanToWatchSnapshotEntry,
+    values: Parameters<typeof requestMoveToWatching>[1]
+  ) {
+    setMoving(true)
+    try {
+      const data = await requestMoveToWatching(entry, values)
+      const remaining = shows.airingPlanToWatch.filter(
+        (airing) => airing.malId !== entry.malId
+      )
+      shows.setAiringPlanToWatch(remaining)
+      updateJsonCache<BootstrapCache>(cacheKeys.bootstrap, (cached) => ({
+        ...cached,
+        airingPlanToWatch: remaining,
+      }))
+      updateJsonCache<PlanToWatchSnapshot>(cacheKeys.ptw, (cached) =>
+        withoutPtwEntry(cached, entry.malId)
+      )
+      searchIndex.invalidate()
+      setMoveEntry(null)
+      toast.success(moveToWatchingMessage(data))
+      void shows.reload()
+    } catch (error) {
+      toast.error(apiErrorMessage(error, 'Failed to move show to watching'))
+    } finally {
+      setMoving(false)
+    }
+  }
 
   const openRow = openSheet
     ? shows.displayRows.find((displayRow) =>
@@ -84,6 +169,31 @@ export default function AdminPage() {
           </div>
         ) : null}
 
+        <Inbox
+          items={inboxItems}
+          onAddBreak={(showId) => {
+            const show = savedShowValues(showId)
+            if (show) {
+              void shows.confirmAnnouncedBreak(show)
+            }
+          }}
+          onDismissBreak={(showId) => {
+            const show = savedShowValues(showId)
+            if (show) {
+              void shows.dismissAnnouncedBreak(show)
+            }
+          }}
+          onOpenSetup={(showId, focusField) =>
+            setOpenSheet({ showId, focusField })
+          }
+          onMoveToWatching={(item) => setMoveEntry(item.entry)}
+          onNotNow={(key) => {
+            const next = new Set(dismissedKeys).add(key)
+            setDismissedKeys(next)
+            writeDismissedInboxKeys(next)
+          }}
+        />
+
         <section className="stack">
           {shows.loading ? (
             <ShowListSkeleton />
@@ -116,6 +226,11 @@ export default function AdminPage() {
           holding={
             Boolean(openRow.row.values.id) &&
             progress.holdingShowId === openRow.row.values.id
+          }
+          focusField={
+            openSheet && 'focusField' in openSheet
+              ? openSheet.focusField
+              : undefined
           }
           dirty={shows.isRowDirty(openRow.row.key)}
           saving={shows.savingKey === openRow.row.key}
@@ -178,6 +293,15 @@ export default function AdminPage() {
               Discard
             </button>
           }
+        />
+      ) : null}
+
+      {moveEntry ? (
+        <MoveToWatchingModal
+          entry={moveEntry}
+          submitting={moving}
+          onCancel={() => setMoveEntry(null)}
+          onSubmit={(values) => void moveToWatching(moveEntry, values)}
         />
       ) : null}
 

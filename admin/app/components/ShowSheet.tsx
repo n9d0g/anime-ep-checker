@@ -1,12 +1,13 @@
 'use client'
 
-import { useState, type ComponentProps, type ReactNode } from 'react'
+import { useEffect, useState, type ComponentProps, type ReactNode } from 'react'
 import { Sheet } from '@/app/components/Sheet'
 import { ShowEditForm } from '@/app/components/ShowEditForm'
 import { ShowTitleDisplay } from '@/app/components/ShowTitleDisplay'
 import type { EpisodeSaveStatus } from '@/app/components/useEpisodeProgress'
 import type { DisplayRow } from '@/app/components/useWatchingShows'
 import { getAnnouncedBreakSuggestion } from '@/lib/announced-break'
+import { formatMalDate } from '@/lib/anime-format'
 import { describeBreak } from '@/lib/schedule-break'
 import { formScheduleToSchedule, MAL_DOWN_MESSAGE } from '@/lib/watching'
 import { getOfficialNewsUrl } from '@shared/shows'
@@ -45,6 +46,7 @@ export function ShowSheet({
   episodeStatus,
   completingShow,
   holding,
+  focusField,
   onClose,
   onAdjustEpisode,
   onAddBreak,
@@ -60,6 +62,8 @@ export function ShowSheet({
   episodeStatus: EpisodeSaveStatus
   completingShow: boolean
   holding: boolean
+  /** A Setup field to open and focus, e.g. from an inbox action. */
+  focusField?: 'official-news' | 'mal'
   onClose: () => void
   onAdjustEpisode: (delta: number) => void
   onAddBreak: () => void
@@ -75,7 +79,16 @@ export function ShowSheet({
 >) {
   const { row, index, liveState, view } = displayRow
   const show = row.values
-  const [malEditOpen, setMalEditOpen] = useState(false)
+  const [malEditOpen, setMalEditOpen] = useState(focusField === 'mal')
+
+  useEffect(() => {
+    if (!focusField) {
+      return
+    }
+    const field = document.getElementById(`${focusField}-${row.key}`)
+    field?.scrollIntoView({ block: 'center' })
+    field?.focus()
+  }, [focusField, row.key])
   const title = show.title || `Show ${index + 1}`
   const episodeSaving = episodeStatus === 'saving'
   const { currentEpisode, malBlocked } = view
@@ -219,7 +232,7 @@ export function ShowSheet({
               <span>
                 Episode {announced.episode} postponed:{' '}
                 {announced.newDate
-                  ? `new broadcast date ${announced.newDate} (JST)`
+                  ? `new broadcast date ${formatMalDate(announced.newDate)} (JST)`
                   : 'new date TBA'}
                 {announced.sourceUrl ? (
                   <>
@@ -316,6 +329,7 @@ export function ShowSheet({
         rowKey={row.key}
         show={show}
         startHint={view.startHint}
+        open={!show.id || Boolean(focusField)}
         malEditOpen={malEditOpen}
         officialSiteUrl={liveState?.officialSiteUrl}
         onToggleMalEdit={() => setMalEditOpen((current) => !current)}

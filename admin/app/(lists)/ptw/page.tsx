@@ -33,6 +33,7 @@ import type {
 } from '@shared/types'
 import type { PtwDetails, PtwDetailsList, ShowFormValues } from '@/lib/types'
 import { formatUpdatedAgo } from '@/lib/time'
+import { moveToWatchingMessage, requestMoveToWatching } from '@/lib/ptw-move'
 
 async function fetchPtwSnapshot(): Promise<PlanToWatchSnapshot | null> {
   const data = await apiFetch<{ planToWatch?: PlanToWatchSnapshot | null }>(
@@ -447,37 +448,12 @@ export default function PlanToWatchPage() {
     setMoving(true)
 
     try {
-      const data = await apiFetch<{
-        malUpdated?: boolean
-        workflowTriggered?: boolean
-      }>('/api/ptw/watch', {
-        method: 'POST',
-        json: {
-          malId: entry.malId,
-          title: entry.title,
-          titleEnglish: entry.titleEnglish,
-          provider: values.provider,
-          crunchyrollUrl: values.crunchyrollUrl,
-          netflixUrl: values.netflixUrl,
-          disneyUrl: values.disneyUrl,
-          schedule: values.schedule,
-        },
-        errorMessage: 'Failed to move show to watching',
-      })
+      const data = await requestMoveToWatching(entry, values)
 
       ptw.update((current) => withoutPtwEntry(current, entry.malId))
       searchIndex.invalidate()
       setWatchEntry(null)
-
-      if (!data.malUpdated) {
-        toast.success(
-          'Added to watching. MAL status could not be updated — mark it watching there if needed.'
-        )
-      } else if (data.workflowTriggered) {
-        toast.success('Moved to watching. The dashboard will refresh shortly.')
-      } else {
-        toast.success('Moved to watching.')
-      }
+      toast.success(moveToWatchingMessage(data))
     } catch (error) {
       toast.error(apiErrorMessage(error, 'Failed to move show to watching'))
     } finally {

@@ -1,4 +1,9 @@
-import type { OnHoldSnapshot, PlanToWatchSnapshot, Show } from '@shared/types'
+import type {
+  OnHoldSnapshot,
+  PlanToWatchSnapshot,
+  PlanToWatchSnapshotEntry,
+  Show,
+} from '@shared/types'
 import type { ShowStateSummary } from './types'
 
 const BOOTSTRAP_CACHE_KEY = 'aec-admin-bootstrap-v1'
@@ -11,6 +16,8 @@ const PTW_DETAILS_CACHE_KEY = 'aec-admin-ptw-details-v1'
 export interface BootstrapCache {
   shows: Show[]
   showStates: Record<string, ShowStateSummary>
+  /** Plan to watch shows that started airing (for the inbox). */
+  airingPlanToWatch?: PlanToWatchSnapshotEntry[]
 }
 
 export function readJsonCache<T>(key: string): T | null {
