@@ -103,6 +103,7 @@ test('an announced break is saved and alerted once per episode and date', async 
     announcedAt: NOW.toISOString(),
   })
   assert.equal(state.shows.frieren!.announcementCheckedAt, NOW.toISOString())
+  assert.equal(state.shows.frieren!.announcementReadAt, NOW.toISOString())
 
   // The next day's check reads the same news: no second alert.
   const nextDay = new Date('2026-09-15T15:16:00.000Z')
@@ -176,6 +177,7 @@ test('rate limits only warn, and the show waits for its next scheduled check', a
   })
   assert.deepEqual(limited.posts, [])
   assert.equal(state.meta?.githubModelsAlertSentAt, undefined)
+  assert.equal(state.shows.frieren!.announcementReadAt, undefined)
   assert.equal(state.shows.frieren!.announcementCheckedAt, NOW.toISOString())
   // Not due again an hour later.
   const soon = await run(state, delayed(null), {

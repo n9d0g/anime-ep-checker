@@ -64,7 +64,8 @@ Discord alerts still display times in **Eastern Time (EST/EDT)** even though sch
 
 The checker also reads each show's official news for an **announced break** (a studio delay, broadcast pause or recap special):
 
-- **When:** once a day in the 3 days before a show's next drop; and once the drop is past still waiting, every 30 minutes for a day, then daily until the episode shows up.
+- **When:** at each drop and every 6 hours for a day after it (a break for next week is often announced the day the episode broadcasts); once a day in the 3 days before the next drop; and once that drop is past still waiting, every 30 minutes for a day, then daily until the episode shows up.
+- **Dashboard:** each #watching card shows **Break news**: when the last successful check ran ("none announced"), **Not checked yet**, or the ⚠️ announced break.
 - **Sources:** the show's official site (AniList's **Official Site** link, or **Official news URL** in the admin when the news page lives elsewhere) and the last 7 days of [Anime News Network](https://www.animenewsnetwork.com/) news headlines. X/Twitter isn't read.
 - **Reader:** one [GitHub Models](https://docs.github.com/en/github-models) request per show per check (`openai/gpt-4.1-mini`, free tier). The check job's built-in `GITHUB_TOKEN` with `permissions: models: read` covers it, so no extra secret is needed. Local runs without `GITHUB_TOKEN` skip it.
 - **Alert:** one Discord message per (episode, new date). A changed date alerts again. Drop times, Calendar and Discord events don't move until you add the break.

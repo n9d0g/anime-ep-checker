@@ -521,6 +521,18 @@ test('dashboard payloads', () => {
     },
     {
       method: 'BUILD',
+      url: 'checked',
+      contentType: null,
+      authorization: null,
+      body: JSON.stringify(
+        buildShowDashboardPayload({
+          ...dashboardRow,
+          announcementReadAt: '2026-10-22T09:00:00.000Z',
+        })
+      ),
+    },
+    {
+      method: 'BUILD',
       url: 'bare',
       contentType: null,
       authorization: null,
