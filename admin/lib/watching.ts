@@ -1,5 +1,6 @@
 import { buildAnimeDiscussionSearchUrl } from '@shared/reddit'
 import {
+  getExpectedDropAt,
   getLastScheduledEpisode,
   getNextDrop,
   isEpisodeInSchedule,
@@ -285,12 +286,39 @@ function getNextDropTime(
   )
 }
 
+const UPCOMING_DROP_COUNT = 3
+
+// The next drop and the ones after it, while the schedule has them.
+function getUpcomingDrops(
+  schedule: ShowSchedule,
+  nextEpisode: number | null,
+  liveState: ShowStateSummary | undefined,
+  now: Date
+): { episode: number; when: string }[] {
+  if (nextEpisode === null) {
+    return []
+  }
+  const drops: { episode: number; when: string }[] = []
+  for (let offset = 0; offset < UPCOMING_DROP_COUNT; offset += 1) {
+    const episode = nextEpisode + offset
+    const at = getExpectedDropAt(schedule, episode, liveState?.airingSchedule)
+    const when = at ? formatDropTime(at, now) : null
+    if (!when) {
+      break
+    }
+    drops.push({ episode, when })
+  }
+  return drops
+}
+
 export interface ShowViewModel {
   providerDotClass: string
   // "Ep 3 · in 2d · Wed 11:00 AM ET" under the title.
   nextDropLine: string | null
   // The row's one schedule state (announced break, still waiting, ...).
   chip: ScheduleChip | null
+  // The next few drops for the sheet's Schedule section.
+  upcomingDrops: { episode: number; when: string }[]
   // Eastern conversion of the start time, shown under the start field.
   startHint: string | null
   nextDropTime: number | null
@@ -338,6 +366,12 @@ export function buildShowViewModel(
     providerDotClass: providerDotClass(show.provider),
     nextDropLine,
     chip: getScheduleChip(schedule, liveState, now),
+    upcomingDrops: getUpcomingDrops(
+      schedule,
+      drop?.episode ?? null,
+      liveState,
+      now
+    ),
     startHint,
     nextDropTime: drop?.at?.getTime() ?? null,
     badge: episodeBadgeFor(show, schedule, liveState, malDown),

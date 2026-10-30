@@ -66,7 +66,7 @@ interface MalCompletedListStatus {
 }
 
 interface MalCompletedItem {
-  node: MalCompletedNode
+  node: MalPtwDetailsNode
   list_status?: MalCompletedListStatus
 }
 
@@ -122,6 +122,14 @@ const MAL_COMPLETED_FIELDS = [
   'mean',
   'genres',
   'studios',
+  // For the Watched sheet's details.
+  'synopsis',
+  'rank',
+  'popularity',
+  'start_date',
+  'end_date',
+  'source',
+  'rating',
 ].join(',')
 
 const MAL_PTW_DETAILS_FIELDS = [
@@ -555,7 +563,7 @@ function positiveNumber(value: number | undefined): number | null {
 }
 
 function parseCompletedEntry(
-  node: MalCompletedNode,
+  node: MalPtwDetailsNode,
   listStatus: MalCompletedListStatus = {}
 ): WatchedEntry {
   return {
@@ -585,6 +593,13 @@ function parseCompletedEntry(
     finishedAt: listStatus.finish_date || null,
     updatedAt: listStatus.updated_at || null,
     timesRewatched: listStatus.num_times_rewatched ?? 0,
+    synopsis: node.synopsis?.trim() || null,
+    rank: typeof node.rank === 'number' ? node.rank : null,
+    popularity: typeof node.popularity === 'number' ? node.popularity : null,
+    startDate: node.start_date || null,
+    endDate: node.end_date || null,
+    source: node.source || null,
+    rating: node.rating || null,
   }
 }
 

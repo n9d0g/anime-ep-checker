@@ -41,3 +41,19 @@ export function filterSearchIndex(
 
   return items.filter((item) => matchSearchQuery(trimmed, item))
 }
+
+/** How many shows each list holds, for the list tabs' badges. */
+export function countByCategory(
+  items: SearchIndexItem[]
+): Record<SearchCategory, number> {
+  const counts: Record<SearchCategory, number> = {
+    watching: 0,
+    ptw: 0,
+    on_hold: 0,
+    watched: 0,
+  }
+  for (const item of items) {
+    counts[item.category] += 1
+  }
+  return counts
+}

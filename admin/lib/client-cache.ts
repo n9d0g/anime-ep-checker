@@ -1,4 +1,9 @@
-import type { OnHoldSnapshot, PlanToWatchSnapshot, Show } from '@shared/types'
+import type {
+  OnHoldSnapshot,
+  PlanToWatchSnapshot,
+  PlanToWatchSnapshotEntry,
+  Show,
+} from '@shared/types'
 import type { ShowStateSummary } from './types'
 
 const BOOTSTRAP_CACHE_KEY = 'aec-admin-bootstrap-v1'
@@ -6,11 +11,14 @@ const PTW_CACHE_KEY = 'aec-admin-ptw-v1'
 const ON_HOLD_CACHE_KEY = 'aec-admin-on-hold-v1'
 const WATCHED_CACHE_KEY = 'aec-admin-watched-v1'
 const PTW_DETAILS_CACHE_KEY = 'aec-admin-ptw-details-v1'
+const ANILIST_CACHE_KEY = 'aec-admin-anilist-v1'
 
 /** What the Watching list caches from /api/bootstrap. */
 export interface BootstrapCache {
   shows: Show[]
   showStates: Record<string, ShowStateSummary>
+  /** Plan to watch shows that started airing (for the inbox). */
+  airingPlanToWatch?: PlanToWatchSnapshotEntry[]
 }
 
 export function readJsonCache<T>(key: string): T | null {
@@ -55,6 +63,7 @@ export const cacheKeys = {
   onHold: ON_HOLD_CACHE_KEY,
   watched: WATCHED_CACHE_KEY,
   ptwDetails: PTW_DETAILS_CACHE_KEY,
+  anilist: ANILIST_CACHE_KEY,
 }
 
 // A show moved off a list must leave that list's cached copy too, or the

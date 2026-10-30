@@ -26,6 +26,16 @@ export interface WatchedEntry {
   finishedAt: string | null
   updatedAt: string | null
   timesRewatched: number
+  // Details for the Watched sheet; missing from lists cached before they
+  // were fetched.
+  synopsis?: string | null
+  rank?: number | null
+  popularity?: number | null
+  /** When the show aired (MAL date), not when you watched it. */
+  startDate?: string | null
+  endDate?: string | null
+  source?: string | null
+  rating?: string | null
 }
 
 export interface PtwDetails {

@@ -317,14 +317,14 @@ When an episode drops, its calendar event is removed. Use **Add break** in the a
 ## CMS usage
 
 1. Open your Cloudflare admin URL and sign in
-2. Use the profile menu to switch between **Watching** (`/`) and **Plan to watch** (`/ptw`)
-3. On **Watching**, choose **Crunchyroll**, **Netflix**, or **Disney+** and paste the series/title URL
-4. **MAL anime ID** is optional: if left blank, the admin tries to auto-match from the show title on load; once linked, the ID is hidden under **More options** (still editable)
-5. Tracked show **titles** sync from MAL when a `malId` is known (on page load via `POST /api/shows/sync-mal`)
+2. Switch lists with the tabs: **Watching** (`/`), **On hold**, **Plan to watch** (`/ptw`) and **Watched** — along the bottom on a phone, in the header on a wider screen
+3. On **Watching**, tap a show to open its sheet (**Watch**, **Schedule**, **Setup**, **Manage**), or **+** to add one; in **Setup**, choose **Crunchyroll**, **Netflix**, or **Disney+** and paste the series/title URL
+4. **MAL anime ID** is optional: if left blank, the admin tries to auto-match from the show title on load; once linked, the ID is hidden behind **Edit** in **Setup** (still editable)
+5. Watching show **titles** sync from MAL when a `malId` is known (on page load via `POST /api/shows/sync-mal`)
 6. Choose **Finite season** or **Ongoing**
 7. Set start date/time (**Japan Time / JST**), start episode number, and premiere batch size
-8. **Add break** (saved shows only) adds a 1-week break after the last dropped episode (`schedule.breaks`), so later drops shift by 7 days and earlier ones stay; it clears Calendar event state so the checker rebuilds Discord/Calendar events on the next forced run. Existing breaks are listed under the start date with **Remove** (saved with **Save changes**)
-9. **Save changes** — commits to `shows.json` on GitHub
+8. **Save** in **Setup** commits that one show to `shows.json` on GitHub (one Save, one commit); closing the sheet with unsaved edits asks to discard them
+9. **Add break** (saved shows only, in **Schedule**) adds a 1-week break after the last dropped episode (`schedule.breaks`), so later drops shift by 7 days and earlier ones stay; it clears Calendar event state so the checker rebuilds Discord/Calendar events on the next forced run. Existing breaks are listed with **Remove**, which saves straight away
 
 For **Add break**, the admin `GITHUB_TOKEN` PAT should include **Actions: Write** so a forced check workflow starts automatically. Otherwise run **Actions → Check anime episodes → Run workflow** with **force** after adding a break.
 

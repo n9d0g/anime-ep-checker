@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict'
 import { afterEach, beforeEach, test } from 'node:test'
-import { blobSha, installFakeGitHub, type FakeGitHub } from './fake-github'
-import { getRepoFiles } from './github'
-import { saveShowsList, ShowsChangedError } from './save-shows'
+import { installFakeGitHub, type FakeGitHub } from './fake-github'
+import { removeShow, saveShow, ShowChangedError } from './save-shows'
+import { showToForm } from './show-form'
 import type { Show, ShowsFile } from '@shared/types'
 
 function show(id: string): Show {
@@ -34,38 +34,64 @@ afterEach(() => {
   globalThis.fetch = realFetch
 })
 
-async function loadedVersion(): Promise<string> {
-  const { files } = await getRepoFiles(['shows.json'])
-  return files['shows.json']!.sha!
-}
-
-test('rejects a save made from an outdated shows list without writing', async () => {
-  const version = await loadedVersion()
+test('saveShow replaces one show and keeps a concurrent edit to another', async () => {
   github.pushConcurrent('shows.json', () => ({
     shows: [show('frieren'), show('dandadan')],
   }))
+  const loaded = showToForm(show('frieren'))
 
-  await assert.rejects(
-    saveShowsList([show('frieren'), show('kaiju')], version),
-    ShowsChangedError
-  )
+  await saveShow({ ...show('frieren'), title: 'Frieren S2' }, loaded)
 
+  const saved = github.file<ShowsFile>('shows.json').shows
   assert.deepEqual(
-    github.file<ShowsFile>('shows.json').shows.map((entry) => entry.id),
-    ['frieren', 'dandadan']
+    saved.map((entry) => [entry.id, entry.title]),
+    [
+      ['frieren', 'Frieren S2'],
+      ['dandadan', 'dandadan'],
+    ]
+  )
+  assert.deepEqual(
+    github.commitsSinceStart().at(-1),
+    'chore: 🧹 update frieren from admin CMS'
   )
 })
 
-test('saves from the current version and returns the new one', async () => {
-  const version = await loadedVersion()
+test('saveShow refuses when the same show changed elsewhere', async () => {
+  const loaded = showToForm(show('frieren'))
+  github.pushConcurrent('shows.json', () => ({
+    shows: [{ ...show('frieren'), malId: 52991 }],
+  }))
 
-  const result = await saveShowsList([show('frieren'), show('kaiju')], version)
+  await assert.rejects(
+    saveShow({ ...show('frieren'), title: 'Mine' }, loaded),
+    ShowChangedError
+  )
+  assert.equal(github.file<ShowsFile>('shows.json').shows[0].malId, 52991)
+})
 
-  const saved = github.file<ShowsFile>('shows.json')
+test('saveShow adds a new show and refuses a duplicate ID', async () => {
+  await saveShow(show('kaiju'), null)
   assert.deepEqual(
-    saved.shows.map((entry) => entry.id),
+    github.file<ShowsFile>('shows.json').shows.map((entry) => entry.id),
     ['frieren', 'kaiju']
   )
-  assert.deepEqual(result.removedIds, [])
-  assert.equal(result.version, blobSha(JSON.stringify(saved, null, 2) + '\n'))
+
+  await assert.rejects(saveShow(show('kaiju'), null), /already exists/)
+})
+
+test('removeShow removes only that show, unless it changed elsewhere', async () => {
+  github.pushConcurrent('shows.json', () => ({
+    shows: [show('frieren'), { ...show('dandadan'), title: 'Dan Da Dan' }],
+  }))
+
+  await assert.rejects(
+    removeShow(showToForm(show('dandadan'))),
+    ShowChangedError
+  )
+
+  await removeShow(showToForm(show('frieren')))
+  assert.deepEqual(
+    github.file<ShowsFile>('shows.json').shows.map((entry) => entry.id),
+    ['dandadan']
+  )
 })

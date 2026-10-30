@@ -29,7 +29,7 @@ export function Modal({
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape' && !submitting) {
+      if (event.key === 'Escape' && !event.defaultPrevented && !submitting) {
         onCancel()
       }
     }

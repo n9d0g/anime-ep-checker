@@ -3,45 +3,39 @@
 import { SegmentedControl } from '@/app/components/SegmentedControl'
 import type { ShowFormValues } from '@/lib/types'
 import type { ShowProvider } from '@shared/types'
-import { describeBreak } from '@/lib/schedule-break'
-import { MAL_DOWN_MESSAGE } from '@/lib/watching'
 
-function capitalize(text: string): string {
-  return text.charAt(0).toUpperCase() + text.slice(1)
-}
-
-// The "More options" fields of a Watching row. `rowKey` keeps input IDs
+// The Setup section of a show's sheet: the fields saved to shows.json.
+// Collapsed for existing shows unless asked to open. `rowKey` keeps input IDs
 // unique per row.
 export function ShowEditForm({
   rowKey,
   show,
   startHint,
-  malLinked,
-  malBlocked,
+  open,
   malEditOpen,
   officialSiteUrl,
-  completingShow,
-  holding,
+  dirty,
+  saving,
   onToggleMalEdit,
   onUpdate,
   onUpdateSchedule,
-  onAddBreak,
-  onRemoveBreak,
-  onComplete,
-  onHold,
-  onRemove,
+  onSave,
+  onRevert,
 }: {
   rowKey: string
   show: ShowFormValues
   startHint: string | null
-  malLinked: boolean
-  malBlocked: boolean
+  /** Starts expanded: a new show, or a field to focus. */
+  open: boolean
   malEditOpen: boolean
   /** AniList's Official Site link, shown as the default. */
   officialSiteUrl: string | null | undefined
-  completingShow: boolean
-  holding: boolean
+  /** Setup differs from what's saved. */
+  dirty: boolean
+  saving: boolean
   onToggleMalEdit: () => void
+  onSave: () => void
+  onRevert: () => void
   onUpdate: <K extends keyof ShowFormValues>(
     field: K,
     value: ShowFormValues[K]
@@ -50,18 +44,20 @@ export function ShowEditForm({
     field: keyof ShowFormValues['schedule'],
     value: string
   ) => void
-  onAddBreak: () => void
-  onRemoveBreak: (index: number) => void
-  onComplete: () => void
-  onHold: () => void
-  onRemove: () => void
 }) {
   const id = (name: string) => `${name}-${rowKey}`
 
   return (
-    <details className="disclosure" open={!show.id}>
-      <summary>More options</summary>
-      <div className="disclosure-body">
+    <details className="sheet-section sheet-setup" open={open}>
+      <summary>
+        <h3 className="sheet-section-title">
+          Setup
+          {dirty && show.id ? (
+            <span className="sheet-unsaved">Unsaved</span>
+          ) : null}
+        </h3>
+      </summary>
+      <div className="sheet-setup-body">
         <div className="field">
           <label htmlFor={id('title')}>Title</label>
           <input
@@ -151,38 +147,6 @@ export function ShowEditForm({
           />
           {startHint ? (
             <p className="hint schedule-start-hint">{startHint}</p>
-          ) : null}
-          {show.id ? (
-            <div className="break-actions">
-              <button
-                className="btn btn-secondary"
-                type="button"
-                onClick={onAddBreak}
-              >
-                Add break
-              </button>
-              <p className="hint">
-                Adds a 1-week break after the last dropped episode: later drops
-                shift by 7 days, earlier ones stay, and Discord and Google
-                Calendar events rebuild.
-              </p>
-            </div>
-          ) : null}
-          {show.schedule.breaks?.length ? (
-            <ul className="break-list" aria-label="Breaks">
-              {show.schedule.breaks.map((entry, index) => (
-                <li key={`${entry.afterEpisode}-${index}`}>
-                  <span>{capitalize(describeBreak(entry))}</span>
-                  <button
-                    className="text-btn"
-                    type="button"
-                    onClick={() => onRemoveBreak(index)}
-                  >
-                    Remove
-                  </button>
-                </li>
-              ))}
-            </ul>
           ) : null}
         </div>
 
@@ -305,33 +269,25 @@ export function ShowEditForm({
             required
           />
         </div>
-
-        <div className="actions">
-          {show.id && malLinked ? (
-            <>
-              <button
-                className="btn btn-secondary"
-                type="button"
-                disabled={completingShow || malBlocked}
-                title={malBlocked ? MAL_DOWN_MESSAGE : undefined}
-                onClick={onComplete}
-              >
-                Mark as completed
-              </button>
-              <button
-                className="btn btn-secondary"
-                type="button"
-                disabled={completingShow || malBlocked || holding}
-                title={malBlocked ? MAL_DOWN_MESSAGE : undefined}
-                onClick={onHold}
-              >
-                {holding ? 'Saving…' : 'On hold'}
-              </button>
-            </>
-          ) : null}
-          <button className="btn btn-danger" type="button" onClick={onRemove}>
-            Remove show
+        <div className="actions sheet-save-row">
+          <button
+            className="btn"
+            type="button"
+            disabled={!dirty || saving}
+            onClick={onSave}
+          >
+            {saving ? 'Saving…' : show.id ? 'Save' : 'Add show'}
           </button>
+          {dirty && show.id ? (
+            <button
+              className="btn btn-secondary"
+              type="button"
+              disabled={saving}
+              onClick={onRevert}
+            >
+              Revert
+            </button>
+          ) : null}
         </div>
       </div>
     </details>

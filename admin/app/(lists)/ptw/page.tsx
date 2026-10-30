@@ -1,21 +1,25 @@
 'use client'
 
 import { useMemo, useRef, useState } from 'react'
-import { ExpandableRowHeader } from '@/app/components/ExpandableRowHeader'
-import { MoveToWatchingModal } from '@/app/components/MoveToWatchingModal'
-import { ShowTitleDisplay } from '@/app/components/ShowTitleDisplay'
+import {
+  AnimeFacts,
+  AnimeSheet,
+  type AnimeFact,
+} from '@/app/components/AnimeSheet'
+import { ListGroup } from '@/app/components/ListGroup'
+import { ListRow } from '@/app/components/ListRow'
+import { MoveToWatchingSheet } from '@/app/components/MoveToWatchingSheet'
+import { SheetSection } from '@/app/components/Sheet'
 import { useCachedResource } from '@/app/components/useCachedResource'
 import { useHashScrollHighlight } from '@/app/components/useHashScrollHighlight'
 import { apiErrorMessage, apiFetch } from '@/lib/api-fetch'
 import { cacheKeys, withoutPtwEntry } from '@/lib/client-cache'
 import { malIdFromElementId } from '@/lib/hash-highlight'
+import { matchSearchQuery } from '@/lib/search'
 import { searchIndex } from '@/lib/search-index-store'
 import { PtwListSkeleton } from '@/app/components/ListSkeleton'
 import { useToast } from '@/app/components/Toast'
-import {
-  AnimeDetailsBody,
-  type AnimeFact,
-} from '@/app/components/AnimeDetailsBody'
+import { useAniListMedia } from '@/app/components/useAniListMedia'
 import {
   cleanSynopsis,
   formatAirDates,
@@ -33,6 +37,7 @@ import type {
 } from '@shared/types'
 import type { PtwDetails, PtwDetailsList, ShowFormValues } from '@/lib/types'
 import { formatUpdatedAgo } from '@/lib/time'
+import { moveToWatchingMessage, requestMoveToWatching } from '@/lib/ptw-move'
 
 async function fetchPtwSnapshot(): Promise<PlanToWatchSnapshot | null> {
   const data = await apiFetch<{ planToWatch?: PlanToWatchSnapshot | null }>(
@@ -189,16 +194,80 @@ const AIRED_LABELS: Record<PtwSectionKind, string> = {
   aired: 'Aired',
 }
 
-function PtwDetailsPanel({
+const SECTION_TITLES: Record<PtwSectionKind, string> = {
+  airing: 'Airing',
+  upcoming: 'Not yet aired',
+  aired: 'Aired',
+}
+
+type PtwSort = 'start' | 'score' | 'title'
+
+const SORT_LABELS: Record<PtwSort, string> = {
+  start: 'Start date',
+  score: 'Score',
+  title: 'Title',
+}
+
+const SORTS = Object.keys(SORT_LABELS) as PtwSort[]
+
+function compareTitles(
+  a: PlanToWatchSnapshotEntry,
+  b: PlanToWatchSnapshotEntry
+): number {
+  return a.title.localeCompare(b.title, undefined, { sensitivity: 'base' })
+}
+
+function sortSection(
+  entries: PlanToWatchSnapshotEntry[],
+  kind: PtwSectionKind,
+  sort: PtwSort,
+  detailsById: Map<number, PtwDetails>
+): PlanToWatchSnapshotEntry[] {
+  if (sort === 'title') {
+    return [...entries].sort(compareTitles)
+  }
+  if (sort === 'score') {
+    const score = (entry: PlanToWatchSnapshotEntry) =>
+      detailsById.get(entry.malId)?.meanScore ?? -1
+    return [...entries].sort(
+      (a, b) => score(b) - score(a) || compareTitles(a, b)
+    )
+  }
+  return kind === 'upcoming' ? sortUpcoming(entries) : entries
+}
+
+/** Title, English title, or (once details load) a studio or genre. */
+function matchesFilter(
+  entry: PlanToWatchSnapshotEntry,
+  details: PtwDetails | undefined,
+  query: string
+): boolean {
+  return (
+    matchSearchQuery(query, entry) ||
+    [...(details?.studios ?? []), ...(details?.genres ?? [])].some((name) =>
+      matchSearchQuery(query, { title: name })
+    )
+  )
+}
+
+// A Plan to watch show in its sheet: Move to Watching, then MAL's details.
+function PtwSheet({
   entry,
   kind,
   details,
+  producers,
   detailsLoading,
+  onMove,
+  onClose,
 }: {
   entry: PlanToWatchSnapshotEntry
   kind: PtwSectionKind
   details: PtwDetails | undefined
+  /** From AniList; empty until it answers. */
+  producers: string[]
   detailsLoading: boolean
+  onMove: () => void
+  onClose: () => void
 }) {
   const airDates = details
     ? formatAirDates(details.startDate, details.endDate)
@@ -246,101 +315,40 @@ function PtwDetailsPanel({
     ['Source', details ? formatSource(details.source) : null],
     ['Rating', details ? formatRating(details.rating) : null],
     ['Studio', details?.studios.join(', ') || null],
+    ['Producers', producers.join(', ') || null],
     ['Genres', details?.genres.join(', ') || null],
     ['Added', added ? `~${added} (last MAL update)` : null],
   ]
 
   return (
-    <AnimeDetailsBody
-      malId={entry.malId}
+    <AnimeSheet
+      title={entry.title}
+      titleEnglish={entry.titleEnglish}
       coverUrl={details?.coverUrl ?? entry.coverUrl}
-      facts={facts}
-      synopsis={cleanSynopsis(details?.synopsis ?? null)}
-      footer={
-        !details && detailsLoading ? (
-          <p className="anime-details-loading">Loading details from MAL…</p>
-        ) : null
-      }
-    />
-  )
-}
-
-function PtwSection({
-  title,
-  kind,
-  entries,
-  movingMalId,
-  onWatch,
-  detailsById,
-  detailsLoading,
-  expandedId,
-  onToggle,
-}: {
-  title: string
-  kind: PtwSectionKind
-  entries: PlanToWatchSnapshotEntry[]
-  movingMalId: number | null
-  onWatch: (entry: PlanToWatchSnapshotEntry) => void
-  detailsById: Map<number, PtwDetails>
-  detailsLoading: boolean
-  expandedId: number | null
-  onToggle: (malId: number) => void
-}) {
-  if (entries.length === 0) {
-    return null
-  }
-
-  return (
-    <section className="stack">
-      <h2>{title}</h2>
-      <div className="panel show-list">
-        {entries.map((entry) => {
-          const meta = formatTrailingMeta(entry, kind)
-          const open = expandedId === entry.malId
-
-          return (
-            <article
-              className={`show-row ptw-row${open ? ' expanded' : ''}`}
-              id={`show-${entry.malId}`}
-              key={entry.malId}
-            >
-              <div className="show-row-header ptw-row-header">
-                <ExpandableRowHeader
-                  className="ptw-row-main ptw-row-toggle"
-                  open={open}
-                  onToggle={() => onToggle(entry.malId)}
-                  leading={
-                    <ShowTitleDisplay
-                      title={entry.title}
-                      titleEnglish={entry.titleEnglish}
-                    />
-                  }
-                  trailing={
-                    meta ? <span className="ep-count">{meta}</span> : null
-                  }
-                />
-                <button
-                  className="btn btn-secondary ptw-watch-btn"
-                  type="button"
-                  disabled={movingMalId === entry.malId}
-                  onClick={() => onWatch(entry)}
-                >
-                  Watch
-                </button>
-              </div>
-              {open ? (
-                <PtwDetailsPanel
-                  entry={entry}
-                  kind={kind}
-                  details={detailsById.get(entry.malId)}
-                  detailsLoading={detailsLoading}
-                />
-              ) : null}
-            </article>
-          )
-        })}
-      </div>
-    </section>
+      meta={formatTrailingMeta(entry, kind) || SECTION_TITLES[kind]}
+      onClose={onClose}
+    >
+      <SheetSection title="Manage">
+        <div className="actions sheet-manage">
+          <button className="btn" type="button" onClick={onMove}>
+            Move to Watching
+          </button>
+        </div>
+      </SheetSection>
+      <SheetSection title="About">
+        <AnimeFacts
+          malId={entry.malId}
+          title={entry.title}
+          facts={facts}
+          synopsis={cleanSynopsis(details?.synopsis ?? null)}
+          footer={
+            !details && detailsLoading ? (
+              <p className="anime-details-loading">Loading details from MAL…</p>
+            ) : null
+          }
+        />
+      </SheetSection>
+    </AnimeSheet>
   )
 }
 
@@ -375,13 +383,15 @@ export default function PlanToWatchPage() {
     null
   )
   const [moving, setMoving] = useState(false)
-  const [expandedId, setExpandedId] = useState<number | null>(null)
+  const [openId, setOpenId] = useState<number | null>(null)
+  const [query, setQuery] = useState('')
+  const [sort, setSort] = useState<PtwSort>('start')
 
-  // Expand the row a search result links to.
+  // Open the show a search result links to.
   useHashScrollHighlight((elementId) => {
     const malId = malIdFromElementId(elementId)
     if (malId !== null) {
-      setExpandedId(malId)
+      setOpenId(malId)
     }
   })
 
@@ -390,21 +400,41 @@ export default function PlanToWatchPage() {
     [details]
   )
 
+  const allEntries = useMemo(() => snapshot?.entries ?? [], [snapshot])
+  const aniList = useAniListMedia(allEntries.map((entry) => entry.malId))
+  const filtering = query.trim() !== ''
   const sections = useMemo(() => {
-    const entries = snapshot?.entries ?? []
-
-    return {
-      airing: entries.filter((entry) => entry.status === 'currently_airing'),
-      upcoming: sortUpcoming(
-        entries.filter((entry) => entry.status === 'not_yet_aired')
+    const entries = filtering
+      ? allEntries.filter((entry) =>
+          matchesFilter(entry, detailsById.get(entry.malId), query.trim())
+        )
+      : allEntries
+    const section = (kind: PtwSectionKind, status: string) => ({
+      kind,
+      entries: sortSection(
+        entries.filter((entry) => entry.status === status),
+        kind,
+        sort,
+        detailsById
       ),
-      aired: entries.filter((entry) => entry.status === 'finished_airing'),
-    }
-  }, [snapshot])
+    })
+    return [
+      section('airing', 'currently_airing'),
+      section('upcoming', 'not_yet_aired'),
+      section('aired', 'finished_airing'),
+    ].filter((group) => group.entries.length > 0)
+  }, [allEntries, detailsById, filtering, query, sort])
 
-  function toggleExpanded(malId: number) {
-    setExpandedId((current) => (current === malId ? null : malId))
-  }
+  const open = useMemo(() => {
+    for (const section of sections) {
+      const entry = section.entries.find((item) => item.malId === openId)
+      if (entry) {
+        return { entry, kind: section.kind }
+      }
+    }
+    const entry = allEntries.find((item) => item.malId === openId)
+    return entry ? { entry, kind: 'aired' as PtwSectionKind } : null
+  }, [sections, allEntries, openId])
 
   async function refreshSnapshot(silent = false) {
     setRefreshing(true)
@@ -447,37 +477,12 @@ export default function PlanToWatchPage() {
     setMoving(true)
 
     try {
-      const data = await apiFetch<{
-        malUpdated?: boolean
-        workflowTriggered?: boolean
-      }>('/api/ptw/watch', {
-        method: 'POST',
-        json: {
-          malId: entry.malId,
-          title: entry.title,
-          titleEnglish: entry.titleEnglish,
-          provider: values.provider,
-          crunchyrollUrl: values.crunchyrollUrl,
-          netflixUrl: values.netflixUrl,
-          disneyUrl: values.disneyUrl,
-          schedule: values.schedule,
-        },
-        errorMessage: 'Failed to move show to watching',
-      })
+      const data = await requestMoveToWatching(entry, values)
 
       ptw.update((current) => withoutPtwEntry(current, entry.malId))
       searchIndex.invalidate()
       setWatchEntry(null)
-
-      if (!data.malUpdated) {
-        toast.success(
-          'Added to watching. MAL status could not be updated — mark it watching there if needed.'
-        )
-      } else if (data.workflowTriggered) {
-        toast.success('Moved to watching. The dashboard will refresh shortly.')
-      } else {
-        toast.success('Moved to watching.')
-      }
+      toast.success(moveToWatchingMessage(data))
     } catch (error) {
       toast.error(apiErrorMessage(error, 'Failed to move show to watching'))
     } finally {
@@ -485,10 +490,7 @@ export default function PlanToWatchPage() {
     }
   }
 
-  const hasEntries =
-    sections.airing.length > 0 ||
-    sections.upcoming.length > 0 ||
-    sections.aired.length > 0
+  const hasEntries = allEntries.length > 0
 
   return (
     <>
@@ -523,39 +525,69 @@ export default function PlanToWatchPage() {
           </div>
         ) : (
           <div className="stack ptw-sections">
-            <PtwSection
-              title="Airing"
-              kind="airing"
-              entries={sections.airing}
-              movingMalId={moving ? (watchEntry?.malId ?? null) : null}
-              onWatch={setWatchEntry}
-              detailsById={detailsById}
-              detailsLoading={detailsLoading}
-              expandedId={expandedId}
-              onToggle={toggleExpanded}
-            />
-            <PtwSection
-              title="Not yet aired"
-              kind="upcoming"
-              entries={sections.upcoming}
-              movingMalId={moving ? (watchEntry?.malId ?? null) : null}
-              onWatch={setWatchEntry}
-              detailsById={detailsById}
-              detailsLoading={detailsLoading}
-              expandedId={expandedId}
-              onToggle={toggleExpanded}
-            />
-            <PtwSection
-              title="Aired"
-              kind="aired"
-              entries={sections.aired}
-              movingMalId={moving ? (watchEntry?.malId ?? null) : null}
-              onWatch={setWatchEntry}
-              detailsById={detailsById}
-              detailsLoading={detailsLoading}
-              expandedId={expandedId}
-              onToggle={toggleExpanded}
-            />
+            <div className="stack watched-controls">
+              <input
+                type="search"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Filter by title, studio, or genre"
+                aria-label="Filter plan to watch"
+              />
+              <div className="segmented" role="group" aria-label="Sort by">
+                {SORTS.map((option) => (
+                  <button
+                    key={option}
+                    type="button"
+                    className={sort === option ? 'active' : ''}
+                    aria-pressed={sort === option}
+                    onClick={() => setSort(option)}
+                  >
+                    {SORT_LABELS[option]}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {sections.length === 0 ? (
+              <div className="panel empty">No shows match “{query}”.</div>
+            ) : (
+              sections.map((section, index) => (
+                <ListGroup
+                  key={section.kind}
+                  title={SECTION_TITLES[section.kind]}
+                  count={section.entries.length}
+                  defaultOpen={index === 0}
+                  forceOpen={filtering}
+                >
+                  {section.entries.map((entry) => {
+                    const meanScore = detailsById.get(entry.malId)?.meanScore
+                    return (
+                      <ListRow
+                        key={entry.malId}
+                        id={`show-${entry.malId}`}
+                        title={entry.title}
+                        titleEnglish={entry.titleEnglish}
+                        bannerUrl={aniList(entry.malId)?.bannerUrl}
+                        coverUrl={entry.coverUrl}
+                        meta={
+                          <span className="show-row-next-drop">
+                            {formatTrailingMeta(entry, section.kind)}
+                          </span>
+                        }
+                        trailing={
+                          meanScore ? (
+                            <span className="ep-count">
+                              {meanScore.toFixed(2)}
+                            </span>
+                          ) : null
+                        }
+                        onOpen={() => setOpenId(entry.malId)}
+                      />
+                    )
+                  })}
+                </ListGroup>
+              ))
+            )}
           </div>
         )}
 
@@ -566,15 +598,23 @@ export default function PlanToWatchPage() {
         ) : null}
       </main>
 
+      {open && !watchEntry ? (
+        <PtwSheet
+          entry={open.entry}
+          kind={open.kind}
+          details={detailsById.get(open.entry.malId)}
+          producers={aniList(open.entry.malId)?.producers ?? []}
+          detailsLoading={detailsLoading}
+          onMove={() => setWatchEntry(open.entry)}
+          onClose={() => setOpenId(null)}
+        />
+      ) : null}
+
       {watchEntry ? (
-        <MoveToWatchingModal
+        <MoveToWatchingSheet
           entry={watchEntry}
           submitting={moving}
-          onCancel={() => {
-            if (!moving) {
-              setWatchEntry(null)
-            }
-          }}
+          onClose={() => setWatchEntry(null)}
           onSubmit={(values) => void moveToWatching(values)}
         />
       ) : null}

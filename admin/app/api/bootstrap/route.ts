@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { withErrorResponse } from '@/lib/api-route'
 import { getRepoFiles, NO_STORE_HEADERS } from '@/lib/github'
-import type { Show, StateFile } from '@shared/types'
+import type { PlanToWatchSnapshotEntry, Show, StateFile } from '@shared/types'
 import type { ShowStateSummary } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
@@ -22,6 +22,14 @@ function toSummaryMap(state: StateFile): Record<string, ShowStateSummary> {
   }
 
   return result
+}
+
+/** Plan to watch shows the checker alerted as having started airing. */
+function airingPlanToWatch(state: StateFile): PlanToWatchSnapshotEntry[] {
+  const alerts = state.meta?.planToWatchAlerts ?? {}
+  return (state.meta?.planToWatch?.entries ?? []).filter(
+    (entry) => alerts[String(entry.malId)]?.reason === 'airing'
+  )
 }
 
 export async function GET() {
@@ -50,6 +58,7 @@ export async function GET() {
           shows,
           showsVersion: showsFile.sha,
           showStates: toSummaryMap(state),
+          airingPlanToWatch: airingPlanToWatch(state),
         },
         { headers: NO_STORE_HEADERS }
       )

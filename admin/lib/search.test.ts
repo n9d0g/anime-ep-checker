@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { matchSearchQuery } from './search'
+import {
+  countByCategory,
+  matchSearchQuery,
+  type SearchIndexItem,
+} from './search'
 
 test('matchSearchQuery matches English title ignoring punctuation', () => {
   assert.equal(
@@ -29,5 +33,22 @@ test('matchSearchQuery returns false for empty query', () => {
       titleEnglish: 'Bleach',
     }),
     false
+  )
+})
+
+test('countByCategory counts every list, empty ones as zero', () => {
+  const item = (category: SearchIndexItem['category'], id: string) => ({
+    category,
+    id,
+    title: id,
+    href: '/',
+  })
+  assert.deepEqual(
+    countByCategory([
+      item('watching', 'a'),
+      item('watching', 'b'),
+      item('watched', 'c'),
+    ]),
+    { watching: 2, ptw: 0, on_hold: 0, watched: 1 }
   )
 })
