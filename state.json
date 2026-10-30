@@ -1,13 +1,13 @@
 {
   "shows": {
     "kusuriya-no-hitorigoto-3rd-season": {
-      "lastEpisodeId": "GE00384330JAJP",
-      "lastEpisodeNumber": "4",
-      "lastEpisodeTitle": "The Last Volume",
-      "lastNotifiedAt": "2026-10-23T15:05:44.007Z",
+      "lastEpisodeId": "GE00384331JAJP",
+      "lastEpisodeNumber": "5",
+      "lastEpisodeTitle": "The White-Snake Immortal",
+      "lastNotifiedAt": "2026-10-30T15:50:41.683Z",
       "seasonId": "GS00384044JAJP",
       "seasonTitle": "Season 3",
-      "waitingNotifiedForEpisode": 5,
+      "waitingNotifiedForEpisode": null,
       "episodeOffset": 48,
       "malMeanScore": 8.66,
       "googleCalendarEvents": {
@@ -41,7 +41,7 @@
         }
       },
       "airingSchedule": {
-        "fetchedAt": "2026-10-30T15:15:40.986Z",
+        "fetchedAt": "2026-10-30T15:50:41.683Z",
         "episodes": {
           "1": "2026-10-02T14:00:00.000Z",
           "2": "2026-10-09T14:00:00.000Z",
@@ -57,7 +57,7 @@
           "12": "2026-12-18T14:00:00.000Z"
         }
       },
-      "lastSnapshotEpisode": 4
+      "lastSnapshotEpisode": 5
     },
     "ao-no-hako-season-2": {
       "lastEpisodeId": "82716334",
@@ -733,7 +733,7 @@
       ]
     },
     "watchingDashboardHashes": {
-      "kusuriya-no-hitorigoto-3rd-season": "289aaccee25cdc4750259f588992c810c124efd1",
+      "kusuriya-no-hitorigoto-3rd-season": "880ecf6883265501b8420bd65896ba1bce0e6e16",
       "ao-no-hako-season-2": "cefa2deac54d7b828201ac6d4b6ce07046bf765e"
     },
     "onHold": {
