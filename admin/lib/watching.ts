@@ -6,9 +6,10 @@ import {
 } from '@shared/schedule'
 import { emptyShowForm } from './show-form'
 import { getShowWatchUrl } from '@shared/shows'
+import { getScheduleChip, type ScheduleChip } from './schedule-chip'
 import {
-  formatEasternShortMilitary,
-  formatEasternTime,
+  formatDropTime,
+  formatEasternDateTime,
   fromDatetimeLocalValue,
 } from './time'
 import type { Show, ShowProvider, ShowSchedule } from '@shared/types'
@@ -286,8 +287,10 @@ function getNextDropTime(
 
 export interface ShowViewModel {
   providerDotClass: string
-  // "Next: Episode 3 - Wed Oct 14th, 11:00 EDT" under the title.
+  // "Ep 3 · in 2d · Wed 11:00 AM ET" under the title.
   nextDropLine: string | null
+  // The row's one schedule state (announced break, still waiting, ...).
+  chip: ScheduleChip | null
   // Eastern conversion of the start time, shown under the start field.
   startHint: string | null
   nextDropTime: number | null
@@ -306,7 +309,8 @@ export interface ShowViewModel {
 export function buildShowViewModel(
   show: ShowFormValues,
   liveState: ShowStateSummary | undefined,
-  malDown: boolean
+  malDown: boolean,
+  now: Date = new Date()
 ): ShowViewModel {
   const schedule = formScheduleToSchedule(show)
   const drop = nextScheduledDrop(schedule, liveState)
@@ -316,22 +320,24 @@ export function buildShowViewModel(
   let nextDropLine: string | null = null
   let startHint: string | null = null
   if (drop) {
-    const eastern = `Eastern: ${formatEasternTime(schedule.startAt)}`
+    const eastern = `Eastern: ${formatEasternDateTime(schedule.startAt, now)}`
     if (drop.episode === null) {
       nextDropLine = 'No further episodes on schedule'
       startHint = `${eastern} · No further episodes on schedule`
     } else if (!drop.at) {
-      nextDropLine = `Next: Episode ${drop.episode}`
+      nextDropLine = `Ep ${drop.episode} next`
       startHint = eastern
     } else {
-      nextDropLine = `Next: Episode ${drop.episode} - ${formatEasternShortMilitary(drop.at)}`
-      startHint = `${eastern} · Next ep ${drop.episode}: ${formatEasternTime(drop.at)}`
+      const when = formatDropTime(drop.at, now)
+      nextDropLine = `Ep ${drop.episode} · ${when}`
+      startHint = `${eastern} · Next ep ${drop.episode}: ${when}`
     }
   }
 
   return {
     providerDotClass: providerDotClass(show.provider),
     nextDropLine,
+    chip: getScheduleChip(schedule, liveState, now),
     startHint,
     nextDropTime: drop?.at?.getTime() ?? null,
     badge: episodeBadgeFor(show, schedule, liveState, malDown),

@@ -57,65 +57,109 @@ export function fromDatetimeLocalValue(value: string): string | null {
   return result.toISOString()
 }
 
-export function formatEasternTime(
-  isoOrDate: string | Date | null | undefined
-): string {
-  if (!isoOrDate) return 'Unknown time'
+const MINUTE_MS = 60 * 1000
+const HOUR_MS = 60 * MINUTE_MS
+const DAY_MS = 24 * HOUR_MS
+const WEEK_MS = 7 * DAY_MS
 
+function toDate(isoOrDate: string | Date): Date | null {
   const date = typeof isoOrDate === 'string' ? new Date(isoOrDate) : isoOrDate
-  if (Number.isNaN(date.getTime())) return 'Invalid date'
+  return Number.isNaN(date.getTime()) ? null : date
+}
 
-  return date.toLocaleString('en-US', {
-    timeZone: EASTERN_TZ,
-    timeZoneName: 'short',
+function yearIn(date: Date, timeZone: string): number {
+  return Number(
+    new Intl.DateTimeFormat('en-US', { timeZone, year: 'numeric' }).format(date)
+  )
+}
+
+/** "Nov 6", or "Nov 6, 2025" outside the current year. */
+function formatDay(date: Date, now: Date, timeZone: string): string {
+  const sameYear = yearIn(date, timeZone) === yearIn(now, timeZone)
+  return new Intl.DateTimeFormat('en-US', {
+    timeZone,
     month: 'short',
     day: 'numeric',
-    year: 'numeric',
+    ...(sameYear ? {} : { year: 'numeric' }),
+  }).format(date)
+}
+
+/** "10:00 AM ET" */
+function formatEasternClock(date: Date): string {
+  const time = new Intl.DateTimeFormat('en-US', {
+    timeZone: EASTERN_TZ,
     hour: 'numeric',
     minute: '2-digit',
-  })
+  }).format(date)
+  return `${time} ET`
 }
 
-function ordinalDay(day: number): string {
-  const mod10 = day % 10
-  const mod100 = day % 100
-  if (mod100 >= 11 && mod100 <= 13) {
-    return `${day}th`
+/** "in 2d", "in 5h", "35m ago": whole units, rounded down, at least 1m. */
+export function formatRelative(date: Date, now: Date = new Date()): string {
+  const diff = date.getTime() - now.getTime()
+  const abs = Math.abs(diff)
+  const amount =
+    abs < HOUR_MS
+      ? `${Math.max(1, Math.floor(abs / MINUTE_MS))}m`
+      : abs < DAY_MS
+        ? `${Math.floor(abs / HOUR_MS)}h`
+        : `${Math.floor(abs / DAY_MS)}d`
+  return diff >= 0 ? `in ${amount}` : `${amount} ago`
+}
+
+/** An Eastern calendar day: "Nov 6", or "Nov 6, 2025" outside this year. */
+export function formatShortDate(
+  isoOrDate: string | Date | null | undefined,
+  now: Date = new Date()
+): string | null {
+  const date = isoOrDate ? toDate(isoOrDate) : null
+  return date ? formatDay(date, now, EASTERN_TZ) : null
+}
+
+/** A UTC calendar day, for date-only values like MAL's: "Nov 6". */
+export function formatCalendarDate(date: Date, now: Date = new Date()): string {
+  return formatDay(date, now, 'UTC')
+}
+
+/** An absolute Eastern time: "Oct 2, 11:00 AM ET". */
+export function formatEasternDateTime(
+  isoOrDate: string | Date | null | undefined,
+  now: Date = new Date()
+): string | null {
+  const date = isoOrDate ? toDate(isoOrDate) : null
+  return date
+    ? `${formatDay(date, now, EASTERN_TZ)}, ${formatEasternClock(date)}`
+    : null
+}
+
+/**
+ * When a drop is (or was): within a week it's relative with the Eastern day
+ * and time, "in 2d · Fri 10:00 AM ET"; further out, just the day, "Nov 6".
+ */
+export function formatDropTime(
+  isoOrDate: string | Date,
+  now: Date = new Date()
+): string | null {
+  const date = toDate(isoOrDate)
+  if (!date) return null
+  if (Math.abs(date.getTime() - now.getTime()) >= WEEK_MS) {
+    return formatDay(date, now, EASTERN_TZ)
   }
-  if (mod10 === 1) return `${day}st`
-  if (mod10 === 2) return `${day}nd`
-  if (mod10 === 3) return `${day}rd`
-  return `${day}th`
-}
-
-export function formatEasternShortMilitary(
-  isoOrDate: string | Date | null | undefined
-): string {
-  if (!isoOrDate) return 'Unknown time'
-
-  const date = typeof isoOrDate === 'string' ? new Date(isoOrDate) : isoOrDate
-  if (Number.isNaN(date.getTime())) return 'Invalid date'
-
-  const parts = new Intl.DateTimeFormat('en-US', {
+  const weekday = new Intl.DateTimeFormat('en-US', {
     timeZone: EASTERN_TZ,
     weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hourCycle: 'h23',
-    timeZoneName: 'short',
-  }).formatToParts(date)
+  }).format(date)
+  return `${formatRelative(date, now)} · ${weekday} ${formatEasternClock(date)}`
+}
 
-  const get = (type: Intl.DateTimeFormatPartTypes) =>
-    parts.find((part) => part.type === type)?.value ?? ''
-
-  const weekday = get('weekday').replace(/\.$/, '')
-  const month = get('month')
-  const dayNum = Number(get('day'))
-  const hour = get('hour').padStart(2, '0')
-  const minute = get('minute').padStart(2, '0')
-  const tz = get('timeZoneName')
-
-  return `${weekday} ${month} ${ordinalDay(dayNum)}, ${hour}:${minute} ${tz}`
+/** "updated 3h ago", or "updated just now" within the minute. */
+export function formatUpdatedAgo(
+  isoOrDate: string | Date | null | undefined,
+  now: Date = new Date()
+): string | null {
+  const date = isoOrDate ? toDate(isoOrDate) : null
+  if (!date) return null
+  return now.getTime() - date.getTime() < MINUTE_MS
+    ? 'updated just now'
+    : `updated ${formatRelative(date, now)}`
 }

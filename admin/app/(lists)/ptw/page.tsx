@@ -32,6 +32,7 @@ import type {
   PlanToWatchSnapshotEntry,
 } from '@shared/types'
 import type { PtwDetails, PtwDetailsList, ShowFormValues } from '@/lib/types'
+import { formatUpdatedAgo } from '@/lib/time'
 
 async function fetchPtwSnapshot(): Promise<PlanToWatchSnapshot | null> {
   const data = await apiFetch<{ planToWatch?: PlanToWatchSnapshot | null }>(
@@ -170,8 +171,9 @@ function formatTrailingMeta(
 ): string {
   const parts: string[] = []
 
-  if (entry.startDate) {
-    parts.push(entry.startDate)
+  const startDate = formatMalDate(entry.startDate)
+  if (startDate) {
+    parts.push(startDate)
   }
 
   if (kind !== 'upcoming' && entry.numEpisodes) {
@@ -559,7 +561,7 @@ export default function PlanToWatchPage() {
 
         {snapshot?.updatedAt ? (
           <p className="hint ptw-updated">
-            Last updated {new Date(snapshot.updatedAt).toLocaleString()}
+            {formatUpdatedAgo(snapshot.updatedAt)}
           </p>
         ) : null}
       </main>

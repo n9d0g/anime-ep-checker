@@ -32,7 +32,7 @@ export function CompleteRatingModal({
   return (
     <Modal
       title={`Rate ${label}`}
-      subtitle="Mark as completed on MyAnimeList and remove from tracked shows."
+      subtitle="Mark as completed on MyAnimeList and remove from Watching."
       submitting={submitting}
       onCancel={onCancel}
       primaryAction={

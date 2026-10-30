@@ -6,18 +6,24 @@
   --panel-raised: #222222;
   --input-bg: #1a1a1a;
   --border: #2a2a2a;
-  --border-focus: #ffffff;
+  --border-focus: #7c8cff;
   --text: #f2f2f0;
   --text-secondary: #a3a3a3;
   --muted: #737373;
   --hint: #666666;
-  --accent: #f2f2f0;
-  --accent-hover: #ffffff;
-  --accent-text: #111111;
+  --accent: #7c8cff;
+  --accent-hover: #95a2ff;
+  --accent-soft: rgba(124, 140, 255, 0.14);
+  --accent-text: #0d0f24;
   --danger: #e15c5c;
   --danger-hover: rgba(225, 92, 92, 0.12);
   --success: #3d9b63;
   --warning: #e6a23c;
+  --chip-amber: #e6a23c;
+  --chip-amber-soft: rgba(230, 162, 60, 0.14);
+  --chip-blue: #5aa9ff;
+  --chip-blue-soft: rgba(90, 169, 255, 0.14);
+  --chip-grey-soft: rgba(255, 255, 255, 0.07);
   --provider-cr: #f47521;
   --provider-nf: #e50914;
   --provider-disney: #0051c3;
@@ -54,7 +60,7 @@ a {
 }
 
 a:hover {
-  color: var(--accent-hover);
+  color: var(--text);
 }
 
 button,
@@ -771,8 +777,9 @@ select:focus {
 }
 
 .segmented button.active {
-  background: var(--accent);
-  color: var(--accent-text);
+  background: var(--panel-raised);
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px var(--border);
 }
 
 .segmented button:not(.active):hover {
@@ -1289,14 +1296,47 @@ select:focus {
 }
 
 .show-row-next-episode {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.2rem;
   font-size: 0.75rem;
-  font-style: italic;
-  color: var(--hint);
+  color: var(--text-secondary);
   line-height: 1.3;
   white-space: nowrap;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.show-row-next-drop {
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 100%;
+}
+
+/* One schedule state per row; tone follows the state. */
+.chip {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  line-height: 1;
+  background: var(--chip-grey-soft);
+  color: var(--text-secondary);
+}
+
+.chip-announced_break,
+.chip-still_waiting {
+  background: var(--chip-amber-soft);
+  color: var(--chip-amber);
+}
+
+.chip-dropping_now {
+  background: var(--chip-blue-soft);
+  color: var(--chip-blue);
 }
 
 .top-header-actions {

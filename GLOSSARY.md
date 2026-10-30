@@ -4,6 +4,24 @@ Watches streaming providers for newly released anime episodes on a weekly schedu
 
 ## Language
 
+### Lists
+
+**Watching**:
+The shows the checker is tracking: each one is checked for its next drop and alerts Discord when it lands.
+_Avoid_: Tracked shows
+
+**On hold**:
+Shows taken out of Watching for now. They aren't checked and send no alerts until they're restored to Watching.
+_Avoid_: Paused, tracked
+
+**Plan to watch**:
+Shows on MyAnimeList's plan-to-watch list, not yet started.
+_Avoid_: PTW (in prose), backlog
+
+**Watched**:
+Shows completed on MyAnimeList, with their scores.
+_Avoid_: Completed, finished
+
 ### Schedule
 
 **Drop**:

@@ -16,6 +16,7 @@ import {
   type AnimeFact,
 } from '@/app/components/AnimeDetailsBody'
 import { formatEpisodes, formatMalDate, formatSeason } from '@/lib/anime-format'
+import { formatUpdatedAgo } from '@/lib/time'
 import {
   WATCHED_SORT_LABELS,
   filterWatched,
@@ -252,9 +253,7 @@ export default function WatchedPage() {
       )}
 
       {list?.fetchedAt ? (
-        <p className="hint ptw-updated">
-          Last updated {new Date(list.fetchedAt).toLocaleString()}
-        </p>
+        <p className="hint ptw-updated">{formatUpdatedAgo(list.fetchedAt)}</p>
       ) : null}
     </main>
   )

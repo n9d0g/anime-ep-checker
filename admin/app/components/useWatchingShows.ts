@@ -17,7 +17,7 @@ import { describeBreak, getBreakAfterEpisode } from '@/lib/schedule-break'
 import { getAniListGapWeeks } from '@shared/schedule'
 import { searchIndex } from '@/lib/search-index-store'
 import { showToForm } from '@/lib/show-form'
-import { formatEasternTime } from '@/lib/time'
+import { formatEasternDateTime } from '@/lib/time'
 import type { Show } from '@shared/types'
 import type { ShowFormValues, ShowStateSummary } from '@/lib/types'
 import {
@@ -123,6 +123,13 @@ export function useWatchingShows(options: {
     [rows, baseline]
   )
 
+  // Relative times ("in 20m") and chips ("Dropping now") move with the clock.
+  const [now, setNow] = useState(() => Date.now())
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 60 * 1000)
+    return () => window.clearInterval(timer)
+  }, [])
+
   const displayRows = useMemo<DisplayRow[]>(
     () =>
       orderRowsBySavedNextDrop(rows, savedRows ?? [], showStates).map(
@@ -134,11 +141,16 @@ export function useWatchingShows(options: {
             row,
             index,
             liveState,
-            view: buildShowViewModel(row.values, liveState, malDown),
+            view: buildShowViewModel(
+              row.values,
+              liveState,
+              malDown,
+              new Date(now)
+            ),
           }
         }
       ),
-    [rows, savedRows, showStates, malDown]
+    [rows, savedRows, showStates, malDown, now]
   )
 
   function setLoadedShows(shows: ShowFormValues[]) {
@@ -529,7 +541,7 @@ export function useWatchingShows(options: {
     const message = aniListGap
       ? `AniList already shows a ${aniListGap}-week gap after episode ${afterEpisode} of "${label}"${
           nextBroadcast
-            ? ` (episode ${afterEpisode + 1} broadcasts ${formatEasternTime(nextBroadcast)})`
+            ? ` (episode ${afterEpisode + 1} broadcasts ${formatEasternDateTime(nextBroadcast)})`
             : ''
         }, and drops already follow it. Add another ${weeks}-week break on top of it?`
       : `Add a ${weeks}-week break after episode ${afterEpisode} of "${label}"? Later drops shift and Discord/Calendar events rebuild.`

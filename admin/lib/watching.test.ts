@@ -203,14 +203,16 @@ test('buildShowViewModel derives the schedule lines, links and badge once', () =
   const vm = buildShowViewModel(
     show,
     state({ lastEpisodeNumber: '2', watchedEpisode: 1 }),
-    false
+    false,
+    new Date('2026-10-12T12:00:00Z')
   )
 
-  assert.equal(vm.nextDropLine, 'Next: Episode 3 - Wed Oct 14th, 11:00 EDT')
+  assert.equal(vm.nextDropLine, 'Ep 3 · in 2d · Wed 11:00 AM ET')
   assert.equal(
     vm.startHint,
-    'Eastern: Sep 30, 2026, 11:00 AM EDT · Next ep 3: Oct 14, 2026, 11:00 AM EDT'
+    'Eastern: Sep 30, 11:00 AM ET · Next ep 3: in 2d · Wed 11:00 AM ET'
   )
+  assert.equal(vm.chip, null)
   assert.equal(vm.nextDropTime, Date.parse('2026-10-14T15:00:00Z'))
   assert.deepEqual(vm.badge, { label: 'Ep 1/12', behind: true })
   assert.equal(vm.currentEpisode, 1)
@@ -222,6 +224,28 @@ test('buildShowViewModel derives the schedule lines, links and badge once', () =
   assert.equal(vm.malLinked, true)
   assert.equal(vm.malBlocked, false)
   assert.equal(vm.providerDotClass, 'provider-cr')
+})
+
+test('buildShowViewModel reads near drops relatively, far ones by day, and sets the chip', () => {
+  const vm = buildShowViewModel(
+    form({
+      id: 'frieren',
+      schedule: { startAt: START, episodeCount: '12' },
+    }),
+    state({ lastEpisodeNumber: '2', airingSchedule: null }),
+    false,
+    new Date('2026-10-14T15:20:00Z')
+  )
+  assert.equal(vm.nextDropLine, 'Ep 3 · 20m ago · Wed 11:00 AM ET')
+  assert.deepEqual(vm.chip, { kind: 'still_waiting', label: 'Still waiting' })
+
+  const early = buildShowViewModel(
+    form({ id: 'frieren', schedule: { startAt: START, episodeCount: '12' } }),
+    state({ lastEpisodeNumber: '2' }),
+    false,
+    new Date('2026-10-01T12:00:00Z')
+  )
+  assert.equal(early.nextDropLine, 'Ep 3 · Oct 14')
 })
 
 test('buildShowViewModel handles shows without a start time or further episodes', () => {
@@ -245,12 +269,13 @@ test('buildShowViewModel handles shows without a start time or further episodes'
       schedule: { startAt: START, episodeCount: '2' },
     }),
     state({ lastEpisodeNumber: '2' }),
-    true
+    true,
+    new Date('2026-10-12T12:00:00Z')
   )
   assert.equal(finished.nextDropLine, 'No further episodes on schedule')
   assert.equal(
     finished.startHint,
-    'Eastern: Sep 30, 2026, 11:00 AM EDT · No further episodes on schedule'
+    'Eastern: Sep 30, 11:00 AM ET · No further episodes on schedule'
   )
   assert.equal(finished.nextDropTime, null)
   assert.equal(finished.malBlocked, true)

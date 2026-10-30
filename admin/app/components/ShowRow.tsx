@@ -86,9 +86,18 @@ export function ShowRow({
               title={show.title || `Show ${index + 1}`}
               titleEnglish={show.titleEnglish}
               belowSubtitle={
-                view.nextDropLine ? (
+                view.nextDropLine || view.chip ? (
                   <span className="show-row-next-episode">
-                    {view.nextDropLine}
+                    {view.chip ? (
+                      <span className={`chip chip-${view.chip.kind}`}>
+                        {view.chip.label}
+                      </span>
+                    ) : null}
+                    {view.nextDropLine ? (
+                      <span className="show-row-next-drop">
+                        {view.nextDropLine}
+                      </span>
+                    ) : null}
                   </span>
                 ) : null
               }
