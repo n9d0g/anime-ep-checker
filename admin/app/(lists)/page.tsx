@@ -23,10 +23,9 @@ export default function AdminPage() {
     <>
       <main className="container">
         <div className="page-heading">
-          <h1>Tracked shows</h1>
+          <h1>Watching</h1>
           <p className="subtitle">
-            Weekly schedules in Japan Time (JST). Discord alerts show Eastern
-            Time.
+            The shows the checker is tracking. Times are Eastern (ET).
           </p>
         </div>
 

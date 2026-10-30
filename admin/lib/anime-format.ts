@@ -1,3 +1,4 @@
+import { formatCalendarDate, formatShortDate } from './time'
 import type { WatchedEntry } from './types'
 
 const MEDIA_TYPE_LABELS: Record<string, string> = {
@@ -52,10 +53,23 @@ export function formatSeason(season: WatchedEntry['season']): string | null {
   return `${name} ${season.year}`
 }
 
-/** Formats MAL dates (YYYY, YYYY-MM, YYYY-MM-DD, or ISO timestamps). */
+function formatMonthYear(date: Date, timeZone: string): string {
+  return date.toLocaleDateString('en-US', {
+    timeZone,
+    year: 'numeric',
+    month: 'short',
+  })
+}
+
+/**
+ * Formats MAL dates (YYYY, YYYY-MM, YYYY-MM-DD, or ISO timestamps). Days read
+ * like "Nov 6" (year only outside the current one); `short` keeps just the
+ * month and year, "Nov 2026".
+ */
 export function formatMalDate(
   value: string | null,
-  style: 'short' | 'long' = 'long'
+  style: 'short' | 'long' = 'long',
+  now: Date = new Date()
 ): string | null {
   if (!value) {
     return null
@@ -70,23 +84,18 @@ export function formatMalDate(
     const date = new Date(
       Date.UTC(Number(year), Number(month) - 1, Number(day ?? 1))
     )
-    return date.toLocaleDateString(undefined, {
-      timeZone: 'UTC',
-      year: 'numeric',
-      month: 'short',
-      ...(day && style === 'long' ? { day: 'numeric' } : {}),
-    })
+    return day && style === 'long'
+      ? formatCalendarDate(date, now)
+      : formatMonthYear(date, 'UTC')
   }
 
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) {
     return null
   }
-  return date.toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'short',
-    ...(style === 'long' ? { day: 'numeric' } : {}),
-  })
+  return style === 'long'
+    ? formatShortDate(date, now)
+    : formatMonthYear(date, 'America/New_York')
 }
 
 const SOURCE_LABELS: Record<string, string> = {

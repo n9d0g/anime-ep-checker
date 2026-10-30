@@ -107,6 +107,14 @@ test('formatMalDate handles partial MAL dates', () => {
   assert.match(formatMalDate('2024-03') ?? '', /2024/)
 })
 
+test('formatMalDate reads days like the rest of the admin', () => {
+  const now = new Date('2026-10-30T16:00:00Z')
+  assert.equal(formatMalDate('2026-12-11', 'long', now), 'Dec 11')
+  assert.equal(formatMalDate('2025-04-09', 'long', now), 'Apr 9, 2025')
+  assert.equal(formatMalDate('2025-04-09', 'short', now), 'Apr 2025')
+  assert.equal(formatMalDate('2027-01', 'long', now), 'Jan 2027')
+})
+
 test('cleanSynopsis strips the MAL Rewrite credit', () => {
   assert.equal(
     cleanSynopsis('A robot runs a hotel.\n\n[Written by MAL Rewrite]'),

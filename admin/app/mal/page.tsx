@@ -10,7 +10,7 @@ export default function MalSetupPage() {
           <h1>MyAnimeList setup</h1>
           <p className="subtitle">
             Connect your MAL account so the admin CMS can sync list progress and
-            show MAL data on tracked shows.
+            show MAL data on shows in Watching.
           </p>
         </div>
         <Link className="btn btn-secondary" href="/">

@@ -11,6 +11,7 @@ import { apiErrorMessage, apiFetch } from '@/lib/api-fetch'
 import { cacheKeys, withoutOnHoldEntry } from '@/lib/client-cache'
 import { searchIndex } from '@/lib/search-index-store'
 import type { OnHoldSnapshot, OnHoldSnapshotEntry } from '@shared/types'
+import { formatShortDate, formatUpdatedAgo } from '@/lib/time'
 
 async function fetchOnHold(): Promise<OnHoldSnapshot | null> {
   const data = await apiFetch<{ onHold?: OnHoldSnapshot | null }>(
@@ -22,9 +23,9 @@ async function fetchOnHold(): Promise<OnHoldSnapshot | null> {
 
 function formatHeldMeta(entry: OnHoldSnapshotEntry): string {
   const parts: string[] = []
-  const held = new Date(entry.heldAt)
-  if (!Number.isNaN(held.getTime())) {
-    parts.push(`On hold since ${held.toLocaleDateString()}`)
+  const held = formatShortDate(entry.heldAt)
+  if (held) {
+    parts.push(`On hold since ${held}`)
   }
   if (
     entry.show.schedule.mode === 'finite' &&
@@ -97,8 +98,8 @@ export default function OnHoldPage() {
       <div className="page-heading">
         <h1>On hold</h1>
         <p className="subtitle">
-          Paused tracked shows. Restore to resume episode checks and Discord
-          alerts.
+          Shows taken out of Watching. They aren’t checked and send no alerts
+          until you move them back.
         </p>
       </div>
 
@@ -106,8 +107,8 @@ export default function OnHoldPage() {
         <PtwListSkeleton />
       ) : entries.length === 0 ? (
         <div className="panel empty">
-          No shows on hold. Use <Link href="/">Watching</Link> to pause a
-          tracked show.
+          No shows on hold. Put a show on hold from{' '}
+          <Link href="/">Watching</Link>.
         </div>
       ) : (
         <div className="panel show-list">
@@ -176,7 +177,7 @@ export default function OnHoldPage() {
 
       {snapshot?.updatedAt ? (
         <p className="hint ptw-updated">
-          Last updated {new Date(snapshot.updatedAt).toLocaleString()}
+          {formatUpdatedAgo(snapshot.updatedAt)}
         </p>
       ) : null}
     </main>
