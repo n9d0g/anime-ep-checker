@@ -377,11 +377,12 @@ export async function checkShows({
 
       // Before planning: the AniList schedule moves the drop window. Saved now
       // on tracked shows; an untracked show gets it with its baseline below.
-      const { airingSchedule, episodesChanged } = await refreshAiringSchedule({
-        show,
-        showState: previousState,
-        now,
-      })
+      const { airingSchedule, episodesChanged, officialSiteUrl } =
+        await refreshAiringSchedule({
+          show,
+          showState: previousState,
+          now,
+        })
       if (previousState && airingSchedule) {
         const saveSchedule = shouldSaveAiringSchedule(
           previousState.airingSchedule,
@@ -397,6 +398,14 @@ export async function checkShows({
               : `AniList airing schedule checked ${show.title || showId}`
           )
         }
+      }
+      if (
+        previousState &&
+        officialSiteUrl !== undefined &&
+        officialSiteUrl !== previousState.officialSiteUrl
+      ) {
+        previousState.officialSiteUrl = officialSiteUrl
+        noteStateChange(`AniList official site ${show.title || showId}`)
       }
 
       const plan = planShowLookup({
@@ -448,6 +457,13 @@ export async function checkShows({
       const savedState = state.shows[showId]
       if (savedState && airingSchedule && !savedState.airingSchedule) {
         savedState.airingSchedule = airingSchedule
+      }
+      if (
+        savedState &&
+        officialSiteUrl !== undefined &&
+        savedState.officialSiteUrl === undefined
+      ) {
+        savedState.officialSiteUrl = officialSiteUrl
       }
     } catch (error) {
       failedShows.push(show.id)

@@ -1,5 +1,6 @@
 // AniList airing schedules (no API key): the Disney+ fallback's latest aired
-// episode, and the per-episode broadcast times the schedule uses for breaks.
+// episode, the per-episode broadcast times the schedule uses for breaks, and
+// the show's Official Site link.
 const ANILIST_URL = 'https://graphql.anilist.co'
 
 /** 50 per page; a show with more episodes than this reads only the first 200. */
@@ -12,6 +13,10 @@ query ($malId: Int, $page: Int) {
     title {
       romaji
       english
+    }
+    externalLinks {
+      site
+      url
     }
     airingSchedule(page: $page, perPage: ${AIRING_PAGE_SIZE}) {
       pageInfo {
@@ -38,6 +43,10 @@ interface AnilistMediaResponse {
         romaji?: string | null
         english?: string | null
       }
+      externalLinks?: Array<{
+        site?: string | null
+        url?: string | null
+      } | null> | null
       airingSchedule?: {
         pageInfo?: { hasNextPage?: boolean | null } | null
         nodes?: AnilistAiringNode[] | null
@@ -56,6 +65,8 @@ export interface AnilistAiring {
 interface AnilistAiringResult {
   seriesTitle: string
   nodes: AnilistAiring[]
+  /** AniList's "Official Site" link, or null when it lists none. */
+  officialSiteUrl: string | null
 }
 
 async function fetchAiringPage(
@@ -116,6 +127,7 @@ export async function fetchAnilistAiring(
 
   const nodes: AnilistAiring[] = []
   let seriesTitle = 'Unknown series'
+  let officialSiteUrl: string | null = null
   for (let page = 1; page <= MAX_AIRING_PAGES; page++) {
     const payload = await fetchAiringPage(malId, page)
     const media = payload?.data?.Media
@@ -127,6 +139,9 @@ export async function fetchAnilistAiring(
         media.title?.english?.trim() ||
         media.title?.romaji?.trim() ||
         seriesTitle
+      officialSiteUrl =
+        media.externalLinks?.find((link) => link?.site === 'Official Site')
+          ?.url ?? null
     }
     for (const node of media.airingSchedule?.nodes ?? []) {
       if (node.episode !== undefined && node.airingAt !== undefined) {
@@ -138,7 +153,7 @@ export async function fetchAnilistAiring(
     }
   }
 
-  return { seriesTitle, nodes }
+  return { seriesTitle, nodes, officialSiteUrl }
 }
 
 interface AnilistLatestAiredEpisode {

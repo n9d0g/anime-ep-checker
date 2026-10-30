@@ -13,6 +13,14 @@ export function providerLabel(provider: ShowProvider): string {
   return 'Crunchyroll'
 }
 
+/** Where the show's official news lives: the override, else AniList's link. */
+export function getOfficialNewsUrl(
+  show: Pick<Show, 'officialNewsUrl'>,
+  officialSiteUrl: string | null | undefined
+): string | null {
+  return show.officialNewsUrl?.trim() || officialSiteUrl || null
+}
+
 export function getShowWatchUrl(show: Show): string {
   const normalized = normalizeShowProvider(show)
 

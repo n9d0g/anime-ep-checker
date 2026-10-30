@@ -39,6 +39,8 @@ export interface Show {
   disneyId?: string
   malId?: number
   redditSearchTitle?: string
+  /** Overrides AniList's Official Site link when the news page lives elsewhere. */
+  officialNewsUrl?: string
   schedule: ShowSchedule
 }
 
@@ -62,6 +64,8 @@ export interface ShowState {
   discussionUrl?: string | null
   discussionUrlEpisode?: number | null
   airingSchedule?: AiringSchedule
+  /** AniList's Official Site link: null when AniList lists none, unset until checked. */
+  officialSiteUrl?: string | null
   googleCalendarEvents?: Record<
     string,
     { eventId: string; startAt: string }

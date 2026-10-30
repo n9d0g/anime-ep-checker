@@ -7,6 +7,7 @@ import { ShowTitleDisplay } from '@/app/components/ShowTitleDisplay'
 import type { EpisodeSaveStatus } from '@/app/components/useEpisodeProgress'
 import type { DisplayRow } from '@/app/components/useWatchingShows'
 import { MAL_DOWN_MESSAGE } from '@/lib/watching'
+import { getOfficialNewsUrl } from '@shared/shows'
 
 type EditFormHandlers = Pick<
   ComponentProps<typeof ShowEditForm>,
@@ -44,6 +45,11 @@ export function ShowRow({
   const episodeSaving = episodeStatus === 'saving'
   const { currentEpisode, badge, malBlocked } = view
   const { min, max } = view.bounds
+  // Null from AniList means it was checked and lists no official site.
+  const noOfficialSource =
+    Boolean(show.id) &&
+    liveState?.officialSiteUrl === null &&
+    !getOfficialNewsUrl(show, null)
 
   return (
     <article
@@ -170,6 +176,13 @@ export function ShowRow({
             </div>
           ) : null}
 
+          {noOfficialSource ? (
+            <p className="hint">
+              No official source: break announcements are only read from Anime
+              News Network. Set an official news URL under More options.
+            </p>
+          ) : null}
+
           <ShowEditForm
             rowKey={row.key}
             show={show}
@@ -177,6 +190,7 @@ export function ShowRow({
             malLinked={view.malLinked}
             malBlocked={malBlocked}
             malEditOpen={malEditOpen}
+            officialSiteUrl={liveState?.officialSiteUrl}
             completingShow={completingShow}
             holding={holding}
             onToggleMalEdit={() => setMalEditOpen((current) => !current)}

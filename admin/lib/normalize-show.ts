@@ -95,6 +95,10 @@ export function normalizeShow(show: ShowFormValues): Show {
   }
 
   const redditSearchTitle = show.redditSearchTitle.trim() || undefined
+  const officialNewsUrl = show.officialNewsUrl.trim() || undefined
+  if (officialNewsUrl && !/^https?:\/\/\S+$/.test(officialNewsUrl)) {
+    throw new Error(`Official news URL must be a web address for ${title}`)
+  }
   const id =
     show.id || slugify(title || seriesId || netflixId || disneyId || 'show')
 
@@ -128,6 +132,9 @@ export function normalizeShow(show: ShowFormValues): Show {
   }
   if (redditSearchTitle) {
     normalized.redditSearchTitle = redditSearchTitle
+  }
+  if (officialNewsUrl) {
+    normalized.officialNewsUrl = officialNewsUrl
   }
 
   const titleEnglish = show.titleEnglish?.trim()

@@ -63,6 +63,7 @@ export async function POST(request: Request) {
           disneyId: '',
           malId: String(malId),
           redditSearchTitle: '',
+          officialNewsUrl: '',
           schedule,
         })
 

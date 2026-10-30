@@ -43,7 +43,8 @@ const SAVED = {
 
 /** Serves AniList pages of nodes; records the requested page numbers. */
 function stubAnilist(
-  pages: Array<Array<{ episode: number; airingAt: number }>>
+  pages: Array<Array<{ episode: number; airingAt: number }>>,
+  externalLinks: Array<{ site: string; url: string }> = []
 ) {
   const requested: number[] = []
   globalThis.fetch = (async (_input: unknown, init?: RequestInit) => {
@@ -53,6 +54,7 @@ function stubAnilist(
       data: {
         Media: {
           title: { romaji: 'Sousou no Frieren' },
+          externalLinks,
           airingSchedule: {
             pageInfo: { hasNextPage: page < pages.length },
             nodes: pages[page - 1],
@@ -75,6 +77,7 @@ test('the AniList schedule is read across pages', async () => {
       { episode: 1, airingAt: 100 },
       { episode: 2, airingAt: 200 },
     ],
+    officialSiteUrl: null,
   })
   assert.deepEqual(requested, [1, 2])
 })
@@ -142,6 +145,7 @@ test('a refresh keeps scheduled episodes and reports changed times', async () =>
       },
     },
     episodesChanged: true,
+    officialSiteUrl: null,
   })
 
   const unchanged = await refreshAiringSchedule({
@@ -150,6 +154,22 @@ test('a refresh keeps scheduled episodes and reports changed times', async () =>
     now: new Date('2026-09-09T16:00:00.000Z'),
   })
   assert.equal(unchanged.episodesChanged, false)
+})
+
+test("a refresh reports AniList's Official Site link", async () => {
+  stubAnilist(
+    [[]],
+    [
+      { site: 'Twitter', url: 'https://x.com/frieren_PR' },
+      { site: 'Official Site', url: 'https://frieren-anime.jp/' },
+    ]
+  )
+  const result = await refreshAiringSchedule({
+    show: SHOW,
+    showState: STATE,
+    now: new Date('2026-09-08T15:00:00.000Z'),
+  })
+  assert.equal(result.officialSiteUrl, 'https://frieren-anime.jp/')
 })
 
 test('a failed refresh keeps the saved schedule', async () => {

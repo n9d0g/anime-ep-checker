@@ -19,6 +19,7 @@ export function ShowEditForm({
   malLinked,
   malBlocked,
   malEditOpen,
+  officialSiteUrl,
   completingShow,
   holding,
   onToggleMalEdit,
@@ -36,6 +37,8 @@ export function ShowEditForm({
   malLinked: boolean
   malBlocked: boolean
   malEditOpen: boolean
+  /** AniList's Official Site link, shown as the default. */
+  officialSiteUrl: string | null | undefined
   completingShow: boolean
   holding: boolean
   onToggleMalEdit: () => void
@@ -268,6 +271,24 @@ export function ShowEditForm({
           />
           <p className="hint">
             Override when r/anime thread slugs do not match the show title.
+          </p>
+        </div>
+
+        <div className="field">
+          <label htmlFor={id('official-news')}>Official news URL</label>
+          <input
+            id={id('official-news')}
+            type="url"
+            value={show.officialNewsUrl}
+            onChange={(event) =>
+              onUpdate('officialNewsUrl', event.target.value)
+            }
+            placeholder={officialSiteUrl || 'https://example-anime.jp/news/'}
+          />
+          <p className="hint">
+            {officialSiteUrl
+              ? "Override when the show's news page isn't AniList's official site."
+              : 'AniList lists no official site; set the news page to watch for breaks.'}
           </p>
         </div>
 
