@@ -292,16 +292,6 @@ h3 {
   min-width: 0;
 }
 
-.ptw-watch-btn {
-  justify-self: end;
-  align-self: center;
-  white-space: nowrap;
-  flex-shrink: 0;
-  min-height: 2rem;
-  padding: 0.35rem 0.7rem;
-  font-size: 0.75rem;
-}
-
 @media (max-width: 640px) {
   .ptw-row-main {
     flex-direction: column;
@@ -328,10 +318,6 @@ h3 {
     padding-left: 0;
     font-size: 0.75rem;
   }
-
-  .ptw-watch-btn {
-    min-width: 4.25rem;
-  }
 }
 
 .ptw-updated {
@@ -344,14 +330,6 @@ h3 {
 
 .watched-stats {
   margin: 0;
-}
-
-.watched-group-count {
-  margin-left: 0.35rem;
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: var(--hint);
-  font-variant-numeric: tabular-nums;
 }
 
 .watched-score {
@@ -371,51 +349,10 @@ h3 {
   font-weight: 500;
 }
 
-.anime-details-body {
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: start;
-}
-
-.anime-details-cover {
-  width: 84px;
-  aspect-ratio: 225 / 318;
-  object-fit: cover;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--panel);
-}
-
 .anime-details {
   display: grid;
   gap: 0.75rem;
   min-width: 0;
-}
-
-.anime-details-facts {
-  display: grid;
-  gap: 0.35rem;
-  margin: 0;
-  font-size: 0.84rem;
-}
-
-.anime-details-facts > div {
-  display: grid;
-  grid-template-columns: 6.5rem minmax(0, 1fr);
-  gap: 0.75rem;
-}
-
-.anime-details-facts dt {
-  color: var(--muted);
-}
-
-.anime-details-facts dd {
-  margin: 0;
-  overflow-wrap: anywhere;
-}
-
-.anime-details-mal-link {
-  font-size: 0.82rem;
-  justify-self: start;
 }
 
 .anime-details-synopsis {
@@ -447,34 +384,6 @@ h3 {
   margin: 0;
   font-size: 0.82rem;
   color: var(--hint);
-}
-
-.ptw-row-toggle {
-  width: 100%;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: inherit;
-  text-align: left;
-  font: inherit;
-}
-
-.ptw-row-toggle .chevron {
-  margin-left: 0.15rem;
-}
-
-@media (max-width: 640px) {
-  .watched-date {
-    display: none;
-  }
-
-  .anime-details-cover {
-    width: 64px;
-  }
-
-  .anime-details-facts > div {
-    grid-template-columns: 5.5rem minmax(0, 1fr);
-  }
 }
 
 @keyframes skeleton-pulse {
@@ -605,10 +514,6 @@ h3 {
   background: var(--panel-raised);
 }
 
-.show-row.expanded .show-row-header {
-  background: var(--panel-raised);
-}
-
 .show-row-leading {
   display: flex;
   align-items: center;
@@ -672,19 +577,6 @@ h3 {
   color: var(--muted);
   font-size: 0.7rem;
   transition: transform 0.15s ease;
-}
-
-.chevron.expanded {
-  transform: rotate(180deg);
-}
-
-.show-row-body {
-  display: grid;
-  gap: 14px;
-  padding: 1.1rem;
-  background: var(--panel-raised);
-  border-top: 1px solid var(--border);
-  min-width: 0;
 }
 
 .field {
@@ -1033,12 +925,6 @@ select:focus {
   width: min(28rem, 100%);
   max-height: min(90vh, 42rem);
   overflow: auto;
-}
-
-.modal-form {
-  display: grid;
-  gap: 0.9rem;
-  margin-bottom: 1.15rem;
 }
 
 .modal-title {
@@ -1872,4 +1758,88 @@ select:focus {
   border-radius: 999px;
   background: var(--accent);
   color: var(--accent-text);
+}
+
+/* ── Collapsible list groups ── */
+
+.list-group {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.list-group-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.35rem 0.1rem;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 650;
+  text-align: left;
+  cursor: pointer;
+}
+
+.list-group-count {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.list-group-chevron {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 1.1rem;
+  line-height: 1;
+  transition: transform 0.15s ease;
+}
+
+.list-group-chevron.open {
+  transform: rotate(90deg);
+}
+
+/* ── MAL show sheets ── */
+
+.sheet-hero-cover {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: end;
+  gap: 1rem;
+}
+
+.sheet-cover {
+  width: 88px;
+  height: 124px;
+  object-fit: cover;
+  border-radius: 10px;
+  background: var(--panel-raised);
+}
+
+.sheet-hero-text {
+  display: grid;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.anime-facts {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 0.45rem 1rem;
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.anime-facts > div {
+  display: contents;
+}
+
+.anime-facts dt {
+  color: var(--muted);
+}
+
+.anime-facts dd {
+  margin: 0;
+  color: var(--text);
 }

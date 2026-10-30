@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useState, type ComponentProps, type ReactNode } from 'react'
-import { Sheet } from '@/app/components/Sheet'
+import { useEffect, useState, type ComponentProps } from 'react'
+import { Sheet, SheetSection } from '@/app/components/Sheet'
 import { ShowEditForm } from '@/app/components/ShowEditForm'
 import { ShowTitleDisplay } from '@/app/components/ShowTitleDisplay'
 import type { EpisodeSaveStatus } from '@/app/components/useEpisodeProgress'
@@ -15,21 +15,6 @@ import type { ShowProvider } from '@shared/types'
 
 function capitalize(text: string): string {
   return text.charAt(0).toUpperCase() + text.slice(1)
-}
-
-function SheetSection({
-  title,
-  children,
-}: {
-  title: string
-  children: ReactNode
-}) {
-  return (
-    <section className="sheet-section">
-      <h3 className="sheet-section-title">{title}</h3>
-      {children}
-    </section>
-  )
 }
 
 const PROVIDER_LABELS: Record<ShowProvider, string> = {

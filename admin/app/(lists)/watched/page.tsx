@@ -1,22 +1,33 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { ExpandableRowHeader } from '@/app/components/ExpandableRowHeader'
-import { ShowTitleDisplay } from '@/app/components/ShowTitleDisplay'
+import {
+  AnimeFacts,
+  AnimeSheet,
+  type AnimeFact,
+} from '@/app/components/AnimeSheet'
+import { ListGroup } from '@/app/components/ListGroup'
+import { ListRow } from '@/app/components/ListRow'
+import { PtwListSkeleton } from '@/app/components/ListSkeleton'
+import { SheetSection } from '@/app/components/Sheet'
+import { useToast } from '@/app/components/Toast'
 import { useCachedResource } from '@/app/components/useCachedResource'
 import { useHashScrollHighlight } from '@/app/components/useHashScrollHighlight'
 import { apiFetch } from '@/lib/api-fetch'
+import {
+  cleanSynopsis,
+  formatAirDates,
+  formatCount,
+  formatEpisodes,
+  formatMalDate,
+  formatRating,
+  formatSeason,
+  formatSource,
+} from '@/lib/anime-format'
 import { cacheKeys } from '@/lib/client-cache'
 import { malIdFromElementId } from '@/lib/hash-highlight'
-import { PtwListSkeleton } from '@/app/components/ListSkeleton'
-import { useToast } from '@/app/components/Toast'
-import type { WatchedEntry, WatchedList } from '@/lib/types'
-import {
-  AnimeDetailsBody,
-  type AnimeFact,
-} from '@/app/components/AnimeDetailsBody'
-import { formatEpisodes, formatMalDate, formatSeason } from '@/lib/anime-format'
 import { formatUpdatedAgo } from '@/lib/time'
+import type { WatchedEntry, WatchedList } from '@/lib/types'
 import {
   WATCHED_SORT_LABELS,
   filterWatched,
@@ -57,23 +68,24 @@ function formatStats(entries: WatchedEntry[]): string {
   return parts.join(' · ')
 }
 
-function WatchedDetails({ entry }: { entry: WatchedEntry }) {
+// A Watched show in its sheet: your list entry, then everything MAL has.
+function WatchedSheet({
+  entry,
+  onClose,
+}: {
+  entry: WatchedEntry
+  onClose: () => void
+}) {
   const finished = formatMalDate(entry.finishedAt)
   const started = formatMalDate(entry.startedAt)
   const lastUpdated = !entry.finishedAt ? formatMalDate(entry.updatedAt) : null
-  const facts: AnimeFact[] = [
+  const yours: AnimeFact[] = [
+    ['Started', started],
     ['Finished', finished],
-    ['Started', started && started !== finished ? started : null],
     [
       'Completed',
       lastUpdated ? `~${lastUpdated} (no finish date; last MAL update)` : null,
     ],
-    ['Your score', entry.score ? `${entry.score} / 10` : 'Not scored'],
-    ['MAL score', entry.meanScore ? entry.meanScore.toFixed(2) : null],
-    ['Format', formatEpisodes(entry)],
-    ['Aired', formatSeason(entry.season)],
-    ['Studio', entry.studios.join(', ') || null],
-    ['Genres', entry.genres.join(', ') || null],
     [
       'Rewatched',
       entry.timesRewatched > 0
@@ -81,12 +93,89 @@ function WatchedDetails({ entry }: { entry: WatchedEntry }) {
         : null,
     ],
   ]
+  const show: AnimeFact[] = [
+    ['Format', formatEpisodes(entry)],
+    ['Season', formatSeason(entry.season)],
+    ['Aired', formatAirDates(entry.startDate ?? null, entry.endDate ?? null)],
+    ['Studio', entry.studios.join(', ') || null],
+    ['Source', formatSource(entry.source ?? null)],
+    ['Rating', formatRating(entry.rating ?? null)],
+    ['Genres', entry.genres.join(', ') || null],
+    [
+      'MAL score',
+      entry.meanScore
+        ? `${entry.meanScore.toFixed(2)}${
+            entry.rank ? ` · ranked #${formatCount(entry.rank)}` : ''
+          }${entry.popularity ? ` · #${formatCount(entry.popularity)} popular` : ''}`
+        : null,
+    ],
+  ]
 
   return (
-    <AnimeDetailsBody
-      malId={entry.malId}
+    <AnimeSheet
+      title={entry.title}
+      titleEnglish={entry.titleEnglish}
       coverUrl={entry.coverUrl}
-      facts={facts}
+      meta={entry.score ? `★ ${entry.score} / 10` : 'Not scored'}
+      onClose={onClose}
+    >
+      <SheetSection title="Your list">
+        <dl className="anime-facts">
+          {yours
+            .filter((fact): fact is [string, string] => Boolean(fact[1]))
+            .map(([label, value]) => (
+              <div key={label}>
+                <dt>{label}</dt>
+                <dd>{value}</dd>
+              </div>
+            ))}
+        </dl>
+      </SheetSection>
+      <SheetSection title="About">
+        <AnimeFacts
+          malId={entry.malId}
+          title={entry.title}
+          facts={show}
+          synopsis={cleanSynopsis(entry.synopsis ?? null)}
+        />
+      </SheetSection>
+    </AnimeSheet>
+  )
+}
+
+function WatchedRow({
+  entry,
+  onOpen,
+}: {
+  entry: WatchedEntry
+  onOpen: () => void
+}) {
+  const date = entry.finishedAt
+    ? formatMalDate(entry.finishedAt, 'short')
+    : entry.updatedAt
+      ? `~${formatMalDate(entry.updatedAt, 'short')}`
+      : null
+  return (
+    <ListRow
+      id={`show-${entry.malId}`}
+      title={entry.title}
+      titleEnglish={entry.titleEnglish}
+      meta={
+        <span className="show-row-next-drop">
+          {[date ? `Finished ${date}` : null, formatEpisodes(entry)]
+            .filter(Boolean)
+            .join(' · ')}
+        </span>
+      }
+      trailing={
+        <span
+          className={`watched-score${entry.score ? '' : ' unscored'}`}
+          aria-label={entry.score ? `Your score ${entry.score}` : 'Not scored'}
+        >
+          {entry.score ? `★ ${entry.score}` : '–'}
+        </span>
+      }
+      onOpen={onOpen}
     />
   )
 }
@@ -103,13 +192,14 @@ export default function WatchedPage() {
   const refreshing = watched.fetching
   const [query, setQuery] = useState('')
   const [sort, setSort] = useState<WatchedSort>('recent')
-  const [expandedId, setExpandedId] = useState<number | null>(null)
+  const [openId, setOpenId] = useState<number | null>(null)
   const entries = list?.entries ?? []
-  // Expand the row a search result links to.
+  const openEntry = entries.find((entry) => entry.malId === openId)
+  // Open the show a search result links to.
   useHashScrollHighlight((elementId) => {
     const malId = malIdFromElementId(elementId)
     if (malId !== null) {
-      setExpandedId(malId)
+      setOpenId(malId)
     }
   })
 
@@ -182,78 +272,45 @@ export default function WatchedPage() {
           {filtered.length === 0 ? (
             <div className="panel empty">No shows match “{query}”.</div>
           ) : (
-            groups.map((group) => (
-              <section className="stack" key={group.key}>
-                {group.title ? (
-                  <h2>
-                    {group.title}{' '}
-                    <span className="watched-group-count">
-                      {group.entries.length}
-                    </span>
-                  </h2>
-                ) : null}
-                <div className="panel show-list">
-                  {group.entries.map((entry) => {
-                    const open = expandedId === entry.malId
-                    const date = entry.finishedAt
-                      ? formatMalDate(entry.finishedAt, 'short')
-                      : entry.updatedAt
-                        ? `~${formatMalDate(entry.updatedAt, 'short')}`
-                        : null
-
-                    return (
-                      <article
-                        className={`show-row${open ? ' expanded' : ''}`}
-                        id={`show-${entry.malId}`}
-                        key={entry.malId}
-                      >
-                        <ExpandableRowHeader
-                          open={open}
-                          onToggle={() =>
-                            setExpandedId(open ? null : entry.malId)
-                          }
-                          leading={
-                            <ShowTitleDisplay
-                              title={entry.title}
-                              titleEnglish={entry.titleEnglish}
-                            />
-                          }
-                          trailing={
-                            <>
-                              {date ? (
-                                <span className="ep-count watched-date">
-                                  {date}
-                                </span>
-                              ) : null}
-                              <span
-                                className={`watched-score${
-                                  entry.score ? '' : ' unscored'
-                                }`}
-                                aria-label={
-                                  entry.score
-                                    ? `Your score ${entry.score}`
-                                    : 'Not scored'
-                                }
-                              >
-                                {entry.score ?? '–'}
-                              </span>
-                            </>
-                          }
-                        />
-
-                        {open ? <WatchedDetails entry={entry} /> : null}
-                      </article>
-                    )
-                  })}
+            groups.map((group, index) =>
+              group.title ? (
+                <ListGroup
+                  key={`${sort}:${group.key}`}
+                  title={group.title}
+                  count={group.entries.length}
+                  defaultOpen={index === 0}
+                  forceOpen={Boolean(query.trim())}
+                >
+                  {group.entries.map((entry) => (
+                    <WatchedRow
+                      key={entry.malId}
+                      entry={entry}
+                      onOpen={() => setOpenId(entry.malId)}
+                    />
+                  ))}
+                </ListGroup>
+              ) : (
+                <div className="panel show-list" key={group.key}>
+                  {group.entries.map((entry) => (
+                    <WatchedRow
+                      key={entry.malId}
+                      entry={entry}
+                      onOpen={() => setOpenId(entry.malId)}
+                    />
+                  ))}
                 </div>
-              </section>
-            ))
+              )
+            )
           )}
         </div>
       )}
 
       {list?.fetchedAt ? (
         <p className="hint ptw-updated">{formatUpdatedAgo(list.fetchedAt)}</p>
+      ) : null}
+
+      {openEntry ? (
+        <WatchedSheet entry={openEntry} onClose={() => setOpenId(null)} />
       ) : null}
     </main>
   )

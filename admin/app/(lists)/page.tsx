@@ -5,7 +5,7 @@ import { CompleteRatingModal } from '@/app/components/CompleteRatingModal'
 import { Inbox } from '@/app/components/Inbox'
 import { ShowListSkeleton } from '@/app/components/ListSkeleton'
 import { Modal } from '@/app/components/Modal'
-import { MoveToWatchingModal } from '@/app/components/MoveToWatchingModal'
+import { MoveToWatchingSheet } from '@/app/components/MoveToWatchingSheet'
 import { ShowRow } from '@/app/components/ShowRow'
 import { ShowSheet } from '@/app/components/ShowSheet'
 import { useEpisodeProgress } from '@/app/components/useEpisodeProgress'
@@ -297,10 +297,10 @@ export default function AdminPage() {
       ) : null}
 
       {moveEntry ? (
-        <MoveToWatchingModal
+        <MoveToWatchingSheet
           entry={moveEntry}
           submitting={moving}
-          onCancel={() => setMoveEntry(null)}
+          onClose={() => setMoveEntry(null)}
           onSubmit={(values) => void moveToWatching(moveEntry, values)}
         />
       ) : null}

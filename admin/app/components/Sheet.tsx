@@ -79,3 +79,19 @@ export function Sheet({
     document.body
   )
 }
+
+/** A titled section of a sheet, e.g. Watch or Manage. */
+export function SheetSection({
+  title,
+  children,
+}: {
+  title: ReactNode
+  children: ReactNode
+}) {
+  return (
+    <section className="sheet-section">
+      <h3 className="sheet-section-title">{title}</h3>
+      {children}
+    </section>
+  )
+}
