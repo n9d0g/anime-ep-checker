@@ -213,6 +213,11 @@ test('buildShowViewModel derives the schedule lines, links and badge once', () =
     'Eastern: Sep 30, 11:00 AM ET · Next ep 3: in 2d · Wed 11:00 AM ET'
   )
   assert.equal(vm.chip, null)
+  assert.deepEqual(vm.upcomingDrops, [
+    { episode: 3, when: 'in 2d · Wed 11:00 AM ET' },
+    { episode: 4, when: 'Oct 21' },
+    { episode: 5, when: 'Oct 28' },
+  ])
   assert.equal(vm.nextDropTime, Date.parse('2026-10-14T15:00:00Z'))
   assert.deepEqual(vm.badge, { label: 'Ep 1/12', behind: true })
   assert.equal(vm.currentEpisode, 1)
@@ -273,6 +278,7 @@ test('buildShowViewModel handles shows without a start time or further episodes'
     new Date('2026-10-12T12:00:00Z')
   )
   assert.equal(finished.nextDropLine, 'No further episodes on schedule')
+  assert.deepEqual(finished.upcomingDrops, [])
   assert.equal(
     finished.startHint,
     'Eastern: Sep 30, 11:00 AM ET · No further episodes on schedule'

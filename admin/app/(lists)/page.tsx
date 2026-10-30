@@ -1,15 +1,25 @@
 'use client'
 
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { CompleteRatingModal } from '@/app/components/CompleteRatingModal'
 import { ShowListSkeleton } from '@/app/components/ListSkeleton'
 import { ShowRow } from '@/app/components/ShowRow'
+import { ShowSheet } from '@/app/components/ShowSheet'
 import { useEpisodeProgress } from '@/app/components/useEpisodeProgress'
 import { useHashScrollHighlight } from '@/app/components/useHashScrollHighlight'
 import { useWatchingShows } from '@/app/components/useWatchingShows'
 
+// Which show's sheet is open: by row key (rows without an ID yet, e.g. a new
+// show) or by show ID (a search result, possibly before the list loads).
+type OpenSheet = { rowKey: string } | { showId: string } | null
+
 export default function AdminPage() {
-  useHashScrollHighlight()
+  const [openSheet, setOpenSheet] = useState<OpenSheet>(null)
+  useHashScrollHighlight((elementId) => {
+    if (elementId.startsWith('show-')) {
+      setOpenSheet({ showId: elementId.slice('show-'.length) })
+    }
+  })
   // Lets background refreshes wait for episode saves; the progress hook
   // needs the shows hook's state, so it's wired up after both exist.
   const episodeSavePendingRef = useRef<() => boolean>(() => false)
@@ -18,6 +28,14 @@ export default function AdminPage() {
   })
   const progress = useEpisodeProgress(shows)
   episodeSavePendingRef.current = progress.hasPendingSave
+
+  const openRow = openSheet
+    ? shows.displayRows.find((displayRow) =>
+        'rowKey' in openSheet
+          ? displayRow.row.key === openSheet.rowKey
+          : displayRow.row.values.id === openSheet.showId
+      )
+    : undefined
 
   return (
     <>
@@ -34,7 +52,7 @@ export default function AdminPage() {
             type="button"
             aria-label="Add show"
             title="Add show"
-            onClick={shows.addShow}
+            onClick={() => setOpenSheet({ rowKey: shows.addShow() })}
           >
             +
           </button>
@@ -54,44 +72,13 @@ export default function AdminPage() {
             <div className="panel empty">No shows yet. Add one with +.</div>
           ) : (
             <div className="panel show-list">
-              {shows.displayRows.map((displayRow) => {
-                const { key, values } = displayRow.row
-                return (
-                  <ShowRow
-                    key={key}
-                    displayRow={displayRow}
-                    episodeStatus={
-                      values.id
-                        ? (progress.episodeSaveStatus[values.id] ?? '')
-                        : ''
-                    }
-                    completingShow={progress.completingShow}
-                    holding={
-                      Boolean(values.id) && progress.holdingShowId === values.id
-                    }
-                    onAdjustEpisode={(delta) =>
-                      progress.adjustEpisode(values, delta)
-                    }
-                    onUpdate={(field, value) =>
-                      shows.updateShow(key, field, value)
-                    }
-                    onUpdateSchedule={(field, value) =>
-                      shows.updateSchedule(key, field, value)
-                    }
-                    onAddBreak={() => void shows.addBreak(values)}
-                    onConfirmAnnouncedBreak={() =>
-                      void shows.confirmAnnouncedBreak(values)
-                    }
-                    onDismissAnnouncedBreak={() =>
-                      void shows.dismissAnnouncedBreak(values)
-                    }
-                    onRemoveBreak={(index) => shows.removeBreak(key, index)}
-                    onComplete={() => progress.openCompletePrompt(values)}
-                    onHold={() => void progress.putShowOnHold(values)}
-                    onRemove={() => shows.removeShow(key)}
-                  />
-                )
-              })}
+              {shows.displayRows.map((displayRow) => (
+                <ShowRow
+                  key={displayRow.row.key}
+                  displayRow={displayRow}
+                  onOpen={() => setOpenSheet({ rowKey: displayRow.row.key })}
+                />
+              ))}
             </div>
           )}
         </section>
@@ -114,6 +101,47 @@ export default function AdminPage() {
           </div>
         </div>
       </div>
+
+      {openRow ? (
+        <ShowSheet
+          key={openRow.row.key}
+          displayRow={openRow}
+          episodeStatus={
+            openRow.row.values.id
+              ? (progress.episodeSaveStatus[openRow.row.values.id] ?? '')
+              : ''
+          }
+          completingShow={progress.completingShow}
+          holding={
+            Boolean(openRow.row.values.id) &&
+            progress.holdingShowId === openRow.row.values.id
+          }
+          onClose={() => setOpenSheet(null)}
+          onAdjustEpisode={(delta) =>
+            progress.adjustEpisode(openRow.row.values, delta)
+          }
+          onUpdate={(field, value) =>
+            shows.updateShow(openRow.row.key, field, value)
+          }
+          onUpdateSchedule={(field, value) =>
+            shows.updateSchedule(openRow.row.key, field, value)
+          }
+          onAddBreak={() => void shows.addBreak(openRow.row.values)}
+          onRemoveBreak={(index) => shows.removeBreak(openRow.row.key, index)}
+          onConfirmAnnouncedBreak={() =>
+            void shows.confirmAnnouncedBreak(openRow.row.values)
+          }
+          onDismissAnnouncedBreak={() =>
+            void shows.dismissAnnouncedBreak(openRow.row.values)
+          }
+          onComplete={() => progress.openCompletePrompt(openRow.row.values)}
+          onHold={() => void progress.putShowOnHold(openRow.row.values)}
+          onRemove={() => {
+            shows.removeShow(openRow.row.key)
+            setOpenSheet(null)
+          }}
+        />
+      ) : null}
 
       {progress.completePrompt ? (
         <CompleteRatingModal

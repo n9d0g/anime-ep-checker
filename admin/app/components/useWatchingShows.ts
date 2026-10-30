@@ -440,8 +440,11 @@ export function useWatchingShows(options: {
     })
   }
 
-  function addShow() {
-    setRows((current) => [...current, newShowRow()])
+  /** Adds an empty row and returns its key, so its sheet can open. */
+  function addShow(): string {
+    const row = newShowRow()
+    setRows((current) => [...current, row])
+    return row.key
   }
 
   function removeShow(key: string) {
