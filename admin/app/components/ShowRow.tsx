@@ -1,6 +1,7 @@
 'use client'
 
 import { ListRow } from '@/app/components/ListRow'
+import type { AniListMedia } from '@/lib/anilist'
 import type { DisplayRow } from '@/app/components/useWatchingShows'
 import { MAL_DOWN_MESSAGE } from '@/lib/watching'
 
@@ -8,9 +9,12 @@ import { MAL_DOWN_MESSAGE } from '@/lib/watching'
 // schedule chip and next drop, and the episode badge.
 export function ShowRow({
   displayRow,
+  art,
   onOpen,
 }: {
   displayRow: DisplayRow
+  /** The show's AniList banner and cover, once known. */
+  art: AniListMedia | null
   onOpen: () => void
 }) {
   const { row, index, view } = displayRow
@@ -22,12 +26,9 @@ export function ShowRow({
       id={show.id ? `show-${show.id}` : undefined}
       title={show.title || `Show ${index + 1}`}
       titleEnglish={show.titleEnglish}
-      marker={
-        <span
-          className={`provider-dot ${view.providerDotClass}`}
-          aria-hidden="true"
-        />
-      }
+      providerClass={view.providerDotClass}
+      bannerUrl={art?.bannerUrl}
+      coverUrl={art?.coverUrl}
       meta={
         view.nextDropLine || view.chip ? (
           <>

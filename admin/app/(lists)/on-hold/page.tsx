@@ -9,6 +9,7 @@ import { useCachedResource } from '@/app/components/useCachedResource'
 import { useHashScrollHighlight } from '@/app/components/useHashScrollHighlight'
 import { PtwListSkeleton } from '@/app/components/ListSkeleton'
 import { useToast } from '@/app/components/Toast'
+import { useAniListMedia } from '@/app/components/useAniListMedia'
 import { apiErrorMessage, apiFetch } from '@/lib/api-fetch'
 import { cacheKeys, withoutOnHoldEntry } from '@/lib/client-cache'
 import { searchIndex } from '@/lib/search-index-store'
@@ -31,11 +32,13 @@ const PROVIDER_LABELS = {
 // up with.
 function OnHoldSheet({
   entry,
+  coverUrl,
   restoring,
   onRestore,
   onClose,
 }: {
   entry: OnHoldSnapshotEntry
+  coverUrl: string | null
   restoring: boolean
   onRestore: () => void
   onClose: () => void
@@ -47,7 +50,7 @@ function OnHoldSheet({
     <AnimeSheet
       title={show.title || show.id}
       titleEnglish={show.titleEnglish}
-      coverUrl={null}
+      coverUrl={coverUrl}
       meta={formatHeldMeta(entry)}
       onClose={onClose}
     >
@@ -194,6 +197,9 @@ export default function OnHoldPage() {
 
   const entries = snapshot?.entries ?? []
   const openEntry = entries.find((entry) => entry.show.id === openId)
+  const aniList = useAniListMedia(
+    entries.map((entry) => entry.show.malId ?? 0).filter(Boolean)
+  )
 
   return (
     <main className="container">
@@ -220,14 +226,11 @@ export default function OnHoldPage() {
               id={`show-${entry.show.id}`}
               title={entry.show.title || entry.show.id}
               titleEnglish={entry.show.titleEnglish}
-              marker={
-                <span
-                  className={`provider-dot ${providerDotClass(
-                    entry.show.provider ?? 'crunchyroll'
-                  )}`}
-                  aria-hidden="true"
-                />
-              }
+              providerClass={providerDotClass(
+                entry.show.provider ?? 'crunchyroll'
+              )}
+              bannerUrl={aniList(entry.show.malId)?.bannerUrl}
+              coverUrl={aniList(entry.show.malId)?.coverUrl}
               meta={
                 <span className="show-row-next-drop">
                   {formatHeldMeta(entry)}
@@ -248,6 +251,7 @@ export default function OnHoldPage() {
       {openEntry ? (
         <OnHoldSheet
           entry={openEntry}
+          coverUrl={aniList(openEntry.show.malId)?.coverUrl ?? null}
           restoring={restoringId === openEntry.show.id}
           onRestore={() => void restoreToWatching(openEntry)}
           onClose={() => setOpenId(null)}
