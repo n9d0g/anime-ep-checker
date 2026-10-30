@@ -71,7 +71,7 @@ export function ShowSheet({
   onRemove: () => void
 } & Pick<
   ComponentProps<typeof ShowEditForm>,
-  'onUpdate' | 'onUpdateSchedule'
+  'onUpdate' | 'onUpdateSchedule' | 'dirty' | 'saving' | 'onSave' | 'onRevert'
 >) {
   const { row, index, liveState, view } = displayRow
   const show = row.values

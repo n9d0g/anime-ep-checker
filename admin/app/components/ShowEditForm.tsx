@@ -13,9 +13,13 @@ export function ShowEditForm({
   startHint,
   malEditOpen,
   officialSiteUrl,
+  dirty,
+  saving,
   onToggleMalEdit,
   onUpdate,
   onUpdateSchedule,
+  onSave,
+  onRevert,
 }: {
   rowKey: string
   show: ShowFormValues
@@ -23,7 +27,12 @@ export function ShowEditForm({
   malEditOpen: boolean
   /** AniList's Official Site link, shown as the default. */
   officialSiteUrl: string | null | undefined
+  /** Setup differs from what's saved. */
+  dirty: boolean
+  saving: boolean
   onToggleMalEdit: () => void
+  onSave: () => void
+  onRevert: () => void
   onUpdate: <K extends keyof ShowFormValues>(
     field: K,
     value: ShowFormValues[K]
@@ -38,7 +47,12 @@ export function ShowEditForm({
   return (
     <details className="sheet-section sheet-setup" open={!show.id}>
       <summary>
-        <h3 className="sheet-section-title">Setup</h3>
+        <h3 className="sheet-section-title">
+          Setup
+          {dirty && show.id ? (
+            <span className="sheet-unsaved">Unsaved</span>
+          ) : null}
+        </h3>
       </summary>
       <div className="sheet-setup-body">
         <div className="field">
@@ -251,6 +265,26 @@ export function ShowEditForm({
             }
             required
           />
+        </div>
+        <div className="actions sheet-save-row">
+          <button
+            className="btn"
+            type="button"
+            disabled={!dirty || saving}
+            onClick={onSave}
+          >
+            {saving ? 'Saving…' : show.id ? 'Save' : 'Add show'}
+          </button>
+          {dirty && show.id ? (
+            <button
+              className="btn btn-secondary"
+              type="button"
+              disabled={saving}
+              onClick={onRevert}
+            >
+              Revert
+            </button>
+          ) : null}
         </div>
       </div>
     </details>

@@ -17,11 +17,6 @@ const EPISODE_SAVE_DEBOUNCE_MS = 800
 
 export type EpisodeSaveStatus = 'saving' | 'saved' | 'error' | ''
 
-type RemovedVersions = {
-  showsVersion?: string | null
-  showsVersionBefore?: string | null
-}
-
 function validMalId(show: ShowFormValues): number | null {
   const malId = Number(show.malId)
   return Number.isFinite(malId) && malId >= 1 ? malId : null
@@ -39,7 +34,7 @@ export function useEpisodeProgress({
   showStates: Record<string, ShowStateSummary>
   setShowStates: Dispatch<SetStateAction<Record<string, ShowStateSummary>>>
   setMalDown: (malDown: boolean) => void
-  removeShowFromLocal: (showId: string, versions: RemovedVersions) => void
+  removeShowFromLocal: (showId: string) => void
 }) {
   const toast = useToast()
   const [episodeSaveStatus, setEpisodeSaveStatus] = useState<
@@ -79,8 +74,8 @@ export function useEpisodeProgress({
     }
   }
 
-  function removeShow(showId: string, versions: RemovedVersions) {
-    removeShowFromLocal(showId, versions)
+  function removeShow(showId: string) {
+    removeShowFromLocal(showId)
     setEpisodeSaveStatus((current) => {
       const next = { ...current }
       delete next[showId]
@@ -214,23 +209,22 @@ export function useEpisodeProgress({
     setCompletingShow(true)
 
     try {
-      const data = await apiFetch<{
-        cleanupTriggered?: boolean
-        showsVersion?: string | null
-        showsVersionBefore?: string | null
-      }>('/api/mal/complete', {
-        method: 'POST',
-        json: { malId: prompt.malId, showId: prompt.showId, score },
-        errorMessage: 'Failed to mark show completed',
-      })
+      const data = await apiFetch<{ cleanupTriggered?: boolean }>(
+        '/api/mal/complete',
+        {
+          method: 'POST',
+          json: { malId: prompt.malId, showId: prompt.showId, score },
+          errorMessage: 'Failed to mark show completed',
+        }
+      )
 
-      removeShow(prompt.showId, data)
+      removeShow(prompt.showId)
       setCompletePrompt(null)
 
       toast.success(
         data.cleanupTriggered
           ? 'Marked completed on MAL. Discord and calendar cleanup will run shortly.'
-          : 'Marked completed on MAL and removed from tracked shows.'
+          : 'Marked completed on MAL and removed from Watching.'
       )
     } catch (error) {
       toast.error(apiErrorMessage(error, 'Failed to mark show completed'))
@@ -261,22 +255,21 @@ export function useEpisodeProgress({
     setHoldingShowId(show.id)
 
     try {
-      const data = await apiFetch<{
-        cleanupTriggered?: boolean
-        showsVersion?: string | null
-        showsVersionBefore?: string | null
-      }>('/api/mal/on-hold', {
-        method: 'POST',
-        json: { malId, showId: show.id },
-        errorMessage: 'Failed to put show on hold',
-      })
+      const data = await apiFetch<{ cleanupTriggered?: boolean }>(
+        '/api/mal/on-hold',
+        {
+          method: 'POST',
+          json: { malId, showId: show.id },
+          errorMessage: 'Failed to put show on hold',
+        }
+      )
 
-      removeShow(show.id, data)
+      removeShow(show.id)
 
       toast.success(
         data.cleanupTriggered
           ? 'On hold on MAL. Discord and calendar cleanup will run shortly.'
-          : 'On hold on MAL and removed from tracked shows.'
+          : 'On hold on MAL and removed from Watching.'
       )
     } catch (error) {
       toast.error(apiErrorMessage(error, 'Failed to put show on hold'))

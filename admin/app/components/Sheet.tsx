@@ -29,9 +29,16 @@ export function Sheet({
     document.body.style.overflow = 'hidden'
 
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key !== 'Escape' || document.querySelector('.modal-overlay')) {
+      if (
+        event.key !== 'Escape' ||
+        event.defaultPrevented ||
+        document.querySelector('.modal-overlay')
+      ) {
         return
       }
+      // Handled: a modal this opens (e.g. "Discard changes?") mounts before
+      // the same keypress reaches its listener, and must not take it too.
+      event.preventDefault()
       onCloseRef.current()
     }
 

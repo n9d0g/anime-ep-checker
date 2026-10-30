@@ -16,7 +16,7 @@ import { getAnnouncedBreakSuggestion } from '@/lib/announced-break'
 import { describeBreak, getBreakAfterEpisode } from '@/lib/schedule-break'
 import { getAniListGapWeeks } from '@shared/schedule'
 import { searchIndex } from '@/lib/search-index-store'
-import { showToForm } from '@/lib/show-form'
+import { emptyShowForm, showToForm } from '@/lib/show-form'
 import { formatEasternDateTime } from '@/lib/time'
 import type { Show } from '@shared/types'
 import type { ShowFormValues, ShowStateSummary } from '@/lib/types'
@@ -27,6 +27,7 @@ import {
   orderRowsBySavedNextDrop,
   replaceShowInRows,
   serializeShows,
+  showRowKey,
   showRowValues,
   toShowRows,
   type ShowRow,
@@ -97,7 +98,8 @@ export function useWatchingShows(options: {
   const [savedRows, setSavedRows] = useState<ShowRow[] | null>(null)
   const [showStates, setShowStates] = useState<ShowStates>({})
   const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
+  // The row whose Setup is being saved, if any.
+  const [savingKey, setSavingKey] = useState<string | null>(null)
   const [malDown, setMalDown] = useState(false)
   const baseline = useMemo(
     () => (savedRows ? serializeShows(showRowValues(savedRows)) : ''),
@@ -105,23 +107,15 @@ export function useWatchingShows(options: {
   )
   const rowsRef = useRef(rows)
   const baselineRef = useRef(baseline)
-  const savingRef = useRef(saving)
+  const savingRef = useRef(savingKey !== null)
   const optionsRef = useRef(options)
   const loadInFlightRef = useRef(false)
   const lastFetchAtRef = useRef(0)
-  // shows.json version the list on screen came from; saves are rejected if
-  // the file has changed since, so they never erase shows added elsewhere.
-  const showsVersionRef = useRef<string | null>(null)
 
   rowsRef.current = rows
   baselineRef.current = baseline
-  savingRef.current = saving
+  savingRef.current = savingKey !== null
   optionsRef.current = options
-
-  const isDirty = useMemo(
-    () => baseline !== '' && serializeShows(showRowValues(rows)) !== baseline,
-    [rows, baseline]
-  )
 
   // Relative times ("in 20m") and chips ("Dropping now") move with the clock.
   const [now, setNow] = useState(() => Date.now())
@@ -225,7 +219,6 @@ export function useWatchingShows(options: {
       if (syncData.changed && syncData.shows) {
         if (!savingRef.current && !hasUnsavedLocalEdits()) {
           setLoadedShows(syncData.shows.map(showToForm))
-          showsVersionRef.current = syncData.showsVersion ?? null
         }
 
         const parts: string[] = []
@@ -311,7 +304,6 @@ export function useWatchingShows(options: {
 
       const nextSerialized = serializeShows(loadedShows)
       setLoadedShows(loadedShows)
-      showsVersionRef.current = bootstrapData.showsVersion ?? null
       setShowStates((current) =>
         withKnownWatched(bootstrapData.showStates ?? {}, current)
       )
@@ -428,18 +420,6 @@ export function useWatchingShows(options: {
     }))
   }
 
-  // Removing a break is an unsaved edit like any other; Save writes it.
-  function removeBreak(key: string, index: number) {
-    updateRow(key, (values) => {
-      const { breaks: current = [], ...rest } = values.schedule
-      const breaks = current.filter((_, entryIndex) => entryIndex !== index)
-      return {
-        ...values,
-        schedule: breaks.length > 0 ? { ...rest, breaks } : rest,
-      }
-    })
-  }
-
   /** Adds an empty row and returns its key, so its sheet can open. */
   function addShow(): string {
     const row = newShowRow()
@@ -447,25 +427,8 @@ export function useWatchingShows(options: {
     return row.key
   }
 
-  function removeShow(key: string) {
-    setRows((current) => current.filter((row) => row.key !== key))
-  }
-
   // Drops a show the server already removed (completed or on hold).
-  function removeShowFromLocal(
-    showId: string,
-    versions: {
-      showsVersion?: string | null
-      showsVersionBefore?: string | null
-    }
-  ): void {
-    // The server only removed this show. If shows.json was still at the
-    // version this page loaded, the rest of the list (and any unsaved edits)
-    // matches the new version; otherwise keep the old one so the next save is
-    // rejected rather than erasing changes made elsewhere.
-    if (versions.showsVersionBefore === showsVersionRef.current) {
-      showsVersionRef.current = versions.showsVersion ?? null
-    }
+  function removeShowFromLocal(showId: string): void {
     setRows((current) => current.filter((row) => row.values.id !== showId))
     setSavedRows((current) =>
       current ? current.filter((row) => row.values.id !== showId) : current
@@ -483,45 +446,179 @@ export function useWatchingShows(options: {
     searchIndex.invalidate()
   }
 
-  async function saveShows() {
-    setSaving(true)
+  /** The row as last loaded or saved; undefined for a show not yet saved. */
+  function savedRowFor(key: string): ShowRow | undefined {
+    return savedRows?.find((row) => row.key === key)
+  }
+
+  /** Whether the row's Setup differs from what's saved (or, for a new show, from empty). */
+  function isRowDirty(key: string): boolean {
+    const row = rows.find((entry) => entry.key === key)
+    if (!row) {
+      return false
+    }
+    const baselineValues = savedRowFor(key)?.values ?? emptyShowForm()
+    return serializeShows([row.values]) !== serializeShows([baselineValues])
+  }
+
+  /** Puts the server's copy of a saved show into its row and the cache. */
+  function applySavedShow(key: string, show: Show, isNew: boolean): string {
+    const values = showToForm(show)
+    const savedRow = { key: isNew ? showRowKey(values.id) : key, values }
+    setRows((current) =>
+      current.map((row) => (row.key === key ? savedRow : row))
+    )
+    setSavedRows((current) =>
+      isNew
+        ? [...(current ?? []), savedRow]
+        : (current ?? []).map((row) => (row.key === key ? savedRow : row))
+    )
+    updateJsonCache<BootstrapCache>(cacheKeys.bootstrap, (cached) =>
+      isNew
+        ? { ...cached, shows: [...(cached.shows ?? []), show] }
+        : replaceBootstrapShow(cached, show)
+    )
+    searchIndex.invalidate()
+    return savedRow.key
+  }
+
+  /**
+   * Saves one show's Setup: one Save, one commit. Returns the row's key after
+   * saving (a new show's key changes once it has an ID), or null on failure.
+   */
+  async function saveShow(key: string): Promise<string | null> {
+    const row = rowsRef.current.find((entry) => entry.key === key)
+    if (!row) {
+      return null
+    }
+    const loaded = savedRowFor(key)?.values ?? null
+
+    setSavingKey(key)
+    try {
+      // A 409 (this show changed elsewhere) throws here, keeping the edits.
+      const data = await apiFetch<{ show?: Show }>('/api/shows/show', {
+        method: 'PUT',
+        json: { show: row.values, loaded },
+        errorMessage: 'Failed to save show',
+      })
+      if (!data.show) {
+        return null
+      }
+      const savedKey = applySavedShow(key, data.show, !loaded)
+      toast.success(
+        loaded
+          ? 'Saved to GitHub. The checker uses it on its next run.'
+          : `Added "${data.show.title}". The checker picks it up on its next run.`
+      )
+      return savedKey
+    } catch (error) {
+      toast.error(apiErrorMessage(error, 'Failed to save show'))
+      return null
+    } finally {
+      setSavingKey(null)
+    }
+  }
+
+  /** Drops unsaved Setup edits; a show that was never saved goes away. */
+  function revertShow(key: string) {
+    const saved = savedRowFor(key)
+    setRows((current) =>
+      saved
+        ? current.map((row) => (row.key === key ? saved : row))
+        : current.filter((row) => row.key !== key)
+    )
+  }
+
+  /** Removes a show from shows.json, after a confirm; true once it's gone. */
+  async function removeShow(key: string): Promise<boolean> {
+    const loaded = savedRowFor(key)?.values
+    if (!loaded) {
+      setRows((current) => current.filter((row) => row.key !== key))
+      return true
+    }
+    const label = loaded.title || loaded.id
+    if (
+      !window.confirm(
+        `Remove "${label}"? The checker stops checking it, and its Calendar events and Discord entry are cleaned up.`
+      )
+    ) {
+      return false
+    }
 
     try {
-      // A 409 (shows.json changed elsewhere) throws here, keeping the edits.
-      const data = await apiFetch<{
-        shows?: Show[]
-        showsVersion?: string | null
-        cleanupTriggered?: boolean
-      }>('/api/shows', {
-        method: 'PUT',
-        json: {
-          shows: showRowValues(rows),
-          version: showsVersionRef.current,
-        },
-        errorMessage: 'Failed to save shows',
-      })
-
-      setLoadedShows((data.shows ?? []).map(showToForm))
-      showsVersionRef.current = data.showsVersion ?? null
-      // Shows removed (or added) by the save leave (or join) the cached list.
-      updateJsonCache<BootstrapCache>(cacheKeys.bootstrap, (cached) => ({
-        ...cached,
-        shows: data.shows ?? [],
-      }))
-      searchIndex.invalidate()
-      if (data.cleanupTriggered) {
-        toast.success(
-          'Saved to GitHub. Calendar and Discord cleanup will run shortly.'
-        )
-      } else {
-        toast.success(
-          'Saved to GitHub. The checker will use these on the next run.'
-        )
-      }
+      const data = await apiFetch<{ cleanupTriggered?: boolean }>(
+        '/api/shows/show',
+        {
+          method: 'DELETE',
+          json: { loaded },
+          errorMessage: 'Failed to remove show',
+        }
+      )
+      removeShowFromLocal(loaded.id)
+      toast.success(
+        data.cleanupTriggered
+          ? `Removed "${label}". Calendar and Discord cleanup will run shortly.`
+          : `Removed "${label}". The next run cleans up Calendar and Discord.`
+      )
+      return true
     } catch (error) {
-      toast.error(apiErrorMessage(error, 'Failed to save shows'))
-    } finally {
-      setSaving(false)
+      toast.error(apiErrorMessage(error, 'Failed to remove show'))
+      return false
+    }
+  }
+
+  /** Removes one break straight away; other unsaved Setup edits stay unsaved. */
+  async function removeBreak(key: string, index: number) {
+    const saved = savedRowFor(key)?.values
+    const entry = saved?.schedule.breaks?.[index]
+    if (!saved || !entry) {
+      return
+    }
+    if (
+      !window.confirm(
+        `Remove the ${describeBreak(entry)} of "${saved.title || saved.id}"? Later drops move back.`
+      )
+    ) {
+      return
+    }
+
+    const { breaks: current = [], ...rest } = saved.schedule
+    const breaks = current.filter((_, entryIndex) => entryIndex !== index)
+    const next = {
+      ...saved,
+      schedule: breaks.length > 0 ? { ...rest, breaks } : rest,
+    }
+
+    try {
+      const data = await apiFetch<{ show?: Show }>('/api/shows/show', {
+        method: 'PUT',
+        json: { show: next, loaded: saved },
+        errorMessage: 'Failed to remove break',
+      })
+      if (!data.show) {
+        return
+      }
+      const values = showToForm(data.show)
+      setSavedRows((current) =>
+        (current ?? []).map((row) => (row.key === key ? { key, values } : row))
+      )
+      // Keep any other unsaved Setup edits on the row.
+      updateRow(key, (row) => {
+        const { breaks: _removed, ...schedule } = row.schedule
+        return {
+          ...row,
+          schedule: values.schedule.breaks
+            ? { ...schedule, breaks: values.schedule.breaks }
+            : schedule,
+        }
+      })
+      const updatedShow = data.show
+      updateJsonCache<BootstrapCache>(cacheKeys.bootstrap, (cached) =>
+        replaceBootstrapShow(cached, updatedShow)
+      )
+      toast.success('Break removed. Later drops move back.')
+    } catch (error) {
+      toast.error(apiErrorMessage(error, 'Failed to remove break'))
     }
   }
 
@@ -576,11 +673,6 @@ export function useWatchingShows(options: {
         updateJsonCache<BootstrapCache>(cacheKeys.bootstrap, (cached) =>
           replaceBootstrapShow(cached, updatedShow)
         )
-      }
-      // Same rule as removeShowFromLocal: only adopt the new version if
-      // shows.json hadn't changed elsewhere since this page loaded it.
-      if (data.showsVersionBefore === showsVersionRef.current) {
-        showsVersionRef.current = data.showsVersion ?? null
       }
 
       toast.success(
@@ -658,9 +750,6 @@ export function useWatchingShows(options: {
           replaceBootstrapShow(cached, updatedShow)
         )
       }
-      if (data.showsVersionBefore === showsVersionRef.current) {
-        showsVersionRef.current = data.showsVersion ?? null
-      }
       setLocalAnnouncedBreak(show.id, (current) => ({
         ...current,
         announcedBreak: null,
@@ -706,14 +795,15 @@ export function useWatchingShows(options: {
     malDown,
     setMalDown,
     loading,
-    saving,
-    isDirty,
+    savingKey,
+    isRowDirty,
     addShow,
     updateShow,
     updateSchedule,
+    saveShow,
+    revertShow,
     removeShow,
     removeShowFromLocal,
-    saveShows,
     addBreak,
     removeBreak,
     confirmAnnouncedBreak,

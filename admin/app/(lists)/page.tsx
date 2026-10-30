@@ -3,6 +3,7 @@
 import { useRef, useState } from 'react'
 import { CompleteRatingModal } from '@/app/components/CompleteRatingModal'
 import { ShowListSkeleton } from '@/app/components/ListSkeleton'
+import { Modal } from '@/app/components/Modal'
 import { ShowRow } from '@/app/components/ShowRow'
 import { ShowSheet } from '@/app/components/ShowSheet'
 import { useEpisodeProgress } from '@/app/components/useEpisodeProgress'
@@ -15,6 +16,8 @@ type OpenSheet = { rowKey: string } | { showId: string } | null
 
 export default function AdminPage() {
   const [openSheet, setOpenSheet] = useState<OpenSheet>(null)
+  // The row whose unsaved Setup edits are waiting on "Discard changes?".
+  const [discardKey, setDiscardKey] = useState<string | null>(null)
   useHashScrollHighlight((elementId) => {
     if (elementId.startsWith('show-')) {
       setOpenSheet({ showId: elementId.slice('show-'.length) })
@@ -36,6 +39,22 @@ export default function AdminPage() {
           : displayRow.row.values.id === openSheet.showId
       )
     : undefined
+
+  // Closing with unsaved Setup edits asks first; an untouched new show just
+  // goes away.
+  function closeSheet() {
+    if (openRow) {
+      const { key, values } = openRow.row
+      if (shows.isRowDirty(key)) {
+        setDiscardKey(key)
+        return
+      }
+      if (!values.id) {
+        shows.revertShow(key)
+      }
+    }
+    setOpenSheet(null)
+  }
 
   return (
     <>
@@ -84,24 +103,6 @@ export default function AdminPage() {
         </section>
       </main>
 
-      <div className="sticky-bar">
-        <div className="sticky-bar-inner">
-          <p className="status">
-            {shows.rows.length} show{shows.rows.length === 1 ? '' : 's'}
-          </p>
-          <div className="sticky-actions">
-            <button
-              className="btn"
-              type="button"
-              onClick={shows.saveShows}
-              disabled={shows.saving || shows.loading || !shows.isDirty}
-            >
-              {shows.saving ? 'Saving...' : 'Save changes'}
-            </button>
-          </div>
-        </div>
-      </div>
-
       {openRow ? (
         <ShowSheet
           key={openRow.row.key}
@@ -116,7 +117,17 @@ export default function AdminPage() {
             Boolean(openRow.row.values.id) &&
             progress.holdingShowId === openRow.row.values.id
           }
-          onClose={() => setOpenSheet(null)}
+          dirty={shows.isRowDirty(openRow.row.key)}
+          saving={shows.savingKey === openRow.row.key}
+          onClose={closeSheet}
+          onSave={() => {
+            void shows.saveShow(openRow.row.key).then((savedKey) => {
+              if (savedKey && savedKey !== openRow.row.key) {
+                setOpenSheet({ rowKey: savedKey })
+              }
+            })
+          }}
+          onRevert={() => shows.revertShow(openRow.row.key)}
           onAdjustEpisode={(delta) =>
             progress.adjustEpisode(openRow.row.values, delta)
           }
@@ -127,7 +138,9 @@ export default function AdminPage() {
             shows.updateSchedule(openRow.row.key, field, value)
           }
           onAddBreak={() => void shows.addBreak(openRow.row.values)}
-          onRemoveBreak={(index) => shows.removeBreak(openRow.row.key, index)}
+          onRemoveBreak={(index) =>
+            void shows.removeBreak(openRow.row.key, index)
+          }
           onConfirmAnnouncedBreak={() =>
             void shows.confirmAnnouncedBreak(openRow.row.values)
           }
@@ -137,9 +150,34 @@ export default function AdminPage() {
           onComplete={() => progress.openCompletePrompt(openRow.row.values)}
           onHold={() => void progress.putShowOnHold(openRow.row.values)}
           onRemove={() => {
-            shows.removeShow(openRow.row.key)
-            setOpenSheet(null)
+            void shows.removeShow(openRow.row.key).then((removed) => {
+              if (removed) {
+                setOpenSheet(null)
+              }
+            })
           }}
+        />
+      ) : null}
+
+      {discardKey ? (
+        <Modal
+          title="Discard changes?"
+          subtitle="Your Setup edits haven’t been saved."
+          submitting={false}
+          onCancel={() => setDiscardKey(null)}
+          primaryAction={
+            <button
+              className="btn btn-discard"
+              type="button"
+              onClick={() => {
+                shows.revertShow(discardKey)
+                setDiscardKey(null)
+                setOpenSheet(null)
+              }}
+            >
+              Discard
+            </button>
+          }
         />
       ) : null}
 

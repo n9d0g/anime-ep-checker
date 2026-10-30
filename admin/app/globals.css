@@ -30,7 +30,6 @@
   --container-width: 760px;
   --radius: 10px;
   --radius-sm: 6px;
-  --sticky-bar-h: 4rem;
   --top-header-h: 3.25rem;
   --tab-bar-h: 3.75rem;
 
@@ -103,11 +102,7 @@ h3 {
 .container {
   width: min(var(--container-width), calc(100% - 2.5rem));
   margin: 0 auto;
-  padding: 1.75rem 0
-    calc(
-      var(--sticky-bar-h) + var(--tab-bar-h) + env(safe-area-inset-bottom) +
-        2rem
-    );
+  padding: 1.75rem 0 calc(var(--tab-bar-h) + env(safe-area-inset-bottom) + 2rem);
   overflow-x: clip;
 }
 
@@ -843,36 +838,6 @@ select:focus {
   background: transparent;
 }
 
-.sticky-bar {
-  position: fixed;
-  left: 0;
-  right: 0;
-  /* Sits on top of the list tab bar on phones. */
-  bottom: calc(var(--tab-bar-h) + env(safe-area-inset-bottom));
-  z-index: 20;
-  border-top: 1px solid var(--border);
-  background: rgba(17, 17, 17, 0.92);
-  backdrop-filter: blur(10px);
-  padding: 0.75rem max(1rem, env(safe-area-inset-right)) 0.75rem
-    max(1rem, env(safe-area-inset-left));
-}
-
-.sticky-bar-inner {
-  width: min(var(--container-width), 100%);
-  margin: 0 auto;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
-.sticky-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
 .status {
   min-height: 1.25rem;
   color: var(--text-secondary);
@@ -1208,21 +1173,6 @@ select:focus {
   }
 }
 
-@media (max-width: 640px) {
-  .sticky-bar-inner {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .sticky-actions {
-    width: 100%;
-  }
-
-  .sticky-actions .btn {
-    flex: 1;
-  }
-}
-
 .show-row-title-block {
   display: flex;
   flex-direction: column;
@@ -1546,11 +1496,6 @@ select:focus {
   .list-tabs-bottom {
     display: none;
   }
-
-  .sticky-bar {
-    bottom: 0;
-    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
-  }
 }
 
 .btn-icon {
@@ -1803,4 +1748,29 @@ select:focus {
   .sheet-backdrop {
     animation: none;
   }
+}
+
+.sheet-unsaved {
+  margin-left: 0.6rem;
+  color: var(--chip-amber);
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+
+/* Save stays in reach at the bottom of a long Setup. */
+.sheet-save-row {
+  position: sticky;
+  bottom: calc(-1.5rem - env(safe-area-inset-bottom));
+  justify-content: flex-start;
+  padding: 0.75rem 0;
+  background: var(--panel);
+}
+
+.btn.btn-discard {
+  background: var(--danger);
+  color: #fff;
+}
+
+.btn.btn-discard:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--danger) 85%, white);
 }
