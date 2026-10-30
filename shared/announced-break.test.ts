@@ -17,12 +17,15 @@ const SHOW: Show = {
   },
 }
 
-function stateCheckedAt(checkedAt: string | null): ShowState {
+function stateCheckedAt(
+  checkedAt: string | null,
+  lastNotifiedAt = ''
+): ShowState {
   return {
     lastEpisodeId: 'ep-2',
     lastEpisodeNumber: '2',
     lastEpisodeTitle: '',
-    lastNotifiedAt: '',
+    lastNotifiedAt,
     seasonId: '',
     seasonTitle: '',
     announcementCheckedAt: checkedAt,
@@ -73,5 +76,43 @@ test('shows without state are never due', () => {
   assert.equal(
     isAnnouncementCheckDue(SHOW, null, new Date('2026-09-15T16:00:00.000Z')),
     false
+  )
+})
+
+test('after a drop, the next episode is checked at once and every 6 hours for a day', () => {
+  // Episode 2 dropped (alert sent) 2026-09-08T15:05Z; episode 3 is next.
+  const dropped = '2026-09-08T15:05:00.000Z'
+  const afterDrop = (now: string, checkedAt: string | null) =>
+    isAnnouncementCheckDue(
+      SHOW,
+      stateCheckedAt(checkedAt, dropped),
+      new Date(now)
+    )
+
+  // A late-slot check minutes before the drop was about episode 2.
+  assert.equal(
+    afterDrop('2026-09-08T15:10:00.000Z', '2026-09-08T15:00:00.000Z'),
+    true
+  )
+  assert.equal(
+    afterDrop('2026-09-08T21:00:00.000Z', '2026-09-08T15:10:00.000Z'),
+    false
+  )
+  assert.equal(
+    afterDrop('2026-09-08T21:10:00.000Z', '2026-09-08T15:10:00.000Z'),
+    true
+  )
+  // A day after the drop, nothing until 3 days before the next one.
+  assert.equal(
+    afterDrop('2026-09-09T16:00:00.000Z', '2026-09-09T09:10:00.000Z'),
+    false
+  )
+  assert.equal(
+    afterDrop('2026-09-11T15:00:00.000Z', '2026-09-09T09:10:00.000Z'),
+    false
+  )
+  assert.equal(
+    afterDrop('2026-09-12T15:00:00.000Z', '2026-09-09T09:10:00.000Z'),
+    true
   )
 })

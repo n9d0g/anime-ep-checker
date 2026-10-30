@@ -7,6 +7,9 @@ const MS_PER_MINUTE = 60 * 1000
 const MS_PER_HOUR = 60 * MS_PER_MINUTE
 const MS_PER_DAY = 24 * MS_PER_HOUR
 
+/** After an episode drops: checks for the next one, every 6 hours for a day. */
+const AFTER_DROP_MS = MS_PER_DAY
+const AFTER_DROP_INTERVAL_MS = 6 * MS_PER_HOUR
 /** How long before a next drop the daily checks start. */
 const BEFORE_DROP_MS = 3 * MS_PER_DAY
 /** About once a day (a little under, so a daily run never just misses it). */
@@ -17,9 +20,11 @@ const LATE_INTERVAL_MS = 30 * MS_PER_MINUTE
 const LATE_DAILY_AFTER_MS = MS_PER_DAY
 
 /**
- * Whether the show's official news is due a read: once a day in the 3 days
- * before its next drop, and every 30 minutes once the drop is past still
- * waiting (daily again after a day, so a long break doesn't burn requests).
+ * Whether the show's official news is due a read: at each drop and every 6
+ * hours for a day after it (a break is often announced the day the episode
+ * broadcasts), once a day in the 3 days before the next drop, and every 30
+ * minutes once that drop is past still waiting (daily again after a day, so
+ * a long break doesn't burn requests).
  */
 export function isAnnouncementCheckDue(
   show: Show,
@@ -45,6 +50,15 @@ export function isAnnouncementCheckDue(
     ? Number.POSITIVE_INFINITY
     : now.getTime() - checkedMs
   const untilDrop = nextDrop.expectedAt.getTime() - now.getTime()
+
+  // Measured from the episode alert, so a late drop still gets its day.
+  const droppedMs = Date.parse(showState.lastNotifiedAt)
+  const sinceDropped = now.getTime() - droppedMs
+  if (sinceDropped >= 0 && sinceDropped < AFTER_DROP_MS) {
+    // A check before the drop (e.g. a late-slot one) was about this episode.
+    if (Number.isNaN(checkedMs) || checkedMs < droppedMs) return true
+    if (sinceChecked >= AFTER_DROP_INTERVAL_MS) return true
+  }
 
   if (isPastWaitingGrace(nextDrop.expectedAt, now)) {
     const interval =

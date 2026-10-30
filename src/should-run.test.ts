@@ -414,3 +414,20 @@ test('gate runs once a day for announcement checks in the 3 days before a drop',
     false
   )
 })
+
+test('gate runs for the announcement check right after an episode drops', async () => {
+  const now = '2026-10-15T18:00:00.000Z' // ep 3 dropped at 15:00, ep 4 is next
+  const result = await decide(
+    now,
+    [makeShow()],
+    makeState(now, {
+      show: {
+        ...lastEpisode(3),
+        lastNotifiedAt: '2026-10-15T15:05:00.000Z',
+        announcementCheckedAt: '2026-10-15T15:00:00.000Z',
+      },
+    })
+  )
+  assert.equal(result.shouldCheck, true)
+  assert.match(result.reasons.join(' '), /Announced-break check/)
+})

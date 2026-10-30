@@ -35,6 +35,8 @@ export interface ShowDashboardRow {
   providerLatestEpisode: number | null
   /** A pending announced break for the next drop or later: a marker only. */
   announcedBreak?: AnnouncedBreak | null
+  /** Last announcement check that got a reading. */
+  announcementReadAt?: string | null
 }
 
 const STATUS_LABELS: Record<DashboardStatus, string> = {
@@ -204,6 +206,7 @@ export async function buildShowDashboardRow(
     discussionUrl,
     providerLatestEpisode: showState?.lastSnapshotEpisode ?? null,
     announcedBreak: getPendingAnnouncedBreak(showState, nextDropEpisode),
+    announcementReadAt: showState?.announcementReadAt ?? null,
   }
 }
 
@@ -274,7 +277,17 @@ function buildDashboardEmbed(row: ShowDashboardRow) {
               inline: false,
             },
           ]
-        : []),
+        : row.nextDropEpisode !== null
+          ? [
+              {
+                name: 'Break news',
+                value: row.announcementReadAt
+                  ? `Checked ${discordRelativeTimestamp(row.announcementReadAt)} · none announced`
+                  : 'Not checked yet',
+                inline: false,
+              },
+            ]
+          : []),
     ],
     footer: discordFooter('Watching dashboard'),
   }

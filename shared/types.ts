@@ -79,8 +79,10 @@ export interface ShowState {
   /** AniList's Official Site link: null when AniList lists none, unset until checked. */
   officialSiteUrl?: string | null
   announcedBreak?: AnnouncedBreak | null
-  /** Last time the show's official news was read for an announced break. */
+  /** Last announcement check attempt; the next is scheduled from it. */
   announcementCheckedAt?: string | null
+  /** Last announcement check that got a reading from GitHub Models. */
+  announcementReadAt?: string | null
   googleCalendarEvents?: Record<
     string,
     { eventId: string; startAt: string }

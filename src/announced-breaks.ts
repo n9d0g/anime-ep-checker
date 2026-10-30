@@ -295,6 +295,7 @@ export async function syncAnnouncedBreaks({
       continue
     }
 
+    showState.announcementReadAt = now.toISOString()
     if (state.meta?.githubModelsAlertSentAt) {
       state.meta.githubModelsAlertSentAt = null
       reasons.push('cleared GitHub Models alert flag')
