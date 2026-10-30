@@ -1,5 +1,7 @@
 // AniList artwork and studios for the admin's rows and sheets, looked up by
-// MAL ID (no API key). One request covers up to 50 shows.
+// MAL ID (no API key). One request covers up to 50 shows. It runs in the
+// browser: AniList allows cross-origin requests, but not ones from the
+// admin's Cloudflare Worker.
 const ANILIST_URL = 'https://graphql.anilist.co'
 
 export const ANILIST_BATCH_SIZE = 50
@@ -115,27 +117,33 @@ async function fetchBatch(
   }
 }
 
+/** A lookup's answers, and which IDs were actually asked about successfully. */
+export interface AniListLookup {
+  media: Record<number, AniListMedia>
+  /** IDs in batches AniList answered, whether or not it knew the show. */
+  answered: number[]
+}
+
 /**
  * AniList media for each MAL ID it knows, in ⌈n/50⌉ requests. A batch that
- * fails is left out rather than failing the rest; shows AniList doesn't list
- * are simply missing from the result.
+ * fails is left out of `answered` (so it's asked again later) rather than
+ * failing the rest.
  */
 export async function fetchAniListMedia(
   malIds: number[]
-): Promise<Record<number, AniListMedia>> {
+): Promise<AniListLookup> {
   const unique = [
     ...new Set(malIds.filter((id) => Number.isInteger(id) && id > 0)),
   ]
-  const result: Record<number, AniListMedia> = {}
+  const lookup: AniListLookup = { media: {}, answered: [] }
   for (let start = 0; start < unique.length; start += ANILIST_BATCH_SIZE) {
+    const batch = unique.slice(start, start + ANILIST_BATCH_SIZE)
     try {
-      Object.assign(
-        result,
-        await fetchBatch(unique.slice(start, start + ANILIST_BATCH_SIZE))
-      )
+      Object.assign(lookup.media, await fetchBatch(batch))
+      lookup.answered.push(...batch)
     } catch (error) {
       console.warn('AniList batch skipped:', error)
     }
   }
-  return result
+  return lookup
 }

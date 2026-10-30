@@ -21,16 +21,19 @@ export function missingMalIds(
   })
 }
 
-/** Adds a lookup's answers, remembering the IDs AniList didn't return. */
+/**
+ * Adds a lookup's answers. `asked` must be only IDs AniList actually
+ * responded about, so a show it lacks is remembered but a failed request isn't.
+ */
 export function mergeAniListAnswers(
   cache: AniListCache,
   asked: number[],
-  media: Record<string, AniListMedia>,
+  media: Record<number, AniListMedia>,
   now: number
 ): AniListCache {
   const next = { ...cache }
   for (const id of asked) {
-    next[String(id)] = { media: media[String(id)] ?? null, fetchedAt: now }
+    next[String(id)] = { media: media[id] ?? null, fetchedAt: now }
   }
   return next
 }

@@ -1866,11 +1866,12 @@ select:focus {
   transition: transform 0.3s ease;
 }
 
-/* No banner: the cover, zoomed and blurred so it reads as texture. */
+/* No banner: the cover, zoomed a little and softened just enough to hide
+   the upscaling. */
 .show-row-art-cover {
   background-position: center 20%;
-  filter: blur(6px) saturate(1.1);
-  transform: scale(1.15);
+  filter: blur(1.5px) saturate(1.05);
+  transform: scale(1.06);
 }
 
 .show-row-art .show-row-header:hover .show-row-art-image {
@@ -1878,7 +1879,7 @@ select:focus {
 }
 
 .show-row-art .show-row-header:hover .show-row-art-cover {
-  transform: scale(1.2);
+  transform: scale(1.1);
 }
 
 .show-row-art-shade {
