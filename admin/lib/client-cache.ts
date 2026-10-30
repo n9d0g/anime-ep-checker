@@ -11,7 +11,8 @@ const PTW_CACHE_KEY = 'aec-admin-ptw-v1'
 const ON_HOLD_CACHE_KEY = 'aec-admin-on-hold-v1'
 const WATCHED_CACHE_KEY = 'aec-admin-watched-v1'
 const PTW_DETAILS_CACHE_KEY = 'aec-admin-ptw-details-v1'
-const ANILIST_CACHE_KEY = 'aec-admin-anilist-v1'
+// v2: v1 could hold misses recorded while every AniList lookup was failing.
+const ANILIST_CACHE_KEY = 'aec-admin-anilist-v2'
 
 /** What the Watching list caches from /api/bootstrap. */
 export interface BootstrapCache {

@@ -1,13 +1,12 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import type { AniListMedia } from '@/lib/anilist'
+import { fetchAniListMedia, type AniListMedia } from '@/lib/anilist'
 import {
   mergeAniListAnswers,
   missingMalIds,
   type AniListCache,
 } from '@/lib/anilist-cache'
-import { apiFetch } from '@/lib/api-fetch'
 import { cacheKeys, readJsonCache, writeJsonCache } from '@/lib/client-cache'
 
 const UPDATED_EVENT = 'aec:anilist-updated'
@@ -52,20 +51,16 @@ export function useAniListMedia(
     for (const id of missing) {
       inFlight.add(id)
     }
-    apiFetch<{ media?: Record<string, AniListMedia> }>('/api/anilist', {
-      method: 'POST',
-      json: { malIds: missing },
-      errorMessage: 'Failed to load AniList artwork',
-    })
-      .then((data) => {
+    fetchAniListMedia(missing)
+      .then(({ media, answered }) => {
+        // Only record shows AniList actually answered about; a failed
+        // request is asked again next time instead of cached as a miss.
+        if (answered.length === 0) {
+          return
+        }
         writeJsonCache(
           cacheKeys.anilist,
-          mergeAniListAnswers(
-            readCache(),
-            missing,
-            data.media ?? {},
-            Date.now()
-          )
+          mergeAniListAnswers(readCache(), answered, media, Date.now())
         )
         window.dispatchEvent(new Event(UPDATED_EVENT))
       })

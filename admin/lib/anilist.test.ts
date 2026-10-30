@@ -51,7 +51,8 @@ test('asks for 50 shows per request and maps banners, covers and producers', asy
     calls.map((batch) => batch.length),
     [50, 50, 20]
   )
-  assert.deepEqual(result[7], {
+  assert.equal(result.answered.length, 120)
+  assert.deepEqual(result.media[7], {
     bannerUrl: 'https://img/7',
     coverUrl: 'https://cover/7',
     producers: ['Aniplex', 'Dentsu'],
@@ -72,15 +73,17 @@ test('waits out a rate limit and retries', async () => {
   )
   const result = await fetchAniListMedia([1, 2])
   assert.equal(calls.length, 2)
-  assert.deepEqual(Object.keys(result), ['1', '2'])
+  assert.deepEqual(Object.keys(result.media), ['1', '2'])
 })
 
-test('a failing batch is skipped, the others still return', async () => {
+test('a failing batch is skipped and not counted as answered', async () => {
   const ids = Array.from({ length: 60 }, (_, index) => index + 1)
   fakeAniList((batch, call) =>
     call === 1 ? new Response('', { status: 500 }) : page(batch)
   )
   const result = await fetchAniListMedia(ids)
-  assert.equal(result[1], undefined)
-  assert.ok(result[51])
+  assert.equal(result.media[1], undefined)
+  assert.ok(result.media[51])
+  // Only the batch that came back counts as answered, so the rest is retried.
+  assert.deepEqual(result.answered, ids.slice(50))
 })
