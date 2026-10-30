@@ -84,6 +84,8 @@ export interface CheckOptions {
   fetchEpisode?: FetchEpisode
   dryRun?: boolean
   force?: boolean
+  /** Run due announcement checks (they fetch each show's official site). */
+  announcementChecks?: boolean
 }
 
 async function announceEpisode({
@@ -306,6 +308,7 @@ export async function checkShows({
   fetchEpisode = fetchLatestEpisode,
   dryRun = false,
   force = false,
+  announcementChecks = true,
 }: CheckOptions = {}): Promise<{
   stateChanged: boolean
   state: StateFile
@@ -574,25 +577,27 @@ export async function checkShows({
   }
 
   // Not on forced runs: the admin forces a check on every show edit, and
-  // each read is a GitHub Models request.
-  try {
-    const announcedResult = await syncAnnouncedBreaks({
-      shows,
-      state,
-      discord,
-      now,
-      dryRun,
-    })
-    if (announcedResult.changed) {
-      stateChangeReasons.push(...announcedResult.reasons)
-      stateChanged = true
+  // each read fetches the show's official site.
+  if (announcementChecks) {
+    try {
+      const announcedResult = await syncAnnouncedBreaks({
+        shows,
+        state,
+        discord,
+        now,
+        dryRun,
+      })
+      if (announcedResult.changed) {
+        stateChangeReasons.push(...announcedResult.reasons)
+        stateChanged = true
+      }
+    } catch (error) {
+      console.warn(
+        `Announced-break check failed: ${
+          error instanceof Error ? error.message : error
+        }`
+      )
     }
-  } catch (error) {
-    console.warn(
-      `Announced-break check failed: ${
-        error instanceof Error ? error.message : error
-      }`
-    )
   }
 
   if (!dryRun) {

@@ -126,6 +126,8 @@ async function setup(shows: Show[], state: StateFile) {
       discord: { webhookUrl: WEBHOOK_URL },
       calendar: {},
       force: true,
+      // Covered by announced-breaks.test.ts.
+      announcementChecks: false,
       ...options,
     })
   const savedState = async () =>

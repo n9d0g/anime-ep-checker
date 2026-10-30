@@ -81,7 +81,7 @@ export interface ShowState {
   announcedBreak?: AnnouncedBreak | null
   /** Last announcement check attempt; the next is scheduled from it. */
   announcementCheckedAt?: string | null
-  /** Last announcement check that got a reading from GitHub Models. */
+  /** Last announcement check that read every news source the show has. */
   announcementReadAt?: string | null
   googleCalendarEvents?: Record<
     string,
@@ -125,8 +125,6 @@ export interface StateFile {
   meta?: {
     netflixCookieAlertSentAt?: string | null
     disneyCookieAlertSentAt?: string | null
-    /** Set while GitHub Models refuses the token; cleared once it answers. */
-    githubModelsAlertSentAt?: string | null
     /** When the current MAL outage was first detected; null once it's back. */
     malDownSince?: string | null
     watchingDashboardMessageId?: string | null

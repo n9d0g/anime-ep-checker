@@ -1,22 +1,21 @@
 // Announced breaks: reads each due show's official news page and Anime News
-// Network's headlines with a GitHub Models model, saves what it finds as the
-// show's announced break and alerts Discord once per (episode, new date).
-// Nothing here moves a drop: only a confirmed break does.
+// Network's headlines by keyword, saves what it finds as the show's announced
+// break and alerts Discord once per (episode, new date). Nothing here moves
+// a drop: only a confirmed break does.
 import { fetchAnnNews, type AnnNewsItem } from './ann-feed.ts'
+import { findAnnBreak, findOfficialBreak } from './break-keywords.ts'
 import {
   hasDiscordConfig,
   sendAnnouncedBreakAlert,
-  sendGitHubModelsAlert,
   type DiscordConfig,
 } from './discord.ts'
-import {
-  createGitHubModelsClient,
-  type ChatMessage,
-  type CompleteJson,
-} from './github-models.ts'
 import { fetchOfficialNewsText } from './official-news.ts'
 import { isAnnouncementCheckDue } from '../shared/announced-break.ts'
-import { getNextDrop, parseEpisodeNumber } from '../shared/schedule.ts'
+import {
+  getBroadcastAt,
+  getNextDrop,
+  parseEpisodeNumber,
+} from '../shared/schedule.ts'
 import { getOfficialNewsUrl } from '../shared/shows.ts'
 import type {
   AnnouncedBreak,
@@ -25,126 +24,11 @@ import type {
   StateFile,
 } from '../shared/types.ts'
 
-/** What the model read: a postponement of `episode`, or none. */
+/** What the news says: a break of `episode`, or none. */
 export interface BreakReading {
   episode: number
   newDate: string | null
   sourceUrl: string | null
-}
-
-function formatJapanTime(date: Date): string {
-  const parts = new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'Asia/Tokyo',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    hourCycle: 'h23',
-  }).formatToParts(date)
-  const part = (type: string) =>
-    parts.find((entry) => entry.type === type)?.value
-  return `${part('year')}-${part('month')}-${part('day')} ${part('hour')}:${part('minute')} JST`
-}
-
-export function buildAnnouncementPrompt({
-  show,
-  episode,
-  expectedAt,
-  now,
-  pageUrl,
-  pageText,
-  annItems,
-}: {
-  show: Show
-  episode: number
-  expectedAt: Date
-  now: Date
-  pageUrl: string | null
-  pageText: string | null
-  annItems: AnnNewsItem[]
-}): ChatMessage[] {
-  const titles = [show.title, show.titleEnglish].filter(Boolean).join(' / ')
-  const headlines = annItems.length
-    ? annItems
-        .map(
-          (item) =>
-            `- [${item.publishedAt.slice(0, 10)}] ${item.title} (${item.url})`
-        )
-        .join('\n')
-    : '(none)'
-
-  return [
-    {
-      role: 'system',
-      content: [
-        'You read anime news to find broadcast postponements of one TV anime.',
-        'Reply with JSON only: {"delayed": boolean, "episode": number | null, "newDate": "YYYY-MM-DD" | null, "sourceUrl": string | null}.',
-        '- "delayed" is true only if the news says this show (this season; mind sequels and other seasons) will not broadcast its next new episode when expected: a production delay, a broadcast pause, or a recap/special airing in that slot.',
-        '- Ignore postponements of episodes that have already aired, news about other shows, and streaming-site or overseas-only schedule notes.',
-        '- "episode" is the first postponed episode number. "newDate" is its new broadcast date in Japan, or null if not announced yet.',
-        '- "sourceUrl" is the URL of the article that says so (the official page URL or a headline URL given below).',
-        '- If nothing qualifies, reply {"delayed": false, "episode": null, "newDate": null, "sourceUrl": null}.',
-      ].join('\n'),
-    },
-    {
-      role: 'user',
-      content: [
-        `Show: ${titles}`,
-        `Next new episode: ${episode}, expected to broadcast around ${formatJapanTime(expectedAt)}.`,
-        `Today: ${formatJapanTime(now)}.`,
-        '',
-        `Official site (${pageUrl ?? 'none'}):`,
-        pageText ?? '(unavailable)',
-        '',
-        'Anime News Network headlines, last 7 days:',
-        headlines,
-      ].join('\n'),
-    },
-  ]
-}
-
-function isIsoDate(value: unknown): value is string {
-  return (
-    typeof value === 'string' &&
-    /^\d{4}-\d{2}-\d{2}$/.test(value) &&
-    !Number.isNaN(Date.parse(`${value}T00:00:00Z`))
-  )
-}
-
-/**
- * The model's reply as a reading, or null when it found no postponement of
- * the next episode or later. A source URL it didn't get from us is dropped.
- */
-export function parseBreakReading(
-  json: unknown,
-  {
-    nextEpisode,
-    knownUrls,
-  }: { nextEpisode: number; knownUrls: ReadonlySet<string> }
-): BreakReading | null {
-  if (!json || typeof json !== 'object') {
-    return null
-  }
-  const reply = json as Record<string, unknown>
-  if (reply.delayed !== true) {
-    return null
-  }
-  const episode =
-    typeof reply.episode === 'number' && Number.isInteger(reply.episode)
-      ? reply.episode
-      : nextEpisode
-  if (episode < nextEpisode) {
-    return null
-  }
-  return {
-    episode,
-    newDate: isIsoDate(reply.newDate) ? reply.newDate : null,
-    sourceUrl:
-      typeof reply.sourceUrl === 'string' && knownUrls.has(reply.sourceUrl)
-        ? reply.sourceUrl
-        : null,
-  }
 }
 
 /**
@@ -195,14 +79,53 @@ function isAnnouncedBreakOver(showState: ShowState): boolean {
   )
 }
 
+/**
+ * What the show's news says about its next episode: the official page first
+ * (it can give a new date), then ANN headlines since the last drop.
+ */
+export function readBreakNews({
+  show,
+  showState,
+  episode,
+  expectedAt,
+  pageUrl,
+  pageText,
+  annItems,
+}: {
+  show: Show
+  showState: ShowState
+  episode: number
+  expectedAt: Date
+  pageUrl: string | null
+  pageText: string | null
+  annItems: AnnNewsItem[]
+}): BreakReading | null {
+  if (pageText) {
+    const official = findOfficialBreak(pageText, {
+      episode,
+      broadcastAt:
+        getBroadcastAt(showState.airingSchedule, episode) ?? expectedAt,
+    })
+    if (official) {
+      return { ...official, sourceUrl: pageUrl }
+    }
+  }
+
+  const droppedMs = Date.parse(showState.lastNotifiedAt)
+  const headline = findAnnBreak(annItems, {
+    titles: [show.title, show.titleEnglish ?? ''],
+    episode,
+    since: Number.isNaN(droppedMs) ? null : new Date(droppedMs),
+  })
+  return headline ? { episode, newDate: null, sourceUrl: headline.url } : null
+}
+
 export async function syncAnnouncedBreaks({
   shows,
   state,
   discord,
   now,
   dryRun,
-  token = process.env.GITHUB_TOKEN,
-  completeJson = token ? createGitHubModelsClient(token) : undefined,
   fetchNews = fetchAnnNews,
   fetchPage = fetchOfficialNewsText,
 }: {
@@ -211,8 +134,6 @@ export async function syncAnnouncedBreaks({
   discord: DiscordConfig
   now: Date
   dryRun: boolean
-  token?: string
-  completeJson?: CompleteJson
   fetchNews?: (now: Date) => Promise<AnnNewsItem[] | null>
   fetchPage?: (url: string) => Promise<string | null>
 }): Promise<{ changed: boolean; reasons: string[] }> {
@@ -232,12 +153,6 @@ export async function syncAnnouncedBreaks({
   if (due.length === 0) {
     return { changed: reasons.length > 0, reasons }
   }
-  if (!completeJson) {
-    console.log(
-      `GITHUB_TOKEN not set; skipping announced-break checks for ${due.length} show(s).`
-    )
-    return { changed: reasons.length > 0, reasons }
-  }
 
   // Retried at the next scheduled check whatever happens, never sooner.
   for (const show of due) {
@@ -245,7 +160,10 @@ export async function syncAnnouncedBreaks({
     reasons.push(`announcement check ${show.title || show.id}`)
   }
 
-  const annItems = (await fetchNews(now)) ?? []
+  const annItems = await fetchNews(now)
+  if (!annItems) {
+    warn('Could not read the ANN news feed.')
+  }
 
   for (const show of due) {
     const showState = state.shows[show.id]!
@@ -261,53 +179,22 @@ export async function syncAnnouncedBreaks({
 
     const pageUrl = getOfficialNewsUrl(show, showState.officialSiteUrl)
     const pageText = pageUrl ? await fetchPage(pageUrl) : null
-    if (!pageText && annItems.length === 0) {
-      warn(`No official news or ANN headlines to read for ${showName}.`)
-      continue
+    if (pageUrl && !pageText) {
+      warn(`Could not read the official news page for ${showName}: ${pageUrl}`)
+    }
+    // A check only counts as read when every source it has was read.
+    if (annItems && (!pageUrl || pageText)) {
+      showState.announcementReadAt = now.toISOString()
     }
 
-    const reply = await completeJson(
-      buildAnnouncementPrompt({
-        show,
-        episode: nextDrop.episode,
-        expectedAt: nextDrop.expectedAt!,
-        now,
-        pageUrl: pageText ? pageUrl : null,
-        pageText,
-        annItems,
-      })
-    )
-
-    if (!reply.ok) {
-      warn(`GitHub Models failed for ${showName}: ${reply.message}`)
-      if (reply.kind === 'auth') {
-        state.meta ??= {}
-        if (!state.meta.githubModelsAlertSentAt) {
-          if (!dryRun && hasDiscordConfig(discord)) {
-            await sendGitHubModelsAlert(discord, reply.message)
-          }
-          state.meta.githubModelsAlertSentAt = now.toISOString()
-          reasons.push('GitHub Models alert flag set')
-        }
-        // The token is refused for every show; don't spend the rest.
-        break
-      }
-      continue
-    }
-
-    showState.announcementReadAt = now.toISOString()
-    if (state.meta?.githubModelsAlertSentAt) {
-      state.meta.githubModelsAlertSentAt = null
-      reasons.push('cleared GitHub Models alert flag')
-    }
-
-    const knownUrls = new Set(annItems.map((item) => item.url))
-    if (pageUrl && pageText) {
-      knownUrls.add(pageUrl)
-    }
-    const reading = parseBreakReading(reply.json, {
-      nextEpisode: nextDrop.episode,
-      knownUrls,
+    const reading = readBreakNews({
+      show,
+      showState,
+      episode: nextDrop.episode,
+      expectedAt: nextDrop.expectedAt!,
+      pageUrl,
+      pageText,
+      annItems: annItems ?? [],
     })
     const { announcedBreak, alert } = applyBreakReading(
       showState.announcedBreak,

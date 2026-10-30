@@ -11,7 +11,6 @@ import {
   sendAnnouncedBreakAlert,
   sendDisneyAuthAlert,
   sendEpisodeAlert,
-  sendGitHubModelsAlert,
   sendMalRateLimitAlert,
   sendMalScoreAlert,
   sendMalStatusAlert,
@@ -277,11 +276,6 @@ for (const [path, discord] of Object.entries(CONFIGS)) {
       sourceUrl: null,
     })
     check(`announced break alert, TBA (${path})`)
-  })
-
-  test(`GitHub Models alert (${path})`, async () => {
-    await sendGitHubModelsAlert(discord, 'HTTP 403')
-    check(`GitHub Models alert (${path})`)
   })
 
   test(`waiting alert, bare (${path})`, async () => {

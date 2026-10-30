@@ -737,21 +737,3 @@ export async function sendAnnouncedBreakAlert({
       : undefined,
   })
 }
-
-export async function sendGitHubModelsAlert(
-  discord: DiscordConfig,
-  message: string
-): Promise<void> {
-  const payload = {
-    embeds: [
-      {
-        title: "Announcement checks can't reach GitHub Models",
-        description: `GitHub Models refused the workflow's token (${message}). Announced-break checks are paused until it answers again.\n\nMake sure the check job in \`check-episodes.yml\` has \`permissions: models: read\` and passes \`GITHUB_TOKEN\` to the check step, and that GitHub Models is enabled for the account.`,
-        color: 0xe67e22,
-        footer: discordFooter(),
-      },
-    ],
-  }
-
-  await deliverDiscordMessage(discord, payload)
-}
