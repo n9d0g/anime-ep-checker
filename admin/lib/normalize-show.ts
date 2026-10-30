@@ -82,7 +82,11 @@ export function normalizeShow(show: ShowFormValues): Show {
     ) {
       throw new Error(`Invalid schedule break for ${title}`)
     }
-    return { afterEpisode, weeks }
+    return {
+      afterEpisode,
+      weeks,
+      ...(entry.onTopOfAniList ? { onTopOfAniList: true } : {}),
+    }
   })
 
   const malIdRaw = show.malId.trim()

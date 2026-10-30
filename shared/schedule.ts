@@ -36,20 +36,6 @@ export function isEpisodeInSchedule(
   return true
 }
 
-/** Weeks of breaks that come before `episodeNumber`. */
-function getBreakWeeksBefore(
-  schedule: ShowSchedule,
-  episodeNumber: number
-): number {
-  let weeks = 0
-  for (const entry of schedule.breaks ?? []) {
-    if (episodeNumber > entry.afterEpisode) {
-      weeks += entry.weeks
-    }
-  }
-  return weeks
-}
-
 /** startAt for the premiere batch, then one week per episode (no breaks). */
 function getWeeklyDropMs(
   startMs: number,
@@ -78,6 +64,46 @@ export function getBroadcastAt(
 ): Date | null {
   const ms = getAiringMs(airingSchedule, episodeNumber)
   return ms === null ? null : new Date(ms)
+}
+
+/**
+ * The extra weeks AniList's broadcast schedule shows between an episode and
+ * the next (0 for a normal week, or when AniList lacks either time).
+ */
+export function getAniListGapWeeks(
+  airingSchedule: AiringSchedule | null | undefined,
+  afterEpisode: number
+): number {
+  const before = getAiringMs(airingSchedule, afterEpisode)
+  const after = getAiringMs(airingSchedule, afterEpisode + 1)
+  if (before === null || after === null) {
+    return 0
+  }
+  return Math.max(0, Math.round((after - before) / MS_PER_WEEK) - 1)
+}
+
+/**
+ * Weeks that manual breaks before the episode add to its base drop time. The
+ * base already follows AniList's gaps, so a break only adds what AniList's
+ * gap after the same episode doesn't cover, unless it's `onTopOfAniList`.
+ */
+function getBreakWeeksBefore(
+  schedule: ShowSchedule,
+  episodeNumber: number,
+  airingSchedule: AiringSchedule | null | undefined
+): number {
+  let weeks = 0
+  for (const entry of schedule.breaks ?? []) {
+    if (episodeNumber > entry.afterEpisode) {
+      weeks += entry.onTopOfAniList
+        ? entry.weeks
+        : Math.max(
+            0,
+            entry.weeks - getAniListGapWeeks(airingSchedule, entry.afterEpisode)
+          )
+    }
+  }
+  return weeks
 }
 
 /**
@@ -114,8 +140,8 @@ function getBaseDropMs(
 /**
  * When an episode should drop, or null outside the schedule or with an
  * invalid start time: the base time (AniList-derived when the show has an
- * airing schedule, otherwise the weekly formula) shifted by the weeks of
- * every manual break before the episode.
+ * airing schedule, otherwise the weekly formula) shifted by the manual
+ * breaks before the episode that AniList's gaps don't already cover.
  */
 export function getExpectedDropAt(
   schedule: ShowSchedule,
@@ -140,7 +166,8 @@ export function getExpectedDropAt(
     airingSchedule
   )
   return new Date(
-    baseMs + getBreakWeeksBefore(schedule, episodeNumber) * MS_PER_WEEK
+    baseMs +
+      getBreakWeeksBefore(schedule, episodeNumber, airingSchedule) * MS_PER_WEEK
   )
 }
 

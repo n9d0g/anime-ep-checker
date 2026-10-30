@@ -14,8 +14,10 @@ import {
 } from '@/lib/client-cache'
 import { getAnnouncedBreakSuggestion } from '@/lib/announced-break'
 import { describeBreak, getBreakAfterEpisode } from '@/lib/schedule-break'
+import { getAniListGapWeeks } from '@shared/schedule'
 import { searchIndex } from '@/lib/search-index-store'
 import { showToForm } from '@/lib/show-form'
+import { formatEasternTime } from '@/lib/time'
 import type { Show } from '@shared/types'
 import type { ShowFormValues, ShowStateSummary } from '@/lib/types'
 import {
@@ -514,15 +516,24 @@ export function useWatchingShows(options: {
     }
 
     const label = show.title || show.id
+    const summary = showStates[show.id]
     const afterEpisode = getBreakAfterEpisode(
       formScheduleToSchedule(show),
-      showStates[show.id]?.lastEpisodeNumber
+      summary?.lastEpisodeNumber
     )
-    if (
-      !window.confirm(
-        `Add a ${weeks}-week break after episode ${afterEpisode} of "${label}"? Later drops shift and Discord/Calendar events rebuild.`
-      )
-    ) {
+    // A break AniList already shows needs no manual one; adding one anyway
+    // means an extra break on top of it.
+    const aniListGap = getAniListGapWeeks(summary?.airingSchedule, afterEpisode)
+    const nextBroadcast =
+      summary?.airingSchedule?.episodes[String(afterEpisode + 1)]
+    const message = aniListGap
+      ? `AniList already shows a ${aniListGap}-week gap after episode ${afterEpisode} of "${label}"${
+          nextBroadcast
+            ? ` (episode ${afterEpisode + 1} broadcasts ${formatEasternTime(nextBroadcast)})`
+            : ''
+        }, and drops already follow it. Add another ${weeks}-week break on top of it?`
+      : `Add a ${weeks}-week break after episode ${afterEpisode} of "${label}"? Later drops shift and Discord/Calendar events rebuild.`
+    if (!window.confirm(message)) {
       return
     }
 
@@ -534,7 +545,7 @@ export function useWatchingShows(options: {
         showsVersionBefore?: string | null
       }>('/api/shows/break', {
         method: 'POST',
-        json: { showId: show.id, weeks },
+        json: { showId: show.id, weeks, onTopOfAniList: aniListGap > 0 },
         errorMessage: 'Failed to add break',
       })
 

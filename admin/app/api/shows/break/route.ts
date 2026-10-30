@@ -21,6 +21,8 @@ export async function POST(request: Request) {
       const body = (await request.json()) as {
         showId?: string
         weeks?: number
+        /** Confirmed past the warning that AniList already shows a gap. */
+        onTopOfAniList?: boolean
       }
       const showId = body.showId?.trim()
       if (!showId) {
@@ -48,7 +50,8 @@ export async function POST(request: Request) {
           show.schedule.breaks = addScheduleBreak(
             show.schedule.breaks,
             afterEpisode,
-            weeks
+            weeks,
+            body.onTopOfAniList === true
           )
 
           if (showState) {
