@@ -17,6 +17,7 @@ function toSummaryMap(state: StateFile): Record<string, ShowStateSummary> {
       watchedEpisode: null,
       airingSchedule: showState.airingSchedule ?? null,
       officialSiteUrl: showState.officialSiteUrl,
+      announcedBreak: showState.announcedBreak ?? null,
     }
   }
 

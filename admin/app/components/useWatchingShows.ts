@@ -12,7 +12,8 @@ import {
   writeJsonCache,
   type BootstrapCache,
 } from '@/lib/client-cache'
-import { getBreakAfterEpisode } from '@/lib/schedule-break'
+import { getAnnouncedBreakSuggestion } from '@/lib/announced-break'
+import { describeBreak, getBreakAfterEpisode } from '@/lib/schedule-break'
 import { searchIndex } from '@/lib/search-index-store'
 import { showToForm } from '@/lib/show-form'
 import type { Show } from '@shared/types'
@@ -566,6 +567,111 @@ export function useWatchingShows(options: {
     }
   }
 
+  /** Updates the show's state summary on screen and in the cache. */
+  function setLocalAnnouncedBreak(
+    showId: string,
+    update: (summary: ShowStateSummary) => ShowStateSummary
+  ) {
+    setShowStates((current) =>
+      current[showId]
+        ? { ...current, [showId]: update(current[showId]) }
+        : current
+    )
+    updateJsonCache<BootstrapCache>(cacheKeys.bootstrap, (cached) =>
+      cached.showStates?.[showId]
+        ? {
+            ...cached,
+            showStates: {
+              ...cached.showStates,
+              [showId]: update(cached.showStates[showId]),
+            },
+          }
+        : cached
+    )
+  }
+
+  async function confirmAnnouncedBreak(show: ShowFormValues) {
+    const summary = showStates[show.id]
+    const suggestion = getAnnouncedBreakSuggestion(
+      formScheduleToSchedule(show),
+      summary?.announcedBreak,
+      summary?.airingSchedule
+    )
+    if (!show.id || !suggestion) {
+      return
+    }
+    const label = show.title || show.id
+    if (
+      !window.confirm(
+        `Add a ${describeBreak(suggestion)} of "${label}"? Later drops shift and Discord/Calendar events rebuild.`
+      )
+    ) {
+      return
+    }
+
+    try {
+      const data = await apiFetch<{
+        workflowTriggered?: boolean
+        show?: Show
+        showsVersion?: string | null
+        showsVersionBefore?: string | null
+      }>('/api/shows/announced-break', {
+        method: 'POST',
+        json: { showId: show.id, action: 'confirm' },
+        errorMessage: 'Failed to add break',
+      })
+
+      if (data.show) {
+        const updated = showToForm(data.show)
+        setRows((current) => replaceShowInRows(current, updated))
+        setSavedRows((current) =>
+          current ? replaceShowInRows(current, updated) : current
+        )
+        const updatedShow = data.show
+        updateJsonCache<BootstrapCache>(cacheKeys.bootstrap, (cached) =>
+          replaceBootstrapShow(cached, updatedShow)
+        )
+      }
+      if (data.showsVersionBefore === showsVersionRef.current) {
+        showsVersionRef.current = data.showsVersion ?? null
+      }
+      setLocalAnnouncedBreak(show.id, (current) => ({
+        ...current,
+        announcedBreak: null,
+      }))
+
+      toast.success(
+        data.workflowTriggered
+          ? 'Break added. Forced check started to rebuild events.'
+          : 'Break added. Run Actions → Check with force to rebuild events.'
+      )
+    } catch (error) {
+      toast.error(apiErrorMessage(error, 'Failed to add break'))
+    }
+  }
+
+  async function dismissAnnouncedBreak(show: ShowFormValues) {
+    if (!show.id) {
+      return
+    }
+    try {
+      await apiFetch('/api/shows/announced-break', {
+        method: 'POST',
+        json: { showId: show.id, action: 'dismiss' },
+        errorMessage: 'Failed to dismiss announced break',
+      })
+      setLocalAnnouncedBreak(show.id, (current) => ({
+        ...current,
+        announcedBreak: current.announcedBreak
+          ? { ...current.announcedBreak, status: 'dismissed' }
+          : null,
+      }))
+      toast.success('Announced break dismissed.')
+    } catch (error) {
+      toast.error(apiErrorMessage(error, 'Failed to dismiss announced break'))
+    }
+  }
+
   return {
     rows,
     displayRows,
@@ -584,5 +690,7 @@ export function useWatchingShows(options: {
     saveShows,
     addBreak,
     removeBreak,
+    confirmAnnouncedBreak,
+    dismissAnnouncedBreak,
   }
 }
