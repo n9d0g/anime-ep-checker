@@ -27,11 +27,12 @@
   --provider-cr: #f47521;
   --provider-nf: #e50914;
   --provider-disney: #0051c3;
-  --container-width: 680px;
+  --container-width: 760px;
   --radius: 10px;
   --radius-sm: 6px;
   --sticky-bar-h: 4rem;
   --top-header-h: 3.25rem;
+  --tab-bar-h: 3.75rem;
 
   font-family:
     var(--font-inter), 'Segoe UI', system-ui, -apple-system, sans-serif;
@@ -102,7 +103,11 @@ h3 {
 .container {
   width: min(var(--container-width), calc(100% - 2.5rem));
   margin: 0 auto;
-  padding: 1.75rem 0 calc(var(--sticky-bar-h) + 2rem);
+  padding: 1.75rem 0
+    calc(
+      var(--sticky-bar-h) + var(--tab-bar-h) + env(safe-area-inset-bottom) +
+        2rem
+    );
   overflow-x: clip;
 }
 
@@ -880,13 +885,13 @@ select:focus {
   position: fixed;
   left: 0;
   right: 0;
-  bottom: 0;
+  /* Sits on top of the list tab bar on phones. */
+  bottom: calc(var(--tab-bar-h) + env(safe-area-inset-bottom));
   z-index: 20;
   border-top: 1px solid var(--border);
   background: rgba(17, 17, 17, 0.92);
   backdrop-filter: blur(10px);
-  padding: 0.75rem max(1rem, env(safe-area-inset-right))
-    calc(0.75rem + env(safe-area-inset-bottom))
+  padding: 0.75rem max(1rem, env(safe-area-inset-right)) 0.75rem
     max(1rem, env(safe-area-inset-left));
 }
 
@@ -1221,27 +1226,6 @@ select:focus {
   gap: 0.5rem;
 }
 
-.setup-link {
-  margin: 0.25rem 0 0;
-  font-size: 0.78rem;
-  color: var(--hint);
-}
-
-.setup-link a {
-  color: var(--muted);
-  text-decoration: none;
-}
-
-.setup-link a:hover {
-  color: var(--text-secondary);
-  text-decoration: underline;
-}
-
-.setup-link-sep {
-  margin: 0 0.35rem;
-  color: var(--border);
-}
-
 .setup-steps {
   margin: 0;
   padding-left: 1.2rem;
@@ -1350,8 +1334,8 @@ select:focus {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
-  height: 2rem;
+  width: 2.5rem;
+  height: 2.5rem;
   padding: 0;
   border: 1px solid var(--border);
   border-radius: 0.45rem;
@@ -1366,8 +1350,8 @@ select:focus {
 }
 
 .header-icon-btn svg {
-  width: 1rem;
-  height: 1rem;
+  width: 1.35rem;
+  height: 1.35rem;
 }
 
 .search-overlay-backdrop {
@@ -1485,4 +1469,135 @@ select:focus {
   color: var(--text);
   font-size: 0.88rem;
   line-height: 1.4;
+}
+
+/* ── List tabs: in the header on wide screens, a bottom bar on phones ── */
+
+.list-tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.list-tab:hover {
+  color: var(--text);
+}
+
+.list-tab-label-short {
+  display: none;
+}
+
+.list-tab-count {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.list-tabs-top {
+  display: none;
+  align-items: center;
+  gap: 0.2rem;
+  margin: 0 auto 0 0.75rem;
+}
+
+.list-tabs-top .list-tab {
+  padding: 0.4rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.list-tabs-top .list-tab.active {
+  color: var(--text);
+  background: var(--accent-soft);
+}
+
+.list-tabs-bottom {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  height: calc(var(--tab-bar-h) + env(safe-area-inset-bottom));
+  padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom)
+    env(safe-area-inset-left);
+  border-top: 1px solid var(--border);
+  background: rgba(17, 17, 17, 0.94);
+  backdrop-filter: blur(12px);
+}
+
+.list-tabs-bottom .list-tab {
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.2rem;
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+.list-tabs-bottom .list-tab.active {
+  color: var(--accent);
+}
+
+.list-tab-icon {
+  display: inline-flex;
+}
+
+.list-tab-icon svg {
+  width: 1.3rem;
+  height: 1.3rem;
+}
+
+.list-tabs-bottom .list-tab-count {
+  position: absolute;
+  top: 0.45rem;
+  left: calc(50% + 0.8rem);
+  font-size: 0.6rem;
+}
+
+@media (max-width: 360px) {
+  .list-tabs-bottom .list-tab-label {
+    display: none;
+  }
+
+  .list-tabs-bottom .list-tab-label-short {
+    display: inline;
+  }
+}
+
+@media (min-width: 900px) {
+  :root {
+    --tab-bar-h: 0px;
+  }
+
+  .list-tabs-top {
+    display: flex;
+  }
+
+  .list-tabs-bottom {
+    display: none;
+  }
+
+  .sticky-bar {
+    bottom: 0;
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
+  }
+}
+
+.btn-icon {
+  flex: none;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border-radius: 999px;
+  font-size: 1.3rem;
+  font-weight: 400;
+  line-height: 1;
 }

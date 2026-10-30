@@ -22,11 +22,22 @@ export default function AdminPage() {
   return (
     <>
       <main className="container">
-        <div className="page-heading">
-          <h1>Watching</h1>
-          <p className="subtitle">
-            The shows the checker is tracking. Times are Eastern (ET).
-          </p>
+        <div className="page-heading page-heading-row">
+          <div>
+            <h1>Watching</h1>
+            <p className="subtitle">
+              The shows the checker is tracking. Times are Eastern (ET).
+            </p>
+          </div>
+          <button
+            className="btn btn-secondary btn-icon"
+            type="button"
+            aria-label="Add show"
+            title="Add show"
+            onClick={shows.addShow}
+          >
+            +
+          </button>
         </div>
 
         {shows.malDown ? (
@@ -40,7 +51,7 @@ export default function AdminPage() {
           {shows.loading ? (
             <ShowListSkeleton />
           ) : shows.rows.length === 0 ? (
-            <div className="panel empty">No shows yet. Add one below.</div>
+            <div className="panel empty">No shows yet. Add one with +.</div>
           ) : (
             <div className="panel show-list">
               {shows.displayRows.map((displayRow) => {
@@ -83,12 +94,6 @@ export default function AdminPage() {
               })}
             </div>
           )}
-
-          <p className="setup-link">
-            <a href="/mal">MAL setup</a>
-            <span className="setup-link-sep">·</span>
-            One-time MAL OAuth for CMS sync
-          </p>
         </section>
       </main>
 
@@ -98,13 +103,6 @@ export default function AdminPage() {
             {shows.rows.length} show{shows.rows.length === 1 ? '' : 's'}
           </p>
           <div className="sticky-actions">
-            <button
-              className="btn btn-secondary"
-              type="button"
-              onClick={shows.addShow}
-            >
-              Add show
-            </button>
             <button
               className="btn"
               type="button"
