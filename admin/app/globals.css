@@ -530,15 +530,18 @@ h3 {
   border-radius: 50%;
 }
 
-.provider-dot.provider-cr {
+.provider-dot.provider-cr,
+.provider-bar.provider-cr {
   background: var(--provider-cr);
 }
 
-.provider-dot.provider-nf {
+.provider-dot.provider-nf,
+.provider-bar.provider-nf {
   background: var(--provider-nf);
 }
 
-.provider-dot.provider-disney {
+.provider-dot.provider-disney,
+.provider-bar.provider-disney {
   background: var(--provider-disney);
 }
 
@@ -1842,4 +1845,81 @@ select:focus {
 .anime-facts dd {
   margin: 0;
   color: var(--text);
+}
+
+/* ── Banner rows: the show's AniList banner behind the title ── */
+
+.show-row-art .show-row-header {
+  position: relative;
+  isolation: isolate;
+  min-height: 88px;
+  overflow: hidden;
+  background: #0b0b0b;
+}
+
+.show-row-art-image {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-size: cover;
+  background-position: center 30%;
+  transition: transform 0.3s ease;
+}
+
+/* No banner: the cover, zoomed and blurred so it reads as texture. */
+.show-row-art-cover {
+  background-position: center 20%;
+  filter: blur(6px) saturate(1.1);
+  transform: scale(1.15);
+}
+
+.show-row-art .show-row-header:hover .show-row-art-image {
+  transform: scale(1.04);
+}
+
+.show-row-art .show-row-header:hover .show-row-art-cover {
+  transform: scale(1.2);
+}
+
+.show-row-art-shade {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    90deg,
+    rgba(10, 10, 10, 0.94) 0%,
+    rgba(10, 10, 10, 0.8) 45%,
+    rgba(10, 10, 10, 0.5) 100%
+  );
+}
+
+.show-row-art .show-row-title {
+  font-size: 0.98rem;
+  font-weight: 700;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.8);
+}
+
+.show-row-art .show-row-subtitle,
+.show-row-art .show-row-next-episode,
+.show-row-art .show-row-trailing {
+  color: rgba(255, 255, 255, 0.8);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
+}
+
+.show-row-art .chip {
+  text-shadow: none;
+}
+
+.provider-bar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .show-row-art-image {
+    transition: none;
+  }
 }

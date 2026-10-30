@@ -12,6 +12,7 @@ import { useEpisodeProgress } from '@/app/components/useEpisodeProgress'
 import { useHashScrollHighlight } from '@/app/components/useHashScrollHighlight'
 import { useWatchingShows } from '@/app/components/useWatchingShows'
 import { useToast } from '@/app/components/Toast'
+import { useAniListMedia } from '@/app/components/useAniListMedia'
 import { apiErrorMessage } from '@/lib/api-fetch'
 import {
   cacheKeys,
@@ -59,6 +60,9 @@ export default function AdminPage() {
   const progress = useEpisodeProgress(shows)
   episodeSavePendingRef.current = progress.hasPendingSave
   const toast = useToast()
+  const aniList = useAniListMedia(
+    shows.savedShows.map((show) => Number(show.malId)).filter(Boolean)
+  )
 
   // Inbox items put off with "Not now"; read after mount (browser storage).
   const [dismissedKeys, setDismissedKeys] = useState<ReadonlySet<string>>(
@@ -205,6 +209,7 @@ export default function AdminPage() {
                 <ShowRow
                   key={displayRow.row.key}
                   displayRow={displayRow}
+                  art={aniList(displayRow.row.values.malId)}
                   onOpen={() => setOpenSheet({ rowKey: displayRow.row.key })}
                 />
               ))}

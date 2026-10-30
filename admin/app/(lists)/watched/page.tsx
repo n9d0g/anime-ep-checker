@@ -11,6 +11,7 @@ import { ListRow } from '@/app/components/ListRow'
 import { PtwListSkeleton } from '@/app/components/ListSkeleton'
 import { SheetSection } from '@/app/components/Sheet'
 import { useToast } from '@/app/components/Toast'
+import { useAniListMedia } from '@/app/components/useAniListMedia'
 import { useCachedResource } from '@/app/components/useCachedResource'
 import { useHashScrollHighlight } from '@/app/components/useHashScrollHighlight'
 import { apiFetch } from '@/lib/api-fetch'
@@ -71,9 +72,12 @@ function formatStats(entries: WatchedEntry[]): string {
 // A Watched show in its sheet: your list entry, then everything MAL has.
 function WatchedSheet({
   entry,
+  producers,
   onClose,
 }: {
   entry: WatchedEntry
+  /** From AniList; empty until it answers. */
+  producers: string[]
   onClose: () => void
 }) {
   const finished = formatMalDate(entry.finishedAt)
@@ -98,6 +102,7 @@ function WatchedSheet({
     ['Season', formatSeason(entry.season)],
     ['Aired', formatAirDates(entry.startDate ?? null, entry.endDate ?? null)],
     ['Studio', entry.studios.join(', ') || null],
+    ['Producers', producers.join(', ') || null],
     ['Source', formatSource(entry.source ?? null)],
     ['Rating', formatRating(entry.rating ?? null)],
     ['Genres', entry.genres.join(', ') || null],
@@ -145,9 +150,11 @@ function WatchedSheet({
 
 function WatchedRow({
   entry,
+  bannerUrl,
   onOpen,
 }: {
   entry: WatchedEntry
+  bannerUrl: string | null | undefined
   onOpen: () => void
 }) {
   const date = entry.finishedAt
@@ -160,6 +167,8 @@ function WatchedRow({
       id={`show-${entry.malId}`}
       title={entry.title}
       titleEnglish={entry.titleEnglish}
+      bannerUrl={bannerUrl}
+      coverUrl={entry.coverUrl}
       meta={
         <span className="show-row-next-drop">
           {[date ? `Finished ${date}` : null, formatEpisodes(entry)]
@@ -195,6 +204,7 @@ export default function WatchedPage() {
   const [openId, setOpenId] = useState<number | null>(null)
   const entries = list?.entries ?? []
   const openEntry = entries.find((entry) => entry.malId === openId)
+  const aniList = useAniListMedia(entries.map((entry) => entry.malId))
   // Open the show a search result links to.
   useHashScrollHighlight((elementId) => {
     const malId = malIdFromElementId(elementId)
@@ -285,6 +295,7 @@ export default function WatchedPage() {
                     <WatchedRow
                       key={entry.malId}
                       entry={entry}
+                      bannerUrl={aniList(entry.malId)?.bannerUrl}
                       onOpen={() => setOpenId(entry.malId)}
                     />
                   ))}
@@ -295,6 +306,7 @@ export default function WatchedPage() {
                     <WatchedRow
                       key={entry.malId}
                       entry={entry}
+                      bannerUrl={aniList(entry.malId)?.bannerUrl}
                       onOpen={() => setOpenId(entry.malId)}
                     />
                   ))}
@@ -310,7 +322,11 @@ export default function WatchedPage() {
       ) : null}
 
       {openEntry ? (
-        <WatchedSheet entry={openEntry} onClose={() => setOpenId(null)} />
+        <WatchedSheet
+          entry={openEntry}
+          producers={aniList(openEntry.malId)?.producers ?? []}
+          onClose={() => setOpenId(null)}
+        />
       ) : null}
     </main>
   )

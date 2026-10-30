@@ -19,6 +19,7 @@ import { matchSearchQuery } from '@/lib/search'
 import { searchIndex } from '@/lib/search-index-store'
 import { PtwListSkeleton } from '@/app/components/ListSkeleton'
 import { useToast } from '@/app/components/Toast'
+import { useAniListMedia } from '@/app/components/useAniListMedia'
 import {
   cleanSynopsis,
   formatAirDates,
@@ -254,6 +255,7 @@ function PtwSheet({
   entry,
   kind,
   details,
+  producers,
   detailsLoading,
   onMove,
   onClose,
@@ -261,6 +263,8 @@ function PtwSheet({
   entry: PlanToWatchSnapshotEntry
   kind: PtwSectionKind
   details: PtwDetails | undefined
+  /** From AniList; empty until it answers. */
+  producers: string[]
   detailsLoading: boolean
   onMove: () => void
   onClose: () => void
@@ -311,6 +315,7 @@ function PtwSheet({
     ['Source', details ? formatSource(details.source) : null],
     ['Rating', details ? formatRating(details.rating) : null],
     ['Studio', details?.studios.join(', ') || null],
+    ['Producers', producers.join(', ') || null],
     ['Genres', details?.genres.join(', ') || null],
     ['Added', added ? `~${added} (last MAL update)` : null],
   ]
@@ -396,6 +401,7 @@ export default function PlanToWatchPage() {
   )
 
   const allEntries = useMemo(() => snapshot?.entries ?? [], [snapshot])
+  const aniList = useAniListMedia(allEntries.map((entry) => entry.malId))
   const filtering = query.trim() !== ''
   const sections = useMemo(() => {
     const entries = filtering
@@ -561,6 +567,8 @@ export default function PlanToWatchPage() {
                         id={`show-${entry.malId}`}
                         title={entry.title}
                         titleEnglish={entry.titleEnglish}
+                        bannerUrl={aniList(entry.malId)?.bannerUrl}
+                        coverUrl={entry.coverUrl}
                         meta={
                           <span className="show-row-next-drop">
                             {formatTrailingMeta(entry, section.kind)}
@@ -595,6 +603,7 @@ export default function PlanToWatchPage() {
           entry={open.entry}
           kind={open.kind}
           details={detailsById.get(open.entry.malId)}
+          producers={aniList(open.entry.malId)?.producers ?? []}
           detailsLoading={detailsLoading}
           onMove={() => setWatchEntry(open.entry)}
           onClose={() => setOpenId(null)}
