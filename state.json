@@ -73,39 +73,39 @@
       "googleCalendarEvents": {
         "5": {
           "eventId": "mjskr7r7m6sudsh6vpcs1l9p38",
-          "startAt": "2026-11-15T08:30:00.000Z"
+          "startAt": "2026-11-08T08:30:00.000Z"
         },
         "6": {
           "eventId": "46fk7p9p6uovka0f0vgnfe0su8",
-          "startAt": "2026-11-22T08:30:00.000Z"
+          "startAt": "2026-11-15T08:30:00.000Z"
         },
         "7": {
           "eventId": "ougd2i2rg80cf7l82ihdag8ks4",
-          "startAt": "2026-11-29T08:30:00.000Z"
+          "startAt": "2026-11-22T08:30:00.000Z"
         },
         "8": {
           "eventId": "kenpnq9j5r1ho8t5luagb1t21g",
-          "startAt": "2026-12-06T08:30:00.000Z"
+          "startAt": "2026-11-29T08:30:00.000Z"
         },
         "9": {
           "eventId": "fhtr1n7uakjsbo3k7ujklo6o70",
-          "startAt": "2026-12-13T08:30:00.000Z"
+          "startAt": "2026-12-06T08:30:00.000Z"
         },
         "10": {
           "eventId": "54p8ev2bcqh3241gctvvi01nco",
-          "startAt": "2026-12-20T08:30:00.000Z"
+          "startAt": "2026-12-13T08:30:00.000Z"
         },
         "11": {
           "eventId": "i95ngqnprhttmfhq4kcbk9es14",
-          "startAt": "2026-12-27T08:30:00.000Z"
+          "startAt": "2026-12-20T08:30:00.000Z"
         },
         "12": {
           "eventId": "s1so7ebf6f4g8r9ql7ni003scc",
-          "startAt": "2027-01-03T08:30:00.000Z"
+          "startAt": "2026-12-27T08:30:00.000Z"
         }
       },
       "airingSchedule": {
-        "fetchedAt": "2026-10-29T19:15:45.419Z",
+        "fetchedAt": "2026-10-30T19:20:41.217Z",
         "episodes": {
           "1": "2026-10-04T07:30:00.000Z",
           "2": "2026-10-11T07:30:00.000Z",
@@ -121,7 +121,8 @@
           "12": "2026-12-27T07:30:00.000Z"
         }
       },
-      "lastSnapshotEpisode": 4
+      "lastSnapshotEpisode": 4,
+      "officialSiteUrl": "https://aonohako-anime.com/"
     }
   },
   "meta": {
@@ -141,7 +142,7 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-10-29T19:15:45.419Z",
+    "planToWatchCheckedAt": "2026-10-30T19:20:41.217Z",
     "planToWatch": {
       "updatedAt": "2026-10-24T18:50:44.796Z",
       "entries": [
@@ -735,7 +736,7 @@
     },
     "watchingDashboardHashes": {
       "kusuriya-no-hitorigoto-3rd-season": "e0c6e148724af38dc757d8cbff071cb5d5db06c2",
-      "ao-no-hako-season-2": "9696767f6465a5d3724e1d711fa165385c5beef4"
+      "ao-no-hako-season-2": "e63eeb7f2b8ee6c8a34597144088aba54d8170c4"
     },
     "onHold": {
       "updatedAt": "2026-09-28T21:46:38.715Z",
@@ -2090,7 +2091,7 @@
     },
     "watchingDashboardScores": {
       "kusuriya-no-hitorigoto-3rd-season": "8.64",
-      "ao-no-hako-season-2": "8.15"
+      "ao-no-hako-season-2": "8.14"
     }
   }
 }
