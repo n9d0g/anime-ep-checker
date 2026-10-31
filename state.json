@@ -740,7 +740,7 @@
       "ao-no-hako-season-2": "e63eeb7f2b8ee6c8a34597144088aba54d8170c4"
     },
     "onHold": {
-      "updatedAt": "2026-09-28T21:46:38.715Z",
+      "updatedAt": "2026-10-31T06:15:14.105Z",
       "entries": [
         {
           "show": {
@@ -760,7 +760,11 @@
             "redditSearchTitle": "one_piece",
             "titleEnglish": "One Piece"
           },
-          "heldAt": "2026-09-28T21:46:38.715Z"
+          "heldAt": "2026-09-28T21:46:38.715Z",
+          "awaitingReturn": {
+            "officialNewsUrl": "https://one-piece.com/news/index.html?category=anime",
+            "markedAt": "2026-10-31T06:15:14.105Z"
+          }
         }
       ]
     },
@@ -2093,6 +2097,7 @@
     "watchingDashboardScores": {
       "kusuriya-no-hitorigoto-3rd-season": "8.64",
       "ao-no-hako-season-2": "8.14"
-    }
+    },
+    "returnCheckedAt": null
   }
 }
