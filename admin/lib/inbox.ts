@@ -1,6 +1,7 @@
 import { getOfficialNewsUrl } from '@shared/shows'
 import type { AnnouncedBreak, PlanToWatchSnapshotEntry } from '@shared/types'
 import { getAnnouncedBreakSuggestion } from './announced-break'
+import { formatReturn, type ReturningShow } from './awaiting-return'
 import type { ShowFormValues, ShowStateSummary } from './types'
 import { formScheduleToSchedule, usesMalProgress } from './watching'
 
@@ -26,11 +27,21 @@ export type InboxItem =
       title: string
       entry: PlanToWatchSnapshotEntry
     }
+  | {
+      kind: 'return_announced'
+      key: string
+      showId: string
+      title: string
+      /** "Returns July 2027" and the like. */
+      label: string
+      sourceUrl: string | null
+    }
 
 export function buildInbox({
   shows,
   showStates,
   airingPlanToWatch,
+  returningShows = [],
   dismissedKeys,
 }: {
   /** Saved Watching shows (a new, unsaved show has nothing to resolve yet). */
@@ -38,6 +49,8 @@ export function buildInbox({
   showStates: Record<string, ShowStateSummary>
   /** Plan to watch shows the checker alerted as having started airing. */
   airingPlanToWatch: PlanToWatchSnapshotEntry[]
+  /** On hold shows whose return the checker announced. */
+  returningShows?: ReturningShow[]
   /** Items put off with "Not now". */
   dismissedKeys: ReadonlySet<string>
 }): InboxItem[] {
@@ -109,6 +122,23 @@ export function buildInbox({
       key,
       title: entry.titleEnglish || entry.title,
       entry,
+    })
+  }
+
+  for (const { entry, announcement } of returningShows) {
+    // Keyed by the date, so "Not now" lasts only until the next new date.
+    const when = announcement.returnsOn ?? announcement.returnsIn ?? 'tba'
+    const key = `return:${entry.show.id}:${when}`
+    if (dismissedKeys.has(key)) {
+      continue
+    }
+    items.push({
+      kind: 'return_announced',
+      key,
+      showId: entry.show.id,
+      title: entry.show.titleEnglish || entry.show.title || entry.show.id,
+      label: formatReturn(announcement),
+      sourceUrl: announcement.sourceUrl,
     })
   }
 

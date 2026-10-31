@@ -233,6 +233,51 @@ test('gate runs when the plan-to-watch check is due', async () => {
   assert.equal(result.redditCheck, false)
 })
 
+test('gate runs once a day while a show is awaiting return', async () => {
+  const now = '2026-10-22T12:00:00.000Z'
+  const onHold = (awaitingReturn: boolean) => ({
+    updatedAt: now,
+    entries: [
+      {
+        show: makeShow(),
+        heldAt: now,
+        awaitingReturn: awaitingReturn
+          ? { officialNewsUrl: null, markedAt: now }
+          : null,
+      },
+    ],
+  })
+  const hoursAgo = (hours: number) =>
+    new Date(Date.parse(now) - hours * 60 * 60 * 1000).toISOString()
+
+  // On hold but only paused: never checked.
+  const paused = makeState(now, {}, { onHold: onHold(false) })
+  assert.equal((await decide(now, [], paused)).shouldCheck, false)
+
+  const never = makeState(now, {}, { onHold: onHold(true) })
+  assert.equal((await decide(now, [], never)).shouldCheck, true)
+
+  const recent = makeState(
+    now,
+    {},
+    {
+      onHold: onHold(true),
+      returnCheckedAt: hoursAgo(23),
+    }
+  )
+  assert.equal((await decide(now, [], recent)).shouldCheck, false)
+
+  const dayOld = makeState(
+    now,
+    {},
+    {
+      onHold: onHold(true),
+      returnCheckedAt: hoursAgo(24),
+    }
+  )
+  assert.equal((await decide(now, [], dayOld)).shouldCheck, true)
+})
+
 test('gate runs the related anime check once on Sundays', async () => {
   const now = '2026-10-25T16:00:00.000Z'
   const redditUserFeeds = {

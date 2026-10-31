@@ -60,7 +60,7 @@ function japanDayMs(date: Date): number {
   )
 }
 
-const MONTHS = [
+export const MONTHS = [
   'january',
   'february',
   'march',
@@ -174,7 +174,7 @@ export function findOfficialBreak(
 }
 
 /** Lower case, letters and digits only, season words and a leading article dropped. */
-function normalizeTitle(text: string): string {
+export function normalizeTitle(text: string): string {
   return ` ${text
     .normalize('NFKC')
     .toLowerCase()

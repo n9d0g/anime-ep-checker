@@ -8,6 +8,7 @@ import {
   discordTimestamp,
   formatAnnouncedBreak,
   formatMalScoreLabel,
+  formatReturnAnnouncement,
   type DiscordActionRow,
 } from './discord-format.ts'
 import type {
@@ -22,6 +23,7 @@ import type { EpisodeSnapshot, TimingStatus } from './types.ts'
 import type {
   AnnouncedBreak,
   PlanToWatchAlertReason,
+  ReturnAnnouncement,
   Show,
 } from '../shared/types.ts'
 
@@ -735,5 +737,43 @@ export async function sendAnnouncedBreakAlert({
     components: sourceUrl
       ? discordLinkButtonRow([discordLinkButton('Source', sourceUrl)])
       : undefined,
+  })
+}
+
+const ADMIN_ON_HOLD_URL = 'https://anime-ep-checker.dev/on-hold'
+
+export async function sendReturnAnnouncementAlert({
+  discord,
+  show,
+  announcement,
+}: {
+  discord: DiscordConfig
+  show: Show
+  announcement: ReturnAnnouncement
+}): Promise<void> {
+  const showTitle = show.title || show.id
+  const headline = formatReturnAnnouncement(announcement)
+  const onHoldUrl = `${ADMIN_ON_HOLD_URL}#show-${encodeURIComponent(show.id)}`
+
+  const payload = {
+    content: `▶️ **${showTitle}** — ${headline}`,
+    embeds: [
+      {
+        title: `▶️ ${showTitle} — ${headline}`,
+        description: `Read from the news. It stays [On hold](${onHoldUrl}) until you move it back to Watching.`,
+        ...(announcement.sourceUrl ? { url: announcement.sourceUrl } : {}),
+        color: 0x2ecc71,
+        footer: discordFooter(),
+      },
+    ],
+  }
+
+  await deliverDiscordMessage(discord, payload, {
+    components: discordLinkButtonRow([
+      ...(announcement.sourceUrl
+        ? [discordLinkButton('Source', announcement.sourceUrl)]
+        : []),
+      discordLinkButton('On hold', onHoldUrl),
+    ]),
   })
 }

@@ -1,4 +1,10 @@
-import type { AiringSchedule, Show, ShowSchedule, StateFile } from './types.ts'
+import type {
+  AiringSchedule,
+  OnHoldSnapshotEntry,
+  Show,
+  ShowSchedule,
+  StateFile,
+} from './types.ts'
 import { EASTERN_TZ } from './time-zone.ts'
 
 const MS_PER_WEEK = 7 * 24 * 60 * 60 * 1000
@@ -8,6 +14,7 @@ const LATE_SLOT_INTERVAL_MS = 30 * 60 * 1000
 const CRON_INTERVAL_MS = 5 * 60 * 1000
 const WAITING_GRACE_MS = 15 * 60 * 1000
 const PTW_CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000
+const RETURN_CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000
 
 function getPremiereBatchSize(schedule: ShowSchedule): number {
   return schedule.premiereBatchSize > 0 ? schedule.premiereBatchSize : 1
@@ -309,6 +316,30 @@ export function needsPlanToWatchCheck(
   }
 
   return now.getTime() - checkedMs >= PTW_CHECK_INTERVAL_MS
+}
+
+/** On hold shows checked for news of their return. */
+export function getAwaitingReturn(state: StateFile): OnHoldSnapshotEntry[] {
+  return (state.meta?.onHold?.entries ?? []).filter((entry) =>
+    Boolean(entry.awaitingReturn)
+  )
+}
+
+/** Daily, while any show is awaiting return. */
+export function needsReturnCheck(
+  state: StateFile,
+  now: Date = new Date()
+): boolean {
+  if (getAwaitingReturn(state).length === 0) {
+    return false
+  }
+
+  const checkedMs = Date.parse(state.meta?.returnCheckedAt ?? '')
+  if (Number.isNaN(checkedMs)) {
+    return true
+  }
+
+  return now.getTime() - checkedMs >= RETURN_CHECK_INTERVAL_MS
 }
 
 export function hasOrphanedShows(shows: Show[], state: StateFile): boolean {

@@ -5,6 +5,7 @@ import type {
   Show,
 } from '@shared/types'
 import type { ShowStateSummary } from './types'
+import type { ReturningShow } from './awaiting-return'
 
 const BOOTSTRAP_CACHE_KEY = 'aec-admin-bootstrap-v1'
 const PTW_CACHE_KEY = 'aec-admin-ptw-v1'
@@ -20,6 +21,8 @@ export interface BootstrapCache {
   showStates: Record<string, ShowStateSummary>
   /** Plan to watch shows that started airing (for the inbox). */
   airingPlanToWatch?: PlanToWatchSnapshotEntry[]
+  /** On hold shows whose return was announced (for the inbox). */
+  returningShows?: ReturningShow[]
 }
 
 export function readJsonCache<T>(key: string): T | null {

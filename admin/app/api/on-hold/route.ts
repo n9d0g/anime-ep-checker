@@ -4,9 +4,10 @@ import {
   tryDispatchCheckWorkflow,
   withErrorResponse,
 } from '@/lib/api-route'
+import { setAwaitingReturn } from '@/lib/awaiting-return'
 import { getStateFile, updateRepoFiles } from '@/lib/github'
 import { setMalWatchingStatus } from '@/lib/mal'
-import type { Show, StateFile } from '@shared/types'
+import type { OnHoldSnapshotEntry, Show, StateFile } from '@shared/types'
 
 export const dynamic = 'force-dynamic'
 
@@ -16,6 +17,7 @@ export async function GET() {
     const state = content as StateFile
     return NextResponse.json({
       onHold: state.meta?.onHold ?? null,
+      returnAnnouncements: state.meta?.returnAnnouncements ?? {},
     })
   })
 }
@@ -82,5 +84,53 @@ export async function POST(request: Request) {
       malUpdated,
       workflowTriggered,
     })
+  })
+}
+
+interface AwaitingReturnBody {
+  showId?: string
+  awaitingReturn?: boolean
+  officialNewsUrl?: string | null
+}
+
+// Marks or unmarks a show awaiting return. Marking runs a check, so its news
+// is read straight away rather than at the next daily check.
+export async function PATCH(request: Request) {
+  return withErrorResponse({ status: 400 }, async () => {
+    const body = (await request.json()) as AwaitingReturnBody
+    const showId = body.showId?.trim()
+    if (!showId) {
+      throw new Error('showId is required')
+    }
+    if (typeof body.awaitingReturn !== 'boolean') {
+      throw new Error('awaitingReturn must be true or false')
+    }
+    const awaiting = body.awaitingReturn
+
+    let entry: OnHoldSnapshotEntry | undefined
+    await updateRepoFiles(
+      ['state.json'],
+      ({ 'state.json': state }) => {
+        const next = setAwaitingReturn(
+          state,
+          showId,
+          { awaiting, officialNewsUrl: body.officialNewsUrl },
+          new Date()
+        )
+        entry = next.meta?.onHold?.entries.find(
+          (item) => item.show.id === showId
+        )
+        return { 'state.json': next }
+      },
+      awaiting
+        ? `chore: mark ${showId} awaiting return`
+        : `chore: stop checking ${showId} for its return`
+    )
+
+    const workflowTriggered = awaiting
+      ? await tryDispatchCheckWorkflow(false)
+      : false
+
+    return NextResponse.json({ ok: true, entry, workflowTriggered })
   })
 }

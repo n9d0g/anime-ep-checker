@@ -13,6 +13,7 @@ import {
   type BootstrapCache,
 } from '@/lib/client-cache'
 import { getAnnouncedBreakSuggestion } from '@/lib/announced-break'
+import type { ReturningShow } from '@/lib/awaiting-return'
 import { describeBreak, getBreakAfterEpisode } from '@/lib/schedule-break'
 import { getAniListGapWeeks } from '@shared/schedule'
 import { searchIndex } from '@/lib/search-index-store'
@@ -100,6 +101,7 @@ export function useWatchingShows(options: {
   const [airingPlanToWatch, setAiringPlanToWatch] = useState<
     PlanToWatchSnapshotEntry[]
   >([])
+  const [returningShows, setReturningShows] = useState<ReturningShow[]>([])
   const [loading, setLoading] = useState(true)
   // The row whose Setup is being saved, if any.
   const [savingKey, setSavingKey] = useState<string | null>(null)
@@ -295,10 +297,12 @@ export function useWatchingShows(options: {
         showsVersion?: string | null
         showStates?: ShowStates
         airingPlanToWatch?: PlanToWatchSnapshotEntry[]
+        returningShows?: ReturningShow[]
       }>('/api/bootstrap', { errorMessage: 'Failed to load shows' })
 
       const loadedShows = (bootstrapData.shows ?? []).map(showToForm)
       setAiringPlanToWatch(bootstrapData.airingPlanToWatch ?? [])
+      setReturningShows(bootstrapData.returningShows ?? [])
 
       if (silent && (savingRef.current || hasUnsavedLocalEdits())) {
         setShowStates((current) =>
@@ -322,6 +326,7 @@ export function useWatchingShows(options: {
       writeJsonCache<BootstrapCache>(cacheKeys.bootstrap, {
         shows: bootstrapData.shows ?? [],
         airingPlanToWatch: bootstrapData.airingPlanToWatch ?? [],
+        returningShows: bootstrapData.returningShows ?? [],
         showStates: withKnownWatched(
           bootstrapData.showStates ?? {},
           cachedStates
@@ -365,6 +370,7 @@ export function useWatchingShows(options: {
       setLoadedShows(cached.shows.map(showToForm))
       setShowStates(cached.showStates ?? {})
       setAiringPlanToWatch(cached.airingPlanToWatch ?? [])
+      setReturningShows(cached.returningShows ?? [])
       setLoading(false)
     }
 
@@ -803,6 +809,7 @@ export function useWatchingShows(options: {
     savedShows,
     airingPlanToWatch,
     setAiringPlanToWatch,
+    returningShows,
     reload: () => loadRemoteData({ silent: true }),
     setShowStates,
     malDown,

@@ -11,9 +11,14 @@ import { PtwListSkeleton } from '@/app/components/ListSkeleton'
 import { useToast } from '@/app/components/Toast'
 import { useAniListMedia } from '@/app/components/useAniListMedia'
 import { apiErrorMessage, apiFetch } from '@/lib/api-fetch'
+import { formatReturn } from '@/lib/awaiting-return'
 import { cacheKeys, withoutOnHoldEntry } from '@/lib/client-cache'
 import { searchIndex } from '@/lib/search-index-store'
-import type { OnHoldSnapshot, OnHoldSnapshotEntry } from '@shared/types'
+import type {
+  OnHoldSnapshot,
+  OnHoldSnapshotEntry,
+  ReturnAnnouncement,
+} from '@shared/types'
 import {
   formatEasternDateTime,
   formatShortDate,
@@ -32,18 +37,30 @@ const PROVIDER_LABELS = {
 // up with.
 function OnHoldSheet({
   entry,
+  announcement,
   coverUrl,
   restoring,
+  savingReturn,
   onRestore,
+  onSetAwaitingReturn,
   onClose,
 }: {
   entry: OnHoldSnapshotEntry
+  announcement: ReturnAnnouncement | null
   coverUrl: string | null
   restoring: boolean
+  savingReturn: boolean
   onRestore: () => void
+  onSetAwaitingReturn: (
+    awaiting: boolean,
+    officialNewsUrl: string
+  ) => Promise<void>
   onClose: () => void
 }) {
   const { show } = entry
+  const awaiting = Boolean(entry.awaitingReturn)
+  const savedUrl = entry.awaitingReturn?.officialNewsUrl ?? ''
+  const [newsUrl, setNewsUrl] = useState(savedUrl)
   const provider = show.provider ?? 'crunchyroll'
   const { schedule } = show
   return (
@@ -51,7 +68,7 @@ function OnHoldSheet({
       title={show.title || show.id}
       titleEnglish={show.titleEnglish}
       coverUrl={coverUrl}
-      meta={formatHeldMeta(entry)}
+      meta={formatHeldMeta(entry, announcement)}
       onClose={onClose}
     >
       <SheetSection title="Manage">
@@ -76,6 +93,72 @@ function OnHoldSheet({
           >
             Watch on {PROVIDER_LABELS[provider]}
           </a>
+        </div>
+      </SheetSection>
+      <SheetSection title="Return">
+        <p className="hint">
+          {awaiting
+            ? announcement
+              ? `${formatReturn(announcement)}.`
+              : 'Awaiting return: its news is read daily, and Discord is alerted when a return is announced.'
+            : 'Mark it awaiting return when the show itself has stopped airing: its news is read daily for when it comes back.'}
+          {announcement?.sourceUrl ? (
+            <>
+              {' '}
+              <a
+                href={announcement.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Source
+              </a>
+            </>
+          ) : null}
+        </p>
+        <div className="field">
+          <label htmlFor={`return-news-${show.id}`}>Official news URL</label>
+          <input
+            id={`return-news-${show.id}`}
+            type="url"
+            value={newsUrl}
+            onChange={(event) => setNewsUrl(event.target.value)}
+            placeholder="https://example-anime.jp/news/"
+          />
+          <p className="hint">
+            Optional. Anime News Network is always read; set the show&apos;s TV
+            anime news page to read it too.
+          </p>
+        </div>
+        <div className="actions sheet-manage">
+          {awaiting ? (
+            <>
+              <button
+                className="btn"
+                type="button"
+                disabled={savingReturn || newsUrl.trim() === savedUrl}
+                onClick={() => void onSetAwaitingReturn(true, newsUrl)}
+              >
+                {savingReturn ? 'Saving…' : 'Save URL'}
+              </button>
+              <button
+                className="btn btn-secondary"
+                type="button"
+                disabled={savingReturn}
+                onClick={() => void onSetAwaitingReturn(false, newsUrl)}
+              >
+                Stop checking
+              </button>
+            </>
+          ) : (
+            <button
+              className="btn"
+              type="button"
+              disabled={savingReturn}
+              onClick={() => void onSetAwaitingReturn(true, newsUrl)}
+            >
+              {savingReturn ? 'Saving…' : 'Mark awaiting return'}
+            </button>
+          )}
         </div>
       </SheetSection>
       {show.malId ? (
@@ -111,16 +194,32 @@ function OnHoldSheet({
   )
 }
 
-async function fetchOnHold(): Promise<OnHoldSnapshot | null> {
-  const data = await apiFetch<{ onHold?: OnHoldSnapshot | null }>(
-    '/api/on-hold',
-    { errorMessage: 'Failed to load on-hold list' }
-  )
-  return data.onHold ?? null
+// The snapshot plus what the checker last read about each return; a cached
+// copy from before return checks has none.
+type OnHoldView = OnHoldSnapshot & {
+  returnAnnouncements?: Record<string, ReturnAnnouncement>
 }
 
-function formatHeldMeta(entry: OnHoldSnapshotEntry): string {
+async function fetchOnHold(): Promise<OnHoldView | null> {
+  const data = await apiFetch<{
+    onHold?: OnHoldSnapshot | null
+    returnAnnouncements?: Record<string, ReturnAnnouncement>
+  }>('/api/on-hold', { errorMessage: 'Failed to load on-hold list' })
+  return data.onHold
+    ? { ...data.onHold, returnAnnouncements: data.returnAnnouncements ?? {} }
+    : null
+}
+
+function formatHeldMeta(
+  entry: OnHoldSnapshotEntry,
+  announcement: ReturnAnnouncement | null = null
+): string {
   const parts: string[] = []
+  if (announcement && entry.awaitingReturn) {
+    parts.push(formatReturn(announcement))
+  } else if (entry.awaitingReturn) {
+    parts.push('Awaiting return')
+  }
   const held = formatShortDate(entry.heldAt)
   if (held) {
     parts.push(`On hold since ${held}`)
@@ -146,11 +245,51 @@ export default function OnHoldPage() {
   const onHold = useCachedResource({
     cacheKey: cacheKeys.onHold,
     fetch: fetchOnHold,
-    isUsable: (cached: OnHoldSnapshot) => Boolean(cached.entries?.length),
+    isUsable: (cached: OnHoldView) => Boolean(cached.entries?.length),
   })
   const snapshot = onHold.data
   const loading = onHold.loading
   const [restoringId, setRestoringId] = useState<string | null>(null)
+  const [savingReturnId, setSavingReturnId] = useState<string | null>(null)
+  const announcementFor = (entry: OnHoldSnapshotEntry) =>
+    snapshot?.returnAnnouncements?.[entry.show.id] ?? null
+
+  async function setAwaitingReturn(
+    entry: OnHoldSnapshotEntry,
+    awaiting: boolean,
+    officialNewsUrl: string
+  ) {
+    const showId = entry.show.id
+    setSavingReturnId(showId)
+    try {
+      const data = await apiFetch<{ entry?: OnHoldSnapshotEntry }>(
+        '/api/on-hold',
+        {
+          method: 'PATCH',
+          json: { showId, awaitingReturn: awaiting, officialNewsUrl },
+          errorMessage: 'Failed to save',
+        }
+      )
+      const saved = data.entry
+      if (saved) {
+        onHold.update((current) => ({
+          ...current,
+          entries: current.entries.map((item) =>
+            item.show.id === showId ? saved : item
+          ),
+        }))
+      }
+      toast.success(
+        awaiting
+          ? 'Awaiting return. Its news is being read now, then daily.'
+          : 'No longer checked for its return.'
+      )
+    } catch (error) {
+      toast.error(apiErrorMessage(error, 'Failed to save'))
+    } finally {
+      setSavingReturnId(null)
+    }
+  }
 
   async function restoreToWatching(entry: OnHoldSnapshotEntry) {
     const showId = entry.show.id
@@ -206,8 +345,9 @@ export default function OnHoldPage() {
       <div className="page-heading">
         <h1>On hold</h1>
         <p className="subtitle">
-          Shows taken out of Watching. They aren’t checked and send no alerts
-          until you move them back.
+          Shows taken out of Watching. They aren’t checked for episodes until
+          you move them back; shows awaiting return are checked daily for news
+          of when they come back.
         </p>
       </div>
 
@@ -233,7 +373,7 @@ export default function OnHoldPage() {
               coverUrl={aniList(entry.show.malId)?.coverUrl}
               meta={
                 <span className="show-row-next-drop">
-                  {formatHeldMeta(entry)}
+                  {formatHeldMeta(entry, announcementFor(entry))}
                 </span>
               }
               onOpen={() => setOpenId(entry.show.id)}
@@ -250,9 +390,15 @@ export default function OnHoldPage() {
 
       {openEntry ? (
         <OnHoldSheet
+          key={openEntry.show.id}
           entry={openEntry}
+          announcement={announcementFor(openEntry)}
           coverUrl={aniList(openEntry.show.malId)?.coverUrl ?? null}
           restoring={restoringId === openEntry.show.id}
+          savingReturn={savingReturnId === openEntry.show.id}
+          onSetAwaitingReturn={(awaiting, url) =>
+            setAwaitingReturn(openEntry, awaiting, url)
+          }
           onRestore={() => void restoreToWatching(openEntry)}
           onClose={() => setOpenId(null)}
         />

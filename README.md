@@ -71,6 +71,15 @@ The checker also reads each show's official news for an **announced break** (a s
 - **Alert:** one Discord message per (episode, new date). A changed date alerts again. Drop times, Calendar and Discord events don't move until you add the break.
 - **Failures:** an unreadable official page or ANN feed only adds a warning to the Actions run; the check is retried at the next scheduled time.
 
+### Return announcements
+
+An **On hold** show whose broadcast itself is suspended (not one you simply paused) can be marked **Awaiting return** in its On hold sheet. The checker then reads its news for a **return announcement**:
+
+- **When:** once a day while any show is awaiting return, and straight away after you mark one.
+- **Sources:** the last 7 days of ANN headlines, plus the **Official news URL** you set when marking it (for One Piece, `https://one-piece.com/news/index.html?category=anime`). AniList is only used to turn a month or season the news already gave into an exact date: it fills placeholder dates through a hiatus, so it never alerts on its own.
+- **Reader:** a return word (放送再開, 配信再開, 再開決定, 再始動, returns, resumes, back on air…) and an anime word, with films, live-action, Netflix, games, stage, merch, collabs and events left out. On the official page the anime word may be the category line under the headline; an ANN headline must also name the show.
+- **Alert:** one Discord message per new date, from TBA to a month or season to an exact date to a moved date; vaguer news after a dated one stays silent. It also shows in the Watching inbox. Nothing moves until you move the show back to Watching, which ends the checks.
+
 GitHub’s built-in `schedule` on `check-episodes.yml` is kept as a backup but is often throttled to ~hourly on free/public repos. Use [Reliable polling](#reliable-polling) for actual 5-minute cadence during drop windows.
 
 ### Reliable polling

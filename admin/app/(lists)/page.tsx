@@ -75,9 +75,16 @@ export default function AdminPage() {
         shows: shows.savedShows,
         showStates: shows.showStates,
         airingPlanToWatch: shows.airingPlanToWatch,
+        returningShows: shows.returningShows,
         dismissedKeys,
       }),
-    [shows.savedShows, shows.showStates, shows.airingPlanToWatch, dismissedKeys]
+    [
+      shows.savedShows,
+      shows.showStates,
+      shows.airingPlanToWatch,
+      shows.returningShows,
+      dismissedKeys,
+    ]
   )
   useEffect(() => {
     inboxCount.set(shows.loading ? null : inboxItems.length)

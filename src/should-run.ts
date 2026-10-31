@@ -19,6 +19,7 @@ import {
   hasOrphanedShows,
   needsPlanToWatchCheck,
   needsRelatedAnimeCheck,
+  needsReturnCheck,
   type DropWindowMode,
 } from '../shared/schedule.ts'
 import type { Show, StateFile } from '../shared/types.ts'
@@ -144,6 +145,11 @@ export async function decideGate({
     reasons.push('Related anime check is due (weekly, Sundays).')
   }
 
+  const returnCheck = needsReturnCheck(state, now)
+  if (returnCheck) {
+    reasons.push('Return check is due for shows awaiting return (24h cadence).')
+  }
+
   const announcementCheck = shows.some((show) =>
     isAnnouncementCheckDue(show, state.shows[show.id], now)
   )
@@ -166,6 +172,7 @@ export async function decideGate({
       dropWindowModes.size > 0 ||
       needsPtwCheck ||
       needsRelatedCheck ||
+      returnCheck ||
       announcementCheck ||
       hasOrphans ||
       redditCheck,
@@ -211,7 +218,7 @@ async function main(): Promise<void> {
     }
   } else {
     console.log(
-      'No shows in their drop window, plan-to-watch/related/announcement checks not due, and no new Reddit posts; skipping full check.'
+      'No shows in their drop window, plan-to-watch/related/return/announcement checks not due, and no new Reddit posts; skipping full check.'
     )
   }
 }

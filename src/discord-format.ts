@@ -55,6 +55,26 @@ export function formatAnnouncedBreak(
   return `Episode ${episode} postponed (announced): ${dateLabel}.`
 }
 
+/** "Returns Fri, Jul 2 (JST) with episode N." / "Returns July 2027." / "Return announced, date TBA." */
+export function formatReturnAnnouncement({
+  returnsOn,
+  returnsIn,
+  episode,
+}: {
+  returnsOn: string | null
+  returnsIn: string | null
+  episode: number | null
+}): string {
+  const withEpisode = episode ? ` with episode ${episode}` : ''
+  if (returnsOn) {
+    return `Returns ${formatJapanDate(returnsOn)}${withEpisode}.`
+  }
+  if (returnsIn) {
+    return `Returns ${returnsIn}${withEpisode}.`
+  }
+  return 'Return announced, date TBA.'
+}
+
 const FOOTER_TEXT = 'Anime Episode Checker'
 
 /** Embed footer naming the checker, optionally with a section suffix. */

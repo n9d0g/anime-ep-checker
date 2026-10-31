@@ -11,8 +11,12 @@ The shows the checker is tracking: each one is checked for its next drop and ale
 _Avoid_: Tracked shows
 
 **On hold**:
-Shows taken out of Watching for now. They aren't checked and send no alerts until they're restored to Watching.
+Shows taken out of Watching for now. They aren't checked for drops and send no drop alerts until they're restored to Watching; only those awaiting return are checked, and only for a return announcement.
 _Avoid_: Paused, tracked
+
+**Awaiting return**:
+An On hold show whose broadcast itself is suspended (not one you simply paused), checked for news of when it comes back. You mark it by hand.
+_Avoid_: Hiatus, on break
 
 **Plan to watch**:
 Shows on MyAnimeList's plan-to-watch list, not yet started.
@@ -71,3 +75,7 @@ _Avoid_: Late alert
 **Announcement check**:
 A read of a show's official news and Anime News Network for an announced break: in the day after each drop, the 3 days before the next drop, and while that drop is late.
 _Avoid_: News check, delay check
+
+**Return announcement**:
+News that a show awaiting return is coming back, possibly with only a rough time ("July 2027") and later with an exact date. It alerts once per new date and changes nothing until you restore the show to Watching.
+_Avoid_: Return date (unless the date is exact), resume notice
