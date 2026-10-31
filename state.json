@@ -143,9 +143,9 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-10-31T06:17:08.480Z",
+    "planToWatchCheckedAt": "2026-10-31T06:18:57.006Z",
     "planToWatch": {
-      "updatedAt": "2026-10-31T06:17:08.480Z",
+      "updatedAt": "2026-10-31T06:18:57.006Z",
       "entries": [
         {
           "malId": 59675,
@@ -535,7 +535,7 @@
             "dayOfWeek": "monday",
             "startTime": "00:00"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1415/102477l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1415/102477l.jpg",
           "numEpisodes": 13
         },
         {
@@ -547,19 +547,6 @@
           "broadcast": null,
           "coverUrl": "https://cdn.myanimelist.net/images/anime/1775/158856l.jpg",
           "numEpisodes": 1
-        },
-        {
-          "malId": 60146,
-          "title": "Saikyou no Ousama, Nidome no Jinsei wa Nani wo Suru?",
-          "titleEnglish": "The Beginning After the End",
-          "status": "finished_airing",
-          "startDate": "2025-04-02",
-          "broadcast": {
-            "dayOfWeek": "wednesday",
-            "startTime": "23:30"
-          },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1712/148299l.jpg",
-          "numEpisodes": 12
         },
         {
           "malId": 63139,
@@ -624,7 +611,7 @@
           "status": "not_yet_aired",
           "startDate": "2027-07",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1803/154473l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1803/154473l.jpg",
           "numEpisodes": null
         },
         {
