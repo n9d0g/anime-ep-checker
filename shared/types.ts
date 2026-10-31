@@ -118,6 +118,26 @@ export interface PlanToWatchSnapshot {
 export interface OnHoldSnapshotEntry {
   show: Show
   heldAt: string
+  /** Set when the show's broadcast is suspended: checked for its return. */
+  awaitingReturn?: AwaitingReturn | null
+}
+
+export interface AwaitingReturn {
+  /** The show's official news page, read alongside ANN; null for ANN only. */
+  officialNewsUrl: string | null
+  markedAt: string
+}
+
+/** What the news last said about a show awaiting return. */
+export interface ReturnAnnouncement {
+  /** The Japanese broadcast date it returns (YYYY-MM-DD), once exact. */
+  returnsOn: string | null
+  /** A rough time ("July 2027", "Summer 2027") until there's an exact date. */
+  returnsIn: string | null
+  /** The episode it returns with, when the news names one. */
+  episode: number | null
+  sourceUrl: string | null
+  announcedAt: string
 }
 
 export interface OnHoldSnapshot {
@@ -146,6 +166,10 @@ export interface StateFile {
     /** Completed MAL ID -> related MAL IDs already seen (baseline + alerted). */
     relatedAnimeSeen?: Record<string, number[]>
     onHold?: OnHoldSnapshot
+    /** Last daily check of the shows awaiting return. */
+    returnCheckedAt?: string | null
+    /** Show ID -> the last return announcement alerted. */
+    returnAnnouncements?: Record<string, ReturnAnnouncement>
     redditUserFeeds?: Record<
       string,
       {

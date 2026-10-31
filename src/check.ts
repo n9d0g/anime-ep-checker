@@ -34,6 +34,7 @@ import {
 import { syncRedditUserFeeds } from './reddit-feeds.ts'
 import { findAnimeDiscussionUrl } from './reddit.ts'
 import { syncRelatedAnimeAlerts } from './related-anime.ts'
+import { syncReturnAnnouncements } from './return-announcements.ts'
 import {
   decideShow,
   planShowLookup,
@@ -45,6 +46,7 @@ import {
   hasOrphanedShows,
   needsPlanToWatchCheck,
   needsRelatedAnimeCheck,
+  needsReturnCheck,
 } from '../shared/schedule.ts'
 import { normalizeShowProvider, providerLabel } from '../shared/shows.ts'
 import type { EpisodeSnapshot } from './types.ts'
@@ -523,6 +525,29 @@ export async function checkShows({
     } catch (error) {
       console.warn(
         `Plan-to-watch sync failed: ${
+          error instanceof Error ? error.message : error
+        }`
+      )
+    }
+  }
+
+  // Daily only, even on forced runs: marking a show awaiting return clears
+  // the last check, so the next run reads its news straight away.
+  if (needsReturnCheck(state, now)) {
+    try {
+      const returnResult = await syncReturnAnnouncements({
+        state,
+        discord,
+        now,
+        dryRun,
+      })
+      if (returnResult.changed) {
+        stateChangeReasons.push(...returnResult.reasons)
+        stateChanged = true
+      }
+    } catch (error) {
+      console.warn(
+        `Return announcement check failed: ${
           error instanceof Error ? error.message : error
         }`
       )

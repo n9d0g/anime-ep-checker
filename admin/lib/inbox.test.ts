@@ -160,3 +160,60 @@ test('a Plan to watch show that has since finished airing drops out', () => {
     []
   )
 })
+
+test('an announced return shows until put off, and again for a new date', () => {
+  const onePiece = {
+    entry: {
+      show: {
+        id: 'one-piece',
+        title: 'One Piece',
+        provider: 'crunchyroll' as const,
+        schedule: {
+          mode: 'ongoing' as const,
+          startAt: '2026-07-12T16:00:00.000Z',
+          startEpisode: 1169,
+          episodeCount: null,
+          premiereBatchSize: 1,
+        },
+      },
+      heldAt: '2026-09-28T21:46:38.715Z',
+      awaitingReturn: { officialNewsUrl: null, markedAt: '' },
+    },
+    announcement: {
+      returnsOn: null,
+      returnsIn: 'July 2027',
+      episode: null,
+      sourceUrl: 'https://www.animenewsnetwork.com/news/1',
+      announcedAt: '',
+    },
+  }
+  const inbox = (dismissed: string[], returning = [onePiece]) =>
+    buildInbox({
+      shows: [],
+      showStates: {},
+      airingPlanToWatch: [],
+      returningShows: returning,
+      dismissedKeys: new Set(dismissed),
+    })
+
+  assert.deepEqual(inbox([]), [
+    {
+      kind: 'return_announced',
+      key: 'return:one-piece:July 2027',
+      showId: 'one-piece',
+      title: 'One Piece',
+      label: 'Returns July 2027',
+      sourceUrl: 'https://www.animenewsnetwork.com/news/1',
+    },
+  ])
+  assert.deepEqual(inbox(['return:one-piece:July 2027']), [])
+
+  const dated = {
+    ...onePiece,
+    announcement: { ...onePiece.announcement, returnsOn: '2027-07-04' },
+  }
+  assert.equal(
+    inbox(['return:one-piece:July 2027'], [dated])[0]?.key,
+    'return:one-piece:2027-07-04'
+  )
+})

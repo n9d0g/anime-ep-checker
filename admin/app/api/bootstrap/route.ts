@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { withErrorResponse } from '@/lib/api-route'
+import { getReturningShows } from '@/lib/awaiting-return'
 import { getRepoFiles, NO_STORE_HEADERS } from '@/lib/github'
 import type { PlanToWatchSnapshotEntry, Show, StateFile } from '@shared/types'
 import type { ShowStateSummary } from '@/lib/types'
@@ -59,6 +60,7 @@ export async function GET() {
           showsVersion: showsFile.sha,
           showStates: toSummaryMap(state),
           airingPlanToWatch: airingPlanToWatch(state),
+          returningShows: getReturningShows(state),
         },
         { headers: NO_STORE_HEADERS }
       )

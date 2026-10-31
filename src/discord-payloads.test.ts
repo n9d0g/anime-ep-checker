@@ -19,6 +19,7 @@ import {
   sendRedditFeedErrorAlert,
   sendRedditPostAlert,
   sendRelatedAnimeAlert,
+  sendReturnAnnouncementAlert,
   sendWaitingAlert,
   type DiscordConfig,
 } from './discord.ts'
@@ -265,6 +266,36 @@ for (const [path, discord] of Object.entries(CONFIGS)) {
       sourceUrl: 'https://frieren-anime.jp/news/9',
     })
     check(`announced break alert (${path})`)
+  })
+
+  test(`return announcement alert (${path})`, async () => {
+    await sendReturnAnnouncementAlert({
+      discord,
+      show,
+      announcement: {
+        returnsOn: '2027-07-04',
+        returnsIn: null,
+        episode: 1181,
+        sourceUrl: 'https://one-piece.com/news/index.html?category=anime',
+        announcedAt: '2026-10-22T12:34:56.000Z',
+      },
+    })
+    check(`return announcement alert (${path})`)
+  })
+
+  test(`return announcement alert, rough and no source (${path})`, async () => {
+    await sendReturnAnnouncementAlert({
+      discord,
+      show: bareShow,
+      announcement: {
+        returnsOn: null,
+        returnsIn: 'Summer 2027',
+        episode: null,
+        sourceUrl: null,
+        announcedAt: '2026-10-22T12:34:56.000Z',
+      },
+    })
+    check(`return announcement alert, rough and no source (${path})`)
   })
 
   test(`announced break alert, TBA (${path})`, async () => {

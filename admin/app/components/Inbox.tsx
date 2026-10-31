@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { formatMalDate } from '@/lib/anime-format'
 import type { InboxItem } from '@/lib/inbox'
 
@@ -8,6 +9,7 @@ const ICONS: Record<InboxItem['kind'], string> = {
   no_official_source: '📰',
   mal_unlinked: '🔗',
   ptw_airing: '📺',
+  return_announced: '▶️',
 }
 
 // "Needs you": what only you can resolve, each with its action. Renders
@@ -82,6 +84,22 @@ export function Inbox({
                 >
                   Link MAL →
                 </button>
+              ) : item.kind === 'return_announced' ? (
+                <>
+                  <Link
+                    className="btn btn-sm"
+                    href={`/on-hold#show-${encodeURIComponent(item.showId)}`}
+                  >
+                    Open in On hold
+                  </Link>
+                  <button
+                    className="btn btn-secondary btn-sm"
+                    type="button"
+                    onClick={() => onNotNow(item.key)}
+                  >
+                    Not now
+                  </button>
+                </>
               ) : (
                 <>
                   <button
@@ -141,5 +159,23 @@ function InboxBody({ item }: { item: InboxItem }) {
       return <span>Not linked to MyAnimeList, so progress can’t sync.</span>
     case 'ptw_airing':
       return <span>From Plan to watch: it has started airing.</span>
+    case 'return_announced':
+      return (
+        <span>
+          From On hold: {item.label}.
+          {item.sourceUrl ? (
+            <>
+              {' '}
+              <a
+                href={item.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Source
+              </a>
+            </>
+          ) : null}
+        </span>
+      )
   }
 }
