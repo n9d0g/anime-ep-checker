@@ -41,7 +41,7 @@
         }
       },
       "airingSchedule": {
-        "fetchedAt": "2026-10-30T15:50:41.683Z",
+        "fetchedAt": "2026-11-01T04:00:52.463Z",
         "episodes": {
           "1": "2026-10-02T14:00:00.000Z",
           "2": "2026-10-09T14:00:00.000Z",
@@ -59,7 +59,8 @@
       },
       "lastSnapshotEpisode": 5,
       "announcementCheckedAt": "2026-10-31T12:10:44.693Z",
-      "announcementReadAt": "2026-10-31T12:10:44.693Z"
+      "announcementReadAt": "2026-10-31T12:10:44.693Z",
+      "officialSiteUrl": "https://kusuriyanohitorigoto.jp/season3/"
     },
     "ao-no-hako-season-2": {
       "lastEpisodeId": "82716334",
@@ -106,7 +107,7 @@
         }
       },
       "airingSchedule": {
-        "fetchedAt": "2026-10-30T19:20:41.217Z",
+        "fetchedAt": "2026-11-01T04:00:52.463Z",
         "episodes": {
           "1": "2026-10-04T07:30:00.000Z",
           "2": "2026-10-11T07:30:00.000Z",
@@ -840,7 +841,7 @@
         "lastPostPublishedAt": "2026-10-25T13:45:51.000Z"
       }
     },
-    "relatedAnimeCheckedAt": "2026-10-25T04:00:48.924Z",
+    "relatedAnimeCheckedAt": "2026-11-01T04:00:52.463Z",
     "relatedAnimeSeen": {
       "20": [
         442,
@@ -1136,7 +1137,7 @@
         26055
       ],
       "21881": [
-        20021,
+        11757,
         27891,
         28063,
         31765,
@@ -2074,6 +2075,11 @@
         57334,
         62516
       ],
+      "60636": [
+        56784,
+        64688,
+        64721
+      ],
       "61316": [
         54857,
         63830
@@ -2081,6 +2087,9 @@
       "61322": [
         57592,
         62568
+      ],
+      "61990": [
+        42310
       ],
       "62076": [
         60180,
