@@ -252,7 +252,7 @@ Optional: set `DISNEY_REGION` (default `US`) if your account is in another regio
 ### 6. Local development
 
 ```bash
-# Root checker (Node 24.19.0)
+# Root checker (Node 26.13.0)
 pnpm install
 node src/should-run.ts    # gate only (Actions runs it from a sparse checkout, no install)
 pnpm check -- --dry-run
@@ -376,4 +376,4 @@ Shows your MAL plan-to-watch list from `state.meta.planToWatch`, grouped into **
 - Crunchyroll uses an undocumented internal API (anonymous token). Netflix uses an unofficial Shakti endpoint with your session cookie. Disney+ uses private bamgrid explore APIs with your session cookie. All may break if endpoints change.
 - Episode availability uses premium/simulcast timing on CR, Shakti availability on Netflix, and release metadata on Disney+.
 - Schedule times are stored in UTC, entered as **JST** in the CMS, and shown as **Eastern** in Discord.
-- Requires **Node 24.19.0** (local and GitHub Actions).
+- Requires **Node 26.13.0** (local and GitHub Actions).

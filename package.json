@@ -24,11 +24,11 @@
   "author": "n9d0g",
   "license": "ISC",
   "engines": {
-    "node": "24.19.0"
+    "node": "26.13.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@types/node": "^24.13.3",
+    "@types/node": "^26.6.6",
     "eslint": "^10.8.1",
     "eslint-config-prettier": "^10.1.8",
     "oxfmt": "0.72.0",
