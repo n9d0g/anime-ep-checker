@@ -377,3 +377,6 @@ Shows your MAL plan-to-watch list from `state.meta.planToWatch`, grouped into **
 - Episode availability uses premium/simulcast timing on CR, Shakti availability on Netflix, and release metadata on Disney+.
 - Schedule times are stored in UTC, entered as **JST** in the CMS, and shown as **Eastern** in Discord.
 - Requires **Node 26.13.0** (local and GitHub Actions).
+- Exact-pinned dev dependencies (no `^`), on purpose:
+  - `oxfmt`: pre-1.0, so formatting output can change between minors and break `format:check` in CI without a code change.
+  - `@cloudflare/vite-plugin` and `cf` (admin): prereleases; a caret range doesn't float sensibly between beta tags, so bump them by hand.
