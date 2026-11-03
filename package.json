@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "description": "Crunchyroll, Netflix, and Disney+ episode checker with Discord alerts",
-  "packageManager": "pnpm@10.34.5",
+  "packageManager": "pnpm@12.17.0",
   "scripts": {
     "check": "node src/check.ts",
     "format": "oxfmt",
@@ -34,10 +34,5 @@
     "oxfmt": "0.75.0",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.72.1"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild"
-    ]
   }
 }

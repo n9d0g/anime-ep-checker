@@ -380,3 +380,4 @@ Shows your MAL plan-to-watch list from `state.meta.planToWatch`, grouped into **
 - Exact-pinned dev dependencies (no `^`), on purpose:
   - `oxfmt`: pre-1.0, so formatting output can change between minors and break `format:check` in CI without a code change.
   - `@cloudflare/vite-plugin` and `cf` (admin): prereleases; a caret range doesn't float sensibly between beta tags, so bump them by hand.
+- pnpm 12 keeps its default `minimumReleaseAge` of one day: a dependency version published in the last 24 hours fails install (`ERR_PNPM_MINIMUM_RELEASE_AGE_VIOLATION`). Wait it out rather than relaxing the policy.
