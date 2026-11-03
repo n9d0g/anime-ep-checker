@@ -31,7 +31,9 @@
   --radius: 10px;
   --radius-sm: 6px;
   --top-header-h: 3.25rem;
-  --tab-bar-h: 3.75rem;
+  --tab-bar-h: 3.35rem;
+  /* Gap under the floating tab bar: clears the iPhone home indicator. */
+  --tab-bar-offset: max(0.75rem, env(safe-area-inset-bottom));
 
   font-family:
     var(--font-inter), 'Segoe UI', system-ui, -apple-system, sans-serif;
@@ -102,7 +104,7 @@ h3 {
 .container {
   width: min(var(--container-width), calc(100% - 2.5rem));
   margin: 0 auto;
-  padding: 1.75rem 0 calc(var(--tab-bar-h) + env(safe-area-inset-bottom) + 2rem);
+  padding: 1.75rem 0 calc(var(--tab-bar-h) + var(--tab-bar-offset) + 2rem);
   overflow-x: clip;
 }
 
@@ -987,6 +989,19 @@ select:focus {
   gap: 0.5rem;
 }
 
+/* On the list pages, toasts sit above the floating tab bar. */
+@media (max-width: 767px) {
+  body:has(.list-tabs-bottom) .toast-stack {
+    padding-bottom: calc(var(--tab-bar-offset) + var(--tab-bar-h) + 0.5rem);
+  }
+}
+
+@media (min-width: 768px) and (max-width: 899px) {
+  body:has(.list-tabs-bottom) .toast-stack {
+    bottom: calc(var(--tab-bar-offset) + var(--tab-bar-h) + 0.75rem);
+  }
+}
+
 @media (min-width: 768px) {
   .toast-stack {
     left: auto;
@@ -1272,7 +1287,7 @@ select:focus {
   line-height: 1.4;
 }
 
-/* ── List tabs: in the header on wide screens, a bottom bar on phones ── */
+/* ── List tabs: in the header on wide screens, a floating bar on phones ── */
 
 .list-tab {
   position: relative;
@@ -1286,10 +1301,6 @@ select:focus {
 
 .list-tab:hover {
   color: var(--text);
-}
-
-.list-tab-label-short {
-  display: none;
 }
 
 .list-tab-count {
@@ -1319,28 +1330,69 @@ select:focus {
 }
 
 .list-tabs-bottom {
+  --tab-w: 3.5rem;
+  --tab-pad: 0.3rem;
+
   position: fixed;
   left: 0;
   right: 0;
-  bottom: 0;
+  bottom: var(--tab-bar-offset);
   z-index: 30;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  height: calc(var(--tab-bar-h) + env(safe-area-inset-bottom));
-  padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom)
-    env(safe-area-inset-left);
-  border-top: 1px solid var(--border);
-  background: rgba(17, 17, 17, 0.94);
-  backdrop-filter: blur(12px);
+  display: flex;
+  width: max-content;
+  height: var(--tab-bar-h);
+  margin-inline: auto;
+  padding: var(--tab-pad);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  /* Liquid glass: mostly see-through, blurred and saturated, lit from above. */
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03)),
+    rgba(28, 28, 30, 0.42);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.04),
+    0 8px 24px rgba(0, 0, 0, 0.35),
+    0 1px 3px rgba(0, 0, 0, 0.3);
+  transform-origin: 50% 100%;
+  transition: transform 200ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@supports not (
+  (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+) {
+  .list-tabs-bottom {
+    background: rgba(17, 17, 17, 0.94);
+  }
+}
+
+.list-tabs-bottom.compact {
+  transform: translateY(0.25rem) scale(0.85);
+}
+
+/* The active tab's glass lens; slides to whichever tab is current. */
+.list-tabs-lens {
+  position: absolute;
+  top: var(--tab-pad);
+  bottom: var(--tab-pad);
+  left: var(--tab-pad);
+  width: var(--tab-w);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  transform: translateX(calc(var(--active-index) * var(--tab-w)));
+  transition: transform 250ms cubic-bezier(0.32, 0.72, 0, 1);
+  pointer-events: none;
 }
 
 .list-tabs-bottom .list-tab {
-  flex-direction: column;
   justify-content: center;
-  gap: 0.2rem;
-  color: var(--muted);
-  font-size: 0.68rem;
-  font-weight: 600;
+  width: var(--tab-w);
+  border-radius: 999px;
+  color: var(--text-secondary);
+  -webkit-tap-highlight-color: transparent;
 }
 
 .list-tabs-bottom .list-tab.active {
@@ -1352,30 +1404,32 @@ select:focus {
 }
 
 .list-tab-icon svg {
-  width: 1.3rem;
-  height: 1.3rem;
+  width: 1.4rem;
+  height: 1.4rem;
 }
 
 .list-tabs-bottom .list-tab-count {
   position: absolute;
-  top: 0.45rem;
-  left: calc(50% + 0.8rem);
+  top: 0.2rem;
+  left: calc(50% + 0.45rem);
   font-size: 0.6rem;
 }
 
-@media (max-width: 360px) {
-  .list-tabs-bottom .list-tab-label {
-    display: none;
+@media (prefers-reduced-motion: reduce) {
+  .list-tabs-bottom,
+  .list-tabs-lens {
+    transition: none;
   }
 
-  .list-tabs-bottom .list-tab-label-short {
-    display: inline;
+  .list-tabs-bottom.compact {
+    transform: none;
   }
 }
 
 @media (min-width: 900px) {
   :root {
     --tab-bar-h: 0px;
+    --tab-bar-offset: env(safe-area-inset-bottom);
   }
 
   .list-tabs-top {
