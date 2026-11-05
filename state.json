@@ -41,7 +41,7 @@
         }
       },
       "airingSchedule": {
-        "fetchedAt": "2026-11-04T06:35:39.752Z",
+        "fetchedAt": "2026-11-05T06:40:46.209Z",
         "episodes": {
           "1": "2026-10-02T14:00:00.000Z",
           "2": "2026-10-09T14:00:00.000Z",
@@ -107,7 +107,7 @@
         }
       },
       "airingSchedule": {
-        "fetchedAt": "2026-11-04T06:35:39.752Z",
+        "fetchedAt": "2026-11-05T06:40:46.209Z",
         "episodes": {
           "1": "2026-10-04T07:30:00.000Z",
           "2": "2026-10-11T07:30:00.000Z",
@@ -144,7 +144,7 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-11-04T06:35:39.752Z",
+    "planToWatchCheckedAt": "2026-11-05T06:40:46.209Z",
     "planToWatch": {
       "updatedAt": "2026-10-31T06:18:57.006Z",
       "entries": [
@@ -2108,7 +2108,7 @@
       "kusuriya-no-hitorigoto-3rd-season": "8.63",
       "ao-no-hako-season-2": "8.14"
     },
-    "returnCheckedAt": "2026-11-04T06:35:39.752Z",
+    "returnCheckedAt": "2026-11-05T06:40:46.209Z",
     "returnAnnouncements": {}
   }
 }
