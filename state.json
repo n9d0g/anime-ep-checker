@@ -7,7 +7,7 @@
       "lastNotifiedAt": "2026-10-30T15:50:41.683Z",
       "seasonId": "GS00384044JAJP",
       "seasonTitle": "Season 3",
-      "waitingNotifiedForEpisode": null,
+      "waitingNotifiedForEpisode": 6,
       "episodeOffset": 48,
       "malMeanScore": 8.66,
       "googleCalendarEvents": {
@@ -37,7 +37,7 @@
         }
       },
       "airingSchedule": {
-        "fetchedAt": "2026-11-06T15:05:37.924Z",
+        "fetchedAt": "2026-11-06T15:15:45.261Z",
         "episodes": {
           "1": "2026-10-02T14:00:00.000Z",
           "2": "2026-10-09T14:00:00.000Z",
@@ -54,7 +54,7 @@
         }
       },
       "lastSnapshotEpisode": 5,
-      "announcementCheckedAt": "2026-11-06T12:15:41.524Z",
+      "announcementCheckedAt": "2026-11-06T15:15:45.261Z",
       "announcementReadAt": "2026-10-31T12:10:44.693Z",
       "officialSiteUrl": "https://kusuriyanohitorigoto.jp/season3/"
     },
@@ -735,7 +735,7 @@
       ]
     },
     "watchingDashboardHashes": {
-      "kusuriya-no-hitorigoto-3rd-season": "97936f999b6a4c213851c03ffb15a5074558dbe4",
+      "kusuriya-no-hitorigoto-3rd-season": "f496008f6e5a10f327a1e4d0d89f6ba9645c35f3",
       "ao-no-hako-season-2": "271e46666f7dff7662933857718aaa0ccd60b5d6"
     },
     "onHold": {
