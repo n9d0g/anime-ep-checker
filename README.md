@@ -192,7 +192,7 @@ npx wrangler secret put GITHUB_TOKEN --name anime-ep-checker-admin
 2. Update the MAL API client redirect URI and `MAL_REDIRECT_URI` to `…/api/mal/callback`
 3. Shut down the old Vercel project if you migrated from it
 
-**Local dev:** `cd admin && pnpm install && pnpm dev` (vinext on port 3001). Put secrets in `admin/.env` or `admin/.env.local`; they are loaded for every name declared with `bindings.secret()` in [`admin/cloudflare.config.ts`](admin/cloudflare.config.ts). Auth uses `proxy.ts` the same as on Workers.
+**Local dev:** `cd admin && pnpm install && pnpm dev` (vinext on port 3001). Secrets come from `admin/.env` (or `admin/.env.local`); they are loaded for every name declared with `bindings.secret()` in [`admin/cloudflare.config.ts`](admin/cloudflare.config.ts). Auth uses `proxy.ts` the same as on Workers.
 
 ### 4. MyAnimeList
 
@@ -245,7 +245,7 @@ Disney **rotates** the refresh token on every exchange. The checker saves the ne
 
 **AniList fallback:** when Disney auth fails or returns no episodes, Disney-tracked shows with a `malId` fall back to [AniList](https://anilist.co) airing schedules (no API key). Alerts still respect your `shows.json` drop time — the fallback never fires before the scheduled Disney+ window. Episode timing in alerts shows as **unknown** (AniList reports JP broadcast, which can be ~1h before the US Disney+ drop).
 
-**GitHub Actions geo-block:** Disney often rejects refresh-token exchange from datacenter IPs (`forbidden-location` on hosted runners). In that case the checker uses the AniList fallback when possible and sends a one-time **Disney+ checks need attention** alert; Crunchyroll and Netflix continue. To verify Disney API data directly, run `pnpm check` (or `pnpm check -- --force`) from home with the same env vars in `.env`.
+**GitHub Actions geo-block:** Disney often rejects refresh-token exchange from datacenter IPs (`forbidden-location` on hosted runners). In that case the checker uses the AniList fallback when possible and sends a one-time **Disney+ checks need attention** alert; Crunchyroll and Netflix continue. To verify Disney API data directly, run `pnpm check` (or `pnpm check -- --force`) from home with the env vars in `.env`.
 
 Optional: set `DISNEY_REGION` (default `US`) if your account is in another region.
 
@@ -264,7 +264,7 @@ pnpm install
 pnpm dev
 ```
 
-Set Discord/Netflix/MAL env vars in `.env` at the repo root for live checks.
+Local secrets live in `.env` (root checker, see [`.env.example`](.env.example)) and `admin/.env` (admin, see [`admin/.env.example`](admin/.env.example)). `pnpm check` loads the root `.env` if present; vinext loads `admin/.env`. Both can be plain files or [1Password Environment](https://developer.1password.com/docs/environments/) local `.env` mounts. With mounts, the 1Password app must be running and unlocked for `.env` to be readable.
 
 r/anime discussion links resolve to the AutoLovepon thread permalink when available (via Reddit search RSS), otherwise fall back to an r/anime search URL. No Reddit API secrets required.
 
