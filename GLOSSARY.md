@@ -22,6 +22,10 @@ _Avoid_: Hiatus, on break
 Shows on MyAnimeList's plan-to-watch list, not yet started.
 _Avoid_: PTW (in prose), backlog
 
+**Premiere date**:
+When a Plan to watch show is expected to start airing. It may be an exact day, only a month, or only a year, and becomes more precise as MyAnimeList learns more. A vague premiere date is treated as falling at the end of its month or year.
+_Avoid_: Start date, air date
+
 **Watched**:
 Shows completed on MyAnimeList, with their scores.
 _Avoid_: Completed, finished

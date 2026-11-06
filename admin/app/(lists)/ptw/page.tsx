@@ -15,6 +15,7 @@ import { useHashScrollHighlight } from '@/app/components/useHashScrollHighlight'
 import { apiErrorMessage, apiFetch } from '@/lib/api-fetch'
 import { cacheKeys, withoutPtwEntry } from '@/lib/client-cache'
 import { malIdFromElementId } from '@/lib/hash-highlight'
+import { sortByPremiereDate } from '@/lib/premiere-date'
 import { matchSearchQuery } from '@/lib/search'
 import { searchIndex } from '@/lib/search-index-store'
 import { PtwListSkeleton } from '@/app/components/ListSkeleton'
@@ -70,102 +71,6 @@ function startOfUtcDay(date: Date): Date {
   return new Date(
     Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate())
   )
-}
-
-interface StartDateBounds {
-  start: Date
-  end: Date
-}
-
-function parseStartDateBounds(startDate: string): StartDateBounds | null {
-  const trimmed = startDate.trim()
-  if (!trimmed) {
-    return null
-  }
-
-  const fullMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(trimmed)
-  if (fullMatch) {
-    const year = Number(fullMatch[1])
-    const month = Number(fullMatch[2])
-    const day = Number(fullMatch[3])
-    const start = new Date(Date.UTC(year, month - 1, day))
-    if (Number.isNaN(start.getTime())) {
-      return null
-    }
-    return { start, end: start }
-  }
-
-  const monthMatch = /^(\d{4})-(\d{2})$/.exec(trimmed)
-  if (monthMatch) {
-    const year = Number(monthMatch[1])
-    const month = Number(monthMatch[2])
-    const start = new Date(Date.UTC(year, month - 1, 1))
-    const end = new Date(Date.UTC(year, month, 0))
-    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
-      return null
-    }
-    return { start, end }
-  }
-
-  const yearMatch = /^(\d{4})$/.exec(trimmed)
-  if (yearMatch) {
-    const year = Number(yearMatch[1])
-    const start = new Date(Date.UTC(year, 0, 1))
-    const end = new Date(Date.UTC(year, 11, 31))
-    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
-      return null
-    }
-    return { start, end }
-  }
-
-  return null
-}
-
-function hasFutureStartDate(
-  entry: PlanToWatchSnapshotEntry,
-  today: Date
-): boolean {
-  if (!entry.startDate) {
-    return false
-  }
-
-  const bounds = parseStartDateBounds(entry.startDate)
-  if (!bounds) {
-    return false
-  }
-
-  return bounds.end.getTime() >= today.getTime()
-}
-
-function sortUpcoming(
-  entries: PlanToWatchSnapshotEntry[]
-): PlanToWatchSnapshotEntry[] {
-  const today = startOfUtcDay(new Date())
-  const dated: PlanToWatchSnapshotEntry[] = []
-  const undated: PlanToWatchSnapshotEntry[] = []
-
-  for (const entry of entries) {
-    if (hasFutureStartDate(entry, today)) {
-      dated.push(entry)
-    } else {
-      undated.push(entry)
-    }
-  }
-
-  dated.sort((a, b) => {
-    const aStart = parseStartDateBounds(a.startDate!)!.start.getTime()
-    const bStart = parseStartDateBounds(b.startDate!)!.start.getTime()
-    if (aStart !== bStart) {
-      return aStart - bStart
-    }
-    return a.title.localeCompare(b.title, undefined, { sensitivity: 'base' })
-  })
-
-  undated.sort((a, b) =>
-    a.title.localeCompare(b.title, undefined, { sensitivity: 'base' })
-  )
-
-  return [...dated, ...undated]
 }
 
 type PtwSectionKind = 'airing' | 'upcoming' | 'aired'
@@ -233,7 +138,9 @@ function sortSection(
       (a, b) => score(b) - score(a) || compareTitles(a, b)
     )
   }
-  return kind === 'upcoming' ? sortUpcoming(entries) : entries
+  return kind === 'upcoming'
+    ? sortByPremiereDate(entries, startOfUtcDay(new Date()))
+    : entries
 }
 
 /** Title, English title, or (once details load) a studio or genre. */
