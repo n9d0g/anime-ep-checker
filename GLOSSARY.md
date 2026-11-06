@@ -30,6 +30,10 @@ _Avoid_: Start date, air date
 Shows completed on MyAnimeList, with their scores.
 _Avoid_: Completed, finished
 
+**Started**:
+The day you began watching a show: the day its first episode was logged as watched on MyAnimeList. Unrelated to its premiere date.
+_Avoid_: Start date
+
 ### Schedule
 
 **Drop**:

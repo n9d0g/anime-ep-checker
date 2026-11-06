@@ -5,6 +5,7 @@ import {
 } from '@shared/mal-plan-to-watch'
 import type { PlanToWatchSnapshotEntry } from '@shared/types'
 import type { MalBroadcast } from './broadcast'
+import { easternDateString } from './time'
 import type { PtwDetails, WatchedEntry } from './types'
 
 interface MalTokenResponse {
@@ -17,6 +18,9 @@ interface MalTokenResponse {
 interface MalListStatus {
   status?: string
   num_episodes_watched?: number
+  // Present only when set.
+  start_date?: string
+  finish_date?: string
 }
 
 interface MalMainPicture {
@@ -329,10 +333,16 @@ async function refreshMalAccessToken(): Promise<string> {
   return cachedMalAccessToken
 }
 
+interface MalListDates {
+  /** Started, as MAL's list start date; null when blank. */
+  startedOn: string | null
+  finishedOn: string | null
+}
+
 async function fetchMalAnime(
   accessToken: string,
   malId: number
-): Promise<MalAnimeInfo> {
+): Promise<MalAnimeInfo & MalListDates> {
   const current = await malGet<MalAnimeResponse>(
     accessToken,
     `https://api.myanimelist.net/v2/anime/${malId}?fields=${MAL_ANIME_FIELDS}`,
@@ -364,18 +374,28 @@ async function fetchMalAnime(
           startTime: current.broadcast.start_time ?? null,
         }
       : null,
+    startedOn: current.my_list_status?.start_date || null,
+    finishedOn: current.my_list_status?.finish_date || null,
   }
+}
+
+function withoutListDates({
+  startedOn: _startedOn,
+  finishedOn: _finishedOn,
+  ...info
+}: MalAnimeInfo & MalListDates): MalAnimeInfo {
+  return info
 }
 
 /** Progress, score, cover and titles from one MAL anime request. */
 export async function fetchMalAnimeInfo(malId: number): Promise<MalAnimeInfo> {
-  return fetchMalAnime(await getMalAccessToken(), malId)
+  return withoutListDates(await fetchMalAnime(await getMalAccessToken(), malId))
 }
 
 export async function fetchMalAnimeDetails(
   malId: number
 ): Promise<MalAnimeDetails> {
-  return fetchMalAnime(await getMalAccessToken(), malId)
+  return withoutListDates(await fetchMalAnime(await getMalAccessToken(), malId))
 }
 
 async function patchMalListStatus(
@@ -406,10 +426,11 @@ async function patchMalListStatus(
 
 export async function setMalWatchedEpisode(
   malId: number,
-  episodeNumber: number
+  episodeNumber: number,
+  now: Date = new Date()
 ): Promise<{ updated: boolean; watched: number; total: number | null }> {
   const accessToken = await getMalAccessToken()
-  const { watched, total } = await fetchMalAnime(accessToken, malId)
+  const { watched, total, startedOn } = await fetchMalAnime(accessToken, malId)
 
   if (watched === episodeNumber) {
     return { updated: false, watched, total }
@@ -421,6 +442,7 @@ export async function setMalWatchedEpisode(
 
   if (episodeNumber > 0) {
     params.set('status', 'watching')
+    setStartedIfFirstWatch(params, watched, startedOn, now)
   }
 
   await patchMalListStatus(accessToken, malId, params)
@@ -446,14 +468,18 @@ export async function setMalWatchingStatus(malId: number): Promise<void> {
 
 export async function completeMalAnime(
   malId: number,
-  score: number
+  score: number,
+  now: Date = new Date()
 ): Promise<{ watched: number; total: number | null }> {
   if (!Number.isInteger(score) || score < 1 || score > 10) {
     throw new Error('score must be an integer from 1 to 10')
   }
 
   const accessToken = await getMalAccessToken()
-  const { watched, total } = await fetchMalAnime(accessToken, malId)
+  const { watched, total, startedOn, finishedOn } = await fetchMalAnime(
+    accessToken,
+    malId
+  )
 
   const params = new URLSearchParams({
     status: 'completed',
@@ -464,10 +490,26 @@ export async function completeMalAnime(
     total !== null && total > 0 ? total : watched > 0 ? watched : 0
   if (episodesWatched > 0) {
     params.set('num_watched_episodes', String(episodesWatched))
+    setStartedIfFirstWatch(params, watched, startedOn, now)
+  }
+  if (!finishedOn) {
+    params.set('finish_date', easternDateString(now))
   }
 
   await patchMalListStatus(accessToken, malId, params)
   return { watched: episodesWatched, total }
+}
+
+/** Going from no episodes watched to some marks Started today, unless it's already set. */
+function setStartedIfFirstWatch(
+  params: URLSearchParams,
+  watchedBefore: number,
+  startedOn: string | null,
+  now: Date
+): void {
+  if (watchedBefore === 0 && !startedOn) {
+    params.set('start_date', easternDateString(now))
+  }
 }
 
 /** Follows `paging.next` from `firstUrl` and returns every page's items. */
