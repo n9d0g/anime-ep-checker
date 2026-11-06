@@ -73,6 +73,10 @@ _Avoid_: Delay, late release
 What a provider reports as a show's latest available episode at one moment.
 _Avoid_: Latest episode, provider episode
 
+**Behind**:
+A Watching show whose watched progress on MyAnimeList is short of its latest episode snapshot.
+_Avoid_: Unwatched, not caught up
+
 **Baseline**:
 The first episode snapshot recorded for a show, taken without sending an alert.
 

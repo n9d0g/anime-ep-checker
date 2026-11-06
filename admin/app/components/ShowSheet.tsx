@@ -118,6 +118,9 @@ export function ShowSheet({
             {view.badge.label}
           </span>
         </p>
+        {view.behindEpisodeLine ? (
+          <p className="sheet-hero-latest-episode">{view.behindEpisodeLine}</p>
+        ) : null}
         {!show.id ? (
           <p className="hint">Fill in Setup, then save to start checking.</p>
         ) : null}

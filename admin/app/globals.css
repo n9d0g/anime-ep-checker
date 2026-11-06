@@ -1108,6 +1108,12 @@ select:focus {
   min-width: 0;
 }
 
+.show-row-secondary-meta {
+  margin-top: 0;
+  color: var(--hint);
+}
+
+.show-row-secondary-meta-text,
 .show-row-next-drop {
   min-width: 0;
   overflow: hidden;
@@ -1567,6 +1573,12 @@ select:focus {
   letter-spacing: -0.01em;
 }
 
+.sheet-hero-latest-episode {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
 .sheet-hero-meta {
   display: flex;
   flex-wrap: wrap;
@@ -1959,6 +1971,10 @@ select:focus {
 .show-row-art .show-row-trailing {
   color: rgba(255, 255, 255, 0.8);
   text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
+}
+
+.show-row-art .show-row-secondary-meta {
+  color: rgba(255, 255, 255, 0.65);
 }
 
 .show-row-art .chip {

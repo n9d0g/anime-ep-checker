@@ -6,7 +6,8 @@ import type { DisplayRow } from '@/app/components/useWatchingShows'
 import { MAL_DOWN_MESSAGE } from '@/lib/watching'
 
 // One show in the Watching list: the shared row with the provider dot, the
-// schedule chip and next drop, and the episode badge.
+// schedule chip and next drop, the latest episode's title while behind, and
+// the episode badge.
 export function ShowRow({
   displayRow,
   art,
@@ -43,6 +44,7 @@ export function ShowRow({
           </>
         ) : null
       }
+      secondaryMeta={view.behindEpisodeLine}
       trailing={
         <span
           className={`ep-count${badge.behind ? ' ep-count-behind' : ''}${
