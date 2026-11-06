@@ -12,6 +12,21 @@
         "focus": false,
         "clear": false
       }
+    },
+    {
+      "label": "Update main",
+      "type": "shell",
+      "command": "if [ \"$(git branch --show-current)\" = main ]; then git pull --ff-only origin main; else git fetch origin main:main; fi",
+      "problemMatcher": [],
+      "runOptions": {
+        "runOn": "folderOpen"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": false,
+        "clear": false
+      }
     }
   ]
 }
