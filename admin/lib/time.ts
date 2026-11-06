@@ -84,6 +84,16 @@ function formatDay(date: Date, now: Date, timeZone: string): string {
   }).format(date)
 }
 
+/** The Eastern calendar day as MAL's date-only format: "2026-11-06". */
+export function easternDateString(now: Date = new Date()): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: EASTERN_TZ,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(now)
+}
+
 /** "10:00 AM ET" */
 function formatEasternClock(date: Date): string {
   const time = new Intl.DateTimeFormat('en-US', {
