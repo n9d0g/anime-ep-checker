@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react'
 import { ShowTitleDisplay } from '@/app/components/ShowTitleDisplay'
 
-// One show in any list: title, English title, one detail line, and a trailing
-// badge, over the show's AniList banner when it has one. Without a banner the
+// One show in any list: title, English title, a detail line (plus an
+// optional second one), and a trailing badge, over the show's AniList banner when it has one. Without a banner the
 // cover stands in, blurred; without either the row is plain. The provider
 // shows as a dot, or as a bar along the left edge of a banner row. Tapping it
 // opens the show's sheet; rows hold no other buttons.
@@ -14,6 +14,7 @@ export function ListRow({
   bannerUrl,
   coverUrl,
   meta,
+  secondaryMeta,
   trailing,
   onOpen,
 }: {
@@ -26,6 +27,8 @@ export function ListRow({
   bannerUrl?: string | null
   coverUrl?: string | null
   meta?: ReactNode
+  /** A second, muted detail line under `meta`, cut off with an ellipsis. */
+  secondaryMeta?: ReactNode
   trailing?: ReactNode
   onOpen: () => void
 }) {
@@ -66,8 +69,19 @@ export function ListRow({
             title={title}
             titleEnglish={titleEnglish}
             belowSubtitle={
-              meta ? (
-                <span className="show-row-next-episode">{meta}</span>
+              meta || secondaryMeta ? (
+                <>
+                  {meta ? (
+                    <span className="show-row-next-episode">{meta}</span>
+                  ) : null}
+                  {secondaryMeta ? (
+                    <span className="show-row-next-episode show-row-secondary-meta">
+                      <span className="show-row-secondary-meta-text">
+                        {secondaryMeta}
+                      </span>
+                    </span>
+                  ) : null}
+                </>
               ) : null
             }
           />

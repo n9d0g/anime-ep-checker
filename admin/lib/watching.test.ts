@@ -447,3 +447,43 @@ test('the next drop follows breaks and the AniList airing schedule', () => {
     ['b', 'a']
   )
 })
+
+test('buildShowViewModel names the latest episode while the show is behind', () => {
+  const show = form({ id: 'a', malId: '1', schedule: { episodeCount: '12' } })
+  const at = (overrides: Partial<ShowStateSummary>) =>
+    buildShowViewModel(show, state(overrides), false).behindEpisodeLine
+
+  // Several behind: the latest episode, with its number.
+  assert.equal(
+    at({
+      lastEpisodeNumber: '6',
+      lastEpisodeTitle: 'The Paper Village',
+      watchedEpisode: 4,
+    }),
+    'Ep 6 · The Paper Village'
+  )
+  // Caught up.
+  assert.equal(
+    at({
+      lastEpisodeNumber: '6',
+      lastEpisodeTitle: 'The Paper Village',
+      watchedEpisode: 6,
+    }),
+    null
+  )
+  // Behind, but the provider gave no title.
+  assert.equal(
+    at({ lastEpisodeNumber: '6', lastEpisodeTitle: '  ', watchedEpisode: 4 }),
+    null
+  )
+})
+
+test('buildShowViewModel never names the latest episode for shows not on MAL', () => {
+  const vm = buildShowViewModel(
+    form({ id: 'a', schedule: { episodeCount: '12' } }),
+    state({ lastEpisodeNumber: '6', lastEpisodeTitle: 'The Paper Village' }),
+    false
+  )
+
+  assert.equal(vm.behindEpisodeLine, null)
+})

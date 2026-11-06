@@ -197,6 +197,22 @@ function episodeBadgeFor(
   return { label: withTotal(start), behind: false }
 }
 
+// "Ep 6 · The Paper Village": the latest episode, named only while the show
+// is behind on MAL and the provider gave the episode a title.
+function behindEpisodeLineFor(
+  badge: EpisodeBadge,
+  liveState: ShowStateSummary | undefined
+): string | null {
+  const latestOut = getLatestOut(liveState)
+  const title = liveState?.lastEpisodeTitle?.trim()
+
+  if (!badge.behind || latestOut === null || !title) {
+    return null
+  }
+
+  return `Ep ${latestOut} · ${title}`
+}
+
 export function episodeBadge(
   show: ShowFormValues,
   liveState: ShowStateSummary | undefined,
@@ -323,6 +339,8 @@ export interface ShowViewModel {
   startHint: string | null
   nextDropTime: number | null
   badge: EpisodeBadge
+  // The latest episode's number and title, while the show is behind.
+  behindEpisodeLine: string | null
   currentEpisode: number | null
   nextEpisodeToWatch: number | null
   bounds: { min: number; max: number | null }
@@ -344,6 +362,7 @@ export function buildShowViewModel(
   const drop = nextScheduledDrop(schedule, liveState)
   const currentEpisode = getProgressEpisode(show, liveState)
   const malLinked = usesMalProgress(show)
+  const badge = episodeBadgeFor(show, schedule, liveState, malDown)
 
   let nextDropLine: string | null = null
   let startHint: string | null = null
@@ -374,7 +393,8 @@ export function buildShowViewModel(
     ),
     startHint,
     nextDropTime: drop?.at?.getTime() ?? null,
-    badge: episodeBadgeFor(show, schedule, liveState, malDown),
+    badge,
+    behindEpisodeLine: behindEpisodeLineFor(badge, liveState),
     currentEpisode,
     nextEpisodeToWatch: getNextEpisodeToWatch(show, liveState),
     bounds: episodeBoundsFor(schedule),
