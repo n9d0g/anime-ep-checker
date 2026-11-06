@@ -774,6 +774,7 @@
     "redditUserFeeds": {
       "animecorner": {
         "seenPostIds": [
+          "t3_1xpdkjc",
           "t3_1xje7ls",
           "t3_1xdd4pf",
           "t3_1x7exgq",
@@ -804,8 +805,8 @@
           "t3_1shmi9o",
           "t3_1s7xema"
         ],
-        "checkedAt": "2026-10-30T12:45:42.695Z",
-        "lastPostPublishedAt": "2026-10-30T12:37:01.000Z"
+        "checkedAt": "2026-11-06T14:15:43.116Z",
+        "lastPostPublishedAt": "2026-11-06T14:03:11.000Z"
       },
       "abysswatcherbel": {
         "seenPostIds": [
