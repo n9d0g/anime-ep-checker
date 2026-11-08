@@ -103,7 +103,7 @@
         }
       },
       "airingSchedule": {
-        "fetchedAt": "2026-11-07T06:40:40.765Z",
+        "fetchedAt": "2026-11-08T05:45:40.936Z",
         "episodes": {
           "1": "2026-10-04T07:30:00.000Z",
           "2": "2026-10-11T07:30:00.000Z",
@@ -121,8 +121,8 @@
       },
       "lastSnapshotEpisode": 4,
       "officialSiteUrl": "https://aonohako-anime.com/",
-      "announcementCheckedAt": "2026-11-07T06:40:40.765Z",
-      "announcementReadAt": "2026-11-07T06:40:40.765Z"
+      "announcementCheckedAt": "2026-11-08T05:45:40.936Z",
+      "announcementReadAt": "2026-11-08T05:45:40.936Z"
     }
   },
   "meta": {
@@ -736,7 +736,7 @@
     },
     "watchingDashboardHashes": {
       "kusuriya-no-hitorigoto-3rd-season": "042b5312cc509f9ae236718e1be69d4f179bc114",
-      "ao-no-hako-season-2": "9b198433c1b7f143095f12c5bd451e78cc716bf7"
+      "ao-no-hako-season-2": "9bb68247e8ddfc080e9b06b3076fd4921bef7220"
     },
     "onHold": {
       "updatedAt": "2026-10-31T06:15:14.105Z",
