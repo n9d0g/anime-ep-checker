@@ -13,7 +13,10 @@ export default defineConfig({
       ASSETS: bindings.assets(),
       IMAGES: bindings.images(),
       // App badge push subscriptions, one per device (ADR 0003).
-      PUSH_SUBSCRIPTIONS: bindings.kv(),
+      PUSH_SUBSCRIPTIONS: bindings.kv({
+        // Provisioned by the first deploy; pinned so later deploys can't create a new one.
+        id: '5fd07bfe1e3a4e0c82a8e92045106932',
+      }),
       ADMIN_PASSWORD: bindings.secret(),
       ADMIN_SESSION_SECRET: bindings.secret(),
       GITHUB_TOKEN: bindings.secret(),
