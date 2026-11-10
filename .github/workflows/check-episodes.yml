@@ -96,6 +96,8 @@ jobs:
           REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
           REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
           REDDIT_FEED_CHECK: ${{ needs.gate.outputs.reddit_check == 'true' }}
+          # App badge push: the admin Worker's drop trigger (ADR 0003).
+          PUSH_TRIGGER_SECRET: ${{ secrets.PUSH_TRIGGER_SECRET }}
         run: pnpm check ${{ github.event.inputs.force == 'true' && '--force' || '' }}
 
       - name: Update Disney refresh token secret

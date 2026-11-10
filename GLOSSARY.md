@@ -77,6 +77,10 @@ _Avoid_: Latest episode, provider episode
 A Watching show whose watched progress on MyAnimeList is short of its latest episode snapshot.
 _Avoid_: Unwatched, not caught up
 
+**App badge**:
+The number on the admin app's Home Screen icon: how many Watching shows are behind.
+_Avoid_: Badge (alone; the episode count chip on a show row is also called a badge), unread count
+
 **Baseline**:
 The first episode snapshot recorded for a show, taken without sending an alert.
 

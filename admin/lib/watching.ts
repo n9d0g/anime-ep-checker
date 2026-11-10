@@ -1,3 +1,4 @@
+import { isBehind } from '@shared/behind'
 import { buildAnimeDiscussionSearchUrl } from '@shared/reddit'
 import {
   getExpectedDropAt,
@@ -180,7 +181,7 @@ function episodeBadgeFor(
   if (watched !== null) {
     return {
       label: withTotal(watched),
-      behind: latestOut !== null && watched < latestOut,
+      behind: isBehind(watched, latestOut),
     }
   }
 

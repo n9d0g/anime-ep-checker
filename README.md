@@ -142,6 +142,7 @@ Discord is **outbound only** (checker posts alerts and updates `#watching`). You
 | `DISCORD_DEPLOY_WEBHOOK_URL`  | Webhook for a separate **deploy** Discord channel                                                                           |
 | `REDDIT_CLIENT_ID`            | Reddit “script” app client ID (user post alerts; see [Reddit user post alerts](#reddit-user-post-alerts))                   |
 | `REDDIT_CLIENT_SECRET`        | Reddit app secret                                                                                                           |
+| `PUSH_TRIGGER_SECRET`         | Same value as the admin Worker's `PUSH_TRIGGER_SECRET`; lets drops update the App badge (see [App badge](#app-badge))       |
 
 The workflow uses the default `GITHUB_TOKEN` to commit `state.json` updates.
 
@@ -185,6 +186,9 @@ npx wrangler secret put GITHUB_TOKEN --name anime-ep-checker-admin
 | `MAL_CLIENT_SECRET`    | MAL API client secret                                                                                  |
 | `MAL_REDIRECT_URI`     | `https://anime-ep-checker.dev/api/mal/callback`                                                        |
 | `MAL_REFRESH_TOKEN`    | From one-time OAuth at `/mal`                                                                          |
+| `VAPID_PUBLIC_KEY`     | App badge push key pair, public half (see [App badge](#app-badge))                                     |
+| `VAPID_PRIVATE_KEY`    | App badge push key pair, private half                                                                  |
+| `PUSH_TRIGGER_SECRET`  | Random string (e.g. `openssl rand -hex 32`); the checker sends it to trigger drop pushes               |
 
 **After the first deploy:**
 
@@ -294,6 +298,21 @@ The bot maintains a **pinned message per tracked show** in `#watching` using a *
 ### MAL score alerts
 
 On each checker run, the bot compares each show’s MAL **mean score** to the last stored value in `state.json`. A change of **0.05 or more** posts a **score pickup** (green) or **score drop** (red) embed to `#anime-alerts` with cover art and old → new score. Smaller moves are ignored. First fetch baselines the score without alerting.
+
+### App badge
+
+When the admin is added to an iPhone Home Screen (iOS 18.4+), its icon can show how many Watching shows are behind on MAL. Turn it on from the account menu ("Turn on app badge"); "Send test badge push" checks the whole path. Each drop sends a push (title, episode, new count) alongside the Discord alert; the count also refreshes whenever the app opens. Design: [ADR 0003](docs/adr/0003-admin-worker-sends-web-push.md).
+
+Setup, once:
+
+1. Generate a VAPID key pair and set both halves as Worker secrets:
+
+   ```bash
+   node -e "const s=crypto.subtle;s.generateKey({name:'ECDSA',namedCurve:'P-256'},true,['sign']).then(async k=>{console.log('VAPID_PUBLIC_KEY='+Buffer.from(await s.exportKey('raw',k.publicKey)).toString('base64url'));console.log('VAPID_PRIVATE_KEY='+(await s.exportKey('jwk',k.privateKey)).d)})"
+   ```
+
+2. Set the same random `PUSH_TRIGGER_SECRET` as a Worker secret and a GitHub Actions secret.
+3. Subscriptions live in the `PUSH_SUBSCRIPTIONS` KV namespace declared in [`admin/cloudflare.config.ts`](admin/cloudflare.config.ts).
 
 ### Plan-to-watch airing alerts
 

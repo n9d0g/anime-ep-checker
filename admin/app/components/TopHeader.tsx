@@ -8,6 +8,7 @@ import {
   MalSetupIcon,
   SearchIcon,
 } from '@/app/components/ListIcons'
+import { AppBadgeMenuItems } from '@/app/components/AppBadgeMenuItems'
 import { ListTabs } from '@/app/components/ListTabs'
 import { SearchOverlay } from '@/app/components/SearchOverlay'
 
@@ -139,6 +140,7 @@ export function TopHeader() {
                   MAL setup
                 </Link>
                 <div className="profile-menu-divider" role="separator" />
+                <AppBadgeMenuItems onDone={() => setProfileMenuOpen(false)} />
                 <button
                   className="profile-menu-item profile-menu-danger"
                   type="button"
