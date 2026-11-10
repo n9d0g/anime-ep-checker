@@ -26,6 +26,12 @@ import { syncMalScoreAlerts } from './mal-score.ts'
 import { syncMalStatusAlerts } from './mal-status.ts'
 import { syncPlanToWatchAlerts } from './plan-to-watch.ts'
 import {
+  getAppBadgePushConfigFromEnv,
+  notifyAppBadgeDrop,
+  type AppBadgePushConfig,
+  type DropNotice,
+} from './app-badge-push.ts'
+import {
   createProviderLookup,
   fetchLatestEpisode,
   resolveProviderId,
@@ -77,6 +83,12 @@ async function writeJson(path: string, data: unknown): Promise<void> {
   await writeFile(path, `${JSON.stringify(data, null, 2)}\n`, 'utf8')
 }
 
+/** The App badge push config and the drops alerted so far this run. */
+interface AppBadgeRun {
+  config: AppBadgePushConfig
+  drops: DropNotice[]
+}
+
 export interface CheckOptions {
   showsPath?: string
   statePath?: string
@@ -86,6 +98,8 @@ export interface CheckOptions {
   fetchEpisode?: FetchEpisode
   dryRun?: boolean
   force?: boolean
+  /** Where to tell the admin about drops for the App badge push. */
+  appBadge?: AppBadgePushConfig
   /** Run due announcement checks (they fetch each show's official site). */
   announcementChecks?: boolean
 }
@@ -101,10 +115,12 @@ async function announceEpisode({
   expectedDropAt,
   state,
   noteStateChange,
+  appBadge,
 }: {
   discord: DiscordConfig
   calendarConfig: GoogleCalendarConfig
   dryRun: boolean
+  appBadge: AppBadgeRun
   show: Show
   showId: string
   latestSnapshot: EpisodeSnapshot
@@ -175,6 +191,22 @@ async function announceEpisode({
     } else {
       console.log('  Discord not configured; skipping alert')
     }
+
+    const notice: DropNotice = {
+      showId,
+      showTitle: show.title || showId,
+      episodeNumber,
+      episodeTitle: latestSnapshot.episode.title?.trim() || null,
+    }
+    const pushed = await notifyAppBadgeDrop(
+      appBadge.config,
+      notice,
+      appBadge.drops
+    )
+    appBadge.drops.push(notice)
+    if (pushed === 'sent') {
+      console.log('  App badge push sent')
+    }
   }
 }
 
@@ -197,6 +229,7 @@ async function applyDecision(
     discord,
     calendarConfig,
     dryRun,
+    appBadge,
     show,
     state,
     noteStateChange,
@@ -204,6 +237,7 @@ async function applyDecision(
     discord: DiscordConfig
     calendarConfig: GoogleCalendarConfig
     dryRun: boolean
+    appBadge: AppBadgeRun
     show: Show
     state: StateFile
     noteStateChange: (reason: string) => void
@@ -240,6 +274,7 @@ async function applyDecision(
         discord,
         calendarConfig,
         dryRun,
+        appBadge,
         show,
         showId,
         latestSnapshot: decision.snapshot,
@@ -310,6 +345,7 @@ export async function checkShows({
   fetchEpisode = fetchLatestEpisode,
   dryRun = false,
   force = false,
+  appBadge: appBadgeConfig = getAppBadgePushConfigFromEnv(),
   announcementChecks = true,
 }: CheckOptions = {}): Promise<{
   stateChanged: boolean
@@ -325,6 +361,7 @@ export async function checkShows({
   const stateChangeReasons: string[] = []
   const failedShows: string[] = []
   const snapshotEpisodes = new Map<string, number>()
+  const appBadge: AppBadgeRun = { config: appBadgeConfig, drops: [] }
 
   const noteStateChange = (reason: string) => {
     stateChangeReasons.push(reason)
@@ -457,6 +494,7 @@ export async function checkShows({
         discord,
         calendarConfig,
         dryRun,
+        appBadge,
         show,
         state,
         noteStateChange,

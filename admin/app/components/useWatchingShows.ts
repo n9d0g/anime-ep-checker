@@ -13,6 +13,7 @@ import {
   type BootstrapCache,
 } from '@/lib/client-cache'
 import { getAnnouncedBreakSuggestion } from '@/lib/announced-break'
+import { syncAppBadge } from '@/lib/app-badge-client'
 import type { ReturningShow } from '@/lib/awaiting-return'
 import { describeBreak, getBreakAfterEpisode } from '@/lib/schedule-break'
 import { getAniListGapWeeks } from '@shared/schedule'
@@ -106,6 +107,9 @@ export function useWatchingShows(options: {
   // The row whose Setup is being saved, if any.
   const [savingKey, setSavingKey] = useState<string | null>(null)
   const [malDown, setMalDown] = useState(false)
+  // Set once MAL progress has loaded fresh this session (not from the cache),
+  // so the App badge is never set from stale counts.
+  const [watchedFresh, setWatchedFresh] = useState(false)
   const baseline = useMemo(
     () => (savedRows ? serializeShows(showRowValues(savedRows)) : ''),
     [savedRows]
@@ -174,6 +178,7 @@ export function useWatchingShows(options: {
 
     const { watchedByShowId } = result
     setMalDown(result.malDown)
+    setWatchedFresh(true)
 
     setShowStates((current) => {
       const next = { ...current }
@@ -801,6 +806,17 @@ export function useWatchingShows(options: {
       toast.error(apiErrorMessage(error, 'Failed to dismiss announced break'))
     }
   }
+
+  // Every fresh count (app open, focus refresh, an episode marked watched)
+  // updates the Home Screen icon. MAL down leaves it alone.
+  useEffect(() => {
+    if (!watchedFresh || malDown) {
+      return
+    }
+    void syncAppBadge(
+      displayRows.filter(({ view }) => view.badge.behind).length
+    )
+  }, [watchedFresh, malDown, displayRows])
 
   return {
     rows,

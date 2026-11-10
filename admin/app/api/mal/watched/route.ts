@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { withErrorResponse } from '@/lib/api-route'
 import { getShowsFile, NO_STORE_HEADERS } from '@/lib/github'
-import { fetchMalAnimeDetails, isMalOutageError } from '@/lib/mal'
+import { fetchWatchedByShowId } from '@/lib/mal-watched'
 import type { Show } from '@shared/types'
 
 export const dynamic = 'force-dynamic'
@@ -12,28 +12,7 @@ export async function GET() {
     async () => {
       const { content } = await getShowsFile()
       const shows = (content.shows ?? []) as Show[]
-
-      const watchedByShowId: Record<string, number | null> = {}
-      let malDown = false
-
-      await Promise.all(
-        shows.map(async (show) => {
-          if (!show.malId) {
-            watchedByShowId[show.id] = null
-            return
-          }
-
-          try {
-            const details = await fetchMalAnimeDetails(show.malId)
-            watchedByShowId[show.id] = details.watched
-          } catch (error) {
-            watchedByShowId[show.id] = null
-            if (isMalOutageError(error)) {
-              malDown = true
-            }
-          }
-        })
-      )
+      const { watchedByShowId, malDown } = await fetchWatchedByShowId(shows)
 
       return NextResponse.json(
         { watchedByShowId, malDown },

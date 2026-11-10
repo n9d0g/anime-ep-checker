@@ -12,6 +12,8 @@ export default defineConfig({
     env: {
       ASSETS: bindings.assets(),
       IMAGES: bindings.images(),
+      // App badge push subscriptions, one per device (ADR 0003).
+      PUSH_SUBSCRIPTIONS: bindings.kv(),
       ADMIN_PASSWORD: bindings.secret(),
       ADMIN_SESSION_SECRET: bindings.secret(),
       GITHUB_TOKEN: bindings.secret(),
@@ -21,6 +23,9 @@ export default defineConfig({
       MAL_CLIENT_SECRET: bindings.secret(),
       MAL_REDIRECT_URI: bindings.secret(),
       MAL_REFRESH_TOKEN: bindings.secret(),
+      VAPID_PUBLIC_KEY: bindings.secret(),
+      VAPID_PRIVATE_KEY: bindings.secret(),
+      PUSH_TRIGGER_SECRET: bindings.secret(),
     },
   }),
 })

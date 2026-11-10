@@ -24,6 +24,8 @@ export async function proxy(request: NextRequest) {
   if (
     pathname.startsWith('/api/auth') ||
     pathname.startsWith('/api/mal/callback') ||
+    // The checker's drop trigger; the route checks PUSH_TRIGGER_SECRET.
+    pathname === '/api/push/drop' ||
     pathname === '/login' ||
     isPublicPwaAsset(pathname)
   ) {
