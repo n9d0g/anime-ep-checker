@@ -1,10 +1,10 @@
 {
   "shows": {
     "kusuriya-no-hitorigoto-3rd-season": {
-      "lastEpisodeId": "GE00384332JAJP",
-      "lastEpisodeNumber": "6",
-      "lastEpisodeTitle": "The Paper Village",
-      "lastNotifiedAt": "2026-11-06T15:40:46.217Z",
+      "lastEpisodeId": "GE00384333JAJP",
+      "lastEpisodeNumber": "7",
+      "lastEpisodeTitle": "The Bet",
+      "lastNotifiedAt": "2026-11-13T15:10:43.680Z",
       "seasonId": "GS00384044JAJP",
       "seasonTitle": "Season 3",
       "waitingNotifiedForEpisode": null,
@@ -33,7 +33,7 @@
         }
       },
       "airingSchedule": {
-        "fetchedAt": "2026-11-13T15:01:00.850Z",
+        "fetchedAt": "2026-11-13T15:10:43.680Z",
         "episodes": {
           "1": "2026-10-02T14:00:00.000Z",
           "2": "2026-10-09T14:00:00.000Z",
@@ -49,8 +49,8 @@
           "12": "2026-12-18T14:00:00.000Z"
         }
       },
-      "lastSnapshotEpisode": 6,
-      "announcementCheckedAt": "2026-11-13T12:15:39.290Z",
+      "lastSnapshotEpisode": 7,
+      "announcementCheckedAt": "2026-11-13T15:10:43.680Z",
       "announcementReadAt": "2026-10-31T12:10:44.693Z",
       "officialSiteUrl": "https://kusuriyanohitorigoto.jp/season3/",
       "malScoreAlertedAt": "2026-11-08T14:30:46.066Z"
@@ -740,7 +740,7 @@
       ]
     },
     "watchingDashboardHashes": {
-      "kusuriya-no-hitorigoto-3rd-season": "0a762374a33a861705405db6b3496defc0182cad",
+      "kusuriya-no-hitorigoto-3rd-season": "a93add83b591183f73bceb63d6a01424a5adde59",
       "ao-no-hako-season-2": "3218b4be229e5ea9b76fbf5f0f215cfb3bdefa1e"
     },
     "onHold": {
