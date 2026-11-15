@@ -56,20 +56,16 @@
       "malScoreAlertedAt": "2026-11-08T14:30:46.066Z"
     },
     "ao-no-hako-season-2": {
-      "lastEpisodeId": "82716335",
-      "lastEpisodeNumber": "5",
-      "lastEpisodeTitle": "It's Back",
-      "lastNotifiedAt": "2026-11-08T08:25:40.204Z",
+      "lastEpisodeId": "82716336",
+      "lastEpisodeNumber": "6",
+      "lastEpisodeTitle": "Christmas Eve",
+      "lastNotifiedAt": "2026-11-15T08:30:43.744Z",
       "seasonId": "82715728",
       "seasonTitle": "Season 2",
       "waitingNotifiedForEpisode": null,
       "episodeOffset": 25,
       "malMeanScore": 8.17,
       "googleCalendarEvents": {
-        "6": {
-          "eventId": "46fk7p9p6uovka0f0vgnfe0su8",
-          "startAt": "2026-11-15T08:30:00.000Z"
-        },
         "7": {
           "eventId": "ougd2i2rg80cf7l82ihdag8ks4",
           "startAt": "2026-11-22T08:30:00.000Z"
@@ -96,7 +92,7 @@
         }
       },
       "airingSchedule": {
-        "fetchedAt": "2026-11-15T08:25:33.551Z",
+        "fetchedAt": "2026-11-15T08:30:43.744Z",
         "episodes": {
           "1": "2026-10-04T07:30:00.000Z",
           "2": "2026-10-11T07:30:00.000Z",
@@ -112,10 +108,10 @@
           "12": "2026-12-27T07:30:00.000Z"
         }
       },
-      "lastSnapshotEpisode": 5,
+      "lastSnapshotEpisode": 6,
       "officialSiteUrl": "https://aonohako-anime.com/",
-      "announcementCheckedAt": "2026-11-15T05:45:41.910Z",
-      "announcementReadAt": "2026-11-15T05:45:41.910Z"
+      "announcementCheckedAt": "2026-11-15T08:30:43.744Z",
+      "announcementReadAt": "2026-11-15T08:30:43.744Z"
     }
   },
   "meta": {
@@ -741,7 +737,7 @@
     },
     "watchingDashboardHashes": {
       "kusuriya-no-hitorigoto-3rd-season": "a93add83b591183f73bceb63d6a01424a5adde59",
-      "ao-no-hako-season-2": "8a5f8001e8e8b903d6bda95ce2beca823df4d35c"
+      "ao-no-hako-season-2": "91fd3bff6221fe693699df9dcce8adb9de9d77f2"
     },
     "onHold": {
       "updatedAt": "2026-10-31T06:15:14.105Z",
