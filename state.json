@@ -741,7 +741,7 @@
     },
     "watchingDashboardHashes": {
       "kusuriya-no-hitorigoto-3rd-season": "a93add83b591183f73bceb63d6a01424a5adde59",
-      "ao-no-hako-season-2": "adda02c7c997a7f64a6821eee3dfa9724cd45f4f"
+      "ao-no-hako-season-2": "e4c6d82fd0629dd766f748dd78b16ab449a85c42"
     },
     "onHold": {
       "updatedAt": "2026-10-31T06:15:14.105Z",
@@ -848,7 +848,7 @@
         "lastPostPublishedAt": "2026-11-08T14:00:05.000Z"
       }
     },
-    "relatedAnimeCheckedAt": "2026-11-08T05:00:46.699Z",
+    "relatedAnimeCheckedAt": "2026-11-15T05:00:50.711Z",
     "relatedAnimeSeen": {
       "20": [
         442,
@@ -2034,7 +2034,9 @@
         60285
       ],
       "59027": [
-        53887
+        53887,
+        65350,
+        65351
       ],
       "59177": [
         52588,
@@ -2090,7 +2092,8 @@
       ],
       "61316": [
         54857,
-        63830
+        63830,
+        65450
       ],
       "61322": [
         57592,
