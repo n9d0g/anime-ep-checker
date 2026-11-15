@@ -33,7 +33,7 @@
         }
       },
       "airingSchedule": {
-        "fetchedAt": "2026-11-14T15:50:44.371Z",
+        "fetchedAt": "2026-11-15T15:55:39.341Z",
         "episodes": {
           "1": "2026-10-02T14:00:00.000Z",
           "2": "2026-10-09T14:00:00.000Z",
@@ -131,9 +131,9 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-11-14T15:50:44.371Z",
+    "planToWatchCheckedAt": "2026-11-15T15:55:39.341Z",
     "planToWatch": {
-      "updatedAt": "2026-11-11T15:35:41.480Z",
+      "updatedAt": "2026-11-15T15:55:39.341Z",
       "entries": [
         {
           "malId": 59675,
@@ -145,7 +145,7 @@
             "dayOfWeek": "wednesday",
             "startTime": "01:34"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1511/148642l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1511/148642l.jpg",
           "numEpisodes": 12
         },
         {
@@ -242,7 +242,7 @@
           "status": "not_yet_aired",
           "startDate": null,
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1432/154522l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1432/154522l.jpg",
           "numEpisodes": null
         },
         {
@@ -252,7 +252,7 @@
           "status": "not_yet_aired",
           "startDate": "2027",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1671/154516l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1671/154516l.webp",
           "numEpisodes": null
         },
         {
@@ -284,7 +284,7 @@
             "dayOfWeek": "sunday",
             "startTime": "01:00"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1902/129579l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1902/129579l.jpg",
           "numEpisodes": 12
         },
         {
@@ -337,7 +337,7 @@
           "status": "not_yet_aired",
           "startDate": "2027",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1477/160682l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1477/160682l.jpg",
           "numEpisodes": 1
         },
         {
@@ -439,7 +439,7 @@
           "status": "not_yet_aired",
           "startDate": "2027-04",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1667/152812l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1667/152812l.jpg",
           "numEpisodes": 12
         },
         {
@@ -469,7 +469,7 @@
           "status": "not_yet_aired",
           "startDate": null,
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1031/149060l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1031/149060l.jpg",
           "numEpisodes": null
         },
         {
@@ -492,7 +492,7 @@
           "status": "not_yet_aired",
           "startDate": "2027",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1216/160273l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1216/160273l.jpg",
           "numEpisodes": null
         },
         {
@@ -512,7 +512,7 @@
           "status": "not_yet_aired",
           "startDate": "2027",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1170/159705l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1170/159705l.webp",
           "numEpisodes": 1
         },
         {
@@ -549,6 +549,16 @@
           "numEpisodes": 1
         },
         {
+          "malId": 65450,
+          "title": "Re:Zero kara Hajimeru Isekai Seikatsu 5th Season",
+          "titleEnglish": "Re:ZERO -Starting Life in Another World- Season 5",
+          "status": "not_yet_aired",
+          "startDate": null,
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1357/161172l.jpg",
+          "numEpisodes": null
+        },
+        {
           "malId": 63139,
           "title": "Sakamoto Days 2nd Season",
           "titleEnglish": "Sakamoto Days Season 2",
@@ -576,6 +586,24 @@
           "startDate": "2027-10",
           "broadcast": null,
           "coverUrl": "https://cdn.myanimelist.net/images/anime/1619/156313l.jpg",
+          "numEpisodes": null
+        },
+        {
+          "malId": 65351,
+          "title": "Spy x Family Movie 2",
+          "status": "not_yet_aired",
+          "startDate": "2027",
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1450/160942l.jpg",
+          "numEpisodes": 1
+        },
+        {
+          "malId": 65350,
+          "title": "Spy x Family Season 4",
+          "status": "not_yet_aired",
+          "startDate": "2027",
+          "broadcast": null,
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1806/160941l.jpg",
           "numEpisodes": null
         },
         {
@@ -631,7 +659,7 @@
           "status": "not_yet_aired",
           "startDate": "2027-04",
           "broadcast": null,
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1261/160258l.webp",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1261/160258l.jpg",
           "numEpisodes": null
         },
         {
@@ -664,7 +692,7 @@
             "dayOfWeek": "sunday",
             "startTime": "16:30"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1626/148097l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1626/148097l.webp",
           "numEpisodes": 13
         },
         {
@@ -677,7 +705,7 @@
             "dayOfWeek": "sunday",
             "startTime": "16:30"
           },
-          "coverUrl": "https://cdn.myanimelist.net/images/anime/1120/152280l.jpg",
+          "coverUrl": "https://cdn.myanimelist.net/images/anime/1120/152280l.webp",
           "numEpisodes": 10
         },
         {
