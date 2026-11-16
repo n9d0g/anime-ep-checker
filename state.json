@@ -33,7 +33,7 @@
         }
       },
       "airingSchedule": {
-        "fetchedAt": "2026-11-15T15:55:39.341Z",
+        "fetchedAt": "2026-11-16T16:05:39.947Z",
         "episodes": {
           "1": "2026-10-02T14:00:00.000Z",
           "2": "2026-10-09T14:00:00.000Z",
@@ -131,7 +131,7 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-11-15T15:55:39.341Z",
+    "planToWatchCheckedAt": "2026-11-16T16:05:39.947Z",
     "planToWatch": {
       "updatedAt": "2026-11-15T15:55:39.341Z",
       "entries": [
