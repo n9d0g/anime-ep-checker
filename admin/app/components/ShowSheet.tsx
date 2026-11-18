@@ -12,6 +12,8 @@ import { describeBreak } from '@/lib/schedule-break'
 import { formScheduleToSchedule, MAL_DOWN_MESSAGE } from '@/lib/watching'
 import { getOfficialNewsUrl } from '@shared/shows'
 import type { ShowProvider } from '@shared/types'
+import { FieldDescription } from '@/components/ui/field'
+import { Button } from '@/components/ui/button'
 
 function capitalize(text: string): string {
   return text.charAt(0).toUpperCase() + text.slice(1)
@@ -122,7 +124,9 @@ export function ShowSheet({
           <p className="sheet-hero-latest-episode">{view.behindEpisodeLine}</p>
         ) : null}
         {!show.id ? (
-          <p className="hint">Fill in Setup, then save to start checking.</p>
+          <FieldDescription>
+            Fill in Setup, then save to start checking.
+          </FieldDescription>
         ) : null}
       </div>
 
@@ -131,36 +135,39 @@ export function ShowSheet({
           {view.watchUrl || view.discussionUrl || view.malUrl ? (
             <div className="quick-links">
               {view.watchUrl ? (
-                <a
-                  className="btn btn-link"
-                  href={view.watchUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {view.nextEpisodeToWatch !== null
-                    ? `Watch ep ${view.nextEpisodeToWatch}`
-                    : 'Watch'}
-                </a>
+                <Button asChild className="min-w-0 flex-1">
+                  <a
+                    href={view.watchUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {view.nextEpisodeToWatch !== null
+                      ? `Watch ep ${view.nextEpisodeToWatch}`
+                      : 'Watch'}
+                  </a>
+                </Button>
               ) : null}
               {view.discussionUrl ? (
-                <a
-                  className="btn btn-secondary btn-link"
-                  href={view.discussionUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Discussion
-                </a>
+                <Button asChild variant="outline" className="min-w-0 flex-1">
+                  <a
+                    href={view.discussionUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Discussion
+                  </a>
+                </Button>
               ) : null}
               {view.malUrl ? (
-                <a
-                  className="btn btn-secondary btn-link"
-                  href={view.malUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  MAL
-                </a>
+                <Button asChild variant="outline" className="min-w-0 flex-1">
+                  <a
+                    href={view.malUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    MAL
+                  </a>
+                </Button>
               ) : null}
             </div>
           ) : null}
@@ -208,7 +215,9 @@ export function ShowSheet({
               </div>
             </div>
           ) : null}
-          {malBlocked ? <p className="hint">{MAL_DOWN_MESSAGE}</p> : null}
+          {malBlocked ? (
+            <FieldDescription>{MAL_DOWN_MESSAGE}</FieldDescription>
+          ) : null}
         </SheetSection>
       ) : null}
 
@@ -240,21 +249,17 @@ export function ShowSheet({
               </span>
               <div className="actions">
                 {suggestion ? (
-                  <button
-                    className="btn"
-                    type="button"
-                    onClick={onConfirmAnnouncedBreak}
-                  >
+                  <Button type="button" onClick={onConfirmAnnouncedBreak}>
                     Add {describeBreak(suggestion)}
-                  </button>
+                  </Button>
                 ) : null}
-                <button
-                  className="btn btn-secondary"
+                <Button
+                  variant="outline"
                   type="button"
                   onClick={onDismissAnnouncedBreak}
                 >
                   Dismiss
-                </button>
+                </Button>
               </div>
             </div>
           ) : null}
@@ -269,7 +274,7 @@ export function ShowSheet({
               ))}
             </ol>
           ) : view.nextDropLine ? (
-            <p className="hint">{view.nextDropLine}</p>
+            <FieldDescription>{view.nextDropLine}</FieldDescription>
           ) : null}
 
           {show.schedule.breaks?.length ? (
@@ -290,25 +295,21 @@ export function ShowSheet({
           ) : null}
 
           <div className="break-actions">
-            <button
-              className="btn btn-secondary"
-              type="button"
-              onClick={onAddBreak}
-            >
+            <Button variant="outline" type="button" onClick={onAddBreak}>
               Add break
-            </button>
-            <p className="hint">
+            </Button>
+            <FieldDescription>
               Adds a 1-week break after the last dropped episode: later drops
               shift by 7 days, earlier ones stay, and Discord and Google
               Calendar events rebuild.
-            </p>
+            </FieldDescription>
           </div>
 
           {noOfficialSource ? (
-            <p className="hint">
+            <FieldDescription>
               No official source: break announcements are only read from Anime
               News Network. Set an official news URL under Setup.
-            </p>
+            </FieldDescription>
           ) : null}
         </SheetSection>
       ) : null}
@@ -328,29 +329,34 @@ export function ShowSheet({
         <div className="actions sheet-manage">
           {show.id && view.malLinked ? (
             <>
-              <button
-                className="btn btn-secondary"
+              <Button
+                variant="outline"
                 type="button"
                 disabled={holding || completingShow || malBlocked}
                 title={malBlocked ? MAL_DOWN_MESSAGE : undefined}
                 onClick={onHold}
               >
                 {holding ? 'Saving…' : 'Put on hold'}
-              </button>
-              <button
-                className="btn btn-secondary"
+              </Button>
+              <Button
+                variant="outline"
                 type="button"
                 disabled={completingShow || malBlocked}
                 title={malBlocked ? MAL_DOWN_MESSAGE : undefined}
                 onClick={onComplete}
               >
                 Mark as completed
-              </button>
+              </Button>
             </>
           ) : null}
-          <button className="btn btn-danger" type="button" onClick={onRemove}>
+          <Button
+            variant="destructive-link"
+            size="inline"
+            type="button"
+            onClick={onRemove}
+          >
             Remove show
-          </button>
+          </Button>
         </div>
       </SheetSection>
     </Sheet>

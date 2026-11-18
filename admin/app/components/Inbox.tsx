@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { formatMalDate } from '@/lib/anime-format'
 import type { InboxItem } from '@/lib/inbox'
+import { Button } from '@/components/ui/button'
 
 const ICONS: Record<InboxItem['kind'], string> = {
   announced_break: '⚠️',
@@ -52,70 +53,76 @@ export function Inbox({
               {item.kind === 'announced_break' ? (
                 <>
                   {item.suggestedWeeks ? (
-                    <button
-                      className="btn btn-sm"
+                    <Button
+                      size="sm"
                       type="button"
                       onClick={() => onAddBreak(item.showId)}
                     >
                       Add {item.suggestedWeeks}-week break
-                    </button>
+                    </Button>
                   ) : null}
-                  <button
-                    className="btn btn-secondary btn-sm"
+                  <Button
+                    variant="outline"
+                    size="sm"
                     type="button"
                     onClick={() => onDismissBreak(item.showId)}
                   >
                     Dismiss
-                  </button>
+                  </Button>
                 </>
               ) : item.kind === 'no_official_source' ? (
-                <button
-                  className="btn btn-secondary btn-sm"
+                <Button
+                  variant="outline"
+                  size="sm"
                   type="button"
                   onClick={() => onOpenSetup(item.showId, 'official-news')}
                 >
                   Set URL →
-                </button>
+                </Button>
               ) : item.kind === 'mal_unlinked' ? (
-                <button
-                  className="btn btn-secondary btn-sm"
+                <Button
+                  variant="outline"
+                  size="sm"
                   type="button"
                   onClick={() => onOpenSetup(item.showId, 'mal')}
                 >
                   Link MAL →
-                </button>
+                </Button>
               ) : item.kind === 'return_announced' ? (
                 <>
-                  <Link
-                    className="btn btn-sm"
-                    href={`/on-hold#show-${encodeURIComponent(item.showId)}`}
-                  >
-                    Open in On hold
-                  </Link>
-                  <button
-                    className="btn btn-secondary btn-sm"
+                  <Button asChild size="sm">
+                    <Link
+                      href={`/on-hold#show-${encodeURIComponent(item.showId)}`}
+                    >
+                      Open in On hold
+                    </Link>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
                     type="button"
                     onClick={() => onNotNow(item.key)}
                   >
                     Not now
-                  </button>
+                  </Button>
                 </>
               ) : (
                 <>
-                  <button
-                    className="btn btn-sm"
+                  <Button
+                    size="sm"
                     type="button"
                     onClick={() => onMoveToWatching(item)}
                   >
                     Move to Watching
-                  </button>
-                  <button
-                    className="btn btn-secondary btn-sm"
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
                     type="button"
                     onClick={() => onNotNow(item.key)}
                   >
                     Not now
-                  </button>
+                  </Button>
                 </>
               )}
             </div>

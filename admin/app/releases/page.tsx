@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import releases from 'virtual:release-notes'
 import type { Release } from '@/lib/release-notes'
+import { Button } from '@/components/ui/button'
 
 /** The version running here, without dev's "-dev". */
 const RUNNING = __APP_VERSION__.replace(/-dev$/, '')
@@ -25,9 +26,9 @@ export default function ReleasesPage() {
           <h1>Release notes</h1>
           <p className="subtitle">Running v{RUNNING}</p>
         </div>
-        <Link className="btn btn-secondary" href="/">
-          Back
-        </Link>
+        <Button asChild variant="outline">
+          <Link href="/">Back</Link>
+        </Button>
       </header>
 
       {releases.length === 0 ? (

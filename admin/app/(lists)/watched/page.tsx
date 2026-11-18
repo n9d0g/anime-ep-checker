@@ -38,6 +38,9 @@ import {
   sortWatched,
   type WatchedSort,
 } from '@/lib/watched'
+import { FieldDescription } from '@/components/ui/field'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
 const SORTS = Object.keys(WATCHED_SORT_LABELS) as WatchedSort[]
 
@@ -237,14 +240,14 @@ export default function WatchedPage() {
             Completed shows from MyAnimeList, with your scores.
           </p>
         </div>
-        <button
-          className="btn btn-secondary"
+        <Button
+          variant="outline"
           type="button"
           onClick={() => void refreshList()}
           disabled={loading || refreshing}
         >
           {refreshing && !loading ? 'Refreshing…' : 'Refresh'}
-        </button>
+        </Button>
       </div>
 
       {loading ? (
@@ -256,7 +259,7 @@ export default function WatchedPage() {
       ) : (
         <div className="stack ptw-sections">
           <div className="stack watched-controls">
-            <input
+            <Input
               type="search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
@@ -276,7 +279,9 @@ export default function WatchedPage() {
                 </button>
               ))}
             </div>
-            <p className="hint watched-stats">{formatStats(filtered)}</p>
+            <FieldDescription className="watched-stats">
+              {formatStats(filtered)}
+            </FieldDescription>
           </div>
 
           {filtered.length === 0 ? (
@@ -318,7 +323,9 @@ export default function WatchedPage() {
       )}
 
       {list?.fetchedAt ? (
-        <p className="hint ptw-updated">{formatUpdatedAgo(list.fetchedAt)}</p>
+        <FieldDescription className="ptw-updated">
+          {formatUpdatedAgo(list.fetchedAt)}
+        </FieldDescription>
       ) : null}
 
       {openEntry ? (

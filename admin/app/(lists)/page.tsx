@@ -32,6 +32,7 @@ import type {
   PlanToWatchSnapshot,
   PlanToWatchSnapshotEntry,
 } from '@shared/types'
+import { Button } from '@/components/ui/button'
 
 // Which show's sheet is open: by row key (rows without an ID yet, e.g. a new
 // show) or by show ID (a search result, possibly before the list loads). An
@@ -162,15 +163,16 @@ export default function AdminPage() {
               The shows the checker is tracking. Times are Eastern (ET).
             </p>
           </div>
-          <button
-            className="btn btn-secondary btn-icon"
+          <Button
+            variant="outline"
+            size="icon"
             type="button"
             aria-label="Add show"
             title="Add show"
             onClick={() => setOpenSheet({ rowKey: shows.addShow() })}
           >
             +
-          </button>
+          </Button>
         </div>
 
         {shows.malDown ? (
@@ -293,8 +295,8 @@ export default function AdminPage() {
           submitting={false}
           onCancel={() => setDiscardKey(null)}
           primaryAction={
-            <button
-              className="btn btn-discard"
+            <Button
+              variant="destructive"
               type="button"
               onClick={() => {
                 shows.revertShow(discardKey)
@@ -303,7 +305,7 @@ export default function AdminPage() {
               }}
             >
               Discard
-            </button>
+            </Button>
           }
         />
       ) : null}

@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { Button } from '@/components/ui/button'
 
 export default function MalSetupPage() {
   const hasClientId = Boolean(process.env.MAL_CLIENT_ID)
@@ -13,9 +14,9 @@ export default function MalSetupPage() {
             show MAL data on shows in Watching.
           </p>
         </div>
-        <Link className="btn btn-secondary" href="/">
-          Back
-        </Link>
+        <Button asChild variant="outline">
+          <Link href="/">Back</Link>
+        </Button>
       </header>
 
       <section className="panel stack">
@@ -47,9 +48,9 @@ export default function MalSetupPage() {
         </ol>
 
         {hasClientId ? (
-          <a className="btn" href="/api/mal/auth">
-            Connect MyAnimeList
-          </a>
+          <Button asChild>
+            <a href="/api/mal/auth">Connect MyAnimeList</a>
+          </Button>
         ) : (
           <p className="status error">
             MAL_CLIENT_ID is not set on this deployment yet.

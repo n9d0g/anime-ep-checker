@@ -3,6 +3,7 @@
 import { useState, type ReactNode } from 'react'
 import { Sheet } from '@/app/components/Sheet'
 import { ShowTitleDisplay } from '@/app/components/ShowTitleDisplay'
+import { Button } from '@/components/ui/button'
 
 export type AnimeFact = [label: string, value: string | null]
 
@@ -95,22 +96,24 @@ export function AnimeFacts({
       ) : null}
       {footer}
       <div className="quick-links">
-        <a
-          className="btn btn-secondary btn-sm"
-          href={`https://myanimelist.net/anime/${malId}`}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          MyAnimeList ↗
-        </a>
-        <a
-          className="btn btn-secondary btn-sm"
-          href={`https://anilist.co/search/anime?search=${encodeURIComponent(title)}`}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          AniList ↗
-        </a>
+        <Button asChild variant="outline" size="sm">
+          <a
+            href={`https://myanimelist.net/anime/${malId}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            MyAnimeList ↗
+          </a>
+        </Button>
+        <Button asChild variant="outline" size="sm">
+          <a
+            href={`https://anilist.co/search/anime?search=${encodeURIComponent(title)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            AniList ↗
+          </a>
+        </Button>
       </div>
     </>
   )
