@@ -15,3 +15,8 @@ Single-context: one `GLOSSARY.md` and `docs/adr/` at the repo root. See `docs/ag
 ## Releases
 
 - PR titles must be conventional commits (`feat: ✨ …`, `fix: 🐛 …`, `chore: …`). PRs are squash-merged, so the title becomes the commit the deploy reads to choose the next version and write the Release notes (ADR 0004).
+
+## Admin UI
+
+- New admin UI uses shadcn/ui on Tailwind v4: primitives in `admin/components/ui`, styled with Tailwind classes. `admin/app/globals.css` is the old hand-written CSS, being moved over one slice at a time (#88); don't add to it.
+- Check UI changes at phone (375px), tablet (820px) and desktop (1280px) widths. Below 900px is "phone or tablet" (the floating tab bar, drawers).

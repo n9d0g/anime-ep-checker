@@ -1,0 +1,67 @@
+/*
+ * The admin's one stylesheet entry. The app is moving to shadcn/ui on
+ * Tailwind v4 a slice at a time; until the last slice, globals.css (the old
+ * hand-written styles) sits in the `legacy` layer, below Tailwind's
+ * utilities, and Tailwind's own reset (preflight) stays off so the old
+ * styles keep their look.
+ */
+@layer theme, legacy, base, utilities;
+
+@import 'tailwindcss/theme.css' layer(theme);
+@import './globals.css' layer(legacy);
+@import 'tailwindcss/utilities.css' layer(utilities);
+
+/* globals.css's .container is the page column, not Tailwind's utility. */
+@source not inline('container');
+
+/*
+ * shadcn/ui's colours, read straight from globals.css's tokens so the app
+ * keeps its look. (shadcn's own --accent is a hover background, while ours
+ * is the brand colour, so the mapping skips the shadcn variable names.)
+ */
+@theme inline {
+  --font-sans:
+    var(--font-inter), 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --color-background: var(--bg);
+  --color-foreground: var(--text);
+  --color-popover: var(--panel);
+  --color-popover-foreground: var(--text);
+  --color-card: var(--panel);
+  --color-card-foreground: var(--text);
+  --color-primary: var(--accent);
+  --color-primary-foreground: var(--accent-text);
+  --color-secondary: var(--panel-raised);
+  --color-secondary-foreground: var(--text);
+  --color-muted: var(--panel-raised);
+  --color-muted-foreground: var(--muted);
+  --color-accent: var(--panel-raised);
+  --color-accent-foreground: var(--text);
+  --color-destructive: var(--danger);
+  --color-border: var(--border);
+  --color-input: var(--border);
+  --color-ring: var(--border-focus);
+  --radius-sm: calc(var(--radius-sm) - 2px);
+  --radius-md: var(--radius-sm);
+  --radius-lg: var(--radius);
+}
+
+/*
+ * Preflight's essentials, only for shadcn/ui parts (each sets data-slot) and
+ * what's inside them, until the last slice turns on the full reset.
+ */
+@layer base {
+  :where([data-slot], [data-slot] *) {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    border: 0 solid var(--color-border);
+  }
+
+  :where([data-slot]) :where(a, button),
+  :where(a[data-slot], button[data-slot]) {
+    color: inherit;
+    background: transparent;
+    font: inherit;
+    text-decoration: inherit;
+  }
+}

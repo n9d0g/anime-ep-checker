@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs'
 import { defineConfig, type Plugin } from 'vite'
 import vinext from 'vinext'
 import { cloudflare } from '@cloudflare/vite-plugin'
+import tailwindcss from '@tailwindcss/vite'
 import { imagesOptimizer } from '@vinext/cloudflare/images/images-optimizer'
 import { loadReleaseNotes } from './scripts/release-notes.ts'
 
@@ -23,6 +24,7 @@ export default defineConfig(({ command }) => ({
   },
   plugins: [
     releaseNotes(),
+    tailwindcss(),
     vinext({
       images: { optimizer: imagesOptimizer() },
     }),
