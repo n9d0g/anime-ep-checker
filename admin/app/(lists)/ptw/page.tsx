@@ -39,6 +39,9 @@ import type {
 import type { PtwDetails, PtwDetailsList, ShowFormValues } from '@/lib/types'
 import { formatUpdatedAgo } from '@/lib/time'
 import { moveToWatchingMessage, requestMoveToWatching } from '@/lib/ptw-move'
+import { FieldDescription } from '@/components/ui/field'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
 async function fetchPtwSnapshot(): Promise<PlanToWatchSnapshot | null> {
   const data = await apiFetch<{ planToWatch?: PlanToWatchSnapshot | null }>(
@@ -237,9 +240,9 @@ function PtwSheet({
     >
       <SheetSection title="Manage">
         <div className="actions sheet-manage">
-          <button className="btn" type="button" onClick={onMove}>
+          <Button type="button" onClick={onMove}>
             Move to Watching
-          </button>
+          </Button>
         </div>
       </SheetSection>
       <SheetSection title="About">
@@ -410,8 +413,8 @@ export default function PlanToWatchPage() {
               show for details.
             </p>
           </div>
-          <button
-            className="btn btn-secondary"
+          <Button
+            variant="outline"
             type="button"
             onClick={() => {
               void refreshSnapshot(false)
@@ -419,7 +422,7 @@ export default function PlanToWatchPage() {
             disabled={loading || refreshing}
           >
             {refreshing ? 'Refreshing…' : 'Refresh'}
-          </button>
+          </Button>
         </div>
 
         {loading ? (
@@ -433,7 +436,7 @@ export default function PlanToWatchPage() {
         ) : (
           <div className="stack ptw-sections">
             <div className="stack watched-controls">
-              <input
+              <Input
                 type="search"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
@@ -499,9 +502,9 @@ export default function PlanToWatchPage() {
         )}
 
         {snapshot?.updatedAt ? (
-          <p className="hint ptw-updated">
+          <FieldDescription className="ptw-updated">
             {formatUpdatedAgo(snapshot.updatedAt)}
-          </p>
+          </FieldDescription>
         ) : null}
       </main>
 

@@ -3,6 +3,10 @@
 import { SegmentedControl } from '@/app/components/SegmentedControl'
 import type { ShowFormValues } from '@/lib/types'
 import type { ShowProvider } from '@shared/types'
+import { Field, FieldDescription } from '@/components/ui/field'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
 // The Setup section of a show's sheet: the fields saved to shows.json.
 // Collapsed for existing shows unless asked to open. `rowKey` keeps input IDs
@@ -58,18 +62,20 @@ export function ShowEditForm({
         </h3>
       </summary>
       <div className="sheet-setup-body">
-        <div className="field">
-          <label htmlFor={id('title')}>Title</label>
-          <input
+        <Field>
+          <Label htmlFor={id('title')}>Title</Label>
+          <Input
             id={id('title')}
             value={show.title}
             onChange={(event) => onUpdate('title', event.target.value)}
             placeholder="One Piece"
           />
-        </div>
+        </Field>
 
-        <div className="field">
-          <span id={id('provider-label')}>Provider</span>
+        <Field>
+          <Label asChild>
+            <span id={id('provider-label')}>Provider</span>
+          </Label>
           <SegmentedControl
             ariaLabel="Provider"
             value={show.provider}
@@ -80,12 +86,12 @@ export function ShowEditForm({
             ]}
             onChange={(value) => onUpdate('provider', value as ShowProvider)}
           />
-        </div>
+        </Field>
 
         {show.provider === 'crunchyroll' ? (
-          <div className="field">
-            <label htmlFor={id('url')}>Crunchyroll series URL</label>
-            <input
+          <Field>
+            <Label htmlFor={id('url')}>Crunchyroll series URL</Label>
+            <Input
               id={id('url')}
               value={show.crunchyrollUrl}
               onChange={(event) =>
@@ -94,33 +100,35 @@ export function ShowEditForm({
               placeholder="https://www.crunchyroll.com/series/..."
               required
             />
-          </div>
+          </Field>
         ) : show.provider === 'netflix' ? (
-          <div className="field">
-            <label htmlFor={id('netflix-url')}>Netflix title URL</label>
-            <input
+          <Field>
+            <Label htmlFor={id('netflix-url')}>Netflix title URL</Label>
+            <Input
               id={id('netflix-url')}
               value={show.netflixUrl}
               onChange={(event) => onUpdate('netflixUrl', event.target.value)}
               placeholder="https://www.netflix.com/title/..."
               required
             />
-          </div>
+          </Field>
         ) : (
-          <div className="field">
-            <label htmlFor={id('disney-url')}>Disney+ title URL</label>
-            <input
+          <Field>
+            <Label htmlFor={id('disney-url')}>Disney+ title URL</Label>
+            <Input
               id={id('disney-url')}
               value={show.disneyUrl}
               onChange={(event) => onUpdate('disneyUrl', event.target.value)}
               placeholder="https://www.disneyplus.com/browse/entity-..."
               required
             />
-          </div>
+          </Field>
         )}
 
-        <div className="field">
-          <span id={id('mode-label')}>Schedule type</span>
+        <Field>
+          <Label asChild>
+            <span id={id('mode-label')}>Schedule type</span>
+          </Label>
           <SegmentedControl
             ariaLabel="Schedule type"
             value={show.schedule.mode}
@@ -130,13 +138,13 @@ export function ShowEditForm({
             ]}
             onChange={(value) => onUpdateSchedule('mode', value)}
           />
-        </div>
+        </Field>
 
-        <div className="field">
-          <label htmlFor={id('start')}>
+        <Field>
+          <Label htmlFor={id('start')}>
             Start date and time (Japan Time / JST)
-          </label>
-          <input
+          </Label>
+          <Input
             id={id('start')}
             type="datetime-local"
             value={show.schedule.startAt}
@@ -146,13 +154,15 @@ export function ShowEditForm({
             required
           />
           {startHint ? (
-            <p className="hint schedule-start-hint">{startHint}</p>
+            <FieldDescription className="schedule-start-hint">
+              {startHint}
+            </FieldDescription>
           ) : null}
-        </div>
+        </Field>
 
-        <div className="field">
-          <label htmlFor={id('start-ep')}>Episode on start date</label>
-          <input
+        <Field>
+          <Label htmlFor={id('start-ep')}>Episode on start date</Label>
+          <Input
             id={id('start-ep')}
             type="number"
             min="1"
@@ -162,12 +172,12 @@ export function ShowEditForm({
             }
             required
           />
-        </div>
+        </Field>
 
         {show.schedule.mode === 'finite' ? (
-          <div className="field">
-            <label htmlFor={id('count')}>Episodes in season</label>
-            <input
+          <Field>
+            <Label htmlFor={id('count')}>Episodes in season</Label>
+            <Input
               id={id('count')}
               type="number"
               min="1"
@@ -177,13 +187,13 @@ export function ShowEditForm({
               }
               required
             />
-          </div>
+          </Field>
         ) : null}
 
         {show.malId ? (
-          <div className="field">
-            <label>MAL linked</label>
-            <p className="hint">
+          <Field>
+            <Label>MAL linked</Label>
+            <FieldDescription>
               Linked to MAL ID {show.malId}.{' '}
               <button
                 className="text-btn"
@@ -192,9 +202,9 @@ export function ShowEditForm({
               >
                 {malEditOpen ? 'Hide' : 'Edit'}
               </button>
-            </p>
+            </FieldDescription>
             {malEditOpen ? (
-              <input
+              <Input
                 id={id('mal')}
                 type="number"
                 min="1"
@@ -203,11 +213,11 @@ export function ShowEditForm({
                 placeholder="39535"
               />
             ) : null}
-          </div>
+          </Field>
         ) : (
-          <div className="field">
-            <label htmlFor={id('mal')}>MAL anime ID</label>
-            <input
+          <Field>
+            <Label htmlFor={id('mal')}>MAL anime ID</Label>
+            <Input
               id={id('mal')}
               type="number"
               min="1"
@@ -215,17 +225,17 @@ export function ShowEditForm({
               onChange={(event) => onUpdate('malId', event.target.value)}
               placeholder="39535"
             />
-            <p className="hint">
+            <FieldDescription>
               Leave blank to auto-match from the title on load, or enter the ID
               from myanimelist.net/anime/
               <strong>39535</strong>/...
-            </p>
-          </div>
+            </FieldDescription>
+          </Field>
         )}
 
-        <div className="field">
-          <label htmlFor={id('reddit')}>Reddit search title</label>
-          <input
+        <Field>
+          <Label htmlFor={id('reddit')}>Reddit search title</Label>
+          <Input
             id={id('reddit')}
             value={show.redditSearchTitle}
             onChange={(event) =>
@@ -233,14 +243,14 @@ export function ShowEditForm({
             }
             placeholder="mushoku_tensei_jobless_reincarnation_season_3"
           />
-          <p className="hint">
+          <FieldDescription>
             Override when r/anime thread slugs do not match the show title.
-          </p>
-        </div>
+          </FieldDescription>
+        </Field>
 
-        <div className="field">
-          <label htmlFor={id('official-news')}>Official news URL</label>
-          <input
+        <Field>
+          <Label htmlFor={id('official-news')}>Official news URL</Label>
+          <Input
             id={id('official-news')}
             type="url"
             value={show.officialNewsUrl}
@@ -249,16 +259,16 @@ export function ShowEditForm({
             }
             placeholder={officialSiteUrl || 'https://example-anime.jp/news/'}
           />
-          <p className="hint">
+          <FieldDescription>
             {officialSiteUrl
               ? "Override when the show's news page isn't AniList's official site."
               : 'AniList lists no official site; set the news page to watch for breaks.'}
-          </p>
-        </div>
+          </FieldDescription>
+        </Field>
 
-        <div className="field">
-          <label htmlFor={id('batch')}>Episodes on premiere day</label>
-          <input
+        <Field>
+          <Label htmlFor={id('batch')}>Episodes on premiere day</Label>
+          <Input
             id={id('batch')}
             type="number"
             min="1"
@@ -268,25 +278,20 @@ export function ShowEditForm({
             }
             required
           />
-        </div>
+        </Field>
         <div className="actions sheet-save-row">
-          <button
-            className="btn"
-            type="button"
-            disabled={!dirty || saving}
-            onClick={onSave}
-          >
+          <Button type="button" disabled={!dirty || saving} onClick={onSave}>
             {saving ? 'Saving…' : show.id ? 'Save' : 'Add show'}
-          </button>
+          </Button>
           {dirty && show.id ? (
-            <button
-              className="btn btn-secondary"
+            <Button
+              variant="outline"
               type="button"
               disabled={saving}
               onClick={onRevert}
             >
               Revert
-            </button>
+            </Button>
           ) : null}
         </div>
       </div>

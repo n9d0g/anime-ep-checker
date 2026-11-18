@@ -168,7 +168,7 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
       <div className="search-overlay" role="dialog" aria-label="Search shows">
         <input
           ref={inputRef}
-          className="search-overlay-input"
+          className="search-overlay-input max-w-full min-w-0 overflow-hidden text-ellipsis transition-[border-color] outline-none focus:border-ring"
           type="search"
           placeholder="Search watching, plan to watch, on hold…"
           value={query}

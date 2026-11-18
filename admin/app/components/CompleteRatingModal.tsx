@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Modal } from '@/app/components/Modal'
+import { Button } from '@/components/ui/button'
 
 export interface CompletePrompt {
   showId: string
@@ -36,8 +37,7 @@ export function CompleteRatingModal({
       submitting={submitting}
       onCancel={onCancel}
       primaryAction={
-        <button
-          className="btn"
+        <Button
           type="button"
           disabled={submitting || score === null}
           onClick={() => {
@@ -47,7 +47,7 @@ export function CompleteRatingModal({
           }}
         >
           {submitting ? 'Saving…' : 'Mark completed'}
-        </button>
+        </Button>
       }
     >
       <div className="rating-grid" role="group" aria-label="Score from 1 to 10">

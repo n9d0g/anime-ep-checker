@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useId, type ReactNode } from 'react'
+import { Button } from '@/components/ui/button'
 
 // A modal dialog: backdrop, panel, title, optional subtitle, body and a
 // Cancel button beside the primary action. Escape and clicks outside the
@@ -46,14 +47,14 @@ export function Modal({
       {subtitle ? <p className="modal-subtitle">{subtitle}</p> : null}
       {children}
       <div className="modal-actions">
-        <button
-          className="btn btn-secondary"
+        <Button
+          variant="outline"
           type="button"
           disabled={submitting}
           onClick={onCancel}
         >
           Cancel
-        </button>
+        </Button>
         {primaryAction}
       </div>
     </>

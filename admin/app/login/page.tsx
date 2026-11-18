@@ -3,6 +3,10 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { apiFetch } from '@/lib/api-fetch'
+import { Field } from '@/components/ui/field'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -37,9 +41,9 @@ export default function LoginPage() {
         <h1>Sign in</h1>
 
         <form className="stack" onSubmit={handleSubmit}>
-          <div className="field">
-            <label htmlFor="password">Password</label>
-            <input
+          <Field>
+            <Label htmlFor="password">Password</Label>
+            <Input
               id="password"
               type="password"
               value={password}
@@ -47,11 +51,11 @@ export default function LoginPage() {
               autoComplete="current-password"
               required
             />
-          </div>
+          </Field>
 
-          <button className="btn" type="submit" disabled={loading}>
+          <Button type="submit" disabled={loading}>
             {loading ? 'Signing in...' : 'Sign in'}
-          </button>
+          </Button>
         </form>
 
         {status ? <p className="status error">{status}</p> : null}

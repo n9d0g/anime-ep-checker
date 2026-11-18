@@ -26,6 +26,10 @@ import {
 } from '@/lib/time'
 import { providerDotClass } from '@/lib/watching'
 import { getShowWatchUrl } from '@shared/shows'
+import { Field, FieldDescription } from '@/components/ui/field'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
 const PROVIDER_LABELS = {
   crunchyroll: 'Crunchyroll',
@@ -72,31 +76,27 @@ function OnHoldSheet({
       onClose={onClose}
     >
       <SheetSection title="Manage">
-        <p className="hint">
+        <FieldDescription>
           Moving it back resumes episode checks and Discord alerts, and marks it
           watching on MyAnimeList.
-        </p>
+        </FieldDescription>
         <div className="actions sheet-manage">
-          <button
-            className="btn"
-            type="button"
-            disabled={restoring}
-            onClick={onRestore}
-          >
+          <Button type="button" disabled={restoring} onClick={onRestore}>
             {restoring ? 'Saving…' : 'Move back to Watching'}
-          </button>
-          <a
-            className="btn btn-secondary"
-            href={getShowWatchUrl(show)}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Watch on {PROVIDER_LABELS[provider]}
-          </a>
+          </Button>
+          <Button asChild variant="outline">
+            <a
+              href={getShowWatchUrl(show)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Watch on {PROVIDER_LABELS[provider]}
+            </a>
+          </Button>
         </div>
       </SheetSection>
       <SheetSection title="Return">
-        <p className="hint">
+        <FieldDescription>
           {awaiting
             ? announcement
               ? `${formatReturn(announcement)}.`
@@ -114,50 +114,48 @@ function OnHoldSheet({
               </a>
             </>
           ) : null}
-        </p>
-        <div className="field">
-          <label htmlFor={`return-news-${show.id}`}>Official news URL</label>
-          <input
+        </FieldDescription>
+        <Field>
+          <Label htmlFor={`return-news-${show.id}`}>Official news URL</Label>
+          <Input
             id={`return-news-${show.id}`}
             type="url"
             value={newsUrl}
             onChange={(event) => setNewsUrl(event.target.value)}
             placeholder="https://example-anime.jp/news/"
           />
-          <p className="hint">
+          <FieldDescription>
             Optional. Anime News Network is always read; set the show&apos;s TV
             anime news page to read it too.
-          </p>
-        </div>
+          </FieldDescription>
+        </Field>
         <div className="actions sheet-manage">
           {awaiting ? (
             <>
-              <button
-                className="btn"
+              <Button
                 type="button"
                 disabled={savingReturn || newsUrl.trim() === savedUrl}
                 onClick={() => void onSetAwaitingReturn(true, newsUrl)}
               >
                 {savingReturn ? 'Saving…' : 'Save URL'}
-              </button>
-              <button
-                className="btn btn-secondary"
+              </Button>
+              <Button
+                variant="outline"
                 type="button"
                 disabled={savingReturn}
                 onClick={() => void onSetAwaitingReturn(false, newsUrl)}
               >
                 Stop checking
-              </button>
+              </Button>
             </>
           ) : (
-            <button
-              className="btn"
+            <Button
               type="button"
               disabled={savingReturn}
               onClick={() => void onSetAwaitingReturn(true, newsUrl)}
             >
               {savingReturn ? 'Saving…' : 'Mark awaiting return'}
-            </button>
+            </Button>
           )}
         </div>
       </SheetSection>
@@ -383,9 +381,9 @@ export default function OnHoldPage() {
       )}
 
       {snapshot?.updatedAt ? (
-        <p className="hint ptw-updated">
+        <FieldDescription className="ptw-updated">
           {formatUpdatedAgo(snapshot.updatedAt)}
-        </p>
+        </FieldDescription>
       ) : null}
 
       {openEntry ? (

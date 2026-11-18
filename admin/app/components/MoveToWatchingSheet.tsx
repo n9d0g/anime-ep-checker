@@ -12,6 +12,10 @@ import {
 } from '@/lib/ptw-watch'
 import type { PlanToWatchSnapshotEntry, ShowProvider } from '@shared/types'
 import type { ShowFormValues } from '@/lib/types'
+import { Field, FieldDescription } from '@/components/ui/field'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
 function providerUrlField(provider: ShowProvider): {
   key: 'crunchyrollUrl' | 'netflixUrl' | 'disneyUrl'
@@ -109,10 +113,10 @@ export function MoveToWatchingSheet({
       onClose={submitting ? () => {} : onClose}
     >
       <SheetSection title="Setup">
-        <p className="hint">
+        <FieldDescription>
           Fill in {formatUnknownList(unknownLabels)}. Known details from
           MyAnimeList are already filled in.
-        </p>
+        </FieldDescription>
         <form
           onSubmit={(event) => {
             event.preventDefault()
@@ -120,8 +124,10 @@ export function MoveToWatchingSheet({
           }}
         >
           <div className="sheet-setup-body">
-            <div className="field">
-              <span id="ptw-provider-label">Streaming service</span>
+            <Field>
+              <Label asChild>
+                <span id="ptw-provider-label">Streaming service</span>
+              </Label>
               <SegmentedControl
                 ariaLabel="Streaming service"
                 value={form.provider}
@@ -132,21 +138,23 @@ export function MoveToWatchingSheet({
                 ]}
                 onChange={(value) => update('provider', value)}
               />
-            </div>
+            </Field>
 
-            <div className="field">
-              <label htmlFor="ptw-watch-url">{urlField.label}</label>
-              <input
+            <Field>
+              <Label htmlFor="ptw-watch-url">{urlField.label}</Label>
+              <Input
                 id="ptw-watch-url"
                 value={form[urlField.key]}
                 onChange={(event) => update(urlField.key, event.target.value)}
                 placeholder={urlField.placeholder}
                 required
               />
-            </div>
+            </Field>
 
-            <div className="field">
-              <span id="ptw-mode-label">Schedule type</span>
+            <Field>
+              <Label asChild>
+                <span id="ptw-mode-label">Schedule type</span>
+              </Label>
               <SegmentedControl
                 ariaLabel="Schedule type"
                 value={form.schedule.mode}
@@ -156,13 +164,13 @@ export function MoveToWatchingSheet({
                 ]}
                 onChange={(value) => updateSchedule('mode', value)}
               />
-            </div>
+            </Field>
 
-            <div className="field">
-              <label htmlFor="ptw-watch-start">
+            <Field>
+              <Label htmlFor="ptw-watch-start">
                 Start date and time (Japan Time / JST)
-              </label>
-              <input
+              </Label>
+              <Input
                 id="ptw-watch-start"
                 type="datetime-local"
                 value={form.schedule.startAt}
@@ -172,18 +180,18 @@ export function MoveToWatchingSheet({
                 required
               />
               {startKnown ? null : (
-                <p className="hint">
+                <FieldDescription>
                   MAL did not have a full start date and time.
-                </p>
+                </FieldDescription>
               )}
-            </div>
+            </Field>
 
             <div className="field-row field-row-2">
-              <div className="field">
-                <label htmlFor="ptw-watch-start-ep">
+              <Field>
+                <Label htmlFor="ptw-watch-start-ep">
                   Episode on start date
-                </label>
-                <input
+                </Label>
+                <Input
                   id="ptw-watch-start-ep"
                   type="number"
                   min="1"
@@ -193,12 +201,12 @@ export function MoveToWatchingSheet({
                   }
                   required
                 />
-              </div>
+              </Field>
 
               {form.schedule.mode === 'finite' ? (
-                <div className="field">
-                  <label htmlFor="ptw-watch-count">Episodes in season</label>
-                  <input
+                <Field>
+                  <Label htmlFor="ptw-watch-count">Episodes in season</Label>
+                  <Input
                     id="ptw-watch-count"
                     type="number"
                     min="1"
@@ -209,18 +217,18 @@ export function MoveToWatchingSheet({
                     required
                   />
                   {episodeCountKnown ? null : (
-                    <p className="hint">
+                    <FieldDescription>
                       MAL does not list an episode count yet.
-                    </p>
+                    </FieldDescription>
                   )}
-                </div>
+                </Field>
               ) : null}
             </div>
           </div>
           <div className="actions sheet-save-row">
-            <button className="btn" type="submit" disabled={submitting}>
+            <Button type="submit" disabled={submitting}>
               {submitting ? 'Moving…' : 'Move to Watching'}
-            </button>
+            </Button>
           </div>
         </form>
       </SheetSection>
