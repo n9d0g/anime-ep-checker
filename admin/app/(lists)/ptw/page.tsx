@@ -9,6 +9,7 @@ import {
 import { ListGroup } from '@/app/components/ListGroup'
 import { ListRow } from '@/app/components/ListRow'
 import { MoveToWatchingSheet } from '@/app/components/MoveToWatchingSheet'
+import { SegmentedControl } from '@/app/components/SegmentedControl'
 import { SheetSection } from '@/app/components/Sheet'
 import { useCachedResource } from '@/app/components/useCachedResource'
 import { useHashScrollHighlight } from '@/app/components/useHashScrollHighlight'
@@ -443,19 +444,15 @@ export default function PlanToWatchPage() {
                 placeholder="Filter by title, studio, or genre"
                 aria-label="Filter plan to watch"
               />
-              <div className="segmented" role="group" aria-label="Sort by">
-                {SORTS.map((option) => (
-                  <button
-                    key={option}
-                    type="button"
-                    className={sort === option ? 'active' : ''}
-                    aria-pressed={sort === option}
-                    onClick={() => setSort(option)}
-                  >
-                    {SORT_LABELS[option]}
-                  </button>
-                ))}
-              </div>
+              <SegmentedControl
+                ariaLabel="Sort by"
+                value={sort}
+                options={SORTS.map((option) => ({
+                  value: option,
+                  label: SORT_LABELS[option],
+                }))}
+                onChange={setSort}
+              />
             </div>
 
             {sections.length === 0 ? (
