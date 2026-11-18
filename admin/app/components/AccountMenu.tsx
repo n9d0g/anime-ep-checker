@@ -1,6 +1,5 @@
 'use client'
 
-import { useState, useSyncExternalStore } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Link2, LogOut, X, type LucideIcon } from 'lucide-react'
@@ -22,27 +21,10 @@ import {
   DrawerTrigger,
 } from '@/components/ui/drawer'
 import { useAppBadgeActions } from '@/app/components/useAppBadgeActions'
+import { useIsDesktop } from '@/app/components/useIsDesktop'
 
 /** The version running here, without dev's "-dev". */
 const VERSION = `v${__APP_VERSION__.replace(/-dev$/, '')}`
-
-// A computer gets the dropdown; a phone or tablet (where the tab bar floats)
-// gets the drawer.
-const DESKTOP_QUERY = '(min-width: 900px)'
-
-function subscribeDesktop(onChange: () => void) {
-  const query = window.matchMedia(DESKTOP_QUERY)
-  query.addEventListener('change', onChange)
-  return () => query.removeEventListener('change', onChange)
-}
-
-function useIsDesktop(): boolean {
-  return useSyncExternalStore(
-    subscribeDesktop,
-    () => window.matchMedia(DESKTOP_QUERY).matches,
-    () => false
-  )
-}
 
 /**
  * The Account menu (GLOSSARY.md): MAL setup, the App badge, Log out and the

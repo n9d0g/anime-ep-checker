@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, type ComponentProps } from 'react'
+import { useState, type ComponentProps } from 'react'
 import { Sheet, SheetSection } from '@/app/components/Sheet'
 import { ShowEditForm } from '@/app/components/ShowEditForm'
 import { ShowTitleDisplay } from '@/app/components/ShowTitleDisplay'
@@ -68,14 +68,18 @@ export function ShowSheet({
   const show = row.values
   const [malEditOpen, setMalEditOpen] = useState(focusField === 'mal')
 
-  useEffect(() => {
-    if (!focusField) {
+  // Opening on a Setup field (e.g. from an inbox action) focuses it.
+  function focusSetupField(event: Event) {
+    const field =
+      focusField && document.getElementById(`${focusField}-${row.key}`)
+    if (!field) {
       return
     }
-    const field = document.getElementById(`${focusField}-${row.key}`)
-    field?.scrollIntoView({ block: 'center' })
-    field?.focus()
-  }, [focusField, row.key])
+    event.preventDefault()
+    field.scrollIntoView({ block: 'center' })
+    field.focus()
+  }
+
   const title = show.title || `Show ${index + 1}`
   const episodeSaving = episodeStatus === 'saving'
   const { currentEpisode, malBlocked } = view
@@ -98,7 +102,7 @@ export function ShowSheet({
     !getOfficialNewsUrl(show, null)
 
   return (
-    <Sheet title={title} onClose={onClose}>
+    <Sheet title={title} onClose={onClose} onOpenAutoFocus={focusSetupField}>
       <div className="sheet-hero">
         <ShowTitleDisplay
           title={show.title || (show.id ? title : 'New show')}
