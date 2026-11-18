@@ -1068,90 +1068,7 @@ h3 {
   line-height: 1;
 }
 
-/* ── Show sheet: bottom sheet on phones, right-hand panel from 900px ── */
-
-.sheet-layer {
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-}
-
-.sheet-backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.55);
-  animation: sheet-fade 0.15s ease;
-}
-
-.sheet {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  max-height: 92vh;
-  display: flex;
-  flex-direction: column;
-  background: var(--panel);
-  border-top: 1px solid var(--border);
-  border-radius: 18px 18px 0 0;
-  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.5);
-  outline: none;
-  animation: sheet-up 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-.sheet-grab {
-  flex: none;
-  width: 2.5rem;
-  height: 0.28rem;
-  margin: 0.55rem auto 0;
-  border-radius: 999px;
-  background: var(--border);
-}
-
-.sheet-close {
-  position: absolute;
-  top: 0.6rem;
-  right: 0.75rem;
-  width: 2.25rem;
-  height: 2.25rem;
-  border: 0;
-  border-radius: 999px;
-  background: transparent;
-  color: var(--text-secondary);
-  cursor: pointer;
-}
-
-.sheet-close:hover {
-  background: var(--panel-raised);
-  color: var(--text);
-}
-
-.sheet-scroll {
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding: 0.75rem 1.1rem calc(1.5rem + env(safe-area-inset-bottom));
-}
-
-@media (min-width: 900px) {
-  .sheet {
-    top: 0;
-    left: auto;
-    width: 440px;
-    max-height: none;
-    border-top: 0;
-    border-left: 1px solid var(--border);
-    border-radius: 0;
-    animation-name: sheet-left;
-  }
-
-  .sheet-grab {
-    display: none;
-  }
-
-  .sheet-backdrop {
-    background: rgba(0, 0, 0, 0.3);
-  }
-}
+/* ── Show sheet contents ── */
 
 .sheet-hero {
   display: grid;
@@ -1271,31 +1188,6 @@ h3 {
 
 .sheet-manage {
   justify-content: flex-start;
-}
-
-@keyframes sheet-fade {
-  from {
-    opacity: 0;
-  }
-}
-
-@keyframes sheet-up {
-  from {
-    transform: translateY(100%);
-  }
-}
-
-@keyframes sheet-left {
-  from {
-    transform: translateX(100%);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .sheet,
-  .sheet-backdrop {
-    animation: none;
-  }
 }
 
 .sheet-unsaved {

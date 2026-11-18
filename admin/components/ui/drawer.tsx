@@ -8,7 +8,8 @@ import { cn } from '@/components/ui/utils'
  * shadcn/ui's Drawer, on vaul: a panel that slides in from an edge and
  * follows a swipe to close. vaul animates it itself, so it needs no
  * tw-animate-css. Changed from shadcn's: the right-hand drawer is full width
- * up to 20rem and clears the notch and home indicator.
+ * up to 20rem and clears the notch and home indicator, and DrawerContent
+ * takes an `overlayClassName` for its overlay.
  */
 
 function Drawer(props: React.ComponentProps<typeof DrawerPrimitive.Root>) {
@@ -48,12 +49,15 @@ function DrawerOverlay({
 
 function DrawerContent({
   className,
+  overlayClassName,
   children,
   ...props
-}: React.ComponentProps<typeof DrawerPrimitive.Content>) {
+}: React.ComponentProps<typeof DrawerPrimitive.Content> & {
+  overlayClassName?: string
+}) {
   return (
     <DrawerPortal>
-      <DrawerOverlay />
+      <DrawerOverlay className={overlayClassName} />
       <DrawerPrimitive.Content
         data-slot="drawer-content"
         className={cn(
