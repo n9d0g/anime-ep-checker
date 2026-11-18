@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import {
   LogOutIcon,
   MalSetupIcon,
+  ReleaseNotesIcon,
   SearchIcon,
 } from '@/app/components/ListIcons'
 import { AppBadgeMenuItems } from '@/app/components/AppBadgeMenuItems'
@@ -138,6 +139,20 @@ export function TopHeader() {
                     <MalSetupIcon />
                   </MenuIcon>
                   MAL setup
+                </Link>
+                <Link
+                  className="profile-menu-item profile-menu-link"
+                  href="/releases"
+                  role="menuitem"
+                  onClick={() => setProfileMenuOpen(false)}
+                >
+                  <MenuIcon>
+                    <ReleaseNotesIcon />
+                  </MenuIcon>
+                  Release notes
+                  <span className="profile-menu-meta">
+                    v{__APP_VERSION__.replace(/-dev$/, '')}
+                  </span>
                 </Link>
                 <div className="profile-menu-divider" role="separator" />
                 <AppBadgeMenuItems onDone={() => setProfileMenuOpen(false)} />

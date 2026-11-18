@@ -11,3 +11,7 @@ Uses the default label names: `needs-triage`, `needs-info`, `ready-for-agent`, `
 ### Domain docs
 
 Single-context: one `GLOSSARY.md` and `docs/adr/` at the repo root. See `docs/agents/domain.md`.
+
+## Releases
+
+- PR titles must be conventional commits (`feat: ✨ …`, `fix: 🐛 …`, `chore: …`). PRs are squash-merged, so the title becomes the commit the deploy reads to choose the next version and write the Release notes (ADR 0004).

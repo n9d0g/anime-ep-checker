@@ -150,3 +150,23 @@ export function MalSetupIcon() {
     </svg>
   )
 }
+
+export function ReleaseNotesIcon() {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M8.5 2.25H4.75C4.2 2.25 3.75 2.7 3.75 3.25V12.75C3.75 13.3 4.2 13.75 4.75 13.75H11.25C11.8 13.75 12.25 13.3 12.25 12.75V6L8.5 2.25Z"
+        stroke="currentColor"
+        strokeWidth="1.25"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M8.5 2.25V6H12.25M6 8.75H10M6 11H8.75"
+        stroke="currentColor"
+        strokeWidth="1.25"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}

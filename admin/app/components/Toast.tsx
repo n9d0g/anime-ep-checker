@@ -8,6 +8,7 @@ import {
   useState,
   type ReactNode,
 } from 'react'
+import { NewVersionToast } from '@/app/components/NewVersionToast'
 
 type ToastType = 'success' | 'error'
 
@@ -54,6 +55,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     <ToastContext.Provider value={{ success, error }}>
       {children}
       <div className="toast-stack" aria-live="polite">
+        <NewVersionToast />
         {toasts.map((toast) => (
           <button
             key={toast.id}

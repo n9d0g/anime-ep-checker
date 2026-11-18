@@ -1,6 +1,5 @@
 {
   "name": "anime-ep-checker",
-  "version": "1.0.0",
   "type": "module",
   "description": "Crunchyroll, Netflix, and Disney+ episode checker with Discord alerts",
   "packageManager": "pnpm@12.17.0",

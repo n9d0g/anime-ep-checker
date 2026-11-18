@@ -148,20 +148,27 @@ The workflow uses the default `GITHUB_TOKEN` to commit `state.json` updates.
 
 ### 2b. Discord deploy notifications
 
-Pushes to `main` that change `admin/**` run [`.github/workflows/deploy-admin.yml`](.github/workflows/deploy-admin.yml), which deploys the admin Worker and posts success or failure to your deploy Discord channel.
+Every push to `main` except data-only commits (`state.json`, `shows.json`) runs [`.github/workflows/deploy-admin.yml`](.github/workflows/deploy-admin.yml), which deploys the admin Worker, releases a version if the push asks for one (below), and posts success or failure to your deploy Discord channel. Deploys run one at a time and are never cancelled.
 
 1. Create a webhook in your **deploy** Discord channel (not the episode-alerts channel).
 2. Add it as GitHub secret `DISCORD_DEPLOY_WEBHOOK_URL`.
 3. Add Cloudflare deploy secrets: `CLOUDFLARE_API_TOKEN` (Workers edit) and `CLOUDFLARE_ACCOUNT_ID`.
 4. Optional: `ADMIN_LIVE_URL` (full admin URL) so deploy messages link to the CMS. Defaults to `https://anime-ep-checker.dev/` when unset.
 
-Success messages include branch, short commit SHA, commit subject, time (ET), and the admin URL. Failure messages point at the GitHub Actions logs. Commits that only change checker runtime files (e.g. `state.json` at repo root) do not touch `admin/`, so no admin deploy runs.
+Success messages include the version, branch, short commit SHA, commit subject, and the admin URL. Failure messages point at the GitHub Actions logs.
+
+**Releases** happen in the deploy, with nothing to merge (ADR 0004):
+
+- **The version** is the last `v*` tag, bumped as the merged PR's title asks (`admin/scripts/next-version.ts`): `feat` → minor; `fix`, `perf`, `refactor`, `build` → patch; `!` → minor while below 1.0. Other types (`chore`, `ci`, `docs`, `style`, `test`) deploy without a new version.
+- **Once the deploy succeeds**, it creates the GitHub Release `vX.Y.Z` on the deployed commit (the PR title is its note), then pushes `chore: release X.Y.Z` to `main` to bump `admin/package.json`. That push doesn't start another deploy.
+- **In the admin**, the account menu shows the version and links to **Release notes** (`/releases`), built from the GitHub Releases. An open tab that's out of date shows a toast offering to update.
+- **Merging:** PRs are squash-merged only, so **PR titles must be conventional commits** (`feat: ✨ …`, `fix: 🐛 …`, `chore: …`).
 
 ### 3. Cloudflare admin CMS
 
 The admin app lives in [`admin/`](admin/) and runs on [Cloudflare Workers](https://developers.cloudflare.com/workers/) via [vinext](https://github.com/cloudflare/vinext) (`vite dev` / `vite build`). Production is served at `https://anime-ep-checker.dev` (custom domain in [`admin/cloudflare.config.ts`](admin/cloudflare.config.ts); `workers.dev` is disabled).
 
-**GitHub Actions (deploy):** set `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` as repository secrets. Pushes to `main` under `admin/**` deploy automatically via [`.github/workflows/deploy-admin.yml`](.github/workflows/deploy-admin.yml).
+**GitHub Actions (deploy):** set `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` as repository secrets. Pushes to `main` deploy automatically via [`.github/workflows/deploy-admin.yml`](.github/workflows/deploy-admin.yml).
 
 Do **not** connect this repo in the Cloudflare dashboard (Workers Builds). That integration runs `wrangler deploy` from the repo root without a vinext build and will fail. Deploys are GitHub Actions only.
 
@@ -388,7 +395,7 @@ Shows your MAL plan-to-watch list from `state.meta.planToWatch`, grouped into **
 | [`src/should-run.ts`](src/should-run.ts)                                       | Cheap gate for Actions (sparse checkout, no package install)                                                  |
 | [`admin/`](admin/)                                                             | Cloudflare CMS (vinext)                                                                                       |
 | [`.github/workflows/check-episodes.yml`](.github/workflows/check-episodes.yml) | Gate + full episode check (`schedule`, `workflow_dispatch`, or external cron)                                 |
-| [`.github/workflows/deploy-admin.yml`](.github/workflows/deploy-admin.yml)     | Deploy admin Worker + Discord deploy notify                                                                   |
+| [`.github/workflows/deploy-admin.yml`](.github/workflows/deploy-admin.yml)     | Deploy admin Worker, release the version, Discord deploy notify                                               |
 
 ## Notes
 

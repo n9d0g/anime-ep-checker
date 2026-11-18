@@ -1994,3 +1994,96 @@ select:focus {
     transition: none;
   }
 }
+
+/* ── Release notes ── */
+
+.profile-menu-meta {
+  margin-left: auto;
+  padding-left: 0.75rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.releases-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.release-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.release-card-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.release-card-heading h2 {
+  font-size: 1.05rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.release-current {
+  background: var(--accent-soft);
+  color: var(--accent-hover);
+}
+
+.release-date {
+  margin: 0.25rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+}
+
+.release-notes {
+  margin-top: 0.85rem;
+}
+
+.release-notes h3 {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.release-notes ul {
+  margin: 0.35rem 0 0;
+  padding-left: 1.2rem;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+/* "vX.Y.Z is ready": stays until Update or ×. */
+.toast.toast-update {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: default;
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+}
+
+.toast-update-text {
+  flex: 1;
+}
+
+.toast-update-close {
+  padding: 0 0.25rem;
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.toast-update-close:hover {
+  color: var(--text);
+}

@@ -4,8 +4,11 @@ import { isAuthorizedRequest } from './lib/auth'
 
 const ROBOTS_TAG = 'noindex, nofollow'
 
-function withRobotsTag(response: NextResponse): NextResponse {
+// Every answer also says which version is live, so an open tab can tell
+// it's out of date (lib/new-version.ts).
+function withAdminHeaders(response: NextResponse): NextResponse {
   response.headers.set('X-Robots-Tag', ROBOTS_TAG)
+  response.headers.set('X-App-Version', __APP_VERSION__)
   return response
 }
 
@@ -29,19 +32,21 @@ export async function proxy(request: NextRequest) {
     pathname === '/login' ||
     isPublicPwaAsset(pathname)
   ) {
-    return withRobotsTag(NextResponse.next())
+    return withAdminHeaders(NextResponse.next())
   }
 
   if (!(await isAuthorizedRequest(request))) {
     if (pathname.startsWith('/api/')) {
-      return withRobotsTag(
+      return withAdminHeaders(
         NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
       )
     }
-    return withRobotsTag(NextResponse.redirect(new URL('/login', request.url)))
+    return withAdminHeaders(
+      NextResponse.redirect(new URL('/login', request.url))
+    )
   }
 
-  return withRobotsTag(NextResponse.next())
+  return withAdminHeaders(NextResponse.next())
 }
 
 export const config = {
