@@ -1,4 +1,4 @@
-import './globals.css'
+import './styles.css'
 import { ToastProvider } from '@/app/components/Toast'
 import { getAdminPublicOrigin } from '@/lib/site-url'
 import { Inter } from 'next/font/google'

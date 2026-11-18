@@ -96,6 +96,12 @@ _Avoid_: News check, delay check
 News that a show awaiting return is coming back, possibly with only a rough time ("July 2027") and later with an exact date. It alerts once per new date and changes nothing until you restore the show to Watching.
 _Avoid_: Return date (unless the date is exact), resume notice
 
+### Admin
+
+**Account menu**:
+The admin's menu behind the avatar: MAL setup, the App badge, Log out and the running version. A dropdown on a computer; a full-height drawer on a phone or tablet.
+_Avoid_: User dropdown, profile menu
+
 ### Releases
 
 **Release**:
@@ -103,5 +109,5 @@ A new version of the app going live, numbered (e.g. v0.2.0). One version covers 
 _Avoid_: Update, changelog, deploy (a deploy can go live without a new version)
 
 **Release notes**:
-What a Release says is New and Fixed, read in the admin from the account menu. Each line is a merged PR's title in plain words.
+What a Release says is New and Fixed, read in the admin from the Account menu's version. Each line is a merged PR's title in plain words.
 _Avoid_: Changelog, what's new

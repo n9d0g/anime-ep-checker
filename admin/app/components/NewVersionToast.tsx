@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useSyncExternalStore } from 'react'
+import { useEffect, useSyncExternalStore } from 'react'
+import { toast } from 'sonner'
 import { getLiveVersion, subscribeLiveVersion } from '@/lib/new-version'
 
 /**
@@ -13,27 +14,14 @@ export function NewVersionToast() {
     getLiveVersion,
     () => null
   )
-  const [dismissed, setDismissed] = useState<string | null>(null)
-  if (!live || live === dismissed) return null
-
-  return (
-    <div className="toast toast-update" role="status">
-      <span className="toast-update-text">v{live} is ready</span>
-      <button
-        type="button"
-        className="btn btn-sm toast-update-btn"
-        onClick={() => location.reload()}
-      >
-        Update
-      </button>
-      <button
-        type="button"
-        className="toast-update-close"
-        aria-label="Dismiss"
-        onClick={() => setDismissed(live)}
-      >
-        ×
-      </button>
-    </div>
-  )
+  useEffect(() => {
+    if (!live) return
+    toast(`v${live} is ready`, {
+      id: `new-version-${live}`,
+      duration: Infinity,
+      closeButton: true,
+      action: { label: 'Update', onClick: () => location.reload() },
+    })
+  }, [live])
+  return null
 }
