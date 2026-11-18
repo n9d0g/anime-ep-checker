@@ -117,6 +117,26 @@ export function formatRelative(date: Date, now: Date = new Date()): string {
   return diff >= 0 ? `in ${amount}` : `${amount} ago`
 }
 
+/**
+ * A future countdown in days, hours and minutes, skipping zero units:
+ * "in 2d 5h 13m", "in 2d 13m", "in 5h". Rounded down to the minute, at least
+ * 1m. Past times fall back to formatRelative's single unit.
+ */
+function formatCountdown(date: Date, now: Date): string {
+  const diff = date.getTime() - now.getTime()
+  if (diff < 0) return formatRelative(date, now)
+  const totalMinutes = Math.max(1, Math.floor(diff / MINUTE_MS))
+  const days = Math.floor(totalMinutes / (DAY_MS / MINUTE_MS))
+  const hours = Math.floor(totalMinutes / 60) % 24
+  const minutes = totalMinutes % 60
+  const units = [
+    days ? `${days}d` : null,
+    hours ? `${hours}h` : null,
+    minutes ? `${minutes}m` : null,
+  ].filter(Boolean)
+  return `in ${units.join(' ')}`
+}
+
 /** An Eastern calendar day: "Nov 6", or "Nov 6, 2025" outside this year. */
 export function formatShortDate(
   isoOrDate: string | Date | null | undefined,
@@ -144,7 +164,8 @@ export function formatEasternDateTime(
 
 /**
  * When a drop is (or was): within a week it's relative with the Eastern day
- * and time, "in 2d · Fri 10:00 AM ET"; further out, just the day, "Nov 6".
+ * and time, "in 2d 5h 13m · Fri 10:00 AM ET" or "35m ago · Fri 10:00 AM ET";
+ * further out, just the day, "Nov 6".
  */
 export function formatDropTime(
   isoOrDate: string | Date,
@@ -159,7 +180,7 @@ export function formatDropTime(
     timeZone: EASTERN_TZ,
     weekday: 'short',
   }).format(date)
-  return `${formatRelative(date, now)} · ${weekday} ${formatEasternClock(date)}`
+  return `${formatCountdown(date, now)} · ${weekday} ${formatEasternClock(date)}`
 }
 
 /** "updated 3h ago", or "updated just now" within the minute. */

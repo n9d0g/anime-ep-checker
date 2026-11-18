@@ -207,14 +207,14 @@ test('buildShowViewModel derives the schedule lines, links and badge once', () =
     new Date('2026-10-12T12:00:00Z')
   )
 
-  assert.equal(vm.nextDropLine, 'Ep 3 · in 2d · Wed 11:00 AM ET')
+  assert.equal(vm.nextDropLine, 'Ep 3 · in 2d 3h · Wed 11:00 AM ET')
   assert.equal(
     vm.startHint,
-    'Eastern: Sep 30, 11:00 AM ET · Next ep 3: in 2d · Wed 11:00 AM ET'
+    'Eastern: Sep 30, 11:00 AM ET · Next ep 3: in 2d 3h · Wed 11:00 AM ET'
   )
   assert.equal(vm.chip, null)
   assert.deepEqual(vm.upcomingDrops, [
-    { episode: 3, when: 'in 2d · Wed 11:00 AM ET' },
+    { episode: 3, when: 'in 2d 3h · Wed 11:00 AM ET' },
     { episode: 4, when: 'Oct 21' },
     { episode: 5, when: 'Oct 28' },
   ])

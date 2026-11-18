@@ -29,12 +29,28 @@ test('formatDropTime is relative with the Eastern day and time within a week', (
   // Sun Nov 1, 2026, 10:00 AM EST (DST has ended).
   assert.equal(
     formatDropTime(new Date('2026-11-01T15:00:00Z'), NOW),
-    'in 1d · Sun 10:00 AM ET'
+    'in 1d 23h · Sun 10:00 AM ET'
   )
   assert.equal(
     formatDropTime(at(-35 * MINUTE), NOW),
     '35m ago · Fri 11:25 AM ET'
   )
+})
+
+test('formatDropTime counts down in days, hours and minutes, skipping zeros', () => {
+  const when = (offsetMs: number) =>
+    formatDropTime(at(offsetMs), NOW)?.split(' · ')[0]
+  assert.equal(
+    when(2 * DAY + 5 * HOUR + 13 * MINUTE + 59 * 1000),
+    'in 2d 5h 13m'
+  )
+  assert.equal(when(2 * DAY + 13 * MINUTE), 'in 2d 13m')
+  assert.equal(when(2 * DAY), 'in 2d')
+  assert.equal(when(5 * HOUR), 'in 5h')
+  assert.equal(when(5 * HOUR + 1 * MINUTE), 'in 5h 1m')
+  assert.equal(when(20 * 1000), 'in 1m')
+  // Past drops stay a single coarse unit.
+  assert.equal(when(-(2 * DAY + 5 * HOUR)), '2d ago')
 })
 
 test('formatDropTime is just the day a week or more away', () => {
