@@ -95,3 +95,13 @@ _Avoid_: News check, delay check
 **Return announcement**:
 News that a show awaiting return is coming back, possibly with only a rough time ("July 2027") and later with an exact date. It alerts once per new date and changes nothing until you restore the show to Watching.
 _Avoid_: Return date (unless the date is exact), resume notice
+
+### Releases
+
+**Release**:
+A new version of the app going live, numbered (e.g. v0.2.0). One version covers the checker and the admin. A merged `feat` or `fix` PR makes one; a `chore` or `docs` PR doesn't (ADR 0004).
+_Avoid_: Update, changelog, deploy (a deploy can go live without a new version)
+
+**Release notes**:
+What a Release says is New and Fixed, read in the admin from the account menu. Each line is a merged PR's title in plain words.
+_Avoid_: Changelog, what's new

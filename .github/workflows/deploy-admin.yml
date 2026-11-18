@@ -1,21 +1,26 @@
 name: Deploy admin to Cloudflare Workers
 
+# Every push to main deploys and may release a version (ADR 0004), except
+# the checker's and the admin CMS's data commits.
 on:
   push:
     branches: [main]
-    paths:
-      - 'admin/**'
-      - 'shared/**'
+    paths-ignore:
+      - 'state.json'
+      - 'shows.json'
 
+# Deploys run one at a time, in order, and are never cancelled partway, so a
+# released version is always the one live.
 concurrency:
   group: deploy-admin
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      # To create the release and push the version bump (ADR 0004).
+      contents: write
       actions: read
       pull-requests: read
     defaults:
@@ -54,17 +59,85 @@ jobs:
           echo "site_name=${SITE_NAME:-anime-ep-checker admin}" >> "$GITHUB_OUTPUT"
           echo "deploy_url=${DEPLOY_URL}" >> "$GITHUB_OUTPUT"
 
+      # The version this push releases: the last v* tag, bumped as the push's
+      # conventional commits ask (scripts/next-version.ts). Tags are the
+      # counter; admin/package.json mirrors them. Nothing to release (chore,
+      # docs…) keeps the current version. A re-run keeps its commit's tag.
+      - name: Version
+        id: version
+        env:
+          COMMITS_JSON: ${{ toJSON(github.event.commits) }}
+        run: |
+          TAGS=$(git ls-remote --tags origin 'v*')
+          HERE=$(awk -v sha="$GITHUB_SHA" '$1 == sha { sub("refs/tags/v", "", $2); sub(/\^\{\}$/, "", $2); print $2 }' <<< "$TAGS" | head -1)
+          LAST=$(sed -nE 's#.*refs/tags/v([0-9]+\.[0-9]+\.[0-9]+)$#\1#p' <<< "$TAGS" | sort -V | tail -1)
+          LAST=${LAST:-0.0.0}
+          if [ -n "$HERE" ]; then
+            VERSION="$HERE"; NEW=""
+          else
+            MESSAGES=$(jq -c 'if type == "array" and length > 0 then map(.message) else empty end' <<< "$COMMITS_JSON" 2>/dev/null || true)
+            [ -n "$MESSAGES" ] || MESSAGES=$(git log -1 --format=%B | jq -Rs '[.]')
+            NEW=$(node scripts/next-version.ts "$LAST" <<< "$MESSAGES")
+            VERSION="${NEW:-$LAST}"
+          fi
+          sed -i -E 's/^(  "version": )"[^"]*"/\1"'"$VERSION"'"/' package.json
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "new=${NEW}" >> "$GITHUB_OUTPUT"
+          # The new Release's notes: the build bakes them into the Releases
+          # page before GitHub has the Release, and the Release step uses them.
+          if [ -n "$NEW" ]; then
+            NOTES=$(jq -r 'if type == "array" and length > 0 then map("- " + (.message | split("\n")[0])) | join("\n") else empty end' <<< "$COMMITS_JSON" 2>/dev/null || true)
+            [ -n "$NOTES" ] || NOTES="- $(git log -1 --format=%s)"
+            { echo "notes<<RELEASE_NOTES_END"; echo "$NOTES"; echo "RELEASE_NOTES_END"; } >> "$GITHUB_OUTPUT"
+            echo "Releases v${NEW} (after v${LAST})." | tee -a "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No new version: stays v${VERSION}." | tee -a "$GITHUB_STEP_SUMMARY"
+          fi
+
+      # The build reads the Release notes from GitHub (scripts/release-notes.ts).
       - name: Deploy to Cloudflare Workers
         id: deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_VERSION: ${{ steps.version.outputs.new }}
+          RELEASE_NOTES: ${{ steps.version.outputs.notes }}
         run: pnpm exec vinext-cloudflare deploy
+
+      # Only once the deploy is live, so a version always means "this ran".
+      # The tag goes on the deployed commit; the package.json bump goes on top
+      # of main as it is now (the checker may have pushed meanwhile). Pushes
+      # with the built-in token don't start another deploy.
+      - name: Release
+        id: release
+        if: steps.version.outputs.new != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.new }}
+          NOTES: ${{ steps.version.outputs.notes }}
+        run: |
+          gh release create "v${VERSION}" --target "$GITHUB_SHA" --title "v${VERSION}" --notes "$NOTES"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          for _ in 1 2 3 4 5; do
+            git fetch --depth=1 origin main
+            git checkout -f -B release FETCH_HEAD
+            sed -i -E 's/^(  "version": )"[^"]*"/\1"'"$VERSION"'"/' package.json
+            git diff --quiet && exit 0 # already bumped
+            git commit -am "chore: release ${VERSION}"
+            git push origin HEAD:main && exit 0
+            sleep 5
+          done
+          echo "::warning::Couldn't push the package.json bump; the next release sets it."
 
       - name: Notify Discord
         if: always()
         env:
           DEPLOY_OUTCOME: ${{ steps.deploy.outcome }}
+          VERSION: ${{ steps.version.outputs.version }}
+          NEW_VERSION: ${{ steps.version.outputs.new }}
           SITE_NAME: ${{ steps.target.outputs.site_name }}
           DEPLOY_URL: ${{ steps.target.outputs.deploy_url }}
           COMMITS_JSON: ${{ toJSON(github.event.commits) }}
@@ -86,8 +159,20 @@ jobs:
           SHORT_SHA="${GITHUB_SHA::7}"
           TIMESTAMP=$(date -u '+%Y-%m-%dT%H:%M:%SZ')
 
+          # The version now live: new in this deploy, or unchanged.
+          if [ -n "$NEW_VERSION" ]; then
+            VERSION_TEXT="[v${NEW_VERSION}](${REPO_URL}/releases/tag/v${NEW_VERSION})"
+            TITLE_VERSION=" v${NEW_VERSION}"
+          elif [ -n "$VERSION" ]; then
+            VERSION_TEXT="v${VERSION} (no new version)"
+            TITLE_VERSION=""
+          else
+            VERSION_TEXT=""
+            TITLE_VERSION=""
+          fi
+
           case "$DEPLOY_OUTCOME" in
-            success) TITLE="🚀 ${SITE_NAME} deployed successfully"; COLOR=5763719; TITLE_URL="$FINAL_URL" ;;
+            success) TITLE="🚀 ${SITE_NAME}${TITLE_VERSION} deployed successfully"; COLOR=5763719; TITLE_URL="$FINAL_URL" ;;
             failure) TITLE="❌ ${SITE_NAME} deployment failed"; COLOR=15548997; TITLE_URL="$RUN_URL" ;;
             *) TITLE="⚠️ ${SITE_NAME} deployment ${DEPLOY_OUTCOME}"; COLOR=16705372; TITLE_URL="$RUN_URL" ;;
           esac
@@ -117,7 +202,7 @@ jobs:
             --arg commit_url "$COMMIT_URL" --arg actor "$GITHUB_ACTOR" --arg duration "$DURATION" \
             --arg run_number "$GITHUB_RUN_NUMBER" --arg timestamp "$TIMESTAMP" \
             --arg outcome "$DEPLOY_OUTCOME" --arg site_url "$FINAL_URL" --arg run_url "$RUN_URL" \
-            --arg compare_url "$COMPARE_URL" \
+            --arg compare_url "$COMPARE_URL" --arg version "$VERSION_TEXT" \
             '{
               embeds: [{
                 title: $title, url: $title_url, color: $color, description: $commits,
@@ -127,6 +212,7 @@ jobs:
                     {name: "Commit", value: ("[`" + $sha + "`](" + $commit_url + ")"), inline: true},
                     {name: "Triggered by", value: $actor, inline: true}
                   ]
+                  + (if $version != "" then [{name: "Version", value: $version, inline: true}] else [] end)
                   + (if $duration != "" then [{name: "Duration", value: $duration, inline: true}] else [] end)
                 ),
                 footer: {text: ("Run #" + $run_number)},
