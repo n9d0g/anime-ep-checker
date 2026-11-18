@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { CompleteRatingModal } from '@/app/components/CompleteRatingModal'
 import { Inbox } from '@/app/components/Inbox'
 import { ShowListSkeleton } from '@/app/components/ListSkeleton'
-import { Modal } from '@/app/components/Modal'
 import { MoveToWatchingSheet } from '@/app/components/MoveToWatchingSheet'
 import { ShowRow } from '@/app/components/ShowRow'
 import { ShowSheet } from '@/app/components/ShowSheet'
@@ -13,6 +12,16 @@ import { useHashScrollHighlight } from '@/app/components/useHashScrollHighlight'
 import { useWatchingShows } from '@/app/components/useWatchingShows'
 import { useToast } from '@/app/components/Toast'
 import { useAniListMedia } from '@/app/components/useAniListMedia'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { apiErrorMessage } from '@/lib/api-fetch'
 import {
   cacheKeys,
@@ -289,25 +298,36 @@ export default function AdminPage() {
       ) : null}
 
       {discardKey ? (
-        <Modal
-          title="Discard changes?"
-          subtitle="Your Setup edits haven’t been saved."
-          submitting={false}
-          onCancel={() => setDiscardKey(null)}
-          primaryAction={
-            <Button
-              variant="destructive"
-              type="button"
-              onClick={() => {
-                shows.revertShow(discardKey)
-                setDiscardKey(null)
-                setOpenSheet(null)
-              }}
-            >
-              Discard
-            </Button>
-          }
-        />
+        <AlertDialog
+          open
+          onOpenChange={(open) => {
+            if (!open) {
+              setDiscardKey(null)
+            }
+          }}
+        >
+          <AlertDialogContent onOverlayClick={() => setDiscardKey(null)}>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Discard changes?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Your Setup edits haven’t been saved.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                variant="destructive"
+                onClick={() => {
+                  shows.revertShow(discardKey)
+                  setDiscardKey(null)
+                  setOpenSheet(null)
+                }}
+              >
+                Discard
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       ) : null}
 
       {moveEntry ? (

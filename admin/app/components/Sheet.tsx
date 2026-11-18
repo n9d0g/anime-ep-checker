@@ -10,6 +10,9 @@ const PHONE_QUERY = '(max-width: 899px)'
 const SLOP_PX = 6
 // A finger resting longer than this before letting go isn't a flick.
 const FLICK_WINDOW_MS = 100
+// A dialog open over the sheet (e.g. "Discard changes?") takes Esc and touch.
+const DIALOG_OVERLAY =
+  '[data-slot="dialog-overlay"], [data-slot="alert-dialog-overlay"]'
 
 // On phones, dragging the sheet down closes it: from anywhere on it, once
 // its content is scrolled to the top. Letting go past the threshold calls
@@ -46,7 +49,7 @@ function useSwipeToClose(
       if (
         event.touches.length !== 1 ||
         !window.matchMedia(PHONE_QUERY).matches ||
-        document.querySelector('.modal-overlay')
+        document.querySelector(DIALOG_OVERLAY)
       ) {
         mode = 'ignore'
         return
@@ -151,7 +154,7 @@ export function Sheet({
       if (
         event.key !== 'Escape' ||
         event.defaultPrevented ||
-        document.querySelector('.modal-overlay')
+        document.querySelector(DIALOG_OVERLAY)
       ) {
         return
       }

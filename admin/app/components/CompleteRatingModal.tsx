@@ -1,8 +1,15 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Modal } from '@/app/components/Modal'
 import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 
 export interface CompletePrompt {
   showId: string
@@ -11,6 +18,8 @@ export interface CompletePrompt {
   pendingEpisodeAtMax?: number
 }
 
+// Asks for a score before marking a show completed. Esc, a click on the
+// backdrop and Cancel all cancel, unless it's mid-submit.
 export function CompleteRatingModal({
   prompt,
   submitting,
@@ -29,44 +38,74 @@ export function CompleteRatingModal({
   }, [prompt.showId])
 
   const label = prompt.title || prompt.showId
+  const blockWhileSubmitting = (event: Event) => {
+    if (submitting) {
+      event.preventDefault()
+    }
+  }
 
   return (
-    <Modal
-      title={`Rate ${label}`}
-      subtitle="Mark as completed on MyAnimeList and remove from Watching."
-      submitting={submitting}
-      onCancel={onCancel}
-      primaryAction={
-        <Button
-          type="button"
-          disabled={submitting || score === null}
-          onClick={() => {
-            if (score !== null) {
-              onConfirm(score)
-            }
-          }}
-        >
-          {submitting ? 'Saving…' : 'Mark completed'}
-        </Button>
-      }
+    <Dialog
+      open
+      onOpenChange={(open) => {
+        if (!open && !submitting) {
+          onCancel()
+        }
+      }}
     >
-      <div className="rating-grid" role="group" aria-label="Score from 1 to 10">
-        {Array.from({ length: 10 }, (_, index) => {
-          const value = index + 1
-          return (
-            <button
-              key={value}
-              type="button"
-              className={`rating-btn${score === value ? ' active' : ''}`}
-              aria-pressed={score === value}
-              disabled={submitting}
-              onClick={() => setScore(value)}
-            >
-              {value}
-            </button>
-          )
-        })}
-      </div>
-    </Modal>
+      <DialogContent
+        onEscapeKeyDown={blockWhileSubmitting}
+        onInteractOutside={blockWhileSubmitting}
+      >
+        <DialogHeader>
+          <DialogTitle>{`Rate ${label}`}</DialogTitle>
+          <DialogDescription>
+            Mark as completed on MyAnimeList and remove from Watching.
+          </DialogDescription>
+        </DialogHeader>
+        <div
+          className="mb-[1.15rem] grid grid-cols-5 gap-[0.45rem]"
+          role="group"
+          aria-label="Score from 1 to 10"
+        >
+          {Array.from({ length: 10 }, (_, index) => {
+            const value = index + 1
+            return (
+              <button
+                key={value}
+                type="button"
+                className="min-h-10 cursor-pointer rounded-md border border-border bg-(--panel-raised) text-[0.88rem] font-semibold text-foreground transition-[border-color,background-color] duration-150 hover:not-disabled:border-(--text-secondary) disabled:cursor-not-allowed disabled:opacity-60 aria-pressed:border-primary aria-pressed:bg-[color-mix(in_srgb,var(--accent)_18%,var(--panel-raised))] aria-pressed:hover:not-disabled:border-primary"
+                aria-pressed={score === value}
+                disabled={submitting}
+                onClick={() => setScore(value)}
+              >
+                {value}
+              </button>
+            )
+          })}
+        </div>
+        <DialogFooter>
+          <Button
+            variant="outline"
+            type="button"
+            disabled={submitting}
+            onClick={onCancel}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="button"
+            disabled={submitting || score === null}
+            onClick={() => {
+              if (score !== null) {
+                onConfirm(score)
+              }
+            }}
+          >
+            {submitting ? 'Saving…' : 'Mark completed'}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }
