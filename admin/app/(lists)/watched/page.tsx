@@ -8,6 +8,7 @@ import {
 } from '@/app/components/AnimeSheet'
 import { ListGroup } from '@/app/components/ListGroup'
 import { ListRow } from '@/app/components/ListRow'
+import { SegmentedControl } from '@/app/components/SegmentedControl'
 import { PtwListSkeleton } from '@/app/components/ListSkeleton'
 import { SheetSection } from '@/app/components/Sheet'
 import { useToast } from '@/app/components/Toast'
@@ -266,19 +267,15 @@ export default function WatchedPage() {
               placeholder="Filter by title, studio, or genre"
               aria-label="Filter watched shows"
             />
-            <div className="segmented" role="group" aria-label="Sort by">
-              {SORTS.map((option) => (
-                <button
-                  key={option}
-                  type="button"
-                  className={sort === option ? 'active' : ''}
-                  aria-pressed={sort === option}
-                  onClick={() => setSort(option)}
-                >
-                  {WATCHED_SORT_LABELS[option]}
-                </button>
-              ))}
-            </div>
+            <SegmentedControl
+              ariaLabel="Sort by"
+              value={sort}
+              options={SORTS.map((option) => ({
+                value: option,
+                label: WATCHED_SORT_LABELS[option],
+              }))}
+              onChange={setSort}
+            />
             <FieldDescription className="watched-stats">
               {formatStats(filtered)}
             </FieldDescription>

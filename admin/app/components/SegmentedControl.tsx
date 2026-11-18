@@ -1,5 +1,11 @@
 'use client'
 
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+
+/**
+ * One choice of a few, as joined buttons (a single-choice ToggleGroup). The
+ * arrow keys move between them; choosing the current one again keeps it.
+ */
 export function SegmentedControl<T extends string>({
   value,
   options,
@@ -12,18 +18,22 @@ export function SegmentedControl<T extends string>({
   ariaLabel: string
 }) {
   return (
-    <div className="segmented" role="group" aria-label={ariaLabel}>
+    <ToggleGroup
+      type="single"
+      value={value}
+      onValueChange={(next) => {
+        // Radix clears the value when the chosen button is pressed again.
+        if (next) {
+          onChange(next as T)
+        }
+      }}
+      aria-label={ariaLabel}
+    >
       {options.map((option) => (
-        <button
-          key={option.value}
-          type="button"
-          className={value === option.value ? 'active' : ''}
-          aria-pressed={value === option.value}
-          onClick={() => onChange(option.value)}
-        >
+        <ToggleGroupItem key={option.value} value={option.value}>
           {option.label}
-        </button>
+        </ToggleGroupItem>
       ))}
-    </div>
+    </ToggleGroup>
   )
 }

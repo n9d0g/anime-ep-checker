@@ -509,36 +509,6 @@ h3 {
   transition: transform 0.15s ease;
 }
 
-.segmented {
-  display: flex;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  overflow: hidden;
-}
-
-.segmented button {
-  flex: 1;
-  padding: 0.45rem 0.75rem;
-  border: 0;
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-  background: transparent;
-  color: var(--muted);
-  transition: all 0.1s;
-}
-
-.segmented button.active {
-  background: var(--panel-raised);
-  color: var(--text);
-  box-shadow: inset 0 0 0 1px var(--border);
-}
-
-.segmented button:not(.active):hover {
-  color: var(--text);
-  background: var(--panel-raised);
-}
-
 .actions {
   display: flex;
   flex-wrap: wrap;
@@ -897,157 +867,11 @@ h3 {
   line-height: 1.4;
 }
 
-/* ── List tabs: in the header on wide screens, a floating bar on phones ── */
-
-.list-tab {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  color: var(--text-secondary);
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.list-tab:hover {
-  color: var(--text);
-}
-
-.list-tab-count {
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--muted);
-  font-variant-numeric: tabular-nums;
-}
-
-.list-tabs-top {
-  display: none;
-  align-items: center;
-  gap: 0.2rem;
-  margin: 0 auto 0 0.75rem;
-}
-
-.list-tabs-top .list-tab {
-  padding: 0.4rem 0.7rem;
-  border-radius: 999px;
-  font-size: 0.85rem;
-  font-weight: 500;
-}
-
-.list-tabs-top .list-tab.active {
-  color: var(--text);
-  background: var(--accent-soft);
-}
-
-.list-tabs-bottom {
-  --tab-w: 3.5rem;
-  --tab-pad: 0.3rem;
-
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: var(--tab-bar-offset);
-  z-index: 30;
-  display: flex;
-  width: max-content;
-  height: var(--tab-bar-h);
-  margin-inline: auto;
-  padding: var(--tab-pad);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 999px;
-  /* Liquid glass: mostly see-through, blurred and saturated, lit from above. */
-  background:
-    linear-gradient(rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03)),
-    rgba(28, 28, 30, 0.42);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  backdrop-filter: blur(20px) saturate(180%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.18),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.04),
-    0 8px 24px rgba(0, 0, 0, 0.35),
-    0 1px 3px rgba(0, 0, 0, 0.3);
-  transform-origin: 50% 100%;
-  transition: transform 200ms cubic-bezier(0.32, 0.72, 0, 1);
-}
-
-@supports not (
-  (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
-) {
-  .list-tabs-bottom {
-    background: rgba(17, 17, 17, 0.94);
-  }
-}
-
-.list-tabs-bottom.compact {
-  transform: translateY(0.25rem) scale(0.85);
-}
-
-/* The active tab's glass lens; slides to whichever tab is current. */
-.list-tabs-lens {
-  position: absolute;
-  top: var(--tab-pad);
-  bottom: var(--tab-pad);
-  left: var(--tab-pad);
-  width: var(--tab-w);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.12);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
-  transform: translateX(calc(var(--active-index) * var(--tab-w)));
-  transition: transform 250ms cubic-bezier(0.32, 0.72, 0, 1);
-  pointer-events: none;
-}
-
-.list-tabs-bottom .list-tab {
-  justify-content: center;
-  width: var(--tab-w);
-  border-radius: 999px;
-  color: var(--text-secondary);
-  -webkit-tap-highlight-color: transparent;
-}
-
-.list-tabs-bottom .list-tab.active {
-  color: var(--accent);
-}
-
-.list-tab-icon {
-  display: inline-flex;
-}
-
-.list-tab-icon svg {
-  width: 1.4rem;
-  height: 1.4rem;
-}
-
-.list-tabs-bottom .list-tab-count {
-  position: absolute;
-  top: 0.2rem;
-  left: calc(50% + 0.45rem);
-  font-size: 0.6rem;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .list-tabs-bottom,
-  .list-tabs-lens {
-    transition: none;
-  }
-
-  .list-tabs-bottom.compact {
-    transform: none;
-  }
-}
-
+/* The floating tab bar (ListTabs) is phone and tablet only. */
 @media (min-width: 900px) {
   :root {
     --tab-bar-h: 0px;
     --tab-bar-offset: env(safe-area-inset-bottom);
-  }
-
-  .list-tabs-top {
-    display: flex;
-  }
-
-  .list-tabs-bottom {
-    display: none;
   }
 }
 
@@ -1289,17 +1113,6 @@ h3 {
   margin-top: 0.25rem;
 }
 
-.list-tab-count.list-tab-count-alert {
-  display: inline-grid;
-  place-items: center;
-  min-width: 1.1rem;
-  height: 1.1rem;
-  padding: 0 0.3rem;
-  border-radius: 999px;
-  background: var(--accent);
-  color: var(--accent-text);
-}
-
 /* ── Collapsible list groups ── */
 
 .list-group {
@@ -1532,7 +1345,7 @@ h3 {
 }
 
 @media (max-width: 899px) {
-  body:has(.list-tabs-bottom) {
+  body:has([data-tab-bar]) {
     --toast-offset-bottom: calc(
       var(--tab-bar-offset) + var(--tab-bar-h) + 0.75rem
     );
