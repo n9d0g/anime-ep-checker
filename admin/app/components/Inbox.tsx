@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { formatMalDate } from '@/lib/anime-format'
 import type { InboxItem } from '@/lib/inbox'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 
 const ICONS: Record<InboxItem['kind'], string> = {
@@ -35,21 +36,30 @@ export function Inbox({
   }
 
   return (
-    <section className="inbox" aria-labelledby="inbox-heading">
-      <h2 id="inbox-heading" className="inbox-heading">
-        Needs you <span className="inbox-count">{items.length}</span>
+    <section className="mb-6" aria-labelledby="inbox-heading">
+      <h2
+        id="inbox-heading"
+        className="m-0 mb-2 flex items-center gap-[0.4rem] text-[0.72rem] leading-none font-[650] tracking-[0.08em] text-(--text-secondary) uppercase"
+      >
+        Needs you {/* Centred on the heading's line: a fixed-height pill. */}
+        <Badge className="inline-grid h-5 min-w-5 place-items-center bg-primary px-[0.35rem] py-0 font-[650] tracking-normal text-primary-foreground tabular-nums">
+          {items.length}
+        </Badge>
       </h2>
-      <ul className="inbox-cards">
+      <ul className="m-0 list-none overflow-hidden rounded-[14px] border border-[rgba(124,140,255,0.35)] bg-[linear-gradient(180deg,rgba(124,140,255,0.08),rgba(124,140,255,0.03))] p-0">
         {items.map((item) => (
-          <li key={item.key} className="inbox-card">
-            <span className="inbox-icon" aria-hidden="true">
+          <li
+            key={item.key}
+            className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-[0.35rem] px-[0.95rem] py-[0.85rem] [&+&]:[border-top:1px_solid_rgba(124,140,255,0.18)]"
+          >
+            <span className="leading-[1.4]" aria-hidden="true">
               {ICONS[item.kind]}
             </span>
-            <div className="inbox-text">
+            <div className="flex min-w-0 flex-col text-[0.88rem] [&_span]:text-(--text-secondary)">
               <strong>{item.title}</strong>
               <InboxBody item={item} />
             </div>
-            <div className="inbox-actions">
+            <div className="col-start-2 mt-1 flex flex-wrap gap-2">
               {item.kind === 'announced_break' ? (
                 <>
                   {item.suggestedWeeks ? (
