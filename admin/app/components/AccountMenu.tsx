@@ -53,11 +53,15 @@ export function AccountMenu({
 
   const trigger = (
     <button
-      className="account-menu-btn"
+      className="block size-9 shrink-0 cursor-pointer overflow-hidden rounded-full"
       type="button"
       aria-label="Account menu"
     >
-      <img src="/icons/icon-192.png" alt="" />
+      <img
+        className="block size-full object-cover"
+        src="/icons/icon-192.png"
+        alt=""
+      />
     </button>
   )
 
@@ -144,7 +148,7 @@ export function AccountMenu({
             href="/releases"
             onClick={close}
             aria-label={`Release notes, ${VERSION}`}
-            className="rounded-md px-3 py-2 text-sm text-muted-foreground tabular-nums hover:bg-accent hover:text-foreground"
+            className="rounded-md px-3 py-2 text-sm text-muted-foreground tabular-nums no-underline hover:bg-accent hover:text-foreground"
           >
             {VERSION}
           </Link>
@@ -155,7 +159,7 @@ export function AccountMenu({
 }
 
 const ROW_CLASS =
-  'flex min-h-12 w-full cursor-pointer items-center gap-3 rounded-md px-3 text-left text-[0.95rem] font-medium hover:bg-accent disabled:cursor-default disabled:opacity-50 [&_svg]:size-5 [&_svg]:shrink-0 [&_svg]:text-muted-foreground'
+  'flex min-h-12 w-full cursor-pointer items-center gap-3 rounded-md px-3 text-left text-[0.95rem] font-medium no-underline hover:bg-accent disabled:cursor-default disabled:opacity-50 [&_svg]:size-5 [&_svg]:shrink-0 [&_svg]:text-muted-foreground'
 
 function DrawerRow({
   icon: Icon,

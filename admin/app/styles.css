@@ -1,23 +1,76 @@
 /*
- * The admin's one stylesheet entry. The app is moving to shadcn/ui on
- * Tailwind v4 a slice at a time; until the last slice, globals.css (the old
- * hand-written styles) sits in the `legacy` layer, below Tailwind's
- * utilities, and Tailwind's own reset (preflight) stays off so the old
- * styles keep their look.
+ * The admin's one stylesheet: Tailwind v4 with its reset (preflight), the
+ * admin's colour and size tokens, and the few element rules the whole app
+ * shares. Everything else is Tailwind classes on the components
+ * (shadcn/ui primitives in components/ui).
  */
-@layer theme, legacy, base, utilities;
-
-@import 'tailwindcss/theme.css' layer(theme);
-@import './globals.css' layer(legacy);
-@import 'tailwindcss/utilities.css' layer(utilities);
-
-/* globals.css's .container is the page column, not Tailwind's utility. */
-@source not inline('container');
+@import 'tailwindcss';
 
 /*
- * shadcn/ui's colours, read straight from globals.css's tokens so the app
- * keeps its look. (shadcn's own --accent is a hover background, while ours
- * is the brand colour, so the mapping skips the shadcn variable names.)
+ * The admin's tokens. Components read them as `bg-(--panel-raised)` and the
+ * like; shadcn/ui's colours map onto them below.
+ */
+:root {
+  color-scheme: dark;
+
+  --bg: #111111;
+  --panel: #1a1a1a;
+  --panel-raised: #222222;
+  --input-bg: #1a1a1a;
+  --border: #2a2a2a;
+  --border-focus: #7c8cff;
+  --text: #f2f2f0;
+  --text-secondary: #a3a3a3;
+  --muted: #737373;
+  --hint: #666666;
+  --accent: #7c8cff;
+  --accent-hover: #95a2ff;
+  --accent-soft: rgba(124, 140, 255, 0.14);
+  --accent-text: #0d0f24;
+  --danger: #e15c5c;
+  --danger-hover: rgba(225, 92, 92, 0.12);
+  --success: #3d9b63;
+  --warning: #e6a23c;
+  --chip-amber: #e6a23c;
+  --chip-amber-soft: rgba(230, 162, 60, 0.14);
+  --chip-blue: #5aa9ff;
+  --chip-blue-soft: rgba(90, 169, 255, 0.14);
+  --chip-grey-soft: rgba(255, 255, 255, 0.07);
+  --provider-cr: #f47521;
+  --provider-nf: #e50914;
+  --provider-disney: #0051c3;
+  --container-width: 760px;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --top-header-h: 3.25rem;
+  --tab-bar-h: 3.35rem;
+  /* Gap under the floating tab bar: clears the iPhone home indicator. */
+  --tab-bar-offset: max(0.75rem, env(safe-area-inset-bottom));
+  /* Toasts (components/ui/sonner.tsx) sit above the home indicator. */
+  --toast-offset-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
+/* The floating tab bar (ListTabs) is phone and tablet only. */
+@media (min-width: 900px) {
+  :root {
+    --tab-bar-h: 0px;
+    --tab-bar-offset: env(safe-area-inset-bottom);
+  }
+}
+
+/* On a phone or tablet's list pages, toasts sit above the tab bar. */
+@media (max-width: 899px) {
+  body:has([data-tab-bar]) {
+    --toast-offset-bottom: calc(
+      var(--tab-bar-offset) + var(--tab-bar-h) + 0.75rem
+    );
+  }
+}
+
+/*
+ * shadcn/ui's colours, read from the tokens above. (shadcn's own --accent
+ * is a hover background, while ours is the brand colour, so the mapping
+ * skips the shadcn variable names.)
  */
 @theme inline {
   --font-sans:
@@ -77,22 +130,64 @@
 }
 
 /*
- * Preflight's essentials, only for shadcn/ui parts (each sets data-slot) and
- * what's inside them, until the last slice turns on the full reset.
+ * The page column: centred, at most --container-width wide, and clear of the
+ * floating tab bar at the bottom on a phone or tablet.
  */
+@utility page-column {
+  width: min(var(--container-width), calc(100% - 2.5rem));
+  margin-inline: auto;
+  padding-top: 1.75rem;
+  padding-bottom: calc(var(--tab-bar-h) + var(--tab-bar-offset) + 2rem);
+  overflow-x: clip;
+}
+
+/* What every page shares: colours, borders, headings, links and buttons. */
 @layer base {
-  :where([data-slot], [data-slot] *) {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    border: 0 solid var(--color-border);
+  /* A border takes the border colour unless a class says otherwise. */
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-border);
   }
 
-  :where([data-slot]) :where(a, button),
-  :where(a[data-slot], button[data-slot]) {
-    color: inherit;
-    background: transparent;
-    font: inherit;
-    text-decoration: inherit;
+  /* Placeholders keep the browser's own grey. */
+  ::placeholder {
+    color: revert;
+  }
+
+  html,
+  body {
+    min-height: 100%;
+    background-color: var(--bg);
+    color: var(--text);
+  }
+
+  h1 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  /*
+   * A link in text is underlined in the text colour. shadcn/ui parts
+   * rendered as links (a Button with asChild, a menu item) style their own.
+   */
+  a:not([data-slot]) {
+    color: var(--text);
+    text-decoration-line: underline;
+    text-underline-offset: 2px;
+  }
+
+  button {
+    cursor: pointer;
   }
 }

@@ -45,7 +45,7 @@ function PtwSectionSkeleton({ rowCount }: { rowCount: number }) {
   const titleWidths = ['52%', '68%', '41%', '59%', '47%', '63%']
 
   return (
-    <section className="stack">
+    <section className="grid gap-[0.85rem]">
       <Skeleton className="h-4 w-20" />
       <ShowList>
         {Array.from({ length: rowCount }, (_, index) => (
@@ -89,7 +89,7 @@ function PtwSectionSkeleton({ rowCount }: { rowCount: number }) {
 export function PtwListSkeleton() {
   return (
     <div
-      className="stack"
+      className="grid gap-[0.85rem]"
       aria-busy="true"
       aria-label="Loading plan-to-watch list"
     >

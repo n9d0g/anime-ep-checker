@@ -6,7 +6,7 @@ import { Toaster as Sonner, type ToasterProps } from 'sonner'
 /*
  * shadcn/ui's Toaster, on sonner: short messages that go away on their own.
  * Changed from shadcn's: no next-themes (the admin is always dark), and the
- * colours are globals.css's tokens, so success and error toasts look as they
+ * colours are the admin's tokens (styles.css), so success and error toasts look as they
  * did. Bottom right on a computer; on a phone or tablet, along the bottom and
  * above the floating tab bar (--toast-offset-bottom, styles.css).
  */

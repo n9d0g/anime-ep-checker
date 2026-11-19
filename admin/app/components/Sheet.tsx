@@ -10,11 +10,6 @@ import {
 import { useIsDesktop } from '@/app/components/useIsDesktop'
 import { cn } from '@/components/ui/utils'
 
-// The panel leaves out shadcn's data-slot: the scoped preflight resets
-// everything inside a data-slot, and links and hints in the sheets'
-// contents still take globals.css's look.
-const NO_SLOT = { 'data-slot': undefined }
-
 const CLOSE_CLASS =
   'absolute top-[0.6rem] right-3 size-9 rounded-full border-0 bg-transparent text-(--text-secondary) hover:bg-accent hover:text-foreground'
 
@@ -49,7 +44,6 @@ export function Sheet({
   )
 
   const contentProps = {
-    ...NO_SLOT,
     ref: contentRef,
     'aria-describedby': undefined,
     onOpenAutoFocus: (event: Event) => {

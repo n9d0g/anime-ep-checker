@@ -42,6 +42,7 @@ import {
 } from '@/lib/watched'
 import { FieldDescription } from '@/components/ui/field'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/components/ui/utils'
 
@@ -229,11 +230,11 @@ export default function WatchedPage() {
   }
 
   return (
-    <main className="container">
-      <div className="page-heading page-heading-row">
+    <main className="page-column">
+      <div className="mb-5 flex min-w-0 items-start justify-between gap-4">
         <div>
           <h1>Watched</h1>
-          <p className="subtitle">
+          <p className="mt-[0.35rem] text-[0.88rem] text-(--text-secondary)">
             Completed shows from MyAnimeList, with your scores.
           </p>
         </div>
@@ -250,12 +251,12 @@ export default function WatchedPage() {
       {loading ? (
         <PtwListSkeleton />
       ) : entries.length === 0 ? (
-        <div className="panel empty">
+        <Card className="px-0 py-6 text-center text-(--muted)">
           No completed shows found on MyAnimeList.
-        </div>
+        </Card>
       ) : (
-        <div className="stack">
-          <div className="stack">
+        <div className="grid gap-[0.85rem]">
+          <div className="grid gap-[0.85rem]">
             <Input
               type="search"
               value={query}
@@ -276,7 +277,9 @@ export default function WatchedPage() {
           </div>
 
           {filtered.length === 0 ? (
-            <div className="panel empty">No shows match “{query}”.</div>
+            <Card className="px-0 py-6 text-center text-(--muted)">
+              No shows match “{query}”.
+            </Card>
           ) : (
             groups.map((group, index) =>
               group.title ? (
