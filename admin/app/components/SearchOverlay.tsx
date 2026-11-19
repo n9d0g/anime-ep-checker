@@ -1,9 +1,10 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
 import { usePathname, useRouter } from 'next/navigation'
 import { ShowTitleDisplay } from '@/app/components/ShowTitleDisplay'
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
+import { cn } from '@/components/ui/utils'
 import { requestHashHighlight } from '@/app/components/useHashScrollHighlight'
 import { hashOf, pathOf } from '@/lib/hash-highlight'
 import { searchIndex } from '@/lib/search-index-store'
@@ -73,8 +74,6 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
       return
     }
 
-    inputRef.current?.focus()
-
     // Loaded once per session (the header stays mounted across pages); a
     // move between lists invalidates it so this picks up a fresh copy.
     let active = true
@@ -113,13 +112,9 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
       return
     }
 
+    // Esc is the dialog's own; arrows and Enter move through the results
+    // while typing.
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') {
-        event.preventDefault()
-        onClose()
-        return
-      }
-
       if (flatResults.length === 0) {
         return
       }
@@ -151,24 +146,20 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
     setActiveIndex(0)
   }, [query])
 
-  if (!open || typeof document === 'undefined') {
-    return null
-  }
-
-  return createPortal(
-    <div
-      className="search-overlay-backdrop"
-      role="presentation"
-      onMouseDown={(event) => {
-        if (event.target === event.currentTarget) {
-          onClose()
-        }
-      }}
-    >
-      <div className="search-overlay" role="dialog" aria-label="Search shows">
+  return (
+    <Dialog open={open} onOpenChange={(next) => next || onClose()}>
+      <DialogContent
+        aria-describedby={undefined}
+        overlayClassName="z-200 bg-black/60"
+        className="z-200 flex max-h-[min(28rem,70vh)] w-[min(32rem,calc(100%-2rem))] flex-col gap-2 overflow-visible rounded-[0.65rem] p-3 shadow-[0_12px_40px_rgb(0_0_0/0.25)]"
+        onOpenAutoFocus={(event) => {
+          event.preventDefault()
+          inputRef.current?.focus()
+        }}
+      >
         <input
           ref={inputRef}
-          className="search-overlay-input max-w-full min-w-0 overflow-hidden text-ellipsis transition-[border-color] outline-none focus:border-ring"
+          className="w-full max-w-full min-w-0 overflow-hidden rounded-[0.45rem] border border-border bg-background px-[0.65rem] py-[0.55rem] text-base text-ellipsis text-foreground transition-[border-color] outline-none focus:border-ring"
           type="search"
           placeholder="Search watching, plan to watch, on hold…"
           value={query}
@@ -176,13 +167,13 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
           aria-label="Search shows"
         />
 
-        <div className="search-overlay-results">
+        <div className="min-h-0 overflow-auto">
           {loading ? (
-            <p className="search-overlay-empty">Loading…</p>
+            <SearchMessage>Loading…</SearchMessage>
           ) : query.trim() === '' ? (
-            <p className="search-overlay-empty">Type to search all lists.</p>
+            <SearchMessage>Type to search all lists.</SearchMessage>
           ) : flatResults.length === 0 ? (
-            <p className="search-overlay-empty">No matches.</p>
+            <SearchMessage>No matches.</SearchMessage>
           ) : (
             CATEGORY_ORDER.map((category) => {
               const section = grouped.get(category) ?? []
@@ -191,27 +182,29 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
               }
 
               return (
-                <section className="search-overlay-group" key={category}>
-                  <h3 className="search-overlay-group-title">
+                <section className="mb-2" key={category}>
+                  <h3 className="m-0 mb-1 px-1 text-[0.72rem] font-semibold tracking-[0.04em] text-(--hint) uppercase">
                     {CATEGORY_LABELS[category]}
                   </h3>
-                  <ul className="search-overlay-list">
+                  <ul className="m-0 list-none p-0">
                     {section.map((item) => {
                       const index = flatResults.indexOf(item)
                       return (
                         <li key={`${category}-${item.id}`}>
                           <button
                             type="button"
-                            className={`search-overlay-item${
-                              index === activeIndex ? ' active' : ''
-                            }`}
+                            className={cn(
+                              'block w-full cursor-pointer rounded-[0.4rem] border-none bg-transparent px-2 py-[0.45rem] text-left text-foreground hover:bg-accent',
+                              index === activeIndex && 'bg-accent'
+                            )}
+                            data-active={index === activeIndex || undefined}
                             onMouseEnter={() => setActiveIndex(index)}
                             onClick={() => selectItem(item)}
                           >
                             <ShowTitleDisplay
                               title={item.title}
                               titleEnglish={item.titleEnglish}
-                              className="search-overlay-item-title"
+                              className=""
                             />
                           </button>
                         </li>
@@ -223,8 +216,16 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
             })
           )}
         </div>
-      </div>
-    </div>,
-    document.body
+        <DialogTitle className="sr-only">Search shows</DialogTitle>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function SearchMessage({ children }: { children: string }) {
+  return (
+    <p className="mx-0 my-2 text-center text-[0.85rem] text-(--hint)">
+      {children}
+    </p>
   )
 }

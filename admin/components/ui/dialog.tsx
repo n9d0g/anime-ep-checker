@@ -13,7 +13,8 @@ import { cn } from '@/components/ui/utils'
  * - no close (X) button: each dialog has its own Cancel;
  * - the header and footer don't add a gap; the description spaces itself;
  * - focus goes back to whatever had it when the dialog opened;
- * - no open/close animations (they need tw-animate-css, which we don't load).
+ * - no open/close animations (they need tw-animate-css, which we don't load);
+ * - `overlayClassName` restyles the backdrop (search's is darker and lower).
  */
 
 function Dialog(props: React.ComponentProps<typeof DialogPrimitive.Root>) {
@@ -73,14 +74,17 @@ function useReturnFocus(
 
 function DialogContent({
   className,
+  overlayClassName,
   children,
   onCloseAutoFocus,
   ...props
-}: React.ComponentProps<typeof DialogPrimitive.Content>) {
+}: React.ComponentProps<typeof DialogPrimitive.Content> & {
+  overlayClassName?: string
+}) {
   const returnFocus = useReturnFocus(onCloseAutoFocus)
   return (
     <DialogPortal>
-      <DialogOverlay />
+      <DialogOverlay className={overlayClassName} />
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(
