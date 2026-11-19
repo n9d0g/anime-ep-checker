@@ -1,35 +1,27 @@
-import type { CSSProperties } from 'react'
+import { Skeleton } from '@/components/ui/skeleton'
+import { cn } from '@/components/ui/utils'
+import { ShowList } from '@/app/components/ListGroup'
+import {
+  ROW_CLASS,
+  ROW_HEADER_CLASS,
+  ROW_LEADING_CLASS,
+  ROW_TRAILING_CLASS,
+} from '@/app/components/ListRow'
 
-function SkeletonBar({
-  className = '',
-  style,
-}: {
-  className?: string
-  style?: CSSProperties
-}) {
-  return (
-    <span
-      className={`skeleton ${className}`.trim()}
-      style={style}
-      aria-hidden="true"
-    />
-  )
-}
+const TITLE_CLASS = 'h-[0.88rem] min-w-16 max-w-full'
+const META_CLASS = 'h-[0.78rem] w-[3.25rem] shrink-0'
 
 function ShowListSkeletonRow({ titleWidth }: { titleWidth: string }) {
   return (
-    <article className="show-row">
-      <div className="show-row-header skeleton-row">
-        <div className="show-row-leading">
-          <SkeletonBar className="skeleton-dot" />
-          <SkeletonBar
-            className="skeleton-title"
-            style={{ width: titleWidth }}
-          />
+    <article className={ROW_CLASS}>
+      <div className={cn(ROW_HEADER_CLASS, 'pointer-events-none')}>
+        <div className={ROW_LEADING_CLASS}>
+          <Skeleton className="size-2 shrink-0 rounded-full" />
+          <Skeleton className={TITLE_CLASS} style={{ width: titleWidth }} />
         </div>
-        <div className="show-row-trailing">
-          <SkeletonBar className="skeleton-meta" />
-          <SkeletonBar className="skeleton-chevron" />
+        <div className={ROW_TRAILING_CLASS}>
+          <Skeleton className={META_CLASS} />
+          <Skeleton className="size-[0.55rem] shrink-0 rounded-[2px]" />
         </div>
       </div>
     </article>
@@ -40,44 +32,56 @@ const WATCHING_TITLE_WIDTHS = ['58%', '44%', '65%', '50%', '72%', '47%']
 
 export function ShowListSkeleton() {
   return (
-    <div
-      className="panel show-list"
-      aria-busy="true"
-      aria-label="Loading shows"
-    >
+    <ShowList aria-busy="true" aria-label="Loading shows">
       {WATCHING_TITLE_WIDTHS.map((titleWidth, index) => (
         <ShowListSkeletonRow key={index} titleWidth={titleWidth} />
       ))}
-    </div>
+    </ShowList>
   )
 }
 
+// A plan-to-watch row: the title and its detail stack on a phone.
 function PtwSectionSkeleton({ rowCount }: { rowCount: number }) {
   const titleWidths = ['52%', '68%', '41%', '59%', '47%', '63%']
 
   return (
     <section className="stack">
-      <SkeletonBar className="skeleton-heading" />
-      <div className="panel show-list">
+      <Skeleton className="h-4 w-20" />
+      <ShowList>
         {Array.from({ length: rowCount }, (_, index) => (
-          <article className="show-row ptw-row" key={index}>
-            <div className="show-row-header ptw-row-header skeleton-row">
-              <div className="ptw-row-main">
-                <div className="show-row-leading">
-                  <SkeletonBar
-                    className="skeleton-title"
+          <article className={ROW_CLASS} key={index}>
+            <div
+              className={cn(
+                ROW_HEADER_CLASS,
+                'pointer-events-none overflow-visible'
+              )}
+            >
+              <div className="flex min-w-0 items-center justify-between gap-3 max-[641px]:flex-col max-[641px]:items-stretch max-[641px]:justify-center max-[641px]:gap-[0.15rem]">
+                <div
+                  className={cn(
+                    ROW_LEADING_CLASS,
+                    'max-[641px]:w-full max-[641px]:flex-[0_1_auto]'
+                  )}
+                >
+                  <Skeleton
+                    className={TITLE_CLASS}
                     style={{ width: titleWidths[index % titleWidths.length] }}
                   />
                 </div>
-                <div className="show-row-trailing">
-                  <SkeletonBar className="skeleton-meta" />
+                <div
+                  className={cn(
+                    ROW_TRAILING_CLASS,
+                    'max-[641px]:justify-start'
+                  )}
+                >
+                  <Skeleton className={META_CLASS} />
                 </div>
               </div>
-              <SkeletonBar className="skeleton-ptw-watch" />
+              <Skeleton className="h-8 w-14 shrink-0" />
             </div>
           </article>
         ))}
-      </div>
+      </ShowList>
     </section>
   )
 }
@@ -85,7 +89,7 @@ function PtwSectionSkeleton({ rowCount }: { rowCount: number }) {
 export function PtwListSkeleton() {
   return (
     <div
-      className="stack ptw-sections"
+      className="stack"
       aria-busy="true"
       aria-label="Loading plan-to-watch list"
     >

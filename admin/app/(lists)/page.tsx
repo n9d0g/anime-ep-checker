@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { CompleteRatingModal } from '@/app/components/CompleteRatingModal'
 import { Inbox } from '@/app/components/Inbox'
+import { ShowList } from '@/app/components/ListGroup'
 import { ShowListSkeleton } from '@/app/components/ListSkeleton'
 import { MoveToWatchingSheet } from '@/app/components/MoveToWatchingSheet'
 import { ShowRow } from '@/app/components/ShowRow'
@@ -222,7 +223,7 @@ export default function AdminPage() {
           ) : shows.rows.length === 0 ? (
             <div className="panel empty">No shows yet. Add one with +.</div>
           ) : (
-            <div className="panel show-list">
+            <ShowList>
               {shows.displayRows.map((displayRow) => (
                 <ShowRow
                   key={displayRow.row.key}
@@ -231,7 +232,7 @@ export default function AdminPage() {
                   onOpen={() => setOpenSheet({ rowKey: displayRow.row.key })}
                 />
               ))}
-            </div>
+            </ShowList>
           )}
         </section>
       </main>

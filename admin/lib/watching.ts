@@ -64,10 +64,11 @@ export function serializeShows(shows: ShowFormValues[]): string {
   return JSON.stringify(shows)
 }
 
+/** The provider's colour, as a background class for its dot or bar. */
 export function providerDotClass(provider: ShowProvider): string {
-  if (provider === 'netflix') return 'provider-nf'
-  if (provider === 'disney') return 'provider-disney'
-  return 'provider-cr'
+  if (provider === 'netflix') return 'bg-(--provider-nf)'
+  if (provider === 'disney') return 'bg-(--provider-disney)'
+  return 'bg-(--provider-cr)'
 }
 
 export function formScheduleToSchedule(show: ShowFormValues): ShowSchedule {

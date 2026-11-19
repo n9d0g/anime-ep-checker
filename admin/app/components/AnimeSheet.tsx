@@ -1,9 +1,16 @@
 'use client'
 
 import { useState, type ReactNode } from 'react'
-import { Sheet } from '@/app/components/Sheet'
+import {
+  SHEET_HERO_CLASS,
+  SHEET_HERO_META_CLASS,
+  SHEET_HERO_TITLE_CLASS,
+  SHEET_LINKS_CLASS,
+  Sheet,
+} from '@/app/components/Sheet'
 import { ShowTitleDisplay } from '@/app/components/ShowTitleDisplay'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/components/ui/utils'
 
 export type AnimeFact = [label: string, value: string | null]
 
@@ -29,22 +36,61 @@ export function AnimeSheet({
 }) {
   return (
     <Sheet title={title} onClose={onClose}>
-      <div className={`sheet-hero${coverUrl ? ' sheet-hero-cover' : ''}`}>
+      <div
+        className={cn(
+          SHEET_HERO_CLASS,
+          coverUrl && 'grid-cols-[auto_minmax(0,1fr)] items-end gap-4'
+        )}
+      >
         {coverUrl ? (
-          <img className="sheet-cover" src={coverUrl} alt="" />
+          <img
+            className="h-[124px] w-[88px] rounded-[10px] bg-accent object-cover"
+            src={coverUrl}
+            alt=""
+          />
         ) : null}
-        <div className="sheet-hero-text">
+        <div className="grid min-w-0 gap-[0.4rem]">
           <ShowTitleDisplay
             title={title}
             titleEnglish={titleEnglish}
-            className="sheet-hero-title"
+            className={SHEET_HERO_TITLE_CLASS}
           />
-          {meta ? <p className="sheet-hero-meta">{meta}</p> : null}
+          {meta ? (
+            <p
+              className={cn(
+                SHEET_HERO_META_CLASS,
+                'flex flex-wrap items-center gap-[0.45rem]'
+              )}
+            >
+              {meta}
+            </p>
+          ) : null}
         </div>
       </div>
       {children}
     </Sheet>
   )
+}
+
+/** Labelled facts in two columns; missing ones are left out. */
+export function AnimeFactList({ facts }: { facts: AnimeFact[] }) {
+  return (
+    <dl className="m-0 grid grid-cols-[max-content_minmax(0,1fr)] gap-x-4 gap-y-[0.45rem] text-[0.85rem]">
+      {facts
+        .filter((fact): fact is [string, string] => Boolean(fact[1]))
+        .map(([label, value]) => (
+          <div key={label} className="contents">
+            <dt className="text-(--muted)">{label}</dt>
+            <dd className="m-0 text-foreground">{value}</dd>
+          </div>
+        ))}
+    </dl>
+  )
+}
+
+/** "Loading details from MAL…" and the like, in a sheet. */
+export function AnimeLoadingNote({ children }: { children: ReactNode }) {
+  return <p className="m-0 text-[0.82rem] text-(--hint)">{children}</p>
 }
 
 // A show's facts (missing ones left out), its synopsis and links out.
@@ -68,34 +114,32 @@ export function AnimeFacts({
 
   return (
     <>
-      <dl className="anime-facts">
-        {facts
-          .filter((fact): fact is [string, string] => Boolean(fact[1]))
-          .map(([label, value]) => (
-            <div key={label}>
-              <dt>{label}</dt>
-              <dd>{value}</dd>
-            </div>
-          ))}
-      </dl>
+      <AnimeFactList facts={facts} />
       {synopsis ? (
-        <div className="anime-details-synopsis">
-          <p className={clampable && !synopsisOpen ? 'clamped' : undefined}>
+        <div className="grid justify-items-start gap-[0.3rem]">
+          <p
+            className={cn(
+              'm-0 text-[0.84rem] leading-[1.55] whitespace-pre-line text-(--text-secondary)',
+              clampable && !synopsisOpen && 'line-clamp-4'
+            )}
+          >
             {synopsis}
           </p>
           {clampable ? (
-            <button
-              className="text-btn"
+            <Button
+              variant="link"
+              size="text"
+              className="text-[0.8rem]"
               type="button"
               onClick={() => setSynopsisOpen((open) => !open)}
             >
               {synopsisOpen ? 'Show less' : 'Read more'}
-            </button>
+            </Button>
           ) : null}
         </div>
       ) : null}
       {footer}
-      <div className="quick-links">
+      <div className={SHEET_LINKS_CLASS}>
         <Button asChild variant="outline" size="sm">
           <a
             href={`https://myanimelist.net/anime/${malId}`}

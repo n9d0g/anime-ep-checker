@@ -2,6 +2,7 @@ import Link from 'next/link'
 import releases from 'virtual:release-notes'
 import type { Release } from '@/lib/release-notes'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 
 /** The version running here, without dev's "-dev". */
 const RUNNING = __APP_VERSION__.replace(/-dev$/, '')
@@ -53,7 +54,7 @@ function ReleaseCard({ release }: { release: Release }) {
       <div className="release-card-heading">
         <h2 id={headingId}>v{release.version}</h2>
         {release.version === RUNNING ? (
-          <span className="chip release-current">This version</span>
+          <Badge variant="accent">This version</Badge>
         ) : null}
       </div>
       {release.date ? (

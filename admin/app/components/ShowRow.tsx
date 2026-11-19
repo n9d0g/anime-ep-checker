@@ -1,6 +1,11 @@
 'use client'
 
-import { ListRow } from '@/app/components/ListRow'
+import {
+  ListRow,
+  ListRowCount,
+  ListRowMetaText,
+} from '@/app/components/ListRow'
+import { ScheduleChipBadge } from '@/app/components/ScheduleChipBadge'
 import type { AniListMedia } from '@/lib/anilist'
 import type { DisplayRow } from '@/app/components/useWatchingShows'
 import { MAL_DOWN_MESSAGE } from '@/lib/watching'
@@ -33,27 +38,21 @@ export function ShowRow({
       meta={
         view.nextDropLine || view.chip ? (
           <>
-            {view.chip ? (
-              <span className={`chip chip-${view.chip.kind}`}>
-                {view.chip.label}
-              </span>
-            ) : null}
+            {view.chip ? <ScheduleChipBadge chip={view.chip} /> : null}
             {view.nextDropLine ? (
-              <span className="show-row-next-drop">{view.nextDropLine}</span>
+              <ListRowMetaText>{view.nextDropLine}</ListRowMetaText>
             ) : null}
           </>
         ) : null
       }
       secondaryMeta={view.behindEpisodeLine}
       trailing={
-        <span
-          className={`ep-count${badge.behind ? ' ep-count-behind' : ''}${
-            badge.malDown ? ' ep-count-mal-down' : ''
-          }`}
+        <ListRowCount
+          tone={badge.malDown ? 'malDown' : badge.behind ? 'behind' : null}
           title={badge.malDown ? MAL_DOWN_MESSAGE : undefined}
         >
           {badge.label}
-        </span>
+        </ListRowCount>
       }
       onOpen={onOpen}
     />

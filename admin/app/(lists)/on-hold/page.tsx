@@ -3,8 +3,9 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { AnimeFacts, AnimeSheet } from '@/app/components/AnimeSheet'
-import { ListRow } from '@/app/components/ListRow'
-import { SheetSection } from '@/app/components/Sheet'
+import { ShowList } from '@/app/components/ListGroup'
+import { ListRow, ListRowMetaText } from '@/app/components/ListRow'
+import { SheetActions, SheetSection } from '@/app/components/Sheet'
 import { useCachedResource } from '@/app/components/useCachedResource'
 import { useHashScrollHighlight } from '@/app/components/useHashScrollHighlight'
 import { PtwListSkeleton } from '@/app/components/ListSkeleton'
@@ -80,7 +81,7 @@ function OnHoldSheet({
           Moving it back resumes episode checks and Discord alerts, and marks it
           watching on MyAnimeList.
         </FieldDescription>
-        <div className="actions sheet-manage">
+        <SheetActions>
           <Button type="button" disabled={restoring} onClick={onRestore}>
             {restoring ? 'Saving…' : 'Move back to Watching'}
           </Button>
@@ -93,7 +94,7 @@ function OnHoldSheet({
               Watch on {PROVIDER_LABELS[provider]}
             </a>
           </Button>
-        </div>
+        </SheetActions>
       </SheetSection>
       <SheetSection title="Return">
         <FieldDescription>
@@ -129,7 +130,7 @@ function OnHoldSheet({
             anime news page to read it too.
           </FieldDescription>
         </Field>
-        <div className="actions sheet-manage">
+        <SheetActions>
           {awaiting ? (
             <>
               <Button
@@ -157,7 +158,7 @@ function OnHoldSheet({
               {savingReturn ? 'Saving…' : 'Mark awaiting return'}
             </Button>
           )}
-        </div>
+        </SheetActions>
       </SheetSection>
       {show.malId ? (
         <SheetSection title="Setup">
@@ -357,7 +358,7 @@ export default function OnHoldPage() {
           <Link href="/">Watching</Link>.
         </div>
       ) : (
-        <div className="panel show-list">
+        <ShowList>
           {entries.map((entry) => (
             <ListRow
               key={entry.show.id}
@@ -370,18 +371,18 @@ export default function OnHoldPage() {
               bannerUrl={aniList(entry.show.malId)?.bannerUrl}
               coverUrl={aniList(entry.show.malId)?.coverUrl}
               meta={
-                <span className="show-row-next-drop">
+                <ListRowMetaText>
                   {formatHeldMeta(entry, announcementFor(entry))}
-                </span>
+                </ListRowMetaText>
               }
               onOpen={() => setOpenId(entry.show.id)}
             />
           ))}
-        </div>
+        </ShowList>
       )}
 
       {snapshot?.updatedAt ? (
-        <FieldDescription className="ptw-updated">
+        <FieldDescription>
           {formatUpdatedAgo(snapshot.updatedAt)}
         </FieldDescription>
       ) : null}

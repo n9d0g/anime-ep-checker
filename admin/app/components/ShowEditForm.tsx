@@ -1,12 +1,19 @@
 'use client'
 
 import { SegmentedControl } from '@/app/components/SegmentedControl'
+import {
+  SHEET_FIELDS_CLASS,
+  SHEET_SECTION_CLASS,
+  SHEET_SECTION_TITLE_CLASS,
+  SheetActions,
+} from '@/app/components/Sheet'
 import type { ShowFormValues } from '@/lib/types'
 import type { ShowProvider } from '@shared/types'
 import { Field, FieldDescription } from '@/components/ui/field'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { cn } from '@/components/ui/utils'
 
 // The Setup section of a show's sheet: the fields saved to shows.json.
 // Collapsed for existing shows unless asked to open. `rowKey` keeps input IDs
@@ -52,16 +59,18 @@ export function ShowEditForm({
   const id = (name: string) => `${name}-${rowKey}`
 
   return (
-    <details className="sheet-section sheet-setup" open={open}>
-      <summary>
-        <h3 className="sheet-section-title">
+    <details className={cn(SHEET_SECTION_CLASS, 'group/setup')} open={open}>
+      <summary className="flex cursor-pointer list-none items-center justify-between after:text-[1.1rem] after:text-(--muted) after:transition-[transform] after:duration-150 after:ease-[ease] after:content-['›'] group-open/setup:after:transform-[rotate(90deg)] [&::-webkit-details-marker]:hidden">
+        <h3 className={SHEET_SECTION_TITLE_CLASS}>
           Setup
           {dirty && show.id ? (
-            <span className="sheet-unsaved">Unsaved</span>
+            <span className="ml-[0.6rem] tracking-[0.02em] text-(--chip-amber) normal-case">
+              Unsaved
+            </span>
           ) : null}
         </h3>
       </summary>
-      <div className="sheet-setup-body">
+      <div className={SHEET_FIELDS_CLASS}>
         <Field>
           <Label htmlFor={id('title')}>Title</Label>
           <Input
@@ -195,13 +204,14 @@ export function ShowEditForm({
             <Label>MAL linked</Label>
             <FieldDescription>
               Linked to MAL ID {show.malId}.{' '}
-              <button
-                className="text-btn"
+              <Button
+                variant="link"
+                size="text"
                 type="button"
                 onClick={onToggleMalEdit}
               >
                 {malEditOpen ? 'Hide' : 'Edit'}
-              </button>
+              </Button>
             </FieldDescription>
             {malEditOpen ? (
               <Input
@@ -279,7 +289,7 @@ export function ShowEditForm({
             required
           />
         </Field>
-        <div className="actions sheet-save-row">
+        <SheetActions sticky>
           <Button type="button" disabled={!dirty || saving} onClick={onSave}>
             {saving ? 'Saving…' : show.id ? 'Save' : 'Add show'}
           </Button>
@@ -293,7 +303,7 @@ export function ShowEditForm({
               Revert
             </Button>
           ) : null}
-        </div>
+        </SheetActions>
       </div>
     </details>
   )
