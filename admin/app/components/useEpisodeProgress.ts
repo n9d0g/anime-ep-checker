@@ -9,6 +9,7 @@ import {
 } from 'react'
 import type { CompletePrompt } from '@/app/components/CompleteRatingModal'
 import { useToast } from '@/app/components/Toast'
+import { useConfirm } from '@/app/components/Confirm'
 import { ApiError, apiErrorMessage, apiFetch } from '@/lib/api-fetch'
 import type { ShowFormValues, ShowStateSummary } from '@/lib/types'
 import { getWatchedEpisode, stepEpisode, usesMalProgress } from '@/lib/watching'
@@ -37,6 +38,7 @@ export function useEpisodeProgress({
   removeShowFromLocal: (showId: string) => void
 }) {
   const toast = useToast()
+  const confirm = useConfirm()
   const [episodeSaveStatus, setEpisodeSaveStatus] = useState<
     Record<string, EpisodeSaveStatus>
   >({})
@@ -245,9 +247,12 @@ export function useEpisodeProgress({
 
     const label = show.title.trim() || show.id
     if (
-      !window.confirm(
-        `Put "${label}" on hold? It will be removed from tracked shows and marked on hold on MyAnimeList.`
-      )
+      !(await confirm({
+        title: `Put "${label}" on hold?`,
+        description:
+          'It will be removed from tracked shows and marked on hold on MyAnimeList.',
+        confirmLabel: 'Put on hold',
+      }))
     ) {
       return
     }

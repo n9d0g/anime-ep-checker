@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useToast } from '@/app/components/Toast'
+import { useConfirm } from '@/app/components/Confirm'
 import { ApiError, apiErrorMessage, apiFetch } from '@/lib/api-fetch'
 import {
   cacheKeys,
@@ -95,6 +96,7 @@ export function useWatchingShows(options: {
   isEpisodeSavePending: () => boolean
 }) {
   const toast = useToast()
+  const confirm = useConfirm()
   const [rows, setRows] = useState<ShowRow[]>([])
   // The rows as last loaded or saved; null until the first load.
   const [savedRows, setSavedRows] = useState<ShowRow[] | null>(null)
@@ -558,9 +560,13 @@ export function useWatchingShows(options: {
     }
     const label = loaded.title || loaded.id
     if (
-      !window.confirm(
-        `Remove "${label}"? The checker stops checking it, and its Calendar events and Discord entry are cleaned up.`
-      )
+      !(await confirm({
+        title: `Remove "${label}"?`,
+        description:
+          'The checker stops checking it, and its Calendar events and Discord entry are cleaned up.',
+        confirmLabel: 'Remove',
+        destructive: true,
+      }))
     ) {
       return false
     }
@@ -595,9 +601,12 @@ export function useWatchingShows(options: {
       return
     }
     if (
-      !window.confirm(
-        `Remove the ${describeBreak(entry)} of "${saved.title || saved.id}"? Later drops move back.`
-      )
+      !(await confirm({
+        title: `Remove the ${describeBreak(entry)} of "${saved.title || saved.id}"?`,
+        description: 'Later drops move back.',
+        confirmLabel: 'Remove break',
+        destructive: true,
+      }))
     ) {
       return
     }
@@ -658,14 +667,20 @@ export function useWatchingShows(options: {
     const aniListGap = getAniListGapWeeks(summary?.airingSchedule, afterEpisode)
     const nextBroadcast =
       summary?.airingSchedule?.episodes[String(afterEpisode + 1)]
-    const message = aniListGap
-      ? `AniList already shows a ${aniListGap}-week gap after episode ${afterEpisode} of "${label}"${
-          nextBroadcast
-            ? ` (episode ${afterEpisode + 1} broadcasts ${formatEasternDateTime(nextBroadcast)})`
-            : ''
-        }, and drops already follow it. Add another ${weeks}-week break on top of it?`
-      : `Add a ${weeks}-week break after episode ${afterEpisode} of "${label}"? Later drops shift and Discord/Calendar events rebuild.`
-    if (!window.confirm(message)) {
+    const question = aniListGap
+      ? {
+          title: `Add another ${weeks}-week break to "${label}"?`,
+          description: `AniList already shows a ${aniListGap}-week gap after episode ${afterEpisode}${
+            nextBroadcast
+              ? ` (episode ${afterEpisode + 1} broadcasts ${formatEasternDateTime(nextBroadcast)})`
+              : ''
+          }, and drops already follow it. This adds another break on top of it.`,
+        }
+      : {
+          title: `Add a ${weeks}-week break to "${label}"?`,
+          description: `After episode ${afterEpisode}. Later drops shift and Discord/Calendar events rebuild.`,
+        }
+    if (!(await confirm({ ...question, confirmLabel: 'Add break' }))) {
       return
     }
 
@@ -740,9 +755,11 @@ export function useWatchingShows(options: {
     }
     const label = show.title || show.id
     if (
-      !window.confirm(
-        `Add a ${describeBreak(suggestion)} of "${label}"? Later drops shift and Discord/Calendar events rebuild.`
-      )
+      !(await confirm({
+        title: `Add a ${describeBreak(suggestion)} of "${label}"?`,
+        description: 'Later drops shift and Discord/Calendar events rebuild.',
+        confirmLabel: 'Add break',
+      }))
     ) {
       return
     }

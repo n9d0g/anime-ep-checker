@@ -1,5 +1,6 @@
 import './styles.css'
 import { ToastProvider } from '@/app/components/Toast'
+import { ConfirmProvider } from '@/app/components/Confirm'
 import { getAdminPublicOrigin } from '@/lib/site-url'
 import { Inter } from 'next/font/google'
 import type { Metadata } from 'next'
@@ -58,7 +59,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={inter.variable}>
       <body>
-        <ToastProvider>{children}</ToastProvider>
+        <ToastProvider>
+          <ConfirmProvider>{children}</ConfirmProvider>
+        </ToastProvider>
       </body>
     </html>
   )
