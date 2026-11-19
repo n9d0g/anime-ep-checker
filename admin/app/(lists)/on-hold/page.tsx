@@ -10,6 +10,7 @@ import { useCachedResource } from '@/app/components/useCachedResource'
 import { useHashScrollHighlight } from '@/app/components/useHashScrollHighlight'
 import { PtwListSkeleton } from '@/app/components/ListSkeleton'
 import { useToast } from '@/app/components/Toast'
+import { useConfirm } from '@/app/components/Confirm'
 import { useAniListMedia } from '@/app/components/useAniListMedia'
 import { apiErrorMessage, apiFetch } from '@/lib/api-fetch'
 import { formatReturn } from '@/lib/awaiting-return'
@@ -235,6 +236,7 @@ function formatHeldMeta(
 
 export default function OnHoldPage() {
   const toast = useToast()
+  const confirm = useConfirm()
   const [openId, setOpenId] = useState<string | null>(null)
   // Open the show a search result links to.
   useHashScrollHighlight((elementId) => {
@@ -296,9 +298,12 @@ export default function OnHoldPage() {
     const label = entry.show.title || showId
 
     if (
-      !window.confirm(
-        `Move "${label}" back to watching? It will be tracked again and marked watching on MyAnimeList.`
-      )
+      !(await confirm({
+        title: `Move "${label}" back to watching?`,
+        description:
+          'It will be tracked again and marked watching on MyAnimeList.',
+        confirmLabel: 'Move to watching',
+      }))
     ) {
       return
     }
