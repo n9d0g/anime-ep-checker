@@ -43,6 +43,7 @@ import type {
   PlanToWatchSnapshotEntry,
 } from '@shared/types'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 
 // Which show's sheet is open: by row key (rows without an ID yet, e.g. a new
 // show) or by show ID (a search result, possibly before the list loads). An
@@ -165,11 +166,11 @@ export default function AdminPage() {
 
   return (
     <>
-      <main className="container">
-        <div className="page-heading page-heading-row">
+      <main className="page-column">
+        <div className="mb-5 flex min-w-0 items-start justify-between gap-4">
           <div>
             <h1>Watching</h1>
-            <p className="subtitle">
+            <p className="mt-[0.35rem] text-[0.88rem] text-(--text-secondary)">
               The shows the checker is tracking. Times are Eastern (ET).
             </p>
           </div>
@@ -186,7 +187,10 @@ export default function AdminPage() {
         </div>
 
         {shows.malDown ? (
-          <div className="mal-down-banner" role="status">
+          <div
+            className="mb-4 rounded-md border border-destructive bg-(--danger-hover) px-[0.85rem] py-[0.65rem] text-[0.88rem] leading-[1.4] text-foreground"
+            role="status"
+          >
             <strong>MyAnimeList is down.</strong> Watch progress can’t be loaded
             or changed until it’s back.
           </div>
@@ -217,11 +221,13 @@ export default function AdminPage() {
           }}
         />
 
-        <section className="stack">
+        <section className="grid gap-[0.85rem]">
           {shows.loading ? (
             <ShowListSkeleton />
           ) : shows.rows.length === 0 ? (
-            <div className="panel empty">No shows yet. Add one with +.</div>
+            <Card className="px-0 py-6 text-center text-(--muted)">
+              No shows yet. Add one with +.
+            </Card>
           ) : (
             <ShowList>
               {shows.displayRows.map((displayRow) => (

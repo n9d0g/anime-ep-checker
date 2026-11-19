@@ -29,6 +29,7 @@ import { providerDotClass } from '@/lib/watching'
 import { getShowWatchUrl } from '@shared/shows'
 import { Field, FieldDescription } from '@/components/ui/field'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
@@ -340,10 +341,10 @@ export default function OnHoldPage() {
   )
 
   return (
-    <main className="container">
-      <div className="page-heading">
+    <main className="page-column">
+      <div className="mb-5 min-w-0">
         <h1>On hold</h1>
-        <p className="subtitle">
+        <p className="mt-[0.35rem] text-[0.88rem] text-(--text-secondary)">
           Shows taken out of Watching. They aren’t checked for episodes until
           you move them back; shows awaiting return are checked daily for news
           of when they come back.
@@ -353,10 +354,10 @@ export default function OnHoldPage() {
       {loading ? (
         <PtwListSkeleton />
       ) : entries.length === 0 ? (
-        <div className="panel empty">
+        <Card className="px-0 py-6 text-center text-(--muted)">
           No shows on hold. Put a show on hold from{' '}
           <Link href="/">Watching</Link>.
-        </div>
+        </Card>
       ) : (
         <ShowList>
           {entries.map((entry) => (

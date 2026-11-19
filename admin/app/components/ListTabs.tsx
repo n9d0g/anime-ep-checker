@@ -134,7 +134,7 @@ const ALERT =
  * CSS shows one or the other. The floating bar shrinks while you scroll down.
  *
  * The bar's height and its gap above the screen's edge are `--tab-bar-h` and
- * `--tab-bar-offset` (globals.css), which also keep the page's end and the
+ * `--tab-bar-offset` (styles.css), which also keep the page's end and the
  * toasts clear of it; `data-tab-bar` is what the toasts look for.
  */
 export function ListTabs({ placement }: { placement: 'top' | 'bottom' }) {

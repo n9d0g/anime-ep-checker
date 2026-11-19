@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { apiFetch } from '@/lib/api-fetch'
 import { Field } from '@/components/ui/field'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
@@ -36,30 +37,34 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="login-wrap">
-      <section className="panel login-card stack">
-        <h1>Sign in</h1>
+    <main className="grid min-h-screen place-items-center bg-background p-5">
+      <Card asChild className="grid w-[min(420px,100%)] gap-[0.85rem]">
+        <section>
+          <h1>Sign in</h1>
 
-        <form className="stack" onSubmit={handleSubmit}>
-          <Field>
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              autoComplete="current-password"
-              required
-            />
-          </Field>
+          <form className="grid gap-[0.85rem]" onSubmit={handleSubmit}>
+            <Field>
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                autoComplete="current-password"
+                required
+              />
+            </Field>
 
-          <Button type="submit" disabled={loading}>
-            {loading ? 'Signing in...' : 'Sign in'}
-          </Button>
-        </form>
+            <Button type="submit" disabled={loading}>
+              {loading ? 'Signing in...' : 'Sign in'}
+            </Button>
+          </form>
 
-        {status ? <p className="status error">{status}</p> : null}
-      </section>
+          {status ? (
+            <p className="min-h-5 text-[0.8rem] text-destructive">{status}</p>
+          ) : null}
+        </section>
+      </Card>
     </main>
   )
 }

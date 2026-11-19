@@ -18,5 +18,5 @@ Single-context: one `GLOSSARY.md` and `docs/adr/` at the repo root. See `docs/ag
 
 ## Admin UI
 
-- New admin UI uses shadcn/ui on Tailwind v4: primitives in `admin/components/ui`, styled with Tailwind classes. `admin/app/globals.css` is the old hand-written CSS, being moved over one slice at a time (#88); don't add to it.
+- Admin UI uses shadcn/ui on Tailwind v4 (preflight on): primitives in `admin/components/ui`, styled with Tailwind classes. `admin/app/styles.css` is the one stylesheet: the tokens (`--bg`, `--panel`, `--accent`, …), their shadcn mappings, the `page-column` utility and a few element rules. Style new UI with classes, not new CSS there.
 - Check UI changes at phone (375px), tablet (820px) and desktop (1280px) widths. Below 900px is "phone or tablet" (the floating tab bar, drawers).
