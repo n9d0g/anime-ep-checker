@@ -3,7 +3,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import { AnimeSheet } from '@/app/components/AnimeSheet'
 import { SegmentedControl } from '@/app/components/SegmentedControl'
-import { SheetSection } from '@/app/components/Sheet'
+import {
+  SHEET_FIELDS_CLASS,
+  SheetActions,
+  SheetSection,
+} from '@/app/components/Sheet'
 import {
   hasKnownEpisodeCount,
   hasKnownStartAt,
@@ -123,7 +127,7 @@ export function MoveToWatchingSheet({
             onSubmit(form)
           }}
         >
-          <div className="sheet-setup-body">
+          <div className={SHEET_FIELDS_CLASS}>
             <Field>
               <Label asChild>
                 <span id="ptw-provider-label">Streaming service</span>
@@ -225,11 +229,11 @@ export function MoveToWatchingSheet({
               ) : null}
             </div>
           </div>
-          <div className="actions sheet-save-row">
+          <SheetActions sticky>
             <Button type="submit" disabled={submitting}>
               {submitting ? 'Moving…' : 'Move to Watching'}
             </Button>
-          </div>
+          </SheetActions>
         </form>
       </SheetSection>
     </AnimeSheet>

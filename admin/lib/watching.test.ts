@@ -228,7 +228,7 @@ test('buildShowViewModel derives the schedule lines, links and badge once', () =
   assert.equal(vm.malUrl, 'https://myanimelist.net/anime/52991')
   assert.equal(vm.malLinked, true)
   assert.equal(vm.malBlocked, false)
-  assert.equal(vm.providerDotClass, 'provider-cr')
+  assert.equal(vm.providerDotClass, 'bg-(--provider-cr)')
 })
 
 test('buildShowViewModel reads near drops relatively, far ones by day, and sets the chip', () => {
@@ -265,7 +265,7 @@ test('buildShowViewModel handles shows without a start time or further episodes'
   assert.equal(noStart.discussionUrl, null)
   assert.equal(noStart.malUrl, null)
   assert.equal(noStart.malBlocked, false)
-  assert.equal(noStart.providerDotClass, 'provider-nf')
+  assert.equal(noStart.providerDotClass, 'bg-(--provider-nf)')
 
   const finished = buildShowViewModel(
     form({
@@ -285,7 +285,7 @@ test('buildShowViewModel handles shows without a start time or further episodes'
   )
   assert.equal(finished.nextDropTime, null)
   assert.equal(finished.malBlocked, true)
-  assert.equal(finished.providerDotClass, 'provider-disney')
+  assert.equal(finished.providerDotClass, 'bg-(--provider-disney)')
 })
 
 test('orderRowsBySavedNextDrop sorts by next drop, undated shows last in list order', () => {

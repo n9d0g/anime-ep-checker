@@ -1,7 +1,17 @@
 'use client'
 
 import { useState, type ComponentProps } from 'react'
-import { Sheet, SheetSection } from '@/app/components/Sheet'
+import {
+  SHEET_HERO_CLASS,
+  SHEET_HERO_META_CLASS,
+  SHEET_HERO_TITLE_CLASS,
+  SHEET_LINKS_CLASS,
+  Sheet,
+  SheetActions,
+  SheetSection,
+} from '@/app/components/Sheet'
+import { ProviderDot } from '@/app/components/ListRow'
+import { ScheduleChipBadge } from '@/app/components/ScheduleChipBadge'
 import { ShowEditForm } from '@/app/components/ShowEditForm'
 import { ShowTitleDisplay } from '@/app/components/ShowTitleDisplay'
 import type { EpisodeSaveStatus } from '@/app/components/useEpisodeProgress'
@@ -14,6 +24,7 @@ import { getOfficialNewsUrl } from '@shared/shows'
 import type { ShowProvider } from '@shared/types'
 import { FieldDescription } from '@/components/ui/field'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/components/ui/utils'
 
 function capitalize(text: string): string {
   return text.charAt(0).toUpperCase() + text.slice(1)
@@ -24,6 +35,9 @@ const PROVIDER_LABELS: Record<ShowProvider, string> = {
   netflix: 'Netflix',
   disney: 'Disney+',
 }
+
+const STEPPER_BUTTON_CLASS =
+  'w-9 flex-[0_0_auto] cursor-pointer border-0 bg-transparent px-0 py-[0.45rem] text-[0.8rem] leading-none font-semibold text-(--muted) transition-[all] duration-100 ease-[ease] hover:not-disabled:bg-accent hover:not-disabled:text-foreground disabled:cursor-not-allowed disabled:opacity-45'
 
 // One Watching show in a sheet: Watch (links and the episode stepper),
 // Schedule (announced break, next drops, breaks), Setup (the saved fields)
@@ -103,29 +117,31 @@ export function ShowSheet({
 
   return (
     <Sheet title={title} onClose={onClose} onOpenAutoFocus={focusSetupField}>
-      <div className="sheet-hero">
+      <div className={SHEET_HERO_CLASS}>
         <ShowTitleDisplay
           title={show.title || (show.id ? title : 'New show')}
           titleEnglish={show.titleEnglish}
-          className="sheet-hero-title"
+          className={SHEET_HERO_TITLE_CLASS}
         />
-        <p className="sheet-hero-meta">
-          <span
-            className={`provider-dot ${view.providerDotClass}`}
-            aria-hidden="true"
-          />
+        <p
+          className={cn(
+            SHEET_HERO_META_CLASS,
+            'flex flex-wrap items-center gap-[0.45rem]'
+          )}
+        >
+          <ProviderDot providerClass={view.providerDotClass} />
           {PROVIDER_LABELS[show.provider]}
-          {view.chip ? (
-            <span className={`chip chip-${view.chip.kind}`}>
-              {view.chip.label}
-            </span>
-          ) : null}
-          <span className={view.badge.behind ? 'ep-count-behind' : undefined}>
+          {view.chip ? <ScheduleChipBadge chip={view.chip} /> : null}
+          <span
+            className={
+              view.badge.behind ? 'font-semibold text-(--warning)' : undefined
+            }
+          >
             {view.badge.label}
           </span>
         </p>
         {view.behindEpisodeLine ? (
-          <p className="sheet-hero-latest-episode">{view.behindEpisodeLine}</p>
+          <p className={SHEET_HERO_META_CLASS}>{view.behindEpisodeLine}</p>
         ) : null}
         {!show.id ? (
           <FieldDescription>
@@ -137,7 +153,7 @@ export function ShowSheet({
       {show.id ? (
         <SheetSection title="Watch">
           {view.watchUrl || view.discussionUrl || view.malUrl ? (
-            <div className="quick-links">
+            <div className={SHEET_LINKS_CLASS}>
               {view.watchUrl ? (
                 <Button asChild className="min-w-0 flex-1">
                   <a
@@ -177,16 +193,18 @@ export function ShowSheet({
           ) : null}
 
           {liveState ? (
-            <div className="episode-stepper-row">
-              <span className="sheet-label">Current episode</span>
+            <div className="flex w-full min-w-0 items-center gap-2">
+              <span className="text-[0.82rem] text-(--text-secondary)">
+                Current episode
+              </span>
               <div
-                className="episode-stepper"
+                className="flex w-full min-w-0 flex-1 items-stretch overflow-hidden rounded-md border border-border"
                 role="group"
                 aria-label="Current episode"
                 title={malBlocked ? MAL_DOWN_MESSAGE : undefined}
               >
                 <button
-                  className="episode-stepper-btn"
+                  className={STEPPER_BUTTON_CLASS}
                   type="button"
                   aria-label="Decrease episode"
                   disabled={
@@ -199,11 +217,11 @@ export function ShowSheet({
                 >
                   −
                 </button>
-                <span className="episode-stepper-value">
+                <span className="flex min-w-0 flex-1 items-center justify-center border-x border-border px-2 py-[0.45rem] text-[0.88rem] font-semibold text-(--text-secondary) tabular-nums">
                   {currentEpisode ?? '—'}
                 </span>
                 <button
-                  className="episode-stepper-btn"
+                  className={STEPPER_BUTTON_CLASS}
                   type="button"
                   aria-label="Increase episode"
                   disabled={
@@ -228,8 +246,10 @@ export function ShowSheet({
       {show.id ? (
         <SheetSection title="Schedule">
           {announced ? (
-            <div className="sheet-callout">
-              <strong>⚠️ Announced break</strong>
+            <div className="grid gap-[0.45rem] rounded-lg border border-[rgba(230,162,60,0.3)] bg-(--chip-amber-soft) px-[0.9rem] py-[0.8rem] text-[0.86rem]">
+              <strong className="text-(--chip-amber)">
+                ⚠️ Announced break
+              </strong>
               <span>
                 Episode {announced.episode} postponed:{' '}
                 {announced.newDate
@@ -251,7 +271,7 @@ export function ShowSheet({
                   ? ' · Not a whole-week break; add one below if needed.'
                   : null}
               </span>
-              <div className="actions">
+              <SheetActions className="justify-end">
                 {suggestion ? (
                   <Button type="button" onClick={onConfirmAnnouncedBreak}>
                     Add {describeBreak(suggestion)}
@@ -264,16 +284,24 @@ export function ShowSheet({
                 >
                   Dismiss
                 </Button>
-              </div>
+              </SheetActions>
             </div>
           ) : null}
 
           {view.upcomingDrops.length > 0 ? (
-            <ol className="drop-list" aria-label="Next drops">
+            <ol
+              className="m-0 list-none p-0 text-[0.86rem]"
+              aria-label="Next drops"
+            >
               {view.upcomingDrops.map((drop) => (
-                <li key={drop.episode}>
+                <li
+                  key={drop.episode}
+                  className="flex justify-between gap-4 py-[0.4rem] [&+&]:[border-top:1px_dashed_var(--border)]"
+                >
                   <span>Ep {drop.episode}</span>
-                  <span>{drop.when}</span>
+                  <span className="text-right text-(--text-secondary)">
+                    {drop.when}
+                  </span>
                 </li>
               ))}
             </ol>
@@ -282,23 +310,30 @@ export function ShowSheet({
           ) : null}
 
           {show.schedule.breaks?.length ? (
-            <ul className="break-list" aria-label="Breaks">
+            <ul
+              className="mx-0 mt-2 mb-0 flex list-none flex-col gap-1 p-0 text-[0.85rem]"
+              aria-label="Breaks"
+            >
               {show.schedule.breaks.map((entry, breakIndex) => (
-                <li key={`${entry.afterEpisode}-${breakIndex}`}>
+                <li
+                  key={`${entry.afterEpisode}-${breakIndex}`}
+                  className="flex items-center justify-between gap-2"
+                >
                   <span>{capitalize(describeBreak(entry))}</span>
-                  <button
-                    className="text-btn"
+                  <Button
+                    variant="link"
+                    size="text"
                     type="button"
                     onClick={() => onRemoveBreak(breakIndex)}
                   >
                     Remove
-                  </button>
+                  </Button>
                 </li>
               ))}
             </ul>
           ) : null}
 
-          <div className="break-actions">
+          <div className="mt-2 flex flex-col gap-[0.35rem]">
             <Button variant="outline" type="button" onClick={onAddBreak}>
               Add break
             </Button>
@@ -330,7 +365,7 @@ export function ShowSheet({
       />
 
       <SheetSection title="Manage">
-        <div className="actions sheet-manage">
+        <SheetActions>
           {show.id && view.malLinked ? (
             <>
               <Button
@@ -361,7 +396,7 @@ export function ShowSheet({
           >
             Remove show
           </Button>
-        </div>
+        </SheetActions>
       </SheetSection>
     </Sheet>
   )

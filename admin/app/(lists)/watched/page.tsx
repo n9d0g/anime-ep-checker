@@ -2,12 +2,13 @@
 
 import { useMemo, useState } from 'react'
 import {
+  AnimeFactList,
   AnimeFacts,
   AnimeSheet,
   type AnimeFact,
 } from '@/app/components/AnimeSheet'
-import { ListGroup } from '@/app/components/ListGroup'
-import { ListRow } from '@/app/components/ListRow'
+import { ListGroup, ShowList } from '@/app/components/ListGroup'
+import { ListRow, ListRowMetaText } from '@/app/components/ListRow'
 import { SegmentedControl } from '@/app/components/SegmentedControl'
 import { PtwListSkeleton } from '@/app/components/ListSkeleton'
 import { SheetSection } from '@/app/components/Sheet'
@@ -42,6 +43,7 @@ import {
 import { FieldDescription } from '@/components/ui/field'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { cn } from '@/components/ui/utils'
 
 const SORTS = Object.keys(WATCHED_SORT_LABELS) as WatchedSort[]
 
@@ -129,16 +131,7 @@ function WatchedSheet({
       onClose={onClose}
     >
       <SheetSection title="Your list">
-        <dl className="anime-facts">
-          {yours
-            .filter((fact): fact is [string, string] => Boolean(fact[1]))
-            .map(([label, value]) => (
-              <div key={label}>
-                <dt>{label}</dt>
-                <dd>{value}</dd>
-              </div>
-            ))}
-        </dl>
+        <AnimeFactList facts={yours} />
       </SheetSection>
       <SheetSection title="About">
         <AnimeFacts
@@ -174,15 +167,18 @@ function WatchedRow({
       bannerUrl={bannerUrl}
       coverUrl={entry.coverUrl}
       meta={
-        <span className="show-row-next-drop">
+        <ListRowMetaText>
           {[date ? `Finished ${date}` : null, formatEpisodes(entry)]
             .filter(Boolean)
             .join(' · ')}
-        </span>
+        </ListRowMetaText>
       }
       trailing={
         <span
-          className={`watched-score${entry.score ? '' : ' unscored'}`}
+          className={cn(
+            'min-w-7 rounded-md border border-border bg-accent px-[0.4rem] py-[0.1rem] text-center text-[0.8rem] font-semibold tabular-nums',
+            !entry.score && 'font-medium text-(--hint)'
+          )}
           aria-label={entry.score ? `Your score ${entry.score}` : 'Not scored'}
         >
           {entry.score ? `★ ${entry.score}` : '–'}
@@ -258,8 +254,8 @@ export default function WatchedPage() {
           No completed shows found on MyAnimeList.
         </div>
       ) : (
-        <div className="stack ptw-sections">
-          <div className="stack watched-controls">
+        <div className="stack">
+          <div className="stack">
             <Input
               type="search"
               value={query}
@@ -276,9 +272,7 @@ export default function WatchedPage() {
               }))}
               onChange={setSort}
             />
-            <FieldDescription className="watched-stats">
-              {formatStats(filtered)}
-            </FieldDescription>
+            <FieldDescription>{formatStats(filtered)}</FieldDescription>
           </div>
 
           {filtered.length === 0 ? (
@@ -303,7 +297,7 @@ export default function WatchedPage() {
                   ))}
                 </ListGroup>
               ) : (
-                <div className="panel show-list" key={group.key}>
+                <ShowList key={group.key}>
                   {group.entries.map((entry) => (
                     <WatchedRow
                       key={entry.malId}
@@ -312,7 +306,7 @@ export default function WatchedPage() {
                       onOpen={() => setOpenId(entry.malId)}
                     />
                   ))}
-                </div>
+                </ShowList>
               )
             )
           )}
@@ -320,9 +314,7 @@ export default function WatchedPage() {
       )}
 
       {list?.fetchedAt ? (
-        <FieldDescription className="ptw-updated">
-          {formatUpdatedAgo(list.fetchedAt)}
-        </FieldDescription>
+        <FieldDescription>{formatUpdatedAgo(list.fetchedAt)}</FieldDescription>
       ) : null}
 
       {openEntry ? (

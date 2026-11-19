@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState, type ReactNode } from 'react'
+import { useRef, useState, type ComponentProps, type ReactNode } from 'react'
 import { Drawer, DrawerContent, DrawerTitle } from '@/components/ui/drawer'
 import {
   Sheet as SheetRoot,
@@ -8,10 +8,11 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet'
 import { useIsDesktop } from '@/app/components/useIsDesktop'
+import { cn } from '@/components/ui/utils'
 
 // The panel leaves out shadcn's data-slot: the scoped preflight resets
-// everything inside a data-slot, and the sheets' contents still use
-// globals.css.
+// everything inside a data-slot, and links and hints in the sheets'
+// contents still take globals.css's look.
 const NO_SLOT = { 'data-slot': undefined }
 
 const CLOSE_CLASS =
@@ -127,6 +128,28 @@ export function Sheet({
   )
 }
 
+/** A sheet's header: the show's titles and a line about it. */
+export const SHEET_HERO_CLASS = 'grid gap-[0.4rem] pt-2 pr-10 pb-4 pl-0'
+
+export const SHEET_HERO_TITLE_CLASS =
+  'text-[1.15rem] leading-[1.3] font-[650] tracking-[-0.01em]'
+
+/** The small grey line(s) under a sheet's titles. */
+export const SHEET_HERO_META_CLASS = 'm-0 text-[0.8rem] text-(--text-secondary)'
+
+/** A row of link buttons sharing the sheet's width. */
+export const SHEET_LINKS_CLASS = 'flex w-full gap-2'
+
+/** A sheet section's box: a hairline above, its parts stacked. */
+export const SHEET_SECTION_CLASS = 'grid gap-3 border-t border-border px-0 py-4'
+
+/** A sheet section's small uppercase title. */
+export const SHEET_SECTION_TITLE_CLASS =
+  'm-0 text-[0.72rem] font-[650] tracking-[0.08em] text-(--text-secondary) uppercase'
+
+/** A form's fields in a sheet, stacked. */
+export const SHEET_FIELDS_CLASS = 'mt-3 grid gap-[14px]'
+
 /** A titled section of a sheet, e.g. Watch or Manage. */
 export function SheetSection({
   title,
@@ -136,9 +159,31 @@ export function SheetSection({
   children: ReactNode
 }) {
   return (
-    <section className="sheet-section">
-      <h3 className="sheet-section-title">{title}</h3>
+    <section className={SHEET_SECTION_CLASS}>
+      <h3 className={SHEET_SECTION_TITLE_CLASS}>{title}</h3>
       {children}
     </section>
+  )
+}
+
+/**
+ * A row of a sheet's buttons, wrapping as needed. `sticky` keeps it at the
+ * sheet's bottom, so Save stays in reach under a long Setup.
+ */
+export function SheetActions({
+  sticky = false,
+  className,
+  ...props
+}: ComponentProps<'div'> & { sticky?: boolean }) {
+  return (
+    <div
+      className={cn(
+        'flex flex-wrap justify-start gap-3',
+        sticky &&
+          'sticky bottom-[calc(-1.5rem-env(safe-area-inset-bottom))] bg-card px-0 py-3',
+        className
+      )}
+      {...props}
+    />
   )
 }

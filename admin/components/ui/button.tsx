@@ -11,6 +11,8 @@ import { cn } from '@/components/ui/utils'
  * - `outline` is the old secondary button: transparent with grey text;
  * - `destructive-link` is red text that underlines on hover, for "Remove
  *   show" (with size `inline`);
+ * - `link` is underlined text that turns the brand colour on hover, for a
+ *   small action inside text (with size `text`, which keeps the text's size);
  * - disabled keeps its cursor (not-allowed) rather than ignoring the pointer.
  */
 const buttonVariants = cva(
@@ -26,12 +28,14 @@ const buttonVariants = cva(
           'bg-destructive text-white hover:not-disabled:bg-[color-mix(in_srgb,var(--danger)_85%,white)]',
         'destructive-link':
           'bg-transparent text-destructive hover:not-disabled:underline',
+        link: 'bg-transparent text-foreground underline underline-offset-2 transition-none hover:not-disabled:text-(--accent-hover)',
       },
       size: {
         default: 'px-4 py-2 text-[0.82rem]',
         sm: 'px-[0.7rem] py-[0.38rem] text-[0.78rem]',
         icon: 'size-9 flex-none rounded-full p-0 text-[1.3rem] leading-none font-normal',
         inline: 'p-0 text-[0.78rem]',
+        text: 'p-0',
       },
     },
     defaultVariants: {

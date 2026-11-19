@@ -3,14 +3,19 @@
 import { useMemo, useRef, useState } from 'react'
 import {
   AnimeFacts,
+  AnimeLoadingNote,
   AnimeSheet,
   type AnimeFact,
 } from '@/app/components/AnimeSheet'
 import { ListGroup } from '@/app/components/ListGroup'
-import { ListRow } from '@/app/components/ListRow'
+import {
+  ListRow,
+  ListRowCount,
+  ListRowMetaText,
+} from '@/app/components/ListRow'
 import { MoveToWatchingSheet } from '@/app/components/MoveToWatchingSheet'
 import { SegmentedControl } from '@/app/components/SegmentedControl'
-import { SheetSection } from '@/app/components/Sheet'
+import { SheetActions, SheetSection } from '@/app/components/Sheet'
 import { useCachedResource } from '@/app/components/useCachedResource'
 import { useHashScrollHighlight } from '@/app/components/useHashScrollHighlight'
 import { apiErrorMessage, apiFetch } from '@/lib/api-fetch'
@@ -240,11 +245,11 @@ function PtwSheet({
       onClose={onClose}
     >
       <SheetSection title="Manage">
-        <div className="actions sheet-manage">
+        <SheetActions>
           <Button type="button" onClick={onMove}>
             Move to Watching
           </Button>
-        </div>
+        </SheetActions>
       </SheetSection>
       <SheetSection title="About">
         <AnimeFacts
@@ -254,7 +259,7 @@ function PtwSheet({
           synopsis={cleanSynopsis(details?.synopsis ?? null)}
           footer={
             !details && detailsLoading ? (
-              <p className="anime-details-loading">Loading details from MAL…</p>
+              <AnimeLoadingNote>Loading details from MAL…</AnimeLoadingNote>
             ) : null
           }
         />
@@ -435,8 +440,8 @@ export default function PlanToWatchPage() {
               : 'No snapshot yet. Refresh from MyAnimeList to load your list.'}
           </div>
         ) : (
-          <div className="stack ptw-sections">
-            <div className="stack watched-controls">
+          <div className="stack">
+            <div className="stack">
               <Input
                 type="search"
                 value={query}
@@ -477,15 +482,13 @@ export default function PlanToWatchPage() {
                         bannerUrl={aniList(entry.malId)?.bannerUrl}
                         coverUrl={entry.coverUrl}
                         meta={
-                          <span className="show-row-next-drop">
+                          <ListRowMetaText>
                             {formatTrailingMeta(entry, section.kind)}
-                          </span>
+                          </ListRowMetaText>
                         }
                         trailing={
                           meanScore ? (
-                            <span className="ep-count">
-                              {meanScore.toFixed(2)}
-                            </span>
+                            <ListRowCount>{meanScore.toFixed(2)}</ListRowCount>
                           ) : null
                         }
                         onOpen={() => setOpenId(entry.malId)}
@@ -499,7 +502,7 @@ export default function PlanToWatchPage() {
         )}
 
         {snapshot?.updatedAt ? (
-          <FieldDescription className="ptw-updated">
+          <FieldDescription>
             {formatUpdatedAgo(snapshot.updatedAt)}
           </FieldDescription>
         ) : null}

@@ -13,12 +13,16 @@ export function requestHashHighlight(hash: string) {
   window.dispatchEvent(new CustomEvent(HIGHLIGHT_EVENT, { detail: hash }))
 }
 
+// styles.css's `--animate-search-highlight`: two pulses of a brand-coloured
+// inset ring.
+const HIGHLIGHT_CLASS = 'animate-search-highlight'
+
 function flash(element: HTMLElement) {
   element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-  element.classList.add('search-highlight')
+  element.classList.add(HIGHLIGHT_CLASS)
 
   window.setTimeout(() => {
-    element.classList.remove('search-highlight')
+    element.classList.remove(HIGHLIGHT_CLASS)
   }, HIGHLIGHT_MS)
 }
 
