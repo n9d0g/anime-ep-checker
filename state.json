@@ -11,10 +11,6 @@
       "episodeOffset": 48,
       "malMeanScore": 8.61,
       "googleCalendarEvents": {
-        "8": {
-          "eventId": "lhlb87i6p5p2oa8u45drcdu8bk",
-          "startAt": "2026-11-20T15:00:00.000Z"
-        },
         "9": {
           "eventId": "0lm1dneetna9or5koq6cdgphks",
           "startAt": "2026-11-27T15:00:00.000Z"
@@ -33,7 +29,7 @@
         }
       },
       "airingSchedule": {
-        "fetchedAt": "2026-11-20T14:55:37.056Z",
+        "fetchedAt": "2026-11-20T15:01:02.203Z",
         "episodes": {
           "1": "2026-10-02T14:00:00.000Z",
           "2": "2026-10-09T14:00:00.000Z",
