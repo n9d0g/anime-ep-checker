@@ -20,6 +20,8 @@ export interface ExistingCalendarEvent {
   episode: string
   eventId: string
   startAt: string | null
+  /** The event's title when the calendar listed it; unknown otherwise. */
+  summary?: string | null
 }
 
 export type CalendarEventWrite =
@@ -88,7 +90,9 @@ export function getDesiredCalendarEvents(
  * Plans the writes that turn `existing` into `desired`. `existing` is in
  * priority order: when several events share an episode, the first one is
  * kept or updated. Every existing event for an episode that is not desired
- * is deleted. An event is only rewritten when its start time differs.
+ * is deleted. An event is only rewritten when its start time differs, or
+ * when its listed title doesn't start with `eventLabel(episode)` (the show and
+ * Episode code; an episode title may follow after ": ").
  */
 /**
  * Google returns an event's start without milliseconds and often with an
@@ -100,9 +104,18 @@ function isSameInstant(a: string | null, b: string): boolean {
   return !Number.isNaN(time) && time === Date.parse(b)
 }
 
+function hasCurrentTitle(
+  summary: string | null | undefined,
+  label: string | undefined
+): boolean {
+  if (summary == null || label === undefined) return true
+  return summary === label || summary.startsWith(`${label}: `)
+}
+
 export function planCalendarSync(
   desired: DesiredCalendarEvent[],
-  existing: ExistingCalendarEvent[]
+  existing: ExistingCalendarEvent[],
+  eventLabel?: (episode: number) => string
 ): CalendarPlan {
   const desiredEpisodes = new Set(desired.map((entry) => String(entry.episode)))
 
@@ -122,7 +135,10 @@ export function planCalendarSync(
     const current = existingByEpisode.get(String(episode))
     if (!current) {
       writes.push({ action: 'create', episode, startAt })
-    } else if (isSameInstant(current.startAt, startAt)) {
+    } else if (
+      isSameInstant(current.startAt, startAt) &&
+      hasCurrentTitle(current.summary, eventLabel?.(episode))
+    ) {
       unchanged.push({ episode, startAt, eventId: current.eventId })
     } else {
       writes.push({

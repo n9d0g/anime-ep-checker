@@ -27,8 +27,8 @@ test('a drop push names the episode, opens its sheet and carries the count', () 
   assert.deepEqual(JSON.parse(dropPushPayload(drop, 3, ORIGIN)), {
     web_push: 8030,
     notification: {
-      title: 'Frieren',
-      body: 'Episode 6 · The Paper Village',
+      title: 'Frieren s1e6',
+      body: 'The Paper Village',
       navigate: 'https://anime-ep-checker.dev/#show-frieren',
       lang: 'en-US',
       dir: 'ltr',
@@ -37,17 +37,38 @@ test('a drop push names the episode, opens its sheet and carries the count', () 
   })
 })
 
-test('a drop push without an episode title says just the episode', () => {
+test('a drop push without an episode title says it is out now', () => {
   const payload = JSON.parse(
     dropPushPayload({ ...drop, episodeTitle: '  ' }, 1, ORIGIN)
   )
-  assert.equal(payload.notification.body, 'Episode 6')
+  assert.equal(payload.notification.body, 'Out now')
+})
+
+test('a drop push titles the show with its Episode code', () => {
+  const titleOf = (notice: Partial<typeof drop> & Record<string, unknown>) =>
+    JSON.parse(dropPushPayload({ ...drop, ...notice }, 1, ORIGIN)).notification
+      .title
+  assert.equal(
+    titleOf({
+      showTitle: 'Kusuriya no Hitorigoto 3rd Season',
+      episodeNumber: 8,
+    }),
+    'Kusuriya no Hitorigoto s3e8'
+  )
+  assert.equal(
+    titleOf({
+      showTitle: 'Shingeki no Kyojin: The Final Season Part 2',
+      season: 4,
+      episodeNumber: 3,
+    }),
+    'Shingeki no Kyojin: The Final Season s4p2e3'
+  )
 })
 
 test('MAL down leaves app_badge out, so the badge keeps its number', () => {
   const payload = JSON.parse(dropPushPayload(drop, null, ORIGIN))
   assert.equal('app_badge' in payload.notification, false)
-  assert.equal(payload.notification.title, 'Frieren')
+  assert.equal(payload.notification.title, 'Frieren s1e6')
 })
 
 test('nothing behind sends "0", which clears the badge', () => {
@@ -129,6 +150,9 @@ test('drop notices need a show and an episode number', () => {
   assert.equal(isDropNotice(drop), true)
   assert.equal(isDropNotice({ ...drop, episodeTitle: null }), true)
   assert.equal(isDropNotice({ ...drop, episodeNumber: '6' }), false)
+  assert.equal(isDropNotice({ ...drop, season: 2, part: 1 }), true)
+  assert.equal(isDropNotice({ ...drop, season: '2' }), false)
+  assert.equal(isDropNotice({ ...drop, part: 0 }), false)
   assert.equal(isDropNotice({ ...drop, showId: '' }), false)
   assert.equal(isDropNotice(null), false)
 })

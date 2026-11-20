@@ -4,6 +4,7 @@
 // records the result in state.
 import { formatEasternTime } from './time.ts'
 import { getShowWatchUrl } from '../shared/shows.ts'
+import { formatEpisodeLabel } from '../shared/episode-code.ts'
 import type { Show, ShowState, StateFile } from '../shared/types.ts'
 import { parseEpisodeNumber } from '../shared/schedule.ts'
 import { getSeasonEpisodes, getSeasons } from './crunchyroll.ts'
@@ -36,8 +37,7 @@ function buildEventTitle(
   episodeNumber: number,
   episodeTitle: string | null
 ): string {
-  const showTitle = show.title || show.id
-  const base = `${showTitle} — Episode ${episodeNumber}`
+  const base = formatEpisodeLabel(show, episodeNumber)
   const trimmedTitle = episodeTitle?.trim()
   return trimmedTitle ? `${base}: ${trimmedTitle}` : base
 }
@@ -114,12 +114,15 @@ function getExistingCalendarEvents(
   listed: ListedCalendarEvent[]
 ): ExistingCalendarEvent[] {
   const listedByEpisode = new Map<string, ExistingCalendarEvent>()
+  const summaryById = new Map<string, string | null>()
   for (const event of listed) {
+    summaryById.set(event.eventId, event.summary)
     if (event.episode) {
       listedByEpisode.set(event.episode, {
         episode: event.episode,
         eventId: event.eventId,
         startAt: event.startAt,
+        summary: event.summary,
       })
     }
   }
@@ -129,6 +132,7 @@ function getExistingCalendarEvents(
       episode,
       eventId: entry.eventId,
       startAt: entry.startAt,
+      summary: summaryById.get(entry.eventId),
     })),
     ...listedByEpisode.values(),
   ]
@@ -333,7 +337,9 @@ async function syncCalendarEventsForShow({
   const { changed, events } = await applyCalendarPlan({
     config,
     show,
-    plan: planCalendarSync(desired, existing),
+    plan: planCalendarSync(desired, existing, (episode) =>
+      formatEpisodeLabel(show, episode)
+    ),
     dryRun,
     lookupEpisodeTitle: showState
       ? (episode) => lookupCrunchyrollEpisodeTitle(show, showState, episode)

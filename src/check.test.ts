@@ -149,8 +149,8 @@ test('alerts each show with a new episode and records it in state', async () => 
   })
 
   assert.deepEqual(alerts, [
-    '✅ frieren — Episode 3 is out!',
-    '✅ dandadan — Episode 6 is out!',
+    '✅ frieren s1e3 out now — "Episode 3"',
+    '✅ dandadan s1e6 out now — "Episode 6"',
   ])
   const state = await savedState()
   assert.equal(state.shows.frieren.lastEpisodeNumber, '3')
@@ -171,7 +171,7 @@ test('keeps checking other shows when one provider call throws', async () => {
   const result = await run({ fetchEpisode })
 
   assert.deepEqual(result.failedShows, ['frieren'])
-  assert.deepEqual(alerts, ['✅ dandadan — Episode 6 is out!'])
+  assert.deepEqual(alerts, ['✅ dandadan s1e6 out now — "Episode 6"'])
   const state = await savedState()
   assert.equal(state.shows.frieren.lastEpisodeNumber, '2')
   assert.equal(state.shows.dandadan.lastEpisodeNumber, '6')
@@ -201,7 +201,7 @@ test('records the episode when clearing its calendar entry fails', async () => {
   })
 
   assert.deepEqual(result.failedShows, [])
-  assert.deepEqual(alerts, ['✅ frieren — Episode 3 is out!'])
+  assert.deepEqual(alerts, ['✅ frieren s1e3 out now — "Episode 3"'])
   assert.equal((await savedState()).shows.frieren.lastEpisodeNumber, '3')
 })
 
@@ -293,7 +293,7 @@ test('first sight of a show alerts the snapshot episode as a catch-up', async ()
     }),
   })
 
-  assert.deepEqual(alerts, ['✅ frieren — Episode 3 is out!'])
+  assert.deepEqual(alerts, ['✅ frieren s1e3 out now — "Episode 3"'])
   const saved = (await savedState()).shows.frieren
   assert.equal(saved.lastEpisodeNumber, '3')
   assert.equal(saved.lastEpisodeId, 'ep-3')
@@ -309,7 +309,7 @@ test('first sight without season episodes counts from the start episode', async 
   await run({ fetchEpisode: async () => snapshot(frieren, 3) })
 
   // The provider's episode 3 becomes the season's episode 1 (offset 2).
-  assert.deepEqual(alerts, ['✅ frieren — Episode 1 is out!'])
+  assert.deepEqual(alerts, ['✅ frieren s1e1 out now — "Episode 3"'])
   const saved = (await savedState()).shows.frieren
   assert.equal(saved.lastEpisodeNumber, '1')
   assert.equal(saved.episodeOffset, 2)
@@ -382,7 +382,7 @@ test('a new episode for a tracked show alerts the next drop', async () => {
   // Even when the provider is two episodes ahead, only the next drop is sent.
   await run({ fetchEpisode: async () => snapshot(frieren, 4) })
 
-  assert.deepEqual(alerts, ['✅ frieren — Episode 3 is out!'])
+  assert.deepEqual(alerts, ['✅ frieren s1e3 out now — "Episode 4"'])
   const saved = (await savedState()).shows.frieren
   assert.equal(saved.lastEpisodeNumber, '3')
   assert.equal(saved.lastEpisodeId, 'ep-4')
@@ -469,7 +469,7 @@ test('inside the drop window a show is looked up and alerted', async () => {
 
   await run({ force: false, fetchEpisode: async () => snapshot(frieren, 3) })
 
-  assert.deepEqual(alerts, ['✅ frieren — Episode 3 is out!'])
+  assert.deepEqual(alerts, ['✅ frieren s1e3 out now — "Episode 3"'])
   assert.equal((await savedState()).shows.frieren.lastEpisodeNumber, '3')
 })
 
@@ -513,7 +513,7 @@ test('an AniList break moves the drop window and is saved once', async () => {
   mock.timers.setTime(Date.parse('2026-09-22T15:00:00.000Z'))
   await run({ force: false, fetchEpisode: counter.fetchEpisode })
   assert.deepEqual(counter.fetched, ['frieren'])
-  assert.deepEqual(alerts, ['✅ frieren — Episode 3 is out!'])
+  assert.deepEqual(alerts, ['✅ frieren s1e3 out now — "Episode 3"'])
 })
 
 test('an AniList failure keeps the saved airing schedule', async () => {
@@ -537,7 +537,7 @@ test('an AniList failure keeps the saved airing schedule', async () => {
   const result = await run({ fetchEpisode: async () => snapshot(frieren, 3) })
 
   assert.deepEqual(result.failedShows, [])
-  assert.deepEqual(alerts, ['✅ frieren — Episode 3 is out!'])
+  assert.deepEqual(alerts, ['✅ frieren s1e3 out now — "Episode 3"'])
   assert.deepEqual((await savedState()).shows.frieren.airingSchedule, saved)
 })
 
@@ -589,7 +589,7 @@ test('a Netflix login failure alerts once and skips the other Netflix shows', as
   assert.deepEqual(failing.fetched, ['sakamoto', 'frieren'])
   assert.deepEqual(alerts, [
     'Netflix cookie needs refresh',
-    '✅ frieren — Episode 3 is out!',
+    '✅ frieren s1e3 out now — "Episode 3"',
   ])
   const flaggedAt = (await savedState()).meta?.netflixCookieAlertSentAt
   assert.ok(flaggedAt)
@@ -606,8 +606,8 @@ test('a Netflix login failure alerts once and skips the other Netflix shows', as
     fetchEpisode: async (show) => snapshot(show, 3),
   })
   assert.deepEqual(alerts, [
-    '✅ sakamoto — Episode 3 is out!',
-    '✅ dandadan — Episode 3 is out!',
+    '✅ sakamoto s1e3 out now — "Episode 3"',
+    '✅ dandadan s1e3 out now — "Episode 3"',
   ])
   assert.equal((await savedState()).meta?.netflixCookieAlertSentAt, null)
 })
@@ -625,7 +625,7 @@ test('a Disney+ login failure falls back to AniList and alerts once', async () =
   assert.deepEqual(first.failedShows, [])
   assert.deepEqual(alerts, [
     'Disney+ checks need attention',
-    '✅ daredevil — Episode 3 is out!',
+    '✅ daredevil s1e3 out now',
     // AniList's episode 3 is behind bleach's episode 5.
     '🤔 bleach — Episode 6 not on Disney+ yet.',
   ])
@@ -644,6 +644,6 @@ test('a Disney+ login failure falls back to AniList and alerts once', async () =
   resetDisneyAuthForRun()
   await run({ discord: BOT_DISCORD })
 
-  assert.deepEqual(alerts, ['✅ daredevil — Episode 4 is out!'])
+  assert.deepEqual(alerts, ['✅ daredevil s1e4 out now'])
   assert.equal((await savedState()).meta?.disneyCookieAlertSentAt, null)
 })

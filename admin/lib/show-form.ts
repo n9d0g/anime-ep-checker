@@ -43,6 +43,8 @@ export function showToForm(show: Show): ShowFormValues {
     malId: show.malId ? String(show.malId) : '',
     redditSearchTitle: show.redditSearchTitle ?? '',
     officialNewsUrl: show.officialNewsUrl ?? '',
+    ...(show.season ? { season: show.season } : {}),
+    ...(show.part ? { part: show.part } : {}),
     schedule: {
       mode: show.schedule.mode,
       startAt: toDatetimeLocalValue(show.schedule.startAt),

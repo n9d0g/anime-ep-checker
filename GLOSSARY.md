@@ -44,6 +44,10 @@ _Avoid_: Release, air
 The next episode expected for a show, together with the time it is expected to drop.
 _Avoid_: Next episode, upcoming episode
 
+**Episode code**:
+The short label for one episode of a show: its season, its part when the show names one, and its episode, as in s3e8 or s2p1e3. A show whose title names no season is season 1.
+_Avoid_: Episode number (for the combined label), SxxExx
+
 **Drop window**:
 The span around a next drop when the show is actively checked: from 5 minutes before the expected time to 90 minutes after.
 _Avoid_: Check window, needs check

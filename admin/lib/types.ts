@@ -97,6 +97,9 @@ export interface ShowFormValues {
   malId: string
   redditSearchTitle: string
   officialNewsUrl: string
+  /** Episode code overrides, set in shows.json and carried through edits. */
+  season?: number
+  part?: number
   schedule: {
     mode: ScheduleMode
     startAt: string

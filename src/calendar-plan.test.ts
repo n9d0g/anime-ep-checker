@@ -198,3 +198,52 @@ test('a listed event at a different instant is updated', () => {
     },
   ])
 })
+
+test('an event whose title lacks the current Episode code is rewritten', () => {
+  const label = (episode: number) => `Frieren s1e${episode}`
+  assert.deepEqual(
+    planCalendarSync(
+      [
+        { episode: 4, startAt: EP4 },
+        { episode: 5, startAt: EP5 },
+        { episode: 6, startAt: EP6 },
+      ],
+      [
+        {
+          episode: '4',
+          eventId: 'e4',
+          startAt: EP4,
+          summary: 'Frieren — Episode 4',
+        },
+        {
+          episode: '5',
+          eventId: 'e5',
+          startAt: EP5,
+          summary: 'Frieren s1e5: Title',
+        },
+        // A title the calendar didn't list is left alone.
+        { episode: '6', eventId: 'e6', startAt: EP6 },
+      ],
+      label
+    ),
+    {
+      deletes: [],
+      writes: [{ action: 'update', episode: 4, startAt: EP4, eventId: 'e4' }],
+      unchanged: [
+        { episode: 5, startAt: EP5, eventId: 'e5' },
+        { episode: 6, startAt: EP6, eventId: 'e6' },
+      ],
+    }
+  )
+})
+
+test('an Episode code that only prefixes another is not current', () => {
+  assert.deepEqual(
+    planCalendarSync(
+      [{ episode: 1, startAt: EP4 }],
+      [{ episode: '1', eventId: 'e1', startAt: EP4, summary: 'Frieren s1e12' }],
+      () => 'Frieren s1e1'
+    ).writes,
+    [{ action: 'update', episode: 1, startAt: EP4, eventId: 'e1' }]
+  )
+})

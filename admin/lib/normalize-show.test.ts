@@ -35,3 +35,11 @@ test('the official news URL round-trips through the edit form', async () => {
     /Official news URL must be a web address/
   )
 })
+
+test('season and part overrides survive an edit', async () => {
+  const { showToForm } = await import('./show-form')
+  const { normalizeShow } = await import('./normalize-show')
+  const withOverrides = { ...SHOW, season: 4, part: 2 }
+  assert.deepEqual(normalizeShow(showToForm(withOverrides)), withOverrides)
+  assert.equal('season' in normalizeShow(showToForm(SHOW)), false)
+})
