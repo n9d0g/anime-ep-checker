@@ -5,12 +5,13 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import type { RedditUserFetchResult } from './reddit.ts'
 import { decideGate } from './should-run.ts'
+import { feedSourceLabel, type UserFeedSource } from '../shared/reddit-feeds.ts'
 import type { Show, ShowSchedule, StateFile } from '../shared/types.ts'
 
 type FeedStates = NonNullable<NonNullable<StateFile['meta']>['redditUserFeeds']>
 
 const FEEDS: FeedStates = {
-  animecorner: {
+  'animecorner-site': {
     seenPostIds: ['t3_old'],
     checkedAt: '2026-10-16T12:00:00.000Z',
     lastPostPublishedAt: '2026-10-16T12:00:00.000Z',
@@ -70,9 +71,9 @@ function lastEpisode(n: number): StateFile['shows'][string] {
 function fakeFeed(posts: { id: string; title: string }[] | null) {
   const calls: string[] = []
   const fetchRedditFeed = async (
-    username: string
+    source: UserFeedSource
   ): Promise<RedditUserFetchResult> => {
-    calls.push(username)
+    calls.push(feedSourceLabel(source))
     if (!posts) {
       return { ok: false, status: 500 }
     }
@@ -313,14 +314,18 @@ test('gate asks for a Reddit check when a feed has no baseline', async () => {
   const result = await decide(
     now,
     [],
-    makeState(now, {}, { redditUserFeeds: { animecorner: FEEDS.animecorner } })
+    makeState(
+      now,
+      {},
+      { redditUserFeeds: { 'animecorner-site': FEEDS['animecorner-site'] } }
+    )
   )
   assert.equal(result.shouldCheck, true)
   assert.equal(result.redditCheck, true)
   assert.equal(result.fetches, 0)
 })
 
-// Friday 12:00 UTC: u/animecorner's posting window (opened 04:00 UTC) and a
+// Friday 12:00 UTC: Anime Corner's posting window (opened 04:00 UTC) and a
 // 15-minute poll slot; u/Abysswatcherbel is outside its window.
 const FRIDAY_POLL = '2026-10-23T12:00:00.000Z'
 
@@ -331,7 +336,7 @@ function fridayState(animecorner: Partial<FeedStates[string]> = {}) {
     {
       redditUserFeeds: {
         ...FEEDS,
-        animecorner: { ...FEEDS.animecorner, ...animecorner },
+        'animecorner-site': { ...FEEDS['animecorner-site'], ...animecorner },
       },
     }
   )
@@ -339,7 +344,7 @@ function fridayState(animecorner: Partial<FeedStates[string]> = {}) {
 
 test('gate asks for a Reddit check on a new matching post', async () => {
   const result = await decide(FRIDAY_POLL, [], fridayState(), [
-    { id: 't3_new', title: 'Top 10 Anime of the Week' },
+    { id: 't3_new', title: 'Fall 2026 Anime Rankings – Week 2' },
   ])
   assert.equal(result.shouldCheck, true)
   assert.equal(result.redditCheck, true)
@@ -356,7 +361,7 @@ test('gate ignores new posts that do not match the feed title filter', async () 
 
 test('gate ignores posts already seen', async () => {
   const result = await decide(FRIDAY_POLL, [], fridayState(), [
-    { id: 't3_old', title: 'Top 10 old' },
+    { id: 't3_old', title: 'Fall 2026 Anime Rankings – Week 1' },
   ])
   assert.equal(result.shouldCheck, false)
 })
@@ -364,7 +369,7 @@ test('gate ignores posts already seen', async () => {
 test('gate does not fetch Reddit outside a poll slot', async () => {
   const now = '2026-10-23T12:05:00.000Z'
   const result = await decide(now, [], makeState(now), [
-    { id: 't3_new', title: 'Top 10 Anime' },
+    { id: 't3_new', title: 'Fall 2026 Anime Rankings – Week 2' },
   ])
   assert.equal(result.shouldCheck, false)
   assert.equal(result.fetches, 0)
@@ -375,7 +380,7 @@ test('gate stops polling once this window’s post has been seen', async () => {
     FRIDAY_POLL,
     [],
     fridayState({ lastPostPublishedAt: '2026-10-23T10:00:00.000Z' }),
-    [{ id: 't3_new', title: 'Top 10 Anime' }]
+    [{ id: 't3_new', title: 'Fall 2026 Anime Rankings – Week 2' }]
   )
   assert.equal(result.shouldCheck, false)
   assert.equal(result.fetches, 0)

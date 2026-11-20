@@ -18,6 +18,7 @@ import type {
   MalRelatedAnime,
 } from './mal.ts'
 import { formatEasternTime } from './time.ts'
+import type { UserFeedSource } from '../shared/reddit-feeds.ts'
 import { getShowWatchUrl, providerLabel } from '../shared/shows.ts'
 import type { EpisodeSnapshot, TimingStatus } from './types.ts'
 import type {
@@ -87,7 +88,7 @@ interface RedditPostAlertPost {
 
 interface RedditPostAlertInput {
   discord: DiscordConfig
-  username: string
+  source: UserFeedSource
   post: RedditPostAlertPost
 }
 
@@ -319,25 +320,33 @@ export async function sendMalScoreAlert({
 
 export async function sendRedditPostAlert({
   discord,
-  username,
+  source,
   post,
 }: RedditPostAlertInput): Promise<void> {
+  const byline =
+    source.kind === 'reddit' ? `by u/${source.username}` : `on ${source.name}`
   const subLabel = post.subreddit ? `r/${post.subreddit}` : 'Reddit'
   const embed = {
     title: post.title,
     url: post.href,
-    description: `New post by u/${username} in ${subLabel}`,
+    description:
+      source.kind === 'reddit'
+        ? `New post ${byline} in ${subLabel}`
+        : `New post ${byline}`,
     color: 0xff4500,
     timestamp: new Date().toISOString(),
     footer: discordFooter(),
   }
 
   const components = discordLinkButtonRow([
-    discordLinkButton('Reddit', post.href),
+    discordLinkButton(
+      source.kind === 'reddit' ? 'Reddit' : source.name,
+      post.href
+    ),
   ])
 
   const payload = {
-    content: `**${post.title}** — new post by u/${username}`,
+    content: `**${post.title}** — new post ${byline}`,
     embeds: [embed],
   }
 
@@ -637,22 +646,27 @@ export async function sendWaitingAlert({
 
 export async function sendRedditFeedErrorAlert({
   discord,
-  username,
+  source,
   status,
 }: {
   discord: DiscordConfig
-  username: string
+  source: UserFeedSource
   status: number
 }): Promise<void> {
-  const description =
-    `Could not fetch submissions for u/${username} (HTTP ${status}). ` +
-    'Reddit often blocks logged-out RSS from GitHub Actions; set `REDDIT_CLIENT_ID` and `REDDIT_CLIENT_SECRET` (see README). ' +
-    'Post alerts are paused until fetches succeed again.'
+  const isReddit = source.kind === 'reddit'
+  const description = isReddit
+    ? `Could not fetch submissions for u/${source.username} (HTTP ${status}). ` +
+      'Reddit often blocks logged-out RSS from GitHub Actions; set `REDDIT_CLIENT_ID` and `REDDIT_CLIENT_SECRET` (see README). ' +
+      'Post alerts are paused until fetches succeed again.'
+    : `Could not fetch the ${source.name} feed (HTTP ${status}). ` +
+      'Post alerts are paused until fetches succeed again.'
 
   const payload = {
     embeds: [
       {
-        title: 'Reddit user feed check failing',
+        title: isReddit
+          ? 'Reddit user feed check failing'
+          : `${source.name} feed check failing`,
         description,
         color: 0xe67e22,
         footer: discordFooter(),
