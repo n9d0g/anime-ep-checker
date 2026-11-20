@@ -6,11 +6,13 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import {
   REDDIT_USER_FEEDS,
+  feedSourceLabel,
   getRedditFeedWindowStart,
   isRedditFeedDue,
   isRedditFeedPollSlot,
   matchesRedditFeedTitle,
   shouldSendFeedErrorAlert,
+  type UserFeedSource,
 } from '../shared/reddit-feeds.ts'
 import { isAnnouncementCheckDue } from '../shared/announced-break.ts'
 import {
@@ -23,12 +25,12 @@ import {
   type DropWindowMode,
 } from '../shared/schedule.ts'
 import type { Show, StateFile } from '../shared/types.ts'
-import {
-  fetchRedditUserSubmissions,
-  type RedditUserFetchResult,
-} from './reddit.ts'
+import type { RedditUserFetchResult } from './reddit.ts'
+import { fetchUserFeed } from './site-feed.ts'
 
-type FetchRedditFeed = (username: string) => Promise<RedditUserFetchResult>
+type FetchRedditFeed = (
+  source: UserFeedSource
+) => Promise<RedditUserFetchResult>
 
 interface GateDecision {
   /** Run the full check (`should_check`). */
@@ -77,7 +79,7 @@ async function needsRedditFeedCheck(
       continue
     }
 
-    const result = await fetchRedditFeed(feed.username)
+    const result = await fetchRedditFeed(feed.source)
     if (!result.ok) {
       // A full run is only worth it when the checker would send the stale
       // feed alert; otherwise wait for the next poll slot.
@@ -89,7 +91,7 @@ async function needsRedditFeedCheck(
         )
       ) {
         console.log(
-          `Reddit feed u/${feed.username} fetch failed; last success is stale — running full check`
+          `Feed ${feedSourceLabel(feed.source)} fetch failed; last success is stale — running full check`
         )
         return true
       }
@@ -112,7 +114,7 @@ export async function decideGate({
   shows,
   state,
   now,
-  fetchRedditFeed = fetchRedditUserSubmissions,
+  fetchRedditFeed = fetchUserFeed,
 }: {
   shows: Show[]
   state: StateFile

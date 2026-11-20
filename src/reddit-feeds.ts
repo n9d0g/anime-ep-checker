@@ -4,9 +4,10 @@ import {
   sendRedditPostAlert,
   type DiscordConfig,
 } from './discord.ts'
-import { fetchRedditUserSubmissions } from './reddit.ts'
+import { fetchUserFeed } from './site-feed.ts'
 import {
   REDDIT_USER_FEEDS,
+  feedSourceLabel,
   getRedditFeedWindowStart,
   isRedditFeedDue,
   matchesRedditFeedTitle,
@@ -117,26 +118,36 @@ export async function syncRedditUserFeeds({
   const reasons: string[] = []
   let changed = false
   const checkedAt = now.toISOString()
-  const nextFeeds = { ...(state.meta?.redditUserFeeds ?? {}) }
+  const previousFeeds = state.meta?.redditUserFeeds ?? {}
+  // Drop state for feeds that are no longer watched (or were renamed).
+  const configuredIds = new Set(REDDIT_USER_FEEDS.map((feed) => feed.id))
+  const nextFeeds = Object.fromEntries(
+    Object.entries(previousFeeds).filter(([id]) => configuredIds.has(id))
+  )
+  if (Object.keys(nextFeeds).length !== Object.keys(previousFeeds).length) {
+    changed = true
+  }
 
   for (const feed of REDDIT_USER_FEEDS) {
     const feedState = nextFeeds[feed.id]
+    const label = feedSourceLabel(feed.source)
+    const reasonKind = feed.source.kind === 'reddit' ? 'reddit' : 'site'
 
     if (!force && feedState && !isRedditFeedDue(feed, feedState, now)) {
       console.log(
-        `Skipping Reddit feed u/${feed.username} (outside posting window or already found)`
+        `Skipping Reddit feed ${label} (outside posting window or already found)`
       )
       continue
     }
 
-    console.log(`Checking Reddit feed u/${feed.username}...`)
+    console.log(`Checking Reddit feed ${label}...`)
 
-    const result = await fetchRedditUserSubmissions(feed.username)
+    const result = await fetchUserFeed(feed.source)
 
     if (!result.ok) {
       if (!feedState) {
         console.warn(
-          `  Reddit fetch failed (${result.status}); no baseline yet for u/${feed.username}`
+          `  Reddit fetch failed (${result.status}); no baseline yet for ${label}`
         )
         continue
       }
@@ -152,17 +163,17 @@ export async function syncRedditUserFeeds({
         if (!dryRun && hasDiscordConfig(discord)) {
           await sendRedditFeedErrorAlert({
             discord,
-            username: feed.username,
+            source: feed.source,
             status: result.status,
           })
           console.log(
-            `  Reddit feed error alert sent for u/${feed.username} (${result.status})`
+            `  Reddit feed error alert sent for ${label} (${result.status})`
           )
           errorAlertSentAt = checkedAt
-          reasons.push(`reddit feed error u/${feed.username}`)
+          reasons.push(`${reasonKind} feed error ${label}`)
         } else if (dryRun) {
           console.log(
-            `  Would send Reddit feed error alert for u/${feed.username} (${result.status})`
+            `  Would send Reddit feed error alert for ${label} (${result.status})`
           )
         }
       }
@@ -197,7 +208,7 @@ export async function syncRedditUserFeeds({
         nextFeeds[feed.id].lastPostPublishedAt = newestPublished
       }
       changed = true
-      reasons.push(`reddit feed baseline u/${feed.username}`)
+      reasons.push(`${reasonKind} feed baseline ${label}`)
       console.log(
         `  Baseline set (${baselineIds.length} matching posts); no alerts on first run`
       )
@@ -243,7 +254,7 @@ export async function syncRedditUserFeeds({
       if (!dryRun && hasDiscordConfig(discord)) {
         await sendRedditPostAlert({
           discord,
-          username: feed.username,
+          source: feed.source,
           post,
         })
         console.log(`  Reddit alert sent: ${post.title}`)
@@ -257,7 +268,7 @@ export async function syncRedditUserFeeds({
       }
 
       notifiedIds.push(post.id)
-      reasons.push(`reddit post u/${feed.username}: ${post.title}`)
+      reasons.push(`${reasonKind} post ${label}: ${post.title}`)
     }
 
     if (notifiedIds.length === 0 && dryRun) {

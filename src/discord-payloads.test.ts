@@ -457,7 +457,7 @@ for (const [path, discord] of Object.entries(CONFIGS)) {
   test(`Reddit post (${path})`, async () => {
     await sendRedditPostAlert({
       discord,
-      username: 'someone',
+      source: { kind: 'reddit', username: 'someone' },
       post: {
         title: 'Weekly thread',
         href: 'https://www.reddit.com/r/anime/comments/xyz/weekly/',
@@ -470,7 +470,7 @@ for (const [path, discord] of Object.entries(CONFIGS)) {
   test(`Reddit post without subreddit (${path})`, async () => {
     await sendRedditPostAlert({
       discord,
-      username: 'someone',
+      source: { kind: 'reddit', username: 'someone' },
       post: {
         title: 'Profile post',
         href: 'https://www.reddit.com/user/someone/comments/xyz/',
@@ -480,10 +480,40 @@ for (const [path, discord] of Object.entries(CONFIGS)) {
     check(`Reddit post without subreddit (${path})`)
   })
 
+  test(`Site feed post (${path})`, async () => {
+    await sendRedditPostAlert({
+      discord,
+      source: {
+        kind: 'rss',
+        url: 'https://example.com/feed/',
+        name: 'Example',
+      },
+      post: {
+        title: 'Fall 2026 Anime Rankings – Week 7',
+        href: 'https://example.com/rankings-week-7/',
+        subreddit: null,
+      },
+    })
+    check(`Site feed post (${path})`)
+  })
+
+  test(`Site feed error (${path})`, async () => {
+    await sendRedditFeedErrorAlert({
+      discord,
+      source: {
+        kind: 'rss',
+        url: 'https://example.com/feed/',
+        name: 'Example',
+      },
+      status: 503,
+    })
+    check(`Site feed error (${path})`)
+  })
+
   test(`Reddit feed error (${path})`, async () => {
     await sendRedditFeedErrorAlert({
       discord,
-      username: 'someone',
+      source: { kind: 'reddit', username: 'someone' },
       status: 403,
     })
     check(`Reddit feed error (${path})`)
@@ -514,7 +544,11 @@ test('bot-only alerts refuse a webhook-only config', async () => {
 
 test('alerts refuse an empty Discord config', async () => {
   await assert.rejects(
-    sendRedditFeedErrorAlert({ discord: {}, username: 'someone', status: 500 }),
+    sendRedditFeedErrorAlert({
+      discord: {},
+      source: { kind: 'reddit', username: 'someone' },
+      status: 500,
+    }),
     {
       message:
         'Discord not configured. Set DISCORD_BOT_TOKEN + DISCORD_CHANNEL_ID (preferred) or DISCORD_WEBHOOK_URL.',

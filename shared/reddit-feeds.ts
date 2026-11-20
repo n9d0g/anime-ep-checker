@@ -18,9 +18,14 @@ const CRON_INTERVAL_MS = 5 * 60 * 1000
  */
 const REDDIT_FEED_STALE_MS = 6 * 60 * 60 * 1000
 
+/** Where a feed's posts come from: a Reddit account, or a site's RSS feed. */
+export type UserFeedSource =
+  | { kind: 'reddit'; username: string }
+  | { kind: 'rss'; url: string; name: string }
+
 interface RedditUserFeedConfig {
   id: string
-  username: string
+  source: UserFeedSource
   titlePattern?: RegExp
   /** Weekdays (0 = Sunday, Eastern time) the account usually posts. */
   postDays: number[]
@@ -37,17 +42,28 @@ export interface RedditUserFeedState {
 
 export const REDDIT_USER_FEEDS: RedditUserFeedConfig[] = [
   {
-    id: 'animecorner',
-    username: 'animecorner',
-    titlePattern: /^top\s*10\b/i,
+    // Anime Corner's own site, not u/animecorner: Reddit blocks logged-out
+    // feeds and no longer issues API keys without approval.
+    id: 'animecorner-site',
+    source: {
+      kind: 'rss',
+      url: 'https://animecorner.me/feed/',
+      name: 'Anime Corner',
+    },
+    titlePattern: /\brankings?\b/i,
     postDays: [5],
   },
   {
     id: 'abysswatcherbel',
-    username: 'Abysswatcherbel',
+    source: { kind: 'reddit', username: 'Abysswatcherbel' },
     postDays: [0],
   },
 ]
+
+/** How a feed is named in logs and alerts: `u/name` or the site's name. */
+export function feedSourceLabel(source: UserFeedSource): string {
+  return source.kind === 'reddit' ? `u/${source.username}` : source.name
+}
 
 function getEasternParts(ms: number): Record<string, number> {
   const parts = new Intl.DateTimeFormat('en-US', {
