@@ -800,45 +800,6 @@
       ]
     },
     "redditUserFeeds": {
-      "animecorner": {
-        "seenPostIds": [
-          "t3_1xv6mw7",
-          "t3_1xpdkjc",
-          "t3_1xje7ls",
-          "t3_1xdd4pf",
-          "t3_1x7exgq",
-          "t3_1x1k4ps",
-          "t3_1wpx3u6",
-          "t3_1wjoys6",
-          "t3_1wdeyxm",
-          "t3_1w73q05",
-          "t3_1w0pgu6",
-          "t3_1vugcaw",
-          "t3_1vo9rt5",
-          "t3_1vhzord",
-          "t3_1vbpufo",
-          "t3_1v5b0c1",
-          "t3_1uyzgyd",
-          "t3_1usxxgy",
-          "t3_1ug8a3j",
-          "t3_1ua807r",
-          "t3_1u3vmop",
-          "t3_1txkslo",
-          "t3_1tr0kqb",
-          "t3_1tkj6zn",
-          "t3_1tdw00s",
-          "t3_1t77lqa",
-          "t3_1t0sbgt",
-          "t3_1suf672",
-          "t3_1so3gn1",
-          "t3_1shmi9o",
-          "t3_1s7xema"
-        ],
-        "checkedAt": "2026-11-13T12:45:42.710Z",
-        "lastErrorAt": "2026-11-20T11:00:52.151Z",
-        "lastPostPublishedAt": "2026-11-13T12:30:40.000Z",
-        "errorAlertSentAt": "2026-11-20T11:00:52.151Z"
-      },
       "abysswatcherbel": {
         "seenPostIds": [
           "t3_1xww7i1",
@@ -876,6 +837,14 @@
         ],
         "checkedAt": "2026-11-15T14:15:38.003Z",
         "lastPostPublishedAt": "2026-11-15T14:00:54.000Z"
+      },
+      "animecorner-site": {
+        "seenPostIds": [
+          "https://animecorner.me/fall-2026-anime-rankings-week-7/",
+          "https://animecorner.me/fall-2026-anime-rankings-week-6/"
+        ],
+        "checkedAt": "2026-11-20T13:30:47.176Z",
+        "lastPostPublishedAt": "2026-11-20T12:30:00.000Z"
       }
     },
     "relatedAnimeCheckedAt": "2026-11-15T05:00:50.711Z",
