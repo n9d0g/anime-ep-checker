@@ -835,7 +835,9 @@
           "t3_1s7xema"
         ],
         "checkedAt": "2026-11-13T12:45:42.710Z",
-        "lastPostPublishedAt": "2026-11-13T12:30:40.000Z"
+        "lastErrorAt": "2026-11-20T11:00:52.151Z",
+        "lastPostPublishedAt": "2026-11-13T12:30:40.000Z",
+        "errorAlertSentAt": "2026-11-20T11:00:52.151Z"
       },
       "abysswatcherbel": {
         "seenPostIds": [
