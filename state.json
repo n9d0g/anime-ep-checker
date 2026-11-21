@@ -127,7 +127,7 @@
         "reason": "airing"
       }
     },
-    "planToWatchCheckedAt": "2026-11-20T16:25:41.941Z",
+    "planToWatchCheckedAt": "2026-11-21T06:41:52.897Z",
     "planToWatch": {
       "updatedAt": "2026-11-18T16:15:51.904Z",
       "entries": [
@@ -832,14 +832,16 @@
           "t3_1sjfuo9"
         ],
         "checkedAt": "2026-11-15T14:15:38.003Z",
-        "lastPostPublishedAt": "2026-11-15T14:00:54.000Z"
+        "lastErrorAt": "2026-11-21T06:41:52.897Z",
+        "lastPostPublishedAt": "2026-11-15T14:00:54.000Z",
+        "errorAlertSentAt": "2026-11-21T06:41:52.897Z"
       },
       "animecorner-site": {
         "seenPostIds": [
           "https://animecorner.me/fall-2026-anime-rankings-week-7/",
           "https://animecorner.me/fall-2026-anime-rankings-week-6/"
         ],
-        "checkedAt": "2026-11-20T13:30:47.176Z",
+        "checkedAt": "2026-11-21T06:41:52.897Z",
         "lastPostPublishedAt": "2026-11-20T12:30:00.000Z"
       }
     },
