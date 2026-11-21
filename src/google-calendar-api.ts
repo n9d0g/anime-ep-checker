@@ -21,6 +21,8 @@ export interface ListedCalendarEvent {
   episode: string | null
   /** The event's start `dateTime` exactly as the API returned it. */
   startAt: string | null
+  /** The event's title, or null when it has none. */
+  summary: string | null
 }
 
 /** What the checker writes for one episode's event. */
@@ -42,6 +44,7 @@ interface ServiceAccountCredentials {
 interface CalendarEventListResponse {
   items?: {
     id: string
+    summary?: string
     start?: { dateTime?: string }
     extendedProperties?: { private?: Record<string, string> }
   }[]
@@ -260,5 +263,6 @@ export async function listCalendarEventsForShow(
     eventId: item.id,
     episode: item.extendedProperties?.private?.[EPISODE_PROP] || null,
     startAt: item.start?.dateTime ?? null,
+    summary: item.summary ?? null,
   }))
 }

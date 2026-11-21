@@ -197,6 +197,8 @@ async function announceEpisode({
       showTitle: show.title || showId,
       episodeNumber,
       episodeTitle: latestSnapshot.episode.title?.trim() || null,
+      ...(show.season ? { season: show.season } : {}),
+      ...(show.part ? { part: show.part } : {}),
     }
     const pushed = await notifyAppBadgeDrop(
       appBadge.config,

@@ -19,6 +19,7 @@ import type {
 } from './mal.ts'
 import { formatEasternTime } from './time.ts'
 import type { UserFeedSource } from '../shared/reddit-feeds.ts'
+import { getEpisodeLabelParts } from '../shared/episode-code.ts'
 import { getShowWatchUrl, providerLabel } from '../shared/shows.ts'
 import type { EpisodeSnapshot, TimingStatus } from './types.ts'
 import type {
@@ -200,8 +201,6 @@ function buildEpisodeEmbed({
   discussionUrl,
   malDetails,
 }: Omit<EpisodeAlertInput, 'discord'>) {
-  const episodeTitle = latestSnapshot.episode.title ?? 'New episode'
-  const showTitle = show.title || latestSnapshot.seriesTitle
   const timingLabel = formatTimingLabel(
     timingStatus,
     expectedDropAt,
@@ -243,9 +242,8 @@ function buildEpisodeEmbed({
   }
 
   return {
-    title: `✅ ${showTitle} — Episode ${episodeNumber} is out!`,
+    title: outNowHeadline({ show, latestSnapshot, episodeNumber }, false),
     url: latestSnapshot.watchUrl,
-    description: episodeTitle,
     color: timingStatus === 'late' ? 0xe67e22 : 0x2ecc71,
     thumbnail: malDetails?.coverUrl ? { url: malDetails.coverUrl } : undefined,
     fields,
@@ -564,10 +562,28 @@ export async function sendMalStatusAlert({
   await deliverDiscordMessage(discord, payload)
 }
 
+/** `✅ Show s3e8 out now — "Episode title"`, with the show in bold for message text. */
+function outNowHeadline(
+  {
+    show,
+    latestSnapshot,
+    episodeNumber,
+  }: Pick<EpisodeAlertInput, 'show' | 'latestSnapshot' | 'episodeNumber'>,
+  bold: boolean
+): string {
+  const { showTitle, episodeCode } = getEpisodeLabelParts(
+    { ...show, title: show.title || latestSnapshot.seriesTitle },
+    episodeNumber
+  )
+  const name = bold ? `**${showTitle}**` : showTitle
+  const episodeTitle = latestSnapshot.episode.title?.trim()
+  const headline = `✅ ${name} ${episodeCode} out now`
+  return episodeTitle ? `${headline} — "${episodeTitle}"` : headline
+}
+
 export async function sendEpisodeAlert(
   input: EpisodeAlertInput
 ): Promise<void> {
-  const showTitle = input.show.title || input.latestSnapshot.seriesTitle
   const embed = buildEpisodeEmbed(input)
   const links = buildEpisodeLinks(input)
 
@@ -592,7 +608,7 @@ export async function sendEpisodeAlert(
   await deliverDiscordMessage(
     input.discord,
     {
-      content: `✅ **${showTitle}** — Episode ${input.episodeNumber} is out!`,
+      content: outNowHeadline(input, true),
       embeds: [embed],
     },
     {

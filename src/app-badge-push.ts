@@ -15,6 +15,9 @@ export interface DropNotice {
   showTitle: string
   episodeNumber: number
   episodeTitle?: string | null
+  /** The show's season and part overrides from shows.json, for the Episode code. */
+  season?: number
+  part?: number
 }
 
 export function getAppBadgePushConfigFromEnv(): AppBadgePushConfig {

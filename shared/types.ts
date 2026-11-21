@@ -58,6 +58,10 @@ export interface Show {
   redditSearchTitle?: string
   /** Overrides AniList's Official Site link when the news page lives elsewhere. */
   officialNewsUrl?: string
+  /** Overrides the season read from the title, for the Episode code. */
+  season?: number
+  /** Overrides the part read from the title, for the Episode code. */
+  part?: number
   schedule: ShowSchedule
 }
 

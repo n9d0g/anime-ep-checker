@@ -141,6 +141,13 @@ export function normalizeShow(show: ShowFormValues): Show {
     normalized.officialNewsUrl = officialNewsUrl
   }
 
+  if (show.season) {
+    normalized.season = show.season
+  }
+  if (show.part) {
+    normalized.part = show.part
+  }
+
   const titleEnglish = show.titleEnglish?.trim()
   if (titleEnglish) {
     normalized.titleEnglish = titleEnglish

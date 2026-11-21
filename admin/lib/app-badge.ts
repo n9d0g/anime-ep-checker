@@ -2,6 +2,7 @@
 // icon with Declarative Web Push (no service worker). See ADR 0003.
 
 import { countBehindShows } from '@shared/behind'
+import { formatEpisodeLabel } from '@shared/episode-code'
 import { getAdminPublicOrigin } from './site-url'
 import {
   sendPush,
@@ -16,6 +17,9 @@ export interface DropNotice {
   showTitle: string
   episodeNumber: number
   episodeTitle?: string | null
+  /** The show's season and part overrides from shows.json, for the Episode code. */
+  season?: number
+  part?: number
 }
 
 export interface PushSubscriptionStore {
@@ -53,13 +57,19 @@ export function dropPushPayload(
   count: number | null,
   origin: string
 ): string {
-  const episodeTitle = drop.episodeTitle?.trim()
+  const title = formatEpisodeLabel(
+    {
+      id: drop.showId,
+      title: drop.showTitle,
+      season: drop.season,
+      part: drop.part,
+    },
+    drop.episodeNumber
+  )
   return declarativePayload(
     {
-      title: drop.showTitle,
-      body: episodeTitle
-        ? `Episode ${drop.episodeNumber} · ${episodeTitle}`
-        : `Episode ${drop.episodeNumber}`,
+      title,
+      body: drop.episodeTitle?.trim() || 'Out now',
       navigate: showUrl(origin, drop.showId),
     },
     count
@@ -166,6 +176,10 @@ export async function pushToSubscriptions(
   return result
 }
 
+function isOptionalCount(value: unknown): boolean {
+  return value === undefined || (Number.isInteger(value) && Number(value) > 0)
+}
+
 export function isDropNotice(value: unknown): value is DropNotice {
   if (!value || typeof value !== 'object') {
     return false
@@ -179,7 +193,9 @@ export function isDropNotice(value: unknown): value is DropNotice {
     Number.isFinite(drop.episodeNumber) &&
     (drop.episodeTitle === undefined ||
       drop.episodeTitle === null ||
-      typeof drop.episodeTitle === 'string')
+      typeof drop.episodeTitle === 'string') &&
+    isOptionalCount(drop.season) &&
+    isOptionalCount(drop.part)
   )
 }
 

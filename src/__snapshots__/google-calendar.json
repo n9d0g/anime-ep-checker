@@ -278,7 +278,7 @@
         "url": "https://www.googleapis.com/calendar/v3/calendars/anime%40group.calendar.google.com/events",
         "contentType": "application/json",
         "authorization": "Bearer google-token",
-        "body": "{\"summary\":\"Frieren — Episode 4: season-1 title 4\",\"description\":\"Expected around Oct 22, 2026, 11:00:00 AM EDT.\\nEpisode: season-1 title 4\\nWatch: https://www.crunchyroll.com/series/GG5H5XQX4/frieren\",\"location\":\"https://www.crunchyroll.com/series/GG5H5XQX4/frieren\",\"start\":{\"dateTime\":\"2026-10-22T15:00:00.000Z\",\"timeZone\":\"UTC\"},\"end\":{\"dateTime\":\"2026-10-22T15:30:00.000Z\",\"timeZone\":\"UTC\"},\"reminders\":{\"useDefault\":false,\"overrides\":[{\"method\":\"popup\",\"minutes\":10},{\"method\":\"popup\",\"minutes\":0}]},\"extendedProperties\":{\"private\":{\"animeEpCheckerShowId\":\"frieren\",\"animeEpCheckerEpisode\":\"4\"}}}"
+        "body": "{\"summary\":\"Frieren s1e4: season-1 title 4\",\"description\":\"Expected around Oct 22, 2026, 11:00:00 AM EDT.\\nEpisode: season-1 title 4\\nWatch: https://www.crunchyroll.com/series/GG5H5XQX4/frieren\",\"location\":\"https://www.crunchyroll.com/series/GG5H5XQX4/frieren\",\"start\":{\"dateTime\":\"2026-10-22T15:00:00.000Z\",\"timeZone\":\"UTC\"},\"end\":{\"dateTime\":\"2026-10-22T15:30:00.000Z\",\"timeZone\":\"UTC\"},\"reminders\":{\"useDefault\":false,\"overrides\":[{\"method\":\"popup\",\"minutes\":10},{\"method\":\"popup\",\"minutes\":0}]},\"extendedProperties\":{\"private\":{\"animeEpCheckerShowId\":\"frieren\",\"animeEpCheckerEpisode\":\"4\"}}}"
       },
       {
         "method": "POST",
@@ -347,7 +347,7 @@
         "url": "https://www.googleapis.com/calendar/v3/calendars/anime%40group.calendar.google.com/events",
         "contentType": "application/json",
         "authorization": "Bearer google-token",
-        "body": "{\"summary\":\"Frieren — Episode 4: season-1 title 4\",\"description\":\"Expected around Oct 22, 2026, 11:00:00 AM EDT.\\nEpisode: season-1 title 4\\nWatch: https://www.crunchyroll.com/series/GG5H5XQX4/frieren\",\"location\":\"https://www.crunchyroll.com/series/GG5H5XQX4/frieren\",\"start\":{\"dateTime\":\"2026-10-22T15:00:00.000Z\",\"timeZone\":\"UTC\"},\"end\":{\"dateTime\":\"2026-10-22T15:30:00.000Z\",\"timeZone\":\"UTC\"},\"reminders\":{\"useDefault\":false,\"overrides\":[{\"method\":\"popup\",\"minutes\":10},{\"method\":\"popup\",\"minutes\":0}]},\"extendedProperties\":{\"private\":{\"animeEpCheckerShowId\":\"frieren\",\"animeEpCheckerEpisode\":\"4\"}}}"
+        "body": "{\"summary\":\"Frieren s1e4: season-1 title 4\",\"description\":\"Expected around Oct 22, 2026, 11:00:00 AM EDT.\\nEpisode: season-1 title 4\\nWatch: https://www.crunchyroll.com/series/GG5H5XQX4/frieren\",\"location\":\"https://www.crunchyroll.com/series/GG5H5XQX4/frieren\",\"start\":{\"dateTime\":\"2026-10-22T15:00:00.000Z\",\"timeZone\":\"UTC\"},\"end\":{\"dateTime\":\"2026-10-22T15:30:00.000Z\",\"timeZone\":\"UTC\"},\"reminders\":{\"useDefault\":false,\"overrides\":[{\"method\":\"popup\",\"minutes\":10},{\"method\":\"popup\",\"minutes\":0}]},\"extendedProperties\":{\"private\":{\"animeEpCheckerShowId\":\"frieren\",\"animeEpCheckerEpisode\":\"4\"}}}"
       },
       {
         "method": "POST",
@@ -361,7 +361,7 @@
         "url": "https://www.googleapis.com/calendar/v3/calendars/anime%40group.calendar.google.com/events",
         "contentType": "application/json",
         "authorization": "Bearer google-token",
-        "body": "{\"summary\":\"Frieren — Episode 5: season-1 title 5\",\"description\":\"Expected around Oct 29, 2026, 11:00:00 AM EDT.\\nEpisode: season-1 title 5\\nWatch: https://www.crunchyroll.com/series/GG5H5XQX4/frieren\",\"location\":\"https://www.crunchyroll.com/series/GG5H5XQX4/frieren\",\"start\":{\"dateTime\":\"2026-10-29T15:00:00.000Z\",\"timeZone\":\"UTC\"},\"end\":{\"dateTime\":\"2026-10-29T15:30:00.000Z\",\"timeZone\":\"UTC\"},\"reminders\":{\"useDefault\":false,\"overrides\":[{\"method\":\"popup\",\"minutes\":10},{\"method\":\"popup\",\"minutes\":0}]},\"extendedProperties\":{\"private\":{\"animeEpCheckerShowId\":\"frieren\",\"animeEpCheckerEpisode\":\"5\"}}}"
+        "body": "{\"summary\":\"Frieren s1e5: season-1 title 5\",\"description\":\"Expected around Oct 29, 2026, 11:00:00 AM EDT.\\nEpisode: season-1 title 5\\nWatch: https://www.crunchyroll.com/series/GG5H5XQX4/frieren\",\"location\":\"https://www.crunchyroll.com/series/GG5H5XQX4/frieren\",\"start\":{\"dateTime\":\"2026-10-29T15:00:00.000Z\",\"timeZone\":\"UTC\"},\"end\":{\"dateTime\":\"2026-10-29T15:30:00.000Z\",\"timeZone\":\"UTC\"},\"reminders\":{\"useDefault\":false,\"overrides\":[{\"method\":\"popup\",\"minutes\":10},{\"method\":\"popup\",\"minutes\":0}]},\"extendedProperties\":{\"private\":{\"animeEpCheckerShowId\":\"frieren\",\"animeEpCheckerEpisode\":\"5\"}}}"
       },
       {
         "method": "POST",
@@ -375,7 +375,7 @@
         "url": "https://www.googleapis.com/calendar/v3/calendars/anime%40group.calendar.google.com/events",
         "contentType": "application/json",
         "authorization": "Bearer google-token",
-        "body": "{\"summary\":\"Frieren — Episode 6\",\"description\":\"Expected around Nov 5, 2026, 10:00:00 AM EST.\\nWatch: https://www.crunchyroll.com/series/GG5H5XQX4/frieren\",\"location\":\"https://www.crunchyroll.com/series/GG5H5XQX4/frieren\",\"start\":{\"dateTime\":\"2026-11-05T15:00:00.000Z\",\"timeZone\":\"UTC\"},\"end\":{\"dateTime\":\"2026-11-05T15:30:00.000Z\",\"timeZone\":\"UTC\"},\"reminders\":{\"useDefault\":false,\"overrides\":[{\"method\":\"popup\",\"minutes\":10},{\"method\":\"popup\",\"minutes\":0}]},\"extendedProperties\":{\"private\":{\"animeEpCheckerShowId\":\"frieren\",\"animeEpCheckerEpisode\":\"6\"}}}"
+        "body": "{\"summary\":\"Frieren s1e6\",\"description\":\"Expected around Nov 5, 2026, 10:00:00 AM EST.\\nWatch: https://www.crunchyroll.com/series/GG5H5XQX4/frieren\",\"location\":\"https://www.crunchyroll.com/series/GG5H5XQX4/frieren\",\"start\":{\"dateTime\":\"2026-11-05T15:00:00.000Z\",\"timeZone\":\"UTC\"},\"end\":{\"dateTime\":\"2026-11-05T15:30:00.000Z\",\"timeZone\":\"UTC\"},\"reminders\":{\"useDefault\":false,\"overrides\":[{\"method\":\"popup\",\"minutes\":10},{\"method\":\"popup\",\"minutes\":0}]},\"extendedProperties\":{\"private\":{\"animeEpCheckerShowId\":\"frieren\",\"animeEpCheckerEpisode\":\"6\"}}}"
       }
     ],
     "logs": [
@@ -613,7 +613,7 @@
         "url": "https://www.googleapis.com/calendar/v3/calendars/anime%40group.calendar.google.com/events",
         "contentType": "application/json",
         "authorization": "Bearer google-token",
-        "body": "{\"summary\":\"one-piece — Episode 4\",\"description\":\"Expected around Oct 24, 2026, 9:30:00 PM EDT.\\nWatch: https://www.netflix.com/title/80107103\",\"location\":\"https://www.netflix.com/title/80107103\",\"start\":{\"dateTime\":\"2026-10-25T01:30:00.000Z\",\"timeZone\":\"UTC\"},\"end\":{\"dateTime\":\"2026-10-25T02:00:00.000Z\",\"timeZone\":\"UTC\"},\"reminders\":{\"useDefault\":false,\"overrides\":[{\"method\":\"popup\",\"minutes\":10},{\"method\":\"popup\",\"minutes\":0}]},\"extendedProperties\":{\"private\":{\"animeEpCheckerShowId\":\"one-piece\",\"animeEpCheckerEpisode\":\"4\"}}}"
+        "body": "{\"summary\":\"one-piece s1e4\",\"description\":\"Expected around Oct 24, 2026, 9:30:00 PM EDT.\\nWatch: https://www.netflix.com/title/80107103\",\"location\":\"https://www.netflix.com/title/80107103\",\"start\":{\"dateTime\":\"2026-10-25T01:30:00.000Z\",\"timeZone\":\"UTC\"},\"end\":{\"dateTime\":\"2026-10-25T02:00:00.000Z\",\"timeZone\":\"UTC\"},\"reminders\":{\"useDefault\":false,\"overrides\":[{\"method\":\"popup\",\"minutes\":10},{\"method\":\"popup\",\"minutes\":0}]},\"extendedProperties\":{\"private\":{\"animeEpCheckerShowId\":\"one-piece\",\"animeEpCheckerEpisode\":\"4\"}}}"
       }
     ],
     "logs": ["log:   Google Calendar event created for one-piece ep 4"],
@@ -679,7 +679,7 @@
         "url": "https://www.googleapis.com/calendar/v3/calendars/anime%40group.calendar.google.com/events",
         "contentType": "application/json",
         "authorization": "Bearer google-token",
-        "body": "{\"summary\":\"Frieren — Episode 4\",\"description\":\"Expected around Oct 22, 2026, 11:00:00 AM EDT.\\nWatch: https://www.crunchyroll.com/series/GG5H5XQX4/frieren\",\"location\":\"https://www.crunchyroll.com/series/GG5H5XQX4/frieren\",\"start\":{\"dateTime\":\"2026-10-22T15:00:00.000Z\",\"timeZone\":\"UTC\"},\"end\":{\"dateTime\":\"2026-10-22T15:30:00.000Z\",\"timeZone\":\"UTC\"},\"reminders\":{\"useDefault\":false,\"overrides\":[{\"method\":\"popup\",\"minutes\":10},{\"method\":\"popup\",\"minutes\":0}]},\"extendedProperties\":{\"private\":{\"animeEpCheckerShowId\":\"frieren\",\"animeEpCheckerEpisode\":\"4\"}}}"
+        "body": "{\"summary\":\"Frieren s1e4\",\"description\":\"Expected around Oct 22, 2026, 11:00:00 AM EDT.\\nWatch: https://www.crunchyroll.com/series/GG5H5XQX4/frieren\",\"location\":\"https://www.crunchyroll.com/series/GG5H5XQX4/frieren\",\"start\":{\"dateTime\":\"2026-10-22T15:00:00.000Z\",\"timeZone\":\"UTC\"},\"end\":{\"dateTime\":\"2026-10-22T15:30:00.000Z\",\"timeZone\":\"UTC\"},\"reminders\":{\"useDefault\":false,\"overrides\":[{\"method\":\"popup\",\"minutes\":10},{\"method\":\"popup\",\"minutes\":0}]},\"extendedProperties\":{\"private\":{\"animeEpCheckerShowId\":\"frieren\",\"animeEpCheckerEpisode\":\"4\"}}}"
       },
       {
         "method": "POST",
@@ -693,7 +693,7 @@
         "url": "https://www.googleapis.com/calendar/v3/calendars/anime%40group.calendar.google.com/events/listed-frieren-6-11-05",
         "contentType": "application/json",
         "authorization": "Bearer google-token",
-        "body": "{\"summary\":\"Frieren — Episode 6\",\"description\":\"Expected around Nov 5, 2026, 10:00:00 AM EST.\\nWatch: https://www.crunchyroll.com/series/GG5H5XQX4/frieren\",\"location\":\"https://www.crunchyroll.com/series/GG5H5XQX4/frieren\",\"start\":{\"dateTime\":\"2026-11-05T15:00:00.000Z\",\"timeZone\":\"UTC\"},\"end\":{\"dateTime\":\"2026-11-05T15:30:00.000Z\",\"timeZone\":\"UTC\"},\"reminders\":{\"useDefault\":false,\"overrides\":[{\"method\":\"popup\",\"minutes\":10},{\"method\":\"popup\",\"minutes\":0}]},\"extendedProperties\":{\"private\":{\"animeEpCheckerShowId\":\"frieren\",\"animeEpCheckerEpisode\":\"6\"}}}"
+        "body": "{\"summary\":\"Frieren s1e6\",\"description\":\"Expected around Nov 5, 2026, 10:00:00 AM EST.\\nWatch: https://www.crunchyroll.com/series/GG5H5XQX4/frieren\",\"location\":\"https://www.crunchyroll.com/series/GG5H5XQX4/frieren\",\"start\":{\"dateTime\":\"2026-11-05T15:00:00.000Z\",\"timeZone\":\"UTC\"},\"end\":{\"dateTime\":\"2026-11-05T15:30:00.000Z\",\"timeZone\":\"UTC\"},\"reminders\":{\"useDefault\":false,\"overrides\":[{\"method\":\"popup\",\"minutes\":10},{\"method\":\"popup\",\"minutes\":0}]},\"extendedProperties\":{\"private\":{\"animeEpCheckerShowId\":\"frieren\",\"animeEpCheckerEpisode\":\"6\"}}}"
       }
     ],
     "logs": [
@@ -792,7 +792,7 @@
         "url": "https://www.googleapis.com/calendar/v3/calendars/anime%40group.calendar.google.com/events/stored-4",
         "contentType": "application/json",
         "authorization": "Bearer google-token",
-        "body": "{\"summary\":\"Frieren — Episode 4: season-2 title 16\",\"description\":\"Expected around Oct 22, 2026, 11:00:00 AM EDT.\\nEpisode: season-2 title 16\\nWatch: https://www.crunchyroll.com/series/GG5H5XQX4/frieren\",\"location\":\"https://www.crunchyroll.com/series/GG5H5XQX4/frieren\",\"start\":{\"dateTime\":\"2026-10-22T15:00:00.000Z\",\"timeZone\":\"UTC\"},\"end\":{\"dateTime\":\"2026-10-22T15:30:00.000Z\",\"timeZone\":\"UTC\"},\"reminders\":{\"useDefault\":false,\"overrides\":[{\"method\":\"popup\",\"minutes\":10},{\"method\":\"popup\",\"minutes\":0}]},\"extendedProperties\":{\"private\":{\"animeEpCheckerShowId\":\"frieren\",\"animeEpCheckerEpisode\":\"4\"}}}"
+        "body": "{\"summary\":\"Frieren s1e4: season-2 title 16\",\"description\":\"Expected around Oct 22, 2026, 11:00:00 AM EDT.\\nEpisode: season-2 title 16\\nWatch: https://www.crunchyroll.com/series/GG5H5XQX4/frieren\",\"location\":\"https://www.crunchyroll.com/series/GG5H5XQX4/frieren\",\"start\":{\"dateTime\":\"2026-10-22T15:00:00.000Z\",\"timeZone\":\"UTC\"},\"end\":{\"dateTime\":\"2026-10-22T15:30:00.000Z\",\"timeZone\":\"UTC\"},\"reminders\":{\"useDefault\":false,\"overrides\":[{\"method\":\"popup\",\"minutes\":10},{\"method\":\"popup\",\"minutes\":0}]},\"extendedProperties\":{\"private\":{\"animeEpCheckerShowId\":\"frieren\",\"animeEpCheckerEpisode\":\"4\"}}}"
       },
       {
         "method": "POST",
@@ -806,7 +806,7 @@
         "url": "https://www.googleapis.com/calendar/v3/calendars/anime%40group.calendar.google.com/events/listed-frieren-5-10-29",
         "contentType": "application/json",
         "authorization": "Bearer google-token",
-        "body": "{\"summary\":\"Frieren — Episode 5: season-2 title 17\",\"description\":\"Expected around Oct 29, 2026, 11:00:00 AM EDT.\\nEpisode: season-2 title 17\\nWatch: https://www.crunchyroll.com/series/GG5H5XQX4/frieren\",\"location\":\"https://www.crunchyroll.com/series/GG5H5XQX4/frieren\",\"start\":{\"dateTime\":\"2026-10-29T15:00:00.000Z\",\"timeZone\":\"UTC\"},\"end\":{\"dateTime\":\"2026-10-29T15:30:00.000Z\",\"timeZone\":\"UTC\"},\"reminders\":{\"useDefault\":false,\"overrides\":[{\"method\":\"popup\",\"minutes\":10},{\"method\":\"popup\",\"minutes\":0}]},\"extendedProperties\":{\"private\":{\"animeEpCheckerShowId\":\"frieren\",\"animeEpCheckerEpisode\":\"5\"}}}"
+        "body": "{\"summary\":\"Frieren s1e5: season-2 title 17\",\"description\":\"Expected around Oct 29, 2026, 11:00:00 AM EDT.\\nEpisode: season-2 title 17\\nWatch: https://www.crunchyroll.com/series/GG5H5XQX4/frieren\",\"location\":\"https://www.crunchyroll.com/series/GG5H5XQX4/frieren\",\"start\":{\"dateTime\":\"2026-10-29T15:00:00.000Z\",\"timeZone\":\"UTC\"},\"end\":{\"dateTime\":\"2026-10-29T15:30:00.000Z\",\"timeZone\":\"UTC\"},\"reminders\":{\"useDefault\":false,\"overrides\":[{\"method\":\"popup\",\"minutes\":10},{\"method\":\"popup\",\"minutes\":0}]},\"extendedProperties\":{\"private\":{\"animeEpCheckerShowId\":\"frieren\",\"animeEpCheckerEpisode\":\"5\"}}}"
       }
     ],
     "logs": [
