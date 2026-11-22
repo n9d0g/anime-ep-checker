@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useState, type ComponentProps, type ReactNode } from 'react'
+import { Button } from '@/components/ui/button'
 import { Drawer, DrawerContent, DrawerTitle } from '@/components/ui/drawer'
 import {
   Sheet as SheetRoot,
@@ -9,9 +10,6 @@ import {
 } from '@/components/ui/sheet'
 import { useIsDesktop } from '@/app/components/useIsDesktop'
 import { cn } from '@/components/ui/utils'
-
-const CLOSE_CLASS =
-  'absolute top-[0.6rem] right-3 size-9 rounded-full border-0 bg-transparent text-(--text-secondary) hover:bg-accent hover:text-foreground'
 
 const SCROLL_CLASS =
   'overflow-y-auto overscroll-contain px-[1.1rem] pt-3 pb-[calc(1.5rem+env(safe-area-inset-bottom))]'
@@ -60,14 +58,16 @@ export function Sheet({
 
   const body = (
     <>
-      <button
-        className={CLOSE_CLASS}
+      <Button
+        variant="ghost"
+        size="icon"
+        className="absolute top-[0.6rem] right-3 [font-size:inherit]"
         type="button"
         aria-label="Close"
         onClick={onClose}
       >
         ✕
-      </button>
+      </Button>
       <div className={SCROLL_CLASS}>{children}</div>
     </>
   )

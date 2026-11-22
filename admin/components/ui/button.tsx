@@ -13,6 +13,8 @@ import { cn } from '@/components/ui/utils'
  *   show" (with size `inline`);
  * - `link` is underlined text that turns the brand colour on hover, for a
  *   small action inside text (with size `text`, which keeps the text's size);
+ * - `ghost` is grey text on nothing that fills in on hover, for a bare icon
+ *   button (with size `icon`), like the header's search;
  * - disabled keeps its cursor (not-allowed) rather than ignoring the pointer.
  */
 const buttonVariants = cva(
@@ -28,6 +30,8 @@ const buttonVariants = cva(
           'bg-destructive text-white hover:not-disabled:bg-[color-mix(in_srgb,var(--danger)_85%,white)]',
         'destructive-link':
           'bg-transparent text-destructive hover:not-disabled:underline',
+        ghost:
+          'bg-transparent text-(--text-secondary) hover:not-disabled:bg-accent hover:not-disabled:text-foreground',
         link: 'bg-transparent text-foreground underline underline-offset-2 transition-none hover:not-disabled:text-(--accent-hover)',
       },
       size: {

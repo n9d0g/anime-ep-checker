@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
+import { SearchIcon } from '@/app/components/ListIcons'
 import { ShowTitleDisplay } from '@/app/components/ShowTitleDisplay'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { cn } from '@/components/ui/utils'
@@ -151,23 +152,26 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
       <DialogContent
         aria-describedby={undefined}
         overlayClassName="z-200 bg-black/60"
-        className="z-200 flex max-h-[min(28rem,70vh)] w-[min(32rem,calc(100%-2rem))] flex-col gap-2 overflow-visible rounded-[0.65rem] p-3 shadow-[0_12px_40px_rgb(0_0_0/0.25)]"
+        className="z-200 flex max-h-[min(28rem,70vh)] w-[min(32rem,calc(100%-2rem))] flex-col gap-0 overflow-hidden rounded-[0.65rem] p-0 shadow-[0_12px_40px_rgb(0_0_0/0.25)]"
         onOpenAutoFocus={(event) => {
           event.preventDefault()
           inputRef.current?.focus()
         }}
       >
-        <input
-          ref={inputRef}
-          className="w-full max-w-full min-w-0 overflow-hidden rounded-[0.45rem] border border-border bg-background px-[0.65rem] py-[0.55rem] text-base text-ellipsis text-foreground transition-[border-color] outline-none focus:border-ring"
-          type="search"
-          placeholder="Search watching, plan to watch, on hold…"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          aria-label="Search shows"
-        />
+        <div className="flex items-center gap-2 border-b border-border px-3 text-(--hint) [&_svg]:size-5 [&_svg]:shrink-0">
+          <SearchIcon />
+          <input
+            ref={inputRef}
+            className="w-full min-w-0 overflow-hidden border-none bg-transparent py-3 text-base text-ellipsis text-foreground outline-none placeholder:text-(--hint) [&::-webkit-search-cancel-button]:hidden"
+            type="search"
+            placeholder="Search watching, plan to watch, on hold…"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            aria-label="Search shows"
+          />
+        </div>
 
-        <div className="min-h-0 overflow-auto">
+        <div className="min-h-0 overflow-auto p-2">
           {loading ? (
             <SearchMessage>Loading…</SearchMessage>
           ) : query.trim() === '' ? (
@@ -216,6 +220,7 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
             })
           )}
         </div>
+        <SearchHints />
         <DialogTitle className="sr-only">Search shows</DialogTitle>
       </DialogContent>
     </Dialog>
@@ -227,5 +232,33 @@ function SearchMessage({ children }: { children: string }) {
     <p className="mx-0 my-2 text-center text-[0.85rem] text-(--hint)">
       {children}
     </p>
+  )
+}
+
+// Key hints, only where there's a mouse or trackpad (and so, likely, a
+// keyboard).
+function SearchHints() {
+  return (
+    <div className="hidden items-center gap-3 border-t border-border px-3 py-2 text-[0.72rem] text-(--hint) pointer-fine:flex">
+      <Hint keys={['↑', '↓']}>navigate</Hint>
+      <Hint keys={['↵']}>open</Hint>
+      <Hint keys={['esc']}>close</Hint>
+    </div>
+  )
+}
+
+function Hint({ keys, children }: { keys: string[]; children: string }) {
+  return (
+    <span className="inline-flex items-center gap-1">
+      {keys.map((key) => (
+        <kbd
+          key={key}
+          className="inline-grid h-[1.15rem] min-w-[1.15rem] place-items-center rounded-[0.25rem] border border-border px-1 font-sans text-[0.68rem]"
+        >
+          {key}
+        </kbd>
+      ))}
+      {children}
+    </span>
   )
 }
