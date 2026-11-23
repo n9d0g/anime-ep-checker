@@ -1,8 +1,4 @@
-/**
- * Pure r/anime discussion helpers: slugs, search queries and the search URL.
- * The threads live on r/anime, but the clickable search covers all of Reddit:
- * Reddit's site-wide search finds them more reliably than r/anime's own.
- */
+/** Pure r/anime discussion helpers: slugs, search queries and the search URL. */
 
 export function slugifyForReddit(value: string): string {
   return String(value)
@@ -44,8 +40,9 @@ export function buildAnimeDiscussionSearchUrl(
   )
   const params = new URLSearchParams({
     q: primaryQuery,
+    restrict_sr: 'on',
     sort: 'new',
   })
 
-  return `https://www.reddit.com/search/?${params.toString()}`
+  return `https://www.reddit.com/r/anime/search/?${params.toString()}`
 }
