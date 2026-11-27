@@ -788,53 +788,14 @@
       ]
     },
     "redditUserFeeds": {
-      "abysswatcherbel": {
-        "seenPostIds": [
-          "t3_1xww7i1",
-          "t3_1xqz2dj",
-          "t3_1xl3sdh",
-          "t3_1xf2s41",
-          "t3_1x92q5j",
-          "t3_1x37m6y",
-          "t3_1wxgvpu",
-          "t3_1wrjnrk",
-          "t3_1wlgh00",
-          "t3_1wf720w",
-          "t3_1w8vltm",
-          "t3_1w2gy9t",
-          "t3_1vw6kwo",
-          "t3_1vpwscx",
-          "t3_1vjpb9z",
-          "t3_1vdhi0y",
-          "t3_1v73ecg",
-          "t3_1v0pzs2",
-          "t3_1uui2bg",
-          "t3_1uo1mfr",
-          "t3_1uhwuhg",
-          "t3_1ubpga7",
-          "t3_1u5kjiy",
-          "t3_1tzbnyp",
-          "t3_1tsur4l",
-          "t3_1tmbull",
-          "t3_1tfpbsx",
-          "t3_1t96a9o",
-          "t3_1t2lwzd",
-          "t3_1sw6w3i",
-          "t3_1spscyj",
-          "t3_1sjfuo9"
-        ],
-        "checkedAt": "2026-11-15T14:15:38.003Z",
-        "lastErrorAt": "2026-11-21T06:41:52.897Z",
-        "lastPostPublishedAt": "2026-11-15T14:00:54.000Z",
-        "errorAlertSentAt": "2026-11-22T11:00:48.821Z"
-      },
       "animecorner-site": {
         "seenPostIds": [
+          "https://animecorner.me/fall-2026-anime-rankings-week-8/",
           "https://animecorner.me/fall-2026-anime-rankings-week-7/",
           "https://animecorner.me/fall-2026-anime-rankings-week-6/"
         ],
-        "checkedAt": "2026-11-27T12:31:08.966Z",
-        "lastPostPublishedAt": "2026-11-20T12:30:00.000Z"
+        "checkedAt": "2026-11-27T16:15:38.549Z",
+        "lastPostPublishedAt": "2026-11-27T12:30:00.000Z"
       }
     },
     "relatedAnimeCheckedAt": "2026-11-22T05:00:59.781Z",
