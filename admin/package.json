@@ -1,6 +1,6 @@
 {
   "name": "anime-ep-checker-admin",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "private": true,
   "packageManager": "pnpm@12.17.0",
   "engines": {
