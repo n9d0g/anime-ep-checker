@@ -4,7 +4,8 @@ import {
   sendRedditPostAlert,
   type DiscordConfig,
 } from './discord.ts'
-import { fetchUserFeed } from './site-feed.ts'
+import { fetchRankingChartUrl, fetchUserFeed } from './site-feed.ts'
+import { buildRankingDiscussionSearchUrl } from '../shared/reddit.ts'
 import {
   REDDIT_USER_FEEDS,
   feedSourceLabel,
@@ -252,10 +253,22 @@ export async function syncRedditUserFeeds({
 
     for (const post of newPosts) {
       if (!dryRun && hasDiscordConfig(discord)) {
+        const source = feed.source
         await sendRedditPostAlert({
           discord,
-          source: feed.source,
+          source,
           post,
+          // Site ranking posts get their ranking chart and a Reddit search,
+          // since the checker can't read Reddit itself.
+          ...(source.kind === 'rss'
+            ? {
+                chartUrl: await fetchRankingChartUrl(post.href),
+                discussionUrl: buildRankingDiscussionSearchUrl(
+                  source.name,
+                  post.title
+                ),
+              }
+            : {}),
         })
         console.log(`  Reddit alert sent: ${post.title}`)
       } else if (dryRun) {

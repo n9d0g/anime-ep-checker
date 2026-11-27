@@ -91,6 +91,10 @@ interface RedditPostAlertInput {
   discord: DiscordConfig
   source: UserFeedSource
   post: RedditPostAlertPost
+  /** A ranking post's ranking chart, shown as the embed image. */
+  chartUrl?: string | null
+  /** r/anime search for the post's discussion thread. */
+  discussionUrl?: string | null
 }
 
 function formatBroadcastLabel(
@@ -320,18 +324,22 @@ export async function sendRedditPostAlert({
   discord,
   source,
   post,
+  chartUrl,
+  discussionUrl,
 }: RedditPostAlertInput): Promise<void> {
   const byline =
     source.kind === 'reddit' ? `by u/${source.username}` : `on ${source.name}`
   const subLabel = post.subreddit ? `r/${post.subreddit}` : 'Reddit'
+  const description =
+    source.kind === 'reddit'
+      ? `New post ${byline} in ${subLabel}`
+      : `New post ${byline}`
   const embed = {
     title: post.title,
     url: post.href,
-    description:
-      source.kind === 'reddit'
-        ? `New post ${byline} in ${subLabel}`
-        : `New post ${byline}`,
+    description,
     color: 0xff4500,
+    ...(chartUrl ? { image: { url: chartUrl } } : {}),
     timestamp: new Date().toISOString(),
     footer: discordFooter(),
   }
@@ -341,6 +349,9 @@ export async function sendRedditPostAlert({
       source.kind === 'reddit' ? 'Reddit' : source.name,
       post.href
     ),
+    ...(discussionUrl
+      ? [discordLinkButton('Reddit discussion', discussionUrl)]
+      : []),
   ])
 
   const payload = {
@@ -348,7 +359,23 @@ export async function sendRedditPostAlert({
     embeds: [embed],
   }
 
-  await deliverDiscordMessage(discord, payload, { components })
+  // Webhooks can't send buttons, so the discussion link goes in the text.
+  const webhookPayload = discussionUrl
+    ? {
+        ...payload,
+        embeds: [
+          {
+            ...embed,
+            description: `${description} · [Reddit discussion](${discussionUrl})`,
+          },
+        ],
+      }
+    : undefined
+
+  await deliverDiscordMessage(discord, payload, {
+    components,
+    webhookPayload,
+  })
 }
 
 export async function sendPlanToWatchAlert({

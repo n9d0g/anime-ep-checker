@@ -16,11 +16,6 @@ const FEEDS: FeedStates = {
     checkedAt: '2026-10-16T12:00:00.000Z',
     lastPostPublishedAt: '2026-10-16T12:00:00.000Z',
   },
-  abysswatcherbel: {
-    seenPostIds: [],
-    checkedAt: '2026-10-18T13:00:00.000Z',
-    lastPostPublishedAt: '2026-10-18T13:00:00.000Z',
-  },
 }
 
 function makeShow(schedule: Partial<ShowSchedule> = {}): Show {
@@ -281,24 +276,13 @@ test('gate runs once a day while a show is awaiting return', async () => {
 
 test('gate runs the related anime check once on Sundays', async () => {
   const now = '2026-10-25T16:00:00.000Z'
-  const redditUserFeeds = {
-    ...FEEDS,
-    abysswatcherbel: {
-      ...FEEDS.abysswatcherbel,
-      lastPostPublishedAt: '2026-10-25T13:00:00.000Z',
-    },
-  }
-  const due = await decide(now, [], makeState(now, {}, { redditUserFeeds }))
+  const due = await decide(now, [], makeState(now))
   assert.equal(due.shouldCheck, true)
 
   const done = await decide(
     now,
     [],
-    makeState(
-      now,
-      {},
-      { redditUserFeeds, relatedAnimeCheckedAt: '2026-10-25T05:00:00.000Z' }
-    )
+    makeState(now, {}, { relatedAnimeCheckedAt: '2026-10-25T05:00:00.000Z' })
   )
   assert.equal(done.shouldCheck, false)
 })
@@ -314,11 +298,7 @@ test('gate asks for a Reddit check when a feed has no baseline', async () => {
   const result = await decide(
     now,
     [],
-    makeState(
-      now,
-      {},
-      { redditUserFeeds: { 'animecorner-site': FEEDS['animecorner-site'] } }
-    )
+    makeState(now, {}, { redditUserFeeds: {} })
   )
   assert.equal(result.shouldCheck, true)
   assert.equal(result.redditCheck, true)
@@ -326,7 +306,7 @@ test('gate asks for a Reddit check when a feed has no baseline', async () => {
 })
 
 // Friday 12:00 UTC: Anime Corner's posting window (opened 04:00 UTC) and a
-// 15-minute poll slot; u/Abysswatcherbel is outside its window.
+// 15-minute poll slot.
 const FRIDAY_POLL = '2026-10-23T12:00:00.000Z'
 
 function fridayState(animecorner: Partial<FeedStates[string]> = {}) {

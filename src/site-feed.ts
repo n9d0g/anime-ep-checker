@@ -75,6 +75,49 @@ async function fetchRssFeed(url: string): Promise<RedditUserFetchResult> {
   return { ok: true, posts: parseRssItems(await response.text()) }
 }
 
+function readAttribute(tag: string, name: string): string | null {
+  const match = tag.match(new RegExp(`\\s${name}="([^"]*)"`))
+  return match ? decodeXmlText(match[1]) : null
+}
+
+/**
+ * The ranking chart in a ranking post's article: its first WordPress content
+ * image. The site lazy-loads images, so the real URL is in `data-src` and
+ * `src` holds a placeholder.
+ */
+export function findRankingChartUrl(html: string): string | null {
+  for (const match of html.matchAll(/<img\b[^>]*>/g)) {
+    const tag = match[0]
+    if (!/\sclass="[^"]*\bwp-image-\d+/.test(tag)) {
+      continue
+    }
+    const url = readAttribute(tag, 'data-src') ?? readAttribute(tag, 'src')
+    return url?.startsWith('https://') ? url : null
+  }
+  return null
+}
+
+/** Fetch a ranking post's article and find its ranking chart; null on any failure. */
+export async function fetchRankingChartUrl(
+  articleUrl: string
+): Promise<string | null> {
+  try {
+    const response = await fetch(articleUrl, {
+      headers: { 'User-Agent': USER_AGENT, Accept: 'text/html' },
+    })
+    if (!response.ok) {
+      console.warn(
+        `Ranking article failed (${response.status}) for ${articleUrl}`
+      )
+      return null
+    }
+    return findRankingChartUrl(await response.text())
+  } catch (error) {
+    console.warn(`Ranking article fetch failed for ${articleUrl}:`, error)
+    return null
+  }
+}
+
 /** Fetch a watched feed's latest posts from Reddit or the site's RSS. */
 export function fetchUserFeed(
   source: UserFeedSource
