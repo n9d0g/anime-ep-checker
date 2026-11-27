@@ -37,6 +37,7 @@ import {
   resolveProviderId,
   type FetchEpisode,
 } from './provider-lookup.ts'
+import { syncKarmaRanking } from './karma-ranking.ts'
 import { syncRedditUserFeeds } from './reddit-feeds.ts'
 import { findAnimeDiscussionUrl } from './reddit.ts'
 import { syncRelatedAnimeAlerts } from './related-anime.ts'
@@ -615,6 +616,24 @@ export async function checkShows({
         }`
       )
     }
+  }
+
+  // Once a week (Sunday evening, Eastern); a no-op when not due or sent.
+  try {
+    const karmaResult = await syncKarmaRanking({
+      state,
+      discord,
+      now,
+      dryRun,
+    })
+    if (karmaResult.changed) {
+      stateChangeReasons.push(...karmaResult.reasons)
+      stateChanged = true
+    }
+  } catch (error) {
+    console.warn(
+      `Karma ranking failed: ${error instanceof Error ? error.message : error}`
+    )
   }
 
   // The Actions gate sets REDDIT_FEED_CHECK=false when no feed needs a fetch,

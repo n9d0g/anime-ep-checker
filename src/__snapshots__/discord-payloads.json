@@ -151,6 +151,42 @@
       "body": "{\"embeds\":[{\"title\":\"✅ Frieren s1e3 out now — \\\"The Mage’s Journey\\\"\",\"url\":\"https://www.crunchyroll.com/watch/ep-3\",\"color\":15105570,\"thumbnail\":{\"url\":\"https://cdn.myanimelist.net/images/anime/1/frieren.jpg\"},\"fields\":[{\"name\":\"Season\",\"value\":\"Season 2\",\"inline\":true},{\"name\":\"MAL score\",\"value\":\"9.31\",\"inline\":true},{\"name\":\"Countdown\",\"value\":\"<t:1792251720:R>\",\"inline\":true},{\"name\":\"Timing\",\"value\":\"Late (expected Oct 17, 2026, 11:00:00 AM EDT, dropped Oct 17, 2026, 11:42:00 AM EDT)\",\"inline\":false},{\"name\":\"Discussion\",\"value\":\"[r/anime thread](https://www.reddit.com/r/anime/comments/abc/frieren/)\",\"inline\":false},{\"name\":\"Links\",\"value\":\"[Watch](https://www.crunchyroll.com/watch/ep-3) · [r/anime](https://www.reddit.com/r/anime/comments/abc/frieren/) · [MAL](https://myanimelist.net/anime/52991)\",\"inline\":false}],\"timestamp\":\"2026-10-17T15:42:00.000Z\",\"footer\":{\"text\":\"Anime Episode Checker\"}}]}"
     }
   ],
+  "Karma ranking (bot)": [
+    {
+      "method": "POST",
+      "url": "https://discord.com/api/v10/channels/channel-1/messages",
+      "contentType": "application/json",
+      "authorization": "Bot bot-token",
+      "body": "{\"content\":\"**r/anime Karma Ranking** — Top 2 for Nov 16–22\",\"embeds\":[{\"title\":\"r/anime Karma Ranking — Nov 16–22\",\"url\":\"https://animekarmalist.com/\",\"description\":\"**1.** [The Apothecary Diaries Season 3 — Episode 8](https://www.reddit.com/r/anime/comments/1y15omu/the_apothecary_diaries/) · 1,720 karma · 544 comments\\n**2.** [Show \\\\[with\\\\] brackets — Episode 12](https://www.reddit.com/r/anime/comments/abc123/show/) · 402 karma · 38 comments\",\"color\":16729344,\"timestamp\":\"2026-10-22T12:34:56.000Z\",\"footer\":{\"text\":\"Anime Episode Checker · Karma from AnimeKarmaList\"}}],\"components\":[{\"type\":1,\"components\":[{\"type\":2,\"style\":5,\"label\":\"AnimeKarmaList\",\"url\":\"https://animekarmalist.com/\"},{\"type\":2,\"style\":5,\"label\":\"Abysswatcherbel's ranking\",\"url\":\"https://www.reddit.com/r/anime/search/?q=author%3AAbysswatcherbel&restrict_sr=on&sort=new\"}]}]}"
+    }
+  ],
+  "Karma ranking (webhook)": [
+    {
+      "method": "POST",
+      "url": "https://discord.test/webhook",
+      "contentType": "application/json",
+      "authorization": null,
+      "body": "{\"content\":\"**r/anime Karma Ranking** — Top 2 for Nov 16–22\",\"embeds\":[{\"title\":\"r/anime Karma Ranking — Nov 16–22\",\"url\":\"https://animekarmalist.com/\",\"description\":\"**1.** [The Apothecary Diaries Season 3 — Episode 8](https://www.reddit.com/r/anime/comments/1y15omu/the_apothecary_diaries/) · 1,720 karma · 544 comments\\n**2.** [Show \\\\[with\\\\] brackets — Episode 12](https://www.reddit.com/r/anime/comments/abc123/show/) · 402 karma · 38 comments\\n\\n[Abysswatcherbel's ranking post on r/anime](https://www.reddit.com/r/anime/search/?q=author%3AAbysswatcherbel&restrict_sr=on&sort=new)\",\"color\":16729344,\"timestamp\":\"2026-10-22T12:34:56.000Z\",\"footer\":{\"text\":\"Anime Episode Checker · Karma from AnimeKarmaList\"}}]}"
+    }
+  ],
+  "Karma ranking across months (bot)": [
+    {
+      "method": "POST",
+      "url": "https://discord.com/api/v10/channels/channel-1/messages",
+      "contentType": "application/json",
+      "authorization": "Bot bot-token",
+      "body": "{\"content\":\"**r/anime Karma Ranking** — Top 1 for Nov 30 – Dec 6\",\"embeds\":[{\"title\":\"r/anime Karma Ranking — Nov 30 – Dec 6\",\"url\":\"https://animekarmalist.com/\",\"description\":\"**1.** [Frieren — Episode 9](https://www.reddit.com/r/anime/comments/def456/frieren/) · 2,100 karma · 1,234 comments\",\"color\":16729344,\"timestamp\":\"2026-10-22T12:34:56.000Z\",\"footer\":{\"text\":\"Anime Episode Checker · Karma from AnimeKarmaList\"}}],\"components\":[{\"type\":1,\"components\":[{\"type\":2,\"style\":5,\"label\":\"AnimeKarmaList\",\"url\":\"https://animekarmalist.com/\"},{\"type\":2,\"style\":5,\"label\":\"Abysswatcherbel's ranking\",\"url\":\"https://www.reddit.com/r/anime/search/?q=author%3AAbysswatcherbel&restrict_sr=on&sort=new\"}]}]}"
+    }
+  ],
+  "Karma ranking across months (webhook)": [
+    {
+      "method": "POST",
+      "url": "https://discord.test/webhook",
+      "contentType": "application/json",
+      "authorization": null,
+      "body": "{\"content\":\"**r/anime Karma Ranking** — Top 1 for Nov 30 – Dec 6\",\"embeds\":[{\"title\":\"r/anime Karma Ranking — Nov 30 – Dec 6\",\"url\":\"https://animekarmalist.com/\",\"description\":\"**1.** [Frieren — Episode 9](https://www.reddit.com/r/anime/comments/def456/frieren/) · 2,100 karma · 1,234 comments\\n\\n[Abysswatcherbel's ranking post on r/anime](https://www.reddit.com/r/anime/search/?q=author%3AAbysswatcherbel&restrict_sr=on&sort=new)\",\"color\":16729344,\"timestamp\":\"2026-10-22T12:34:56.000Z\",\"footer\":{\"text\":\"Anime Episode Checker · Karma from AnimeKarmaList\"}}]}"
+    }
+  ],
   "MAL rate limit, before list (bot)": [
     {
       "method": "POST",

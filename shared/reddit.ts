@@ -65,3 +65,17 @@ export function buildRankingDiscussionSearchUrl(
 
   return `https://www.reddit.com/r/anime/search/?${params.toString()}`
 }
+
+/**
+ * r/anime search for u/Abysswatcherbel's weekly karma ranking posts, newest
+ * first. The checker only links here; it never reads Reddit.
+ */
+export function buildKarmaRankingPostSearchUrl(): string {
+  const params = new URLSearchParams({
+    q: 'author:Abysswatcherbel',
+    restrict_sr: 'on',
+    sort: 'new',
+  })
+
+  return `https://www.reddit.com/r/anime/search/?${params.toString()}`
+}

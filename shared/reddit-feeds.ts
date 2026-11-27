@@ -4,7 +4,7 @@
  * the Actions gate (`src/should-run.ts`) and the checker (`src/reddit-feeds.ts`).
  */
 
-import { EASTERN_TZ } from './time-zone.ts'
+import { getEasternMidnight, getEasternParts } from './time-zone.ts'
 
 /** Posting day plus the following day, to cover late posts. */
 const REDDIT_FEED_WINDOW_DAYS = 2
@@ -60,35 +60,6 @@ export const REDDIT_USER_FEEDS: RedditUserFeedConfig[] = [
 /** How a feed is named in logs and alerts: `u/name` or the site's name. */
 export function feedSourceLabel(source: UserFeedSource): string {
   return source.kind === 'reddit' ? `u/${source.username}` : source.name
-}
-
-function getEasternParts(ms: number): Record<string, number> {
-  const parts = new Intl.DateTimeFormat('en-US', {
-    timeZone: EASTERN_TZ,
-    year: 'numeric',
-    month: 'numeric',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
-    second: 'numeric',
-    hourCycle: 'h23',
-  }).formatToParts(new Date(ms))
-  const result: Record<string, number> = {}
-  for (const part of parts) {
-    if (part.type !== 'literal') {
-      result[part.type] = Number(part.value)
-    }
-  }
-  return result
-}
-
-function getEasternMidnight(year: number, month: number, day: number): Date {
-  const utcMidnight = Date.UTC(year, month - 1, day)
-  const p = getEasternParts(utcMidnight)
-  const offsetMs =
-    Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second) -
-    utcMidnight
-  return new Date(utcMidnight - offsetMs)
 }
 
 /** Start (Eastern midnight) of the feed's current posting window, or null outside it. */

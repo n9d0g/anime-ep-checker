@@ -295,7 +295,15 @@ To avoid Reddit rate limits, the Actions gate (`src/should-run.ts`) only polls a
 
 A site's ranking post alert shows its **ranking chart** as the embed image: the checker reads the article and takes its first content image (`findRankingChartUrl` in `src/site-feed.ts`). If the chart can't be found, the alert goes out without it. A **Reddit discussion** button opens an r/anime search for the source and season (e.g. `Anime Corner Fall 2026`, newest first), so you can reach the thread without the checker reading Reddit.
 
-u/Abysswatcherbel's karma ranking used to be watched here too. It was retired because their charts are only on Reddit, which blocks logged-out reads.
+u/Abysswatcherbel's karma ranking used to be watched here too. It was retired because their charts are only on Reddit, which blocks logged-out reads; the **karma ranking** alert below replaces it.
+
+### Karma ranking alerts
+
+Every **Sunday evening (Eastern)** the checker posts the week's **karma ranking**: the r/anime Top 10 episode discussions by karma, as a text list. Each row gives the rank, show and episode, karma and comment count, and links to that episode's r/anime discussion thread. The data comes from [AnimeKarmaList](https://animekarmalist.com/)'s public API (`/api/episodes?start=…&end=…&offset=0`, ISO 8601 dates; `offset` is a page index of 15 episodes sorted by karma, so the first page holds the Top 10). Karma is live, read when the alert goes out, not u/Abysswatcherbel's fixed 48-hour snapshot. An **Abysswatcherbel's ranking** button opens an r/anime search for u/Abysswatcherbel's posts (newest first), so you can look up their ranking chart yourself. The checker never fetches Reddit.
+
+- **Week covered:** Monday 00:00 to the following Monday 00:00 Eastern, i.e. the week ending the Sunday it's sent. Sunday's threads have had only hours to collect karma, so they rank lower than they will end up.
+- **When:** due from Sunday **20:00 Eastern** through the end of Monday (a grace day). The gate runs a full check every 30 minutes in that window until the week is sent; a failed or empty fetch is retried at the next one. Once sent, the week is recorded under `state.meta.karmaRanking` (`weekEnding`, `sentAt`) and not sent again.
+- **Webhook fallback:** without the bot, the ranking goes out as the same embed with the search link at the end of the list (webhooks can't send buttons).
 
 ### Discord episode alerts (`#anime-alerts`)
 
@@ -395,6 +403,7 @@ Shows your MAL plan-to-watch list from `state.meta.planToWatch`, grouped into **
 | [`src/mal-score.ts`](src/mal-score.ts)                                         | MAL score spike/tank detection                                                                                |
 | [`src/plan-to-watch.ts`](src/plan-to-watch.ts)                                 | MAL plan-to-watch airing alerts                                                                               |
 | [`src/related-anime.ts`](src/related-anime.ts)                                 | Weekly MAL related anime (sequel etc.) alerts                                                                 |
+| [`src/karma-ranking.ts`](src/karma-ranking.ts)                                 | Weekly r/anime karma ranking alert (AnimeKarmaList)                                                           |
 | [`src/should-run.ts`](src/should-run.ts)                                       | Cheap gate for Actions (sparse checkout, no package install)                                                  |
 | [`admin/`](admin/)                                                             | Cloudflare CMS (vinext)                                                                                       |
 | [`.github/workflows/check-episodes.yml`](.github/workflows/check-episodes.yml) | Gate + full episode check (`schedule`, `workflow_dispatch`, or external cron)                                 |

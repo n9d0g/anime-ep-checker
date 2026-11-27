@@ -174,6 +174,12 @@ export interface StateFile {
     returnCheckedAt?: string | null
     /** Show ID -> the last return announcement alerted. */
     returnAnnouncements?: Record<string, ReturnAnnouncement>
+    /** The last weekly karma ranking sent (see shared/karma-ranking.ts). */
+    karmaRanking?: {
+      /** The covered week's Sunday, YYYY-MM-DD (Eastern). */
+      weekEnding: string
+      sentAt: string
+    }
     redditUserFeeds?: Record<
       string,
       {
