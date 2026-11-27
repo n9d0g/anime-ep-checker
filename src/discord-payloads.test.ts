@@ -11,6 +11,7 @@ import {
   sendAnnouncedBreakAlert,
   sendDisneyAuthAlert,
   sendEpisodeAlert,
+  sendKarmaRankingAlert,
   sendMalRateLimitAlert,
   sendMalScoreAlert,
   sendMalStatusAlert,
@@ -515,6 +516,48 @@ for (const [path, discord] of Object.entries(CONFIGS)) {
         'https://www.reddit.com/r/anime/search/?q=Example+Fall+2026&restrict_sr=on&sort=new',
     })
     check(`Site ranking post with chart (${path})`)
+  })
+
+  test(`Karma ranking (${path})`, async () => {
+    await sendKarmaRankingAlert({
+      discord,
+      week: { weekEnding: '2026-11-22' },
+      entries: [
+        {
+          title: 'The Apothecary Diaries Season 3',
+          episodeNumber: 8,
+          karma: 1720,
+          commentCount: 544,
+          threadUrl:
+            'https://www.reddit.com/r/anime/comments/1y15omu/the_apothecary_diaries/',
+        },
+        {
+          title: 'Show [with] brackets',
+          episodeNumber: 12,
+          karma: 402,
+          commentCount: 38,
+          threadUrl: 'https://www.reddit.com/r/anime/comments/abc123/show/',
+        },
+      ],
+    })
+    check(`Karma ranking (${path})`)
+  })
+
+  test(`Karma ranking across months (${path})`, async () => {
+    await sendKarmaRankingAlert({
+      discord,
+      week: { weekEnding: '2026-12-06' },
+      entries: [
+        {
+          title: 'Frieren',
+          episodeNumber: 9,
+          karma: 2100,
+          commentCount: 1234,
+          threadUrl: 'https://www.reddit.com/r/anime/comments/def456/frieren/',
+        },
+      ],
+    })
+    check(`Karma ranking across months (${path})`)
   })
 
   test(`Site feed error (${path})`, async () => {

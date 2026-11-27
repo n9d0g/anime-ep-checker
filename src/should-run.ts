@@ -16,6 +16,10 @@ import {
 } from '../shared/reddit-feeds.ts'
 import { isAnnouncementCheckDue } from '../shared/announced-break.ts'
 import {
+  getPendingKarmaRankingWeek,
+  isKarmaRankingPollSlot,
+} from '../shared/karma-ranking.ts'
+import {
   getDropWindowMode,
   getNextDrop,
   hasOrphanedShows,
@@ -159,6 +163,14 @@ export async function decideGate({
     reasons.push('Announced-break check is due for at least one show.')
   }
 
+  // Sunday from 20:00 through Monday (Eastern), every 30 minutes until sent.
+  const karmaRanking =
+    getPendingKarmaRankingWeek(state, now) !== null &&
+    isKarmaRankingPollSlot(now)
+  if (karmaRanking) {
+    reasons.push('Karma ranking is due (weekly, Sunday evenings).')
+  }
+
   const hasOrphans = hasOrphanedShows(shows, state)
   if (hasOrphans) {
     reasons.push('Removed show still present in state; running cleanup.')
@@ -176,6 +188,7 @@ export async function decideGate({
       needsRelatedCheck ||
       returnCheck ||
       announcementCheck ||
+      karmaRanking ||
       hasOrphans ||
       redditCheck,
     redditCheck,
@@ -220,7 +233,7 @@ async function main(): Promise<void> {
     }
   } else {
     console.log(
-      'No shows in their drop window, plan-to-watch/related/return/announcement checks not due, and no new Reddit posts; skipping full check.'
+      'No shows in their drop window, plan-to-watch/related/return/announcement checks and karma ranking not due, and no new Reddit posts; skipping full check.'
     )
   }
 }

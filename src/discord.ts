@@ -20,6 +20,9 @@ import type {
 import { formatEasternTime } from './time.ts'
 import type { UserFeedSource } from '../shared/reddit-feeds.ts'
 import { getEpisodeLabelParts } from '../shared/episode-code.ts'
+import type { KarmaRankingWeek } from '../shared/karma-ranking.ts'
+import { buildKarmaRankingPostSearchUrl } from '../shared/reddit.ts'
+import type { KarmaRankingEntry } from './karma-ranking.ts'
 import { getShowWatchUrl, providerLabel } from '../shared/shows.ts'
 import type { EpisodeSnapshot, TimingStatus } from './types.ts'
 import type {
@@ -371,6 +374,88 @@ export async function sendRedditPostAlert({
         ],
       }
     : undefined
+
+  await deliverDiscordMessage(discord, payload, {
+    components,
+    webhookPayload,
+  })
+}
+
+const ANIME_KARMA_LIST_URL = 'https://animekarmalist.com/'
+
+/** "Nov 16–22" or "Nov 30 – Dec 6" for the Monday–Sunday week. */
+function formatKarmaRankingWeek(weekEnding: string): string {
+  const sunday = new Date(`${weekEnding}T00:00:00Z`)
+  const monday = new Date(sunday.getTime() - 6 * 24 * 60 * 60 * 1000)
+  const month = (date: Date) =>
+    date.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' })
+  return month(monday) === month(sunday)
+    ? `${month(monday)} ${monday.getUTCDate()}–${sunday.getUTCDate()}`
+    : `${month(monday)} ${monday.getUTCDate()} – ${month(sunday)} ${sunday.getUTCDate()}`
+}
+
+function escapeMarkdownLinkText(text: string): string {
+  return text.replace(/[[\]\\*_~`|]/g, (char) => `\\${char}`)
+}
+
+/** One ranking row: rank, show and episode (linking its r/anime thread), karma, comments. */
+function formatKarmaRankingRow(
+  entry: KarmaRankingEntry,
+  index: number
+): string {
+  const label = escapeMarkdownLinkText(
+    `${entry.title} — Episode ${entry.episodeNumber}`
+  )
+  const karma = entry.karma.toLocaleString('en-US')
+  const comments = entry.commentCount.toLocaleString('en-US')
+  return `**${index + 1}.** [${label}](${entry.threadUrl}) · ${karma} karma · ${comments} comments`
+}
+
+/**
+ * The weekly karma ranking: the r/anime Top 10 episode discussions by live
+ * karma (AnimeKarmaList), each row linking its thread, plus an r/anime search
+ * for u/Abysswatcherbel's ranking post.
+ */
+export async function sendKarmaRankingAlert({
+  discord,
+  week,
+  entries,
+}: {
+  discord: DiscordConfig
+  week: Pick<KarmaRankingWeek, 'weekEnding'>
+  entries: KarmaRankingEntry[]
+}): Promise<void> {
+  const weekLabel = formatKarmaRankingWeek(week.weekEnding)
+  const searchUrl = buildKarmaRankingPostSearchUrl()
+  const rows = entries.map(formatKarmaRankingRow).join('\n')
+  const embed = {
+    title: `r/anime Karma Ranking — ${weekLabel}`,
+    url: ANIME_KARMA_LIST_URL,
+    description: rows,
+    color: 0xff4500,
+    timestamp: new Date().toISOString(),
+    footer: discordFooter('Karma from AnimeKarmaList'),
+  }
+  const payload = {
+    content: `**r/anime Karma Ranking** — Top ${entries.length} for ${weekLabel}`,
+    embeds: [embed],
+  }
+
+  const components = discordLinkButtonRow([
+    discordLinkButton('AnimeKarmaList', ANIME_KARMA_LIST_URL),
+    discordLinkButton("Abysswatcherbel's ranking", searchUrl),
+  ])
+
+  // Webhooks can't send buttons, so the search link goes in the text.
+  const webhookPayload = {
+    ...payload,
+    embeds: [
+      {
+        ...embed,
+        description: `${rows}\n\n[Abysswatcherbel's ranking post on r/anime](${searchUrl})`,
+      },
+    ],
+  }
 
   await deliverDiscordMessage(discord, payload, {
     components,

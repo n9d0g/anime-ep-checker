@@ -5,6 +5,7 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import type { RedditUserFetchResult } from './reddit.ts'
 import { decideGate } from './should-run.ts'
+import { getDueKarmaRankingWeek } from '../shared/karma-ranking.ts'
 import { feedSourceLabel, type UserFeedSource } from '../shared/reddit-feeds.ts'
 import type { Show, ShowSchedule, StateFile } from '../shared/types.ts'
 
@@ -35,6 +36,14 @@ function makeShow(schedule: Partial<ShowSchedule> = {}): Show {
   }
 }
 
+/** This week's karma ranking, already sent when one is due. */
+function sentKarmaRanking(now: string): StateFile['meta'] {
+  const week = getDueKarmaRankingWeek(new Date(now))
+  return week
+    ? { karmaRanking: { weekEnding: week.weekEnding, sentAt: now } }
+    : {}
+}
+
 /** State where nothing but the case under test is due. */
 function makeState(
   now: string,
@@ -54,6 +63,7 @@ function makeState(
         new Date(now).getTime() - 60 * 60 * 1000
       ).toISOString(),
       redditUserFeeds: FEEDS,
+      ...sentKarmaRanking(now),
       ...meta,
     },
   }
@@ -285,6 +295,50 @@ test('gate runs the related anime check once on Sundays', async () => {
     makeState(now, {}, { relatedAnimeCheckedAt: '2026-10-25T05:00:00.000Z' })
   )
   assert.equal(done.shouldCheck, false)
+})
+
+test('gate runs the karma ranking from Sunday 20:00 Eastern, every 30 minutes, until sent', async () => {
+  // Sunday 2026-11-22 (EST, UTC-5); the related anime check is already done.
+  const related = {
+    relatedAnimeCheckedAt: '2026-11-22T06:00:00.000Z',
+    karmaRanking: undefined,
+  }
+  const cases: [now: string, shouldCheck: boolean][] = [
+    ['2026-11-22T21:00:00.000Z', false], // Sunday 16:00 Eastern
+    ['2026-11-23T00:55:00.000Z', false], // Sunday 19:55
+    ['2026-11-23T01:00:00.000Z', true], // Sunday 20:00
+    ['2026-11-23T01:05:00.000Z', false], // between retry slots
+    ['2026-11-23T01:30:00.000Z', true],
+    ['2026-11-23T20:00:00.000Z', true], // Monday grace day
+    ['2026-11-24T05:00:00.000Z', false], // Tuesday 00:00
+  ]
+  for (const [now, shouldCheck] of cases) {
+    const result = await decide(now, [], makeState(now, {}, related))
+    assert.equal(result.shouldCheck, shouldCheck, now)
+    if (shouldCheck) {
+      assert.deepEqual(result.reasons, [
+        'Karma ranking is due (weekly, Sunday evenings).',
+      ])
+    }
+  }
+
+  const now = '2026-11-23T01:30:00.000Z'
+  const sent = await decide(
+    now,
+    [],
+    makeState(
+      now,
+      {},
+      {
+        ...related,
+        karmaRanking: {
+          weekEnding: '2026-11-22',
+          sentAt: '2026-11-23T01:00:00.000Z',
+        },
+      }
+    )
+  )
+  assert.equal(sent.shouldCheck, false)
 })
 
 test('gate runs to clean up a removed show', async () => {
