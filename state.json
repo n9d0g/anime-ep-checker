@@ -84,7 +84,7 @@
         }
       },
       "airingSchedule": {
-        "fetchedAt": "2026-11-26T08:25:40.604Z",
+        "fetchedAt": "2026-11-27T07:35:40.123Z",
         "episodes": {
           "1": "2026-10-04T07:30:00.000Z",
           "2": "2026-10-11T07:30:00.000Z",
@@ -102,7 +102,7 @@
       },
       "lastSnapshotEpisode": 7,
       "officialSiteUrl": "https://aonohako-anime.com/",
-      "announcementCheckedAt": "2026-11-26T08:30:53.392Z",
+      "announcementCheckedAt": "2026-11-27T07:35:40.123Z",
       "announcementReadAt": "2026-11-26T08:30:53.392Z"
     }
   },
