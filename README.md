@@ -287,12 +287,15 @@ The checker polls selected Reddit accounts, and sites' RSS feeds, and posts to t
 2. Copy the string under the app name → `REDDIT_CLIENT_ID`; copy **secret** → `REDDIT_CLIENT_SECRET`.
 3. Add both as GitHub Actions secrets (gate + check jobs).
 
-| Account                                                           | Filter                                               |
-| ----------------------------------------------------------------- | ---------------------------------------------------- |
-| [Anime Corner](https://animecorner.me/feed/) (site RSS)           | Titles containing `Rankings` (weekly anime rankings) |
-| [u/Abysswatcherbel](https://www.reddit.com/user/Abysswatcherbel/) | All posts (weekly r/anime karma ranking threads)     |
+| Account                                                 | Filter                                               |
+| ------------------------------------------------------- | ---------------------------------------------------- |
+| [Anime Corner](https://animecorner.me/feed/) (site RSS) | Titles containing `Rankings` (weekly anime rankings) |
 
-To avoid Reddit rate limits, the Actions gate (`src/should-run.ts`) only polls a feed during its posting window — the account's usual posting day plus the following day as a grace period (Eastern time: Fridays for Anime Corner, Sundays for u/Abysswatcherbel) — every 15 minutes, and stops for the rest of the window once a post published in it has been seen (`lastPostPublishedAt`). Posts made outside the window are picked up at the next window. The full check only fetches Reddit when the gate asked for it (`REDDIT_FEED_CHECK`) or on `--force`. A full check runs when a feed has no baseline in `state.json`, when a new matching post appears, or when fetches keep failing and the last successful check is stale (6+ hours, the same limit as the warning below). The first successful check **baselines** current posts without alerting; only newer posts notify afterward. If a feed cannot be fetched for 6+ hours after the last success (or after its window opened, whichever is later), the checker posts a one-time **Reddit user feed check failing** warning. Seen post IDs are stored under `state.meta.redditUserFeeds`.
+To avoid Reddit rate limits, the Actions gate (`src/should-run.ts`) only polls a feed during its posting window — the account's usual posting day plus the following day as a grace period (Eastern time: Fridays for Anime Corner) — every 15 minutes, and stops for the rest of the window once a post published in it has been seen (`lastPostPublishedAt`). Posts made outside the window are picked up at the next window. The full check only fetches Reddit when the gate asked for it (`REDDIT_FEED_CHECK`) or on `--force`. A full check runs when a feed has no baseline in `state.json`, when a new matching post appears, or when fetches keep failing and the last successful check is stale (6+ hours, the same limit as the warning below). The first successful check **baselines** current posts without alerting; only newer posts notify afterward. If a feed cannot be fetched for 6+ hours after the last success (or after its window opened, whichever is later), the checker posts a one-time **Reddit user feed check failing** warning. Seen post IDs are stored under `state.meta.redditUserFeeds`.
+
+A site's ranking post alert shows its **ranking chart** as the embed image: the checker reads the article and takes its first content image (`findRankingChartUrl` in `src/site-feed.ts`). If the chart can't be found, the alert goes out without it. A **Reddit discussion** button opens an r/anime search for the source and season (e.g. `Anime Corner Fall 2026`, newest first), so you can reach the thread without the checker reading Reddit.
+
+u/Abysswatcherbel's karma ranking used to be watched here too. It was retired because their charts are only on Reddit, which blocks logged-out reads.
 
 ### Discord episode alerts (`#anime-alerts`)
 

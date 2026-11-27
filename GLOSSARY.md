@@ -100,6 +100,20 @@ _Avoid_: News check, delay check
 News that a show awaiting return is coming back, possibly with only a rough time ("July 2027") and later with an exact date. It alerts once per new date and changes nothing until you restore the show to Watching.
 _Avoid_: Return date (unless the date is exact), resume notice
 
+### Rankings
+
+**Ranking post**:
+A weekly anime popularity ranking published by a source you follow: Anime Corner's Top 10 Anime of the Week, or Abysswatcherbel's karma ranking on r/anime.
+_Avoid_: Site post, Reddit post, user feed post
+
+**Ranking chart**:
+The image in a ranking post that shows the ranking itself.
+_Avoid_: Ranking image, cover, thumbnail
+
+**Karma ranking**:
+The week's r/anime episode discussions ranked by their karma, as tracked by AnimeKarmaList. Not Abysswatcherbel's ranking post, which reads karma at a fixed point after each thread opens.
+_Avoid_: Karma chart, Reddit ranking
+
 ### Admin
 
 **Account menu**:

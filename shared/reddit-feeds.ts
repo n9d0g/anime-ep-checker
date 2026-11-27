@@ -53,11 +53,8 @@ export const REDDIT_USER_FEEDS: RedditUserFeedConfig[] = [
     titlePattern: /\brankings?\b/i,
     postDays: [5],
   },
-  {
-    id: 'abysswatcherbel',
-    source: { kind: 'reddit', username: 'Abysswatcherbel' },
-    postDays: [0],
-  },
+  // u/Abysswatcherbel's karma ranking was retired: their charts are only on
+  // Reddit, which blocks logged-out reads.
 ]
 
 /** How a feed is named in logs and alerts: `u/name` or the site's name. */

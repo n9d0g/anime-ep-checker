@@ -46,3 +46,22 @@ export function buildAnimeDiscussionSearchUrl(
 
   return `https://www.reddit.com/r/anime/search/?${params.toString()}`
 }
+
+/**
+ * r/anime search for a ranking post's discussion thread: the source's name
+ * plus the season named in the post title (e.g. "Anime Corner Fall 2026"),
+ * newest first, so this week's thread is at the top.
+ */
+export function buildRankingDiscussionSearchUrl(
+  sourceName: string,
+  postTitle: string
+): string {
+  const season = postTitle.match(/\b(Winter|Spring|Summer|Fall)\s+(\d{4})\b/i)
+  const params = new URLSearchParams({
+    q: season ? `${sourceName} ${season[1]} ${season[2]}` : sourceName,
+    restrict_sr: 'on',
+    sort: 'new',
+  })
+
+  return `https://www.reddit.com/r/anime/search/?${params.toString()}`
+}

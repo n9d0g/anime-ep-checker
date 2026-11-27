@@ -497,6 +497,26 @@ for (const [path, discord] of Object.entries(CONFIGS)) {
     check(`Site feed post (${path})`)
   })
 
+  test(`Site ranking post with chart (${path})`, async () => {
+    await sendRedditPostAlert({
+      discord,
+      source: {
+        kind: 'rss',
+        url: 'https://example.com/feed/',
+        name: 'Example',
+      },
+      post: {
+        title: 'Fall 2026 Anime Rankings – Week 8',
+        href: 'https://example.com/rankings-week-8/',
+        subreddit: null,
+      },
+      chartUrl: 'https://example.com/chart.png',
+      discussionUrl:
+        'https://www.reddit.com/r/anime/search/?q=Example+Fall+2026&restrict_sr=on&sort=new',
+    })
+    check(`Site ranking post with chart (${path})`)
+  })
+
   test(`Site feed error (${path})`, async () => {
     await sendRedditFeedErrorAlert({
       discord,
